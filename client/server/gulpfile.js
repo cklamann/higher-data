@@ -9,11 +9,10 @@ gulp.task('typeScript', function () {
         .js.pipe(gulp.dest("dist"));
 });
 
-gulp.task('movePug', function() {
-  return gulp.src(['./views/**/*.pug'], { base: './' })
-  .pipe(gulp.dest('dist'));
+gulp.task('default', ['typeScript'], function() {
+
 });
 
-gulp.task('default', ['typeScript','movePug'], function() {
-
+gulp.task('watch', function(){
+	gulp.watch('src/**/*.ts', ['typeScript']);
 });
