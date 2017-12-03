@@ -15,11 +15,18 @@ export class AppComponent implements OnInit { //every component exports a class,
 	schmitle: string = 'papppppowwww';
 	rest: RestService;
 	data: Object = {res:''};
-	constructor(Rest: RestService) { //dependency injection, good for testing
+	//DI is a coding pattern in which a class receives its dependencies from external sources rather than creating them itself.
+	//this makes it much easier to test, since you can new up services on the fly and thus easily build up testing environments
+	constructor(Rest: RestService) {
 		this.rest = Rest;
 	}
 	ngOnInit(): void {
-		this.rest.fetch().subscribe(res => {
+		this.rest.get(`schools`).subscribe(res => {
+			this.data = res;
+			console.log(this.data);
+		});
+
+		this.rest.get(`schools/search?name=Northwestern`).subscribe(res => {
 			this.data = res;
 			console.log(this.data);
 		});

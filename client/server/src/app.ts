@@ -6,12 +6,19 @@ var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
+var fs = require('fs');
 
 var index = require('./routes/index');
 var users = require('./routes/users');
+var schools = require('./routes/schools');
 
 var app = express();
-app.use(logger('dev'));
+
+app.use(logger('common', {
+  stream: fs.createWriteStream(path.join(__dirname, 'access.log'), {flags: 'a'})
+}));
+
+
 app.use(cookieParser());
 
 
@@ -31,7 +38,8 @@ passport.serializeUser(Account.serializeUser());
 passport.deserializeUser(Account.deserializeUser());
 
 // mongoose
-mongoose.connect('mongodb://localhost/passport_local_mongoose_express4');
+//mongoose.connect('mongodb://localhost/passport_local_mongoose_express4');
+mongoose.connect('mongodb://localhost/colleges');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -41,6 +49,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
 app.use('/users', users);
+app.use('/schools', schools);
 
 // catch 404 and forward to error handler
 app.use(function(req: express.Request, res: express.Response, next: express.NextFunction) {

@@ -1,7 +1,7 @@
 import { Router, Response, Request, NextFunction } from "express";
 var router = Router(),
 	path = require("path"),
-	absPath = path.join(__dirname, "../public");
+	absPath = path.join(__dirname, "/public");
  
 // route to handle home page
 router.get('/', function(req, res, next) {

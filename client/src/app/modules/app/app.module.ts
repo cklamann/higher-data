@@ -5,11 +5,11 @@ import { AppComponent } from './tests/app.component';
 import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
-	//imports are modules, so you can selectively use the angular modules...
+	//imports are modules, so you can selectively load parts of the framework
 	imports: [BrowserModule,HttpClientModule],
 	declarations: [AppComponent], //list all components in the module
-	bootstrap: [AppComponent], // which component to start with
-	providers: [RestService] //module-wide providers
+	bootstrap: [AppComponent], // which component to bootstrap
+	providers: [RestService] // module-wide providers, still need to be imported in each component
 })
 
 export class AppModule { }
