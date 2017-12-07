@@ -1,3 +1,11 @@
-*
 
-1) start mongo with colleges only. Serve up the schools themselves, put them in the browser. Test API and modular system thataway.
+
+
+* for converting data to json, use split() function to split the dataframes by unitid and variable, then lapply over them. Should look like: [{unitid:99999, variable: somevar, data: [{year:2001,value:50}]},...]
+sort of helpful: https://stackoverflow.com/questions/39624452/converting-a-dataframe-to-nested-json-format
+
+also, jsonlite.toJSON(file, auto_unbox=T)
+
+auto_unbox will convert single array elements to string, as desired
+
+toJSON(list(head=1:3,toes=1:4,knees=list(right=list(hat="skinny",other="thick"),left=c("fat","short"))),auto_unbox = T)

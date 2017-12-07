@@ -44,7 +44,6 @@ mongoose.connect('mongodb://localhost/colleges');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
@@ -63,7 +62,6 @@ app.use(function(err: Error, req: express.Request, res: express.Response, next: 
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  // render the error page
 });
 
 module.exports = app;
