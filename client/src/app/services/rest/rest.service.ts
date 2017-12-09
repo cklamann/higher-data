@@ -10,11 +10,14 @@ export class RestService {
 	apiRoot: string;
 	dummyRoot: string;
 
-	constructor(private http: HttpClient) {
+	constructor(private http: HttpClient) { //injectables defined in constructor
 		this.apiRoot = environment.apiRoot;
-		this.dummyRoot = 'https://jsonplaceholder.typicode.com/';
+		this.dummyRoot = 'https://jsonplaceholder.typicode.com';
 	}
 
 	get(url:string): Observable<any> { return this.http.get(`${this.apiRoot}/${url}`);}
+
+	getDummy(url: string): Observable<any> { return this.http.get(`${this.dummyRoot}/${url}`); }
+
 
 }

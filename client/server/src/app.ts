@@ -12,6 +12,10 @@ var index = require('./routes/index');
 var users = require('./routes/users');
 var schools = require('./routes/schools');
 
+
+mongoose.set('debug', true);
+
+
 var app = express();
 
 app.use(logger('common', {
