@@ -1,0 +1,11 @@
+<form [formGroup]="searchForm" novalidate>
+    <mat-form-field>
+        <input type="text" matInput formControlName="searchText" [matAutocomplete]="auto"/>
+    </mat-form-field>
+    <!--export the autocomplete panel instance to a template variable and bind above-->
+    <mat-autocomplete #auto="matAutocomplete" (optionSelected)="doSomething($event)">
+        <mat-option *ngFor="let option of autocompleteResults" [value]="option">
+            {{ option.instnm }}
+        </mat-option>
+    </mat-autocomplete>
+</form>

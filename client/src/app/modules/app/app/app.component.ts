@@ -1,7 +1,7 @@
 //note that a component IS a directive -- a directive with a template
 //directives without templates are things like ngIf or ngModel
 import { Component, OnInit } from '@angular/core';
-import { School,SchoolModel } from '../../../models/School';
+import { Schools, School } from '../../../models/Schools';
 
 @Component({ //meta-data, telling angular about your class, can also list providers
 	selector: 'app-root', //element or class to assosicate with the directive
@@ -11,22 +11,19 @@ import { School,SchoolModel } from '../../../models/School';
 })
 export class AppComponent implements OnInit { //every component exports a class, this has one property
 	//type declarations -- static vars can be defined here
-	title: string = 'Schlapp';
+	title: string = 'Schools';
 	schmitle: string = 'papppppowwww';
-	searchResults: SchoolModel[];
-	School: School;
+	searchResults: School[];
+	Schools: Schools;
 	//DI is a coding pattern in which a class receives its dependencies from external sources rather than creating them itself.
 	//this makes it much easier to test, since you can new up services on the fly and thus easily build up testing environments
-	constructor(School:School) { //note the over-declarations... apparently only needed for componenets
-		this.School = School;
+	constructor(Schools: Schools) { //note the over-declarations... apparently only needed for componenets
+		this.Schools = Schools;
 	}
 
 	ngOnInit(): void {
-		this.School.search('Northwestern').subscribe(res => {
-			this.searchResults = res;
-			this.searchResults.forEach( school => console.log(school.getName()));
-		});
 
 	}
+
 
 }

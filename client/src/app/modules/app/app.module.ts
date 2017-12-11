@@ -1,16 +1,21 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { RestService } from '../../services/rest/rest.service';
-import { AppComponent } from './tests/app.component';
+import { AppComponent } from './app/app.component';
 import { HttpClientModule } from '@angular/common/http';
-import { School } from '../../models/School';
+import { Schools } from '../../models/Schools';
+import { SchoolSearchComponent } from './school-search/school-search.component';
+import { ReactiveFormsModule } from '@angular/forms'; 
+import { MatAutocompleteModule, MatFormFieldModule, MatOptionModule, MatInputModule} from '@angular/material';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
 
 @NgModule({
 	//imports are modules, so you can selectively load parts of the framework
-	imports: [BrowserModule,HttpClientModule],
-	declarations: [AppComponent], //list all components in the module
+	imports: [BrowserModule, HttpClientModule, ReactiveFormsModule, MatAutocompleteModule, MatFormFieldModule, MatOptionModule, MatInputModule, BrowserAnimationsModule],
+	declarations: [AppComponent, SchoolSearchComponent], //list all components in the module
 	bootstrap: [AppComponent], // which component to bootstrap
-	providers: [RestService,School] // module-wide providers, still need to be imported in each component
+	providers: [RestService,Schools] // module-wide providers, still need to be imported in each component
 })
 
 export class AppModule { }

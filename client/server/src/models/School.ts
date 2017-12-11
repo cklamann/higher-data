@@ -35,6 +35,6 @@ export let SchoolSchema = model<intSchoolModel>('school', schema);
 //note that docs say to avoid arrow functions when declaring statics, but i was
 //losing this binding anyway so why not
 SchoolSchema.schema.static('search', (name: string, cb: any) => {
-  return SchoolSchema.find({ instnm: { $regex: `${name}+.`, $options: 'i' } }, cb);
+  return SchoolSchema.find({ instnm: { $regex: `${name}+.`, $options: 'is'} }, cb).limit(25);
 });
 

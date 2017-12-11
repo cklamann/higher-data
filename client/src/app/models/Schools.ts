@@ -6,29 +6,29 @@ import 'rxjs/add/operator/map';
 
 //pattern here is public class w/ DI and therefore fake static methods,
 //since can't inject into a static class
-//model class with instance methods on it, should be private but need typings exposed...
+//model class wi"isntnm_text_description_text"th instance methods on it, should be private but need typings exposed...
+//of course, could always just not use class software
 
 @Injectable()
-export class School {
-
+export class Schools {
 	constructor(private rest: RestService) { }
 
 	fetch(id: number): Observable<intSchoolModel[]> {
 		return this.rest.get(`schools/${id}`);
 	}
 
-	search(name: string): Observable<SchoolModel[]> {
+	search(name: string): Observable<School[]> {
 		return this.rest.get(`schools/search?name=${name}`).map(res => {
 			return res.map(school => {
-				return new SchoolModel(school);
+				return new School(school);
 			});
 		});
 	}
 
 }
 
-export class SchoolModel {
-	instnm: string; //note that we need only type the public methods
+export class School {
+	private instnm: string;
 	constructor(obj: intSchoolModel) {
 		Object.assign(this, obj);
 	}
