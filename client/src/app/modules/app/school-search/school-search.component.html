@@ -3,8 +3,13 @@
         <input type="text" matInput formControlName="searchText" [matAutocomplete]="auto"/>
     </mat-form-field>
     <!--export the autocomplete panel instance to a template variable and bind above-->
-    <mat-autocomplete #auto="matAutocomplete" (optionSelected)="doSomething($event)">
-        <mat-option *ngFor="let option of autocompleteResults" [value]="option">
+    <!--instruct autocomplete to show school name, not whole object, on selection-->
+    <mat-autocomplete 
+    	#auto="matAutocomplete" 
+        [displayWith]="showSchoolName"
+    	placeholder="School Search">        
+        <mat-option *ngFor="let option of autocompleteResults" 
+        	[value]="option">
             {{ option.instnm }}
         </mat-option>
     </mat-autocomplete>

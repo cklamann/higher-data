@@ -4,7 +4,7 @@ import { Schools, School } from '../../../models/Schools';
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/map';
 
-//todo: export selected value into parent directive
+//todo: export selected model into parent directive
 
 @Component({
 	selector: 'app-school-search',
@@ -32,24 +32,16 @@ export class SchoolSearchComponent implements OnInit {
 
 	listenForSearchChanges(): void {
 		this.searchForm.valueChanges.debounceTime(500).subscribe(input => {
-			if (input.searchText.length>3 && input.searchText != this.searchTerm){
+			if (input.searchText.length > 3 && input.searchText != this.searchTerm) {
 				this.searchTerm = input.searchText;
 				this.Schools.search(`${input.searchText}`).subscribe(res => {
 					this.autocompleteResults = res;
 				});
-				this.searchForm
 			}
 		});
 	}
 
-	doSomething(event):void {
-		//overriding default behavior, which is to show object in input box (given current config)
-		//todo: disable this behavior altogether
-		this.searchForm.setValue({
-			searchText: event.option.value.instnm 
-		});
+	showSchoolName(school: School): any {
+		return school ? school.getName() : school;
 	}
-
-
-
 }

@@ -5,7 +5,6 @@ let mongoose = require("mongoose");
 let router = Router();
 let School = SchoolSchema;
 
-//todo: put text index on school name: https://docs.mongodb.com/manual/text-search/
 router.get('/search', function(req, res, next) {
 	School.schema.statics.search(req.query.name, (err: any, resp: intSchoolModel[]): Response => {
 		if (err) next(err);
