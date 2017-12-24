@@ -1,8 +1,39 @@
-<div style="text-align:center">
-    <!--todo: add nav menu, header directives-->
-    <h1>
-        Welcome to {{ title }}!
-    </h1>
-    <app-school-search></app-school-search>
-    <!--note the prepend of the module name to the component-->
+<div class = "outer-container" fxLayout="row" fxLayoutWrap fxLayoutAlign="center none"><!--margin here-->
+   <!--todo: add nav menu, header directives-->
+	<div class = "inner-container" fxFlex="95" fxLayoutWrap fxFlex.gt-sm="80" fxLayout="row">
+		<div class = "header" fxLayout = "column" fxFlex="grow" fxLayoutAlign="space-around center">
+		   	<h1 >
+		        Welcome to {{ title }}!
+			</h1>
+			<a href fxFlexAlign="start">admin login</a>
+	   	</div>
+		<div fxLayout="row" fxLayoutWrap fxFlex = "100" fxFlex.gt-sm="80" class = "chart-content"><!--chart stuff-->
+			<div fxLayout = "row" fxLayoutWrap fxFlex = "100"><!--controls row-->
+	        	<app-school-search fxFlex = "100" fxFlex.gt-sm="50"></app-school-search>
+    			<div fxFlex="100" fxFlex.gt-sm="50">Search for a chart here here here here here here same line should be breaking</div>
+   	 		<!--note the prepend of the module name to the component-->
+			</div>
+			<div fxLayoutWrap="row" fxFlex="100" class="chart-container-outer"><!--chart row-->
+				<div fxFlex = "100" fxFlex.gt-sm="75" class="chart-container-inner" style="height:300px;background-color: blue">
+				</div>
+				<div fxFlex = "100" fxFlex.gt-sm="25" class="legend-container">
+					<ul>
+						<li>Legend Item
+						</li>
+						<li>Legend Item
+						</li>
+						<li>Legend Item
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<div fxLayout = "row" fxFlex = "100" fxFlex.gt-sm="20" fxFlexAlign="start" class = "sidebar">
+			<div>Sidebar<div>
+			<div>Sidebar<div>
+			<div>Sidebar<div>
+			<div>Sidebar<div>
+			<div>Sidebar<div>
+		</div>
+	</div>
 </div>

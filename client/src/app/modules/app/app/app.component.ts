@@ -25,5 +25,4 @@ export class AppComponent implements OnInit { //every component exports a class,
 
 	}
 
-
 }

@@ -1,13 +1,12 @@
-<form [formGroup]="searchForm" novalidate>
-    <mat-form-field>
-        <input type="text" matInput formControlName="searchText" [matAutocomplete]="auto"/>
+<form [formGroup]="searchForm" novalidate flex>
+    <mat-form-field class = "school-search">
+        <input type="text" matInput formControlName="searchText" [matAutocomplete]="auto" placeholder="School Search"/>
     </mat-form-field>
     <!--export the autocomplete panel instance to a template variable and bind above-->
     <!--instruct autocomplete to show school name, not whole object, on selection-->
     <mat-autocomplete 
     	#auto="matAutocomplete" 
-        [displayWith]="showSchoolName"
-    	placeholder="School Search">        
+        [displayWith]="showSchoolName">        
         <mat-option *ngFor="let option of autocompleteResults" 
         	[value]="option">
             {{ option.instnm }}
