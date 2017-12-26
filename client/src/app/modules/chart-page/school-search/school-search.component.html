@@ -2,8 +2,6 @@
     <mat-form-field class = "school-search">
         <input type="text" matInput formControlName="searchText" [matAutocomplete]="auto" placeholder="School Search"/>
     </mat-form-field>
-    <!--export the autocomplete panel instance to a template variable and bind above-->
-    <!--instruct autocomplete to show school name, not whole object, on selection-->
     <mat-autocomplete 
     	#auto="matAutocomplete" 
         [displayWith]="showSchoolName">        

@@ -12,14 +12,12 @@ var index = require('./routes/index');
 var users = require('./routes/users');
 var schools = require('./routes/schools');
 
-
 mongoose.set('debug', true);
-
 
 var app = express();
 
 app.use(logger('common', {
-  stream: fs.createWriteStream(path.join(__dirname, 'access.log'), {flags: 'a'})
+	stream: fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' })
 }));
 
 
@@ -31,9 +29,9 @@ app.use(cookieParser());
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(require('express-session')({
-    secret: 'keyboard cat',
-    resave: false,
-    saveUninitialized: false
+	secret: 'keyboard cat',
+	resave: false,
+	saveUninitialized: false
 }));
 
 var Account = require('./models/Account');
@@ -51,21 +49,20 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
-app.use('/users', users);
-app.use('/schools', schools);
+app.use('/api/users', users);
+app.use('/api/schools', schools);
 
-// catch 404 and forward to error handler
-app.use(function(req: express.Request, res: express.Response, next: express.NextFunction) {
-  var err = new Error('Not Found');
-  next(err);
+//route all traffic from the app to index for router to handle...
+app.use(function(req, res, next) {
+	if (req.path.match(/\/api\/.+/)) {
+		res.status(404).send('Sorry, we couldn\'t find that!');
+		//let err = new Error('Not Found');
+		//next(err); //note -- this will show stack trace
+	} else {
+		res.redirect('/');
+	}
 });
 
-// error handler
-app.use(function(err: Error, req: express.Request, res: express.Response, next: express.NextFunction) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-});
 
 module.exports = app;

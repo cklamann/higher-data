@@ -5,5 +5,5 @@
 
 export const environment = {
   production: false,
-  apiRoot: this.apiRoot = 'http://localhost:3001'
+  apiRoot: this.apiRoot = 'http://localhost:3001/api'
 };
