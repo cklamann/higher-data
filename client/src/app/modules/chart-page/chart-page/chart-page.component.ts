@@ -10,9 +10,8 @@ import { Schools, School } from '../../../models/Schools';
 	//if providers are listed here, they will be unique for each component instance
 })
 export class ChartPageComponent implements OnInit { //every component exports a class, this has one property
-	//type declarations -- static vars can be defined here
+	//type declarations -- static vars can be defined here as well
 	title: string = 'Schools';
-	schmitle: string = 'papppppowwww';
 	searchResults: School[];
 	Schools: Schools;
 	//DI is a coding pattern in which a class receives its dependencies from external sources rather than creating them itself.

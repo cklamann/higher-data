@@ -1,16 +1,28 @@
-* for converting data to json, use split() function to split the dataframes by unitid and variable, then lapply over them. Should look like: [{unitid:99999, variable: somevar, data: [{year:2001,value:50}]},...]
-sort of helpful: https://stackoverflow.com/questions/39624452/converting-a-dataframe-to-nested-json-format
+---front end---
 
-also, jsonlite.toJSON(file, auto_unbox=T)
+router works only internally, i.e., with links that use routerlinks
 
-auto_unbox will convert single array elements to string, as desired
+need to solve for when users come via an external link:
 
-toJSON(list(head=1:3,toes=1:4,knees=list(right=list(hat="skinny",other="thick"),left=c("fat","short"))),auto_unbox = T)
+1) hit backend
+2) return app
+3) store url in session/local storage
+4) once app is loaded, link to that url, show page
 
-how to upload? mongoimport --db colleges --collection chart_data --drop --file ~/Desktop/trendsDump.json --jsonArray
+
+
+---back end---
+
+
+
+---database---
+
+how to upload from R? mongoimport --db colleges --collection chart_data --drop --file ~/Desktop/trendsDump.json --jsonArray
 
 #query a subset of data in mongo: 
 
 db.chart_data.find({opeid:{$eq:"147767"},"data.variable":{$eq:"room_and_board"}})
 
 rename: -> db.chart_data.updateMany({}, {$rename: {"opeid": "unitid"}})
+
+
