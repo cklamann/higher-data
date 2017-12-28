@@ -1,0 +1,14 @@
+app-header{
+	.main-nav {
+        position: fixed;
+        z-index: 2;
+        background-color: white;
+        :hover {
+            color: currentColor;
+            text-decoration: none;
+        }
+    }
+	h1{
+		font-size:2.5rem;
+	}
+}

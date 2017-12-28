@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { ChartPageComponent } from '../chart-page/chart-page/chart-page.component';
-import { AdminPageComponent } from '../admin/admin-page/admin-page.component';	
+import { ChartPageComponent } from '../chart-page/chart-page.component';
+import { AdminPageComponent } from '../admin-page/admin-page.component';	
 
 //see: https://blog.angular-university.io/angular2-router/
 

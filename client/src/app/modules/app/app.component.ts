@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Schools, School } from '../../../models/Schools';
-import { HeaderComponent } from '../../global-layout/header/header.component';
+import { Schools, School } from '../../models/Schools';
+import { HeaderComponent } from '../global-layout/header/header.component';
 
 @Component({ 
 	selector: 'app-root', 

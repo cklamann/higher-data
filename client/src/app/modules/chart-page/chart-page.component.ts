@@ -1,7 +1,7 @@
 //note that a component IS a directive -- a directive with a template
 //directives without templates are things like ngIf or ngModel
 import { Component, OnInit } from '@angular/core';
-import { Schools, School } from '../../../models/Schools';
+import { Schools, School } from '../../models/Schools';
 
 @Component({ //meta-data, telling angular about your class, can also list providers
 	selector: 'chart-page', //element or class to assosicate with the directive
