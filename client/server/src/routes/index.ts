@@ -1,5 +1,5 @@
 import { Router, Response, Request, NextFunction } from "express";
-var router = Router(),
+let router = Router(),
 	path = require("path"),
 	absPath = path.join(__dirname, "/public");
  

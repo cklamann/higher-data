@@ -8,11 +8,17 @@ import { Observable } from 'rxjs';
 export class RestService {
 
 	apiRoot: string;
-	dummyRoot: string;
 
-	constructor(private http: HttpClient) { //injectables defined in constructor on non-components (?)
+	constructor(private http: HttpClient) {
 		this.apiRoot = environment.apiRoot;
 	}
 
-	get(url:string): Observable<any> { return this.http.get(`${this.apiRoot}/${url}`);}
+	get(url: string): Observable<any> {
+		return this.http.get(`${this.apiRoot}/${url}`);
+	}
+
+	post(url: string, args: object): Observable<any> {
+		let params = Object.assign({}, args);
+		return this.http.post(`${this.apiRoot}/${url}`,params);
+	}
 }
