@@ -42,9 +42,11 @@ mongoose.connect('mongodb://localhost/colleges');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
+app.use('/', index);
+
+//for serving whatever static assets
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', index);
 app.use('/api/users', users);
 app.use('/api/schools', schools);
 
@@ -52,7 +54,8 @@ app.use(function(req, res, next) {
 	if (req.path.match(/\/api\/.+/)) {
 		res.sendStatus(404);
 	} else {
-		res.redirect('/');
+		res.cookie("redirect", req.path);
+		res.redirect('/index.html');
 	}
 });
 
