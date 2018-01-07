@@ -1,5 +1,5 @@
 import express = require('express');
-import { UserSchema, intUserModel } from './models/User'; //note this brings in types and model... //yeah, import is typescript command
+import { UserSchema, intUserModel } from './models/User'; 
 import path = require('path');
 const logger = require('morgan'); //need to get types for this...
 const cookieParser = require('cookie-parser');
@@ -24,7 +24,6 @@ app.use(logger('common', {
 
 app.use(cookieParser());
 
-// passport config
 app.use(passport.initialize());
 
 passport.use(new BasicStrategy(
@@ -51,7 +50,7 @@ app.use('/api/schools', schools);
 
 app.use(function(req, res, next) {
 	if (req.path.match(/\/api\/.+/)) {
-		res.status(404).send('Sorry, we couldn\'t find that!');
+		res.sendStatus(404);
 	} else {
 		res.redirect('/');
 	}

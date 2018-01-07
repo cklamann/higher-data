@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 
 
 @Injectable()
-export class RestService {
+export class RestService{
 
 	apiRoot: string;
 

@@ -1,8 +1,5 @@
 import { model, Schema, Document, Model } from 'mongoose';
-//import mongoose = require('mongoose'); //note that import brings in types and functions
-//or import * as mongoose from 'mongoose' will bring in everything (will need to use alias
-// to access anything, i.e, let schema =  mongoose.Schema) which is fine and you see all over
-//place and might be better
+
 export let ObjectId = Schema.Types.ObjectId;
 
 export interface intSchoolModel extends Document {
@@ -15,7 +12,10 @@ export interface intSchoolModel extends Document {
   locale: string;
   hbcu: string;
   slug: string;
+  data: any;
 };
+
+//todo: fill out data
 
 let schema: Schema = new Schema({
   id: ObjectId,
@@ -28,13 +28,19 @@ let schema: Schema = new Schema({
   locale: String,
   hbcu: String,
   slug: String,
+  data: Array
 });
+
+//todo: trim all values that come out of data
 
 export let SchoolSchema = model<intSchoolModel>('school', schema);
 
 //note that docs say to avoid arrow functions when declaring statics, but i was
 //losing this binding anyway so why not
 SchoolSchema.schema.static('search', (name: string, cb: any) => {
-  return SchoolSchema.find({ instnm: { $regex: `${name}+.`, $options: 'is'} }, cb).limit(25);
+  return SchoolSchema.find({ instnm: { $regex: `${name}+.`, $options: 'is'} }, cb).limit(25).select('-data');
 });
 
+//todo: add more methods for: 
+//1. return many schools with 1 variable with optional filters on school type [throttle at 200, give offset]
+//2. return 1 school with many variables with optional filters on school type

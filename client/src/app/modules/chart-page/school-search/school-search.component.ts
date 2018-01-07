@@ -21,7 +21,7 @@ export class SchoolSearchComponent implements OnInit {
 	}
 
 	ngOnInit() {
-		this.listenForSearchChanges(); //register even
+		this.listenForSearchChanges(); 
 	}
 
 	createForm() {

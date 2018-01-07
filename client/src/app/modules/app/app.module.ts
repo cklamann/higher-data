@@ -7,13 +7,21 @@ import { GlobalLayoutModule } from '../global-layout/global-layout.module'
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { AdminPageModule } from '../admin-page/admin-page.module';
 import { ChartPageModule } from '../chart-page/chart-page.module';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
+import { InterceptService } from '../../services/intercept/intercept.service';
+import { AuthService } from '../../services/auth/auth.service'
 
 @NgModule({
 	//imports will be available to all components in module 
-	imports: [BrowserModule, BrowserAnimationsModule, AppRoutingModule, ChartPageModule, AdminPageModule, GlobalLayoutModule,FlexLayoutModule],
+	imports: [BrowserModule, BrowserAnimationsModule, AppRoutingModule, ChartPageModule, AdminPageModule, GlobalLayoutModule, FlexLayoutModule, HttpClientModule],
 	declarations: [AppComponent], //list all components in the module
 	bootstrap: [AppComponent],
-	providers: []
+	providers: [{
+		provide: HTTP_INTERCEPTORS,
+		useClass: InterceptService,
+		multi: true
+	},
+		AuthService]
 })
 
 export class AppModule { }

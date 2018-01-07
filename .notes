@@ -1,19 +1,20 @@
 ---front end---
 
-router works only internally, i.e., with links that use routerlinks
+todo: build FE authentication
 
 need to solve for when users come via an external link:
 
 1) hit backend
-2) return app
-3) store url in session/local storage
+2) return app and referer url
 4) once app is loaded, link to that url, show page
 
-
+front end should also have some good utilities -- should be able to get some basic intelligence on the data -- how much is there, how does it break down per school and per year? That way you can quickly check to see if any update went wrong.
 
 ---back end---
 
+create variable collection with documentation for each variable in collection, update via front end. Only a documented variable can be used in a chart.
 
+create chart collection that contains formulas that be will parse, get data, compute, and send
 
 ---database---
 
@@ -24,5 +25,3 @@ how to upload from R? mongoimport --db colleges --collection chart_data --drop -
 db.chart_data.find({opeid:{$eq:"147767"},"data.variable":{$eq:"room_and_board"}})
 
 rename: -> db.chart_data.updateMany({}, {$rename: {"opeid": "unitid"}})
-
-

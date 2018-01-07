@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { intUserModel } from '../../../server/src/models/User';
 import { RestService } from '../services/rest/rest.service';
 import { Observable } from 'rxjs';
+import 'rxjs/add/observable/throw';
+
 
 @Injectable()
 export class Users {
@@ -10,21 +12,9 @@ export class Users {
 	fetch(id: number): Observable<intUserModel[]> {
 		return this.rest.get(`users/${id}`);
 	}
-
-	login(email: string, password: string): User | any {
-		return this.rest.post(`users/login`, { email: email, password: password })
-			.map(res => {
-				//if success
-				return new User(res);
-				//if no 
-				return res;
-			});
-	}
-
 }
-
+//not sure we need a whole model here?
 export class User {
-	private email: string;
 	constructor(obj: intUserModel) {
 		Object.assign(this, obj);
 	}

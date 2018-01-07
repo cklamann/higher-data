@@ -147,3 +147,12 @@
 ::ffff:127.0.0.1 - - [02/Jan/2018:23:19:24 +0000] "POST /api/users HTTP/1.1" 200 106
 ::ffff:127.0.0.1 - - [02/Jan/2018:23:19:24 +0000] "POST /api/users/login HTTP/1.1" 200 106
 ::ffff:127.0.0.1 - - [02/Jan/2018:23:19:24 +0000] "DELETE /api/users HTTP/1.1" 200 27
+::ffff:127.0.0.1 - - [04/Jan/2018:00:36:59 +0000] "POST /api/users HTTP/1.1" 200 106
+::ffff:127.0.0.1 - - [04/Jan/2018:00:36:59 +0000] "POST /api/users/login HTTP/1.1" 200 122
+::ffff:127.0.0.1 - - [04/Jan/2018:00:36:59 +0000] "DELETE /api/users HTTP/1.1" 200 27
+::ffff:127.0.0.1 - - [04/Jan/2018:00:40:20 +0000] "POST /api/users HTTP/1.1" 200 106
+::ffff:127.0.0.1 - - [04/Jan/2018:00:40:20 +0000] "POST /api/users/login HTTP/1.1" 200 106
+::ffff:127.0.0.1 - - [04/Jan/2018:00:40:20 +0000] "DELETE /api/users HTTP/1.1" 200 27
+::ffff:127.0.0.1 - - [06/Jan/2018:20:51:33 +0000] "POST /api/users HTTP/1.1" 200 106
+::ffff:127.0.0.1 - - [06/Jan/2018:20:51:33 +0000] "POST /api/users/login HTTP/1.1" 200 106
+::ffff:127.0.0.1 - - [06/Jan/2018:20:51:33 +0000] "DELETE /api/users HTTP/1.1" 200 27

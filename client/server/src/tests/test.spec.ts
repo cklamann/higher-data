@@ -32,6 +32,8 @@ const username = 'test',
 
 //blueprints for api route tests
 
+//todo: use `agent` to login, then access protected resource
+
 describe("REGISTER", () => {
 	it('Post should return status 200', done => {
 		connection.post('/api/users')
@@ -39,6 +41,7 @@ describe("REGISTER", () => {
 			.end((err, res) => {
 				expect(res).to.have.status(200);
 				expect(res.body.password).to.be.a('string');
+				expect(res.body.username).to.be.a('string');
 				done();
 			});
 	});
@@ -51,6 +54,7 @@ describe("LOGIN", () => {
 			.end((err, res: any) => {
 				expect(res.statusCode).to.equal(200);
 				expect(res.body.password).to.be.a('string');
+				expect(res.body.username).to.be.a('string');
 				done();
 			});
 	});
