@@ -1,17 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AuthService } from '../../services/auth/auth.service';
+import { AuthService } from '../../../services/auth/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
-	selector: 'app-admin-page',
-	templateUrl: './admin-page.component.html',
-	styleUrls: ['./admin-page.component.scss']
+	selector: 'app-login-page',
+	templateUrl: './login-page.component.html',
+	styleUrls: ['./login-page.component.scss']
 })
-export class AdminPageComponent implements OnInit {
+export class LoginPageComponent {
 	loginForm: FormGroup;
 	private _invalidPassword: string = '';
 
-	constructor(private fb: FormBuilder, private auth: AuthService) {
+	constructor(private fb: FormBuilder, private auth: AuthService, private router: Router) {
 		this.createForm();
 	}
 
@@ -26,11 +27,10 @@ export class AdminPageComponent implements OnInit {
 		this.auth.login(this.loginForm.value.username, this.loginForm.value.password)
 			.subscribe(
 			res => {
-				//redirect to real admin page
+				this.router.navigate(['admin']);
 			},
 			err => {
 				if (err) {
-					console.log(err);
 					this._invalidPassword = "Username or password invalid";
 				}
 			});
@@ -38,10 +38,6 @@ export class AdminPageComponent implements OnInit {
 
 	invalidPassword() {
 		return this._invalidPassword;
-	}
-
-	ngOnInit() {
-
 	}
 
 }

@@ -10,6 +10,9 @@ export class AuthService {
 
 	}
 
+	//todo: keep user logged in by adding route to verify token in localstorage,
+	//and run when page is reloaded
+
 	login(username: string, password: string): Observable<void> {
 		return this.rest.post(`users/login`, { username: username, password: password })
 			.map(res => {
