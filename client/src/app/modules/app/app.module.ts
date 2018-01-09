@@ -10,10 +10,12 @@ import { ChartPageModule } from '../chart-page/chart-page.module';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { InterceptService } from '../../services/intercept/intercept.service';
 import { AuthService } from '../../services/auth/auth.service'
+import { BlogModule } from '../blog/blog.module';
 
 @NgModule({
 	//imports will be available to all components in module 
-	imports: [BrowserModule, BrowserAnimationsModule, AppRoutingModule, ChartPageModule, AdminPageModule, GlobalLayoutModule, FlexLayoutModule, HttpClientModule],
+	imports: [BrowserModule, BrowserAnimationsModule, AppRoutingModule, ChartPageModule, AdminPageModule,
+		GlobalLayoutModule, FlexLayoutModule, HttpClientModule, BlogModule],
 	declarations: [AppComponent], //list all components in the module
 	bootstrap: [AppComponent],
 	providers: [{

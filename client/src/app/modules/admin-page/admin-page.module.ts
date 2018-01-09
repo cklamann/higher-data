@@ -10,7 +10,6 @@ import { InterceptService } from '../../services/intercept/intercept.service';
 import { LoginPageComponent } from './login-page/login-page.component'
 import { FlexLayoutModule } from "@angular/flex-layout";
 
-
 @NgModule({
   imports: [
     CommonModule,
@@ -18,7 +17,8 @@ import { FlexLayoutModule } from "@angular/flex-layout";
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    FlexLayoutModule
+    FlexLayoutModule,
+
   ],
   declarations: [AdminPageComponent,LoginPageComponent],
   providers: [Users, RestService, InterceptService]
