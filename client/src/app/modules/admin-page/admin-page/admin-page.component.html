@@ -1,41 +1,11 @@
-<div>
-    <form [formGroup]="chartBuilderForm" (ngSubmit)="onSubmit()" fxLayout="column">
-    	<div fxLayout="row">
-	        <mat-form-field>
-	            <input matInput formControlName="chartName" type="text" placeholder = "Chart Name"/>
-	        </mat-form-field>
-	        <mat-form-field>
-	            <input matInput formControlName="chartDescription" type="text" placeholder="Chart Description">
-	        </mat-form-field>
-	    </div>
-	    <div fxLayout="row">
-	        <ul formArrayName="variables">
-	   	        <div *ngFor="let variable of chartBuilderForm.controls.variables.controls; let i=index">
-	                <span>Variable {{i + 1}}</span>
-	        		<li [formGroupName]="i" fxLayout="row" fxLayoutAlign="none center">
-		                <div>
-		                    <mat-form-field>
-			                    <input matInput type="text" formControlName="name" placeholder="Name">
-							</mat-form-field>
-		                </div>
-		                <div>
-		                	<mat-form-field>
-		                   		<input matInput type="text" formControlName="legendName" placeholder="Legend Name">
-		                	</mat-form-field>
-		                </div>
-		                <div>
-		                	<mat-form-field>
-		                   		<input matInput type="text" formControlName="formula" placeholder="Formula">
-		                	</mat-form-field>
-		                </div>	
-		                <button fxFlex="nogrow" mat-mini-fab type="button" class="mat-warn" (click)="removeVariable()">-</button>
-	        		</li>
-	        		<li *ngIf="i === chartBuilderForm.controls.variables.controls.length-1">
-                      	<button fxFlex="nogrow" mat-mini-fab type="button" (click)="addVariable()">+</button>
-                      	<button fxFlex="nogrow" mat-button>Submit</button>
-	        		</li>
-	        	</div>
-	    	</ul>
-	    </div>
-    </form>
-</div>
+
+
+
+<a [routerLink]="['edit-blog']">edit blog</a>
+
+<router-outlet></router-outlet>
+
+<!--todo: make this a landing page - it should have nav with links to:
+	1. to blog list/edit page (landing page has editor and list in sidebar) 
+	2. to chart/variable management page(s)
+-->
