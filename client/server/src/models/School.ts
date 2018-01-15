@@ -15,7 +15,7 @@ export interface intSchoolModel extends Document {
   data: any;
 };
 
-//todo: fill out data
+//todo: fill out data model
 
 let schema: Schema = new Schema({
   id: ObjectId,
@@ -31,7 +31,7 @@ let schema: Schema = new Schema({
   data: Array
 });
 
-//todo: trim all values that come out of data
+//todo: make sure trim all values that come out of data
 
 export let SchoolSchema = model<intSchoolModel>('school', schema);
 
@@ -39,6 +39,11 @@ export let SchoolSchema = model<intSchoolModel>('school', schema);
 //losing this binding anyway so why not
 SchoolSchema.schema.static('search', (name: string, cb: any) => {
   return SchoolSchema.find({ instnm: { $regex: `${name}+.`, $options: 'is'} }, cb).limit(25).select('-data');
+});
+
+
+SchoolSchema.schema.static('getVariableList', (cb: any) => {
+  return SchoolSchema.distinct("data.variable", cb);
 });
 
 //todo: add more methods for: 

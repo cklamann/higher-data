@@ -17,7 +17,8 @@ export class AuthService {
 		return this.rest.post(`users/login`, { username: username, password: password })
 			.map(res => {
 				if (res.password) {
-					localStorage.setItem("token", res.password)
+					localStorage.setItem("token", res.password);
+					localStorage.setItem("username", res.username);
 					this.user = new User(res);
 				} else {
 					res.throw;

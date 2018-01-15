@@ -1,6 +1,5 @@
 import { Router, Response, Request, NextFunction } from "express";
 import { UserSchema, intUserModel } from '../models/User';
-let _ = require('lodash');
 import * as passport from 'passport';
 import * as crypto from 'crypto';
 let router = Router();
@@ -32,13 +31,13 @@ router.post('/', function(req: any, res, next) {
 	});
 });
 
-router.delete('/', function(req, res, next) {
+router.delete('/', passport.authenticate('basic', { session: false }), function(req, res, next) {
 	UserSchema.remove({ username: req.body.username }, function(err: Error) {
 		if (err) {
 			res.status(500);
 			res.json({ error: err.message });
 		}
-		res.json("user deleted successfully");
+		res.json();
 	})
 })
 
@@ -57,11 +56,6 @@ router.post('/login', (req, res, next) => {
 		res.json(user);
 	})
 });
-
-// router.post('/example-protected', passport.authenticate('basic', { session: false }), (req, res) =>
-// 	res.json(req.user);
-// 	//returns 401 if unauth
-// });
 
 /* logout user */
 router.post('/logout', function(req, res, next) {
