@@ -9,6 +9,9 @@ import { RestService } from '../../services/rest/rest.service';
 import { InterceptService } from '../../services/intercept/intercept.service';
 import { LoginPageComponent } from './login-page/login-page.component'
 import { FlexLayoutModule } from "@angular/flex-layout";
+import { AppRoutingModule } from '../app-routing/app-routing.module';
+import { ChartCreatorComponent } from './admin-page/chart-creator/chart-creator.component';
+import { VariableDefinerComponent } from './admin-page/variable-definer/variable-definer.component';
 
 @NgModule({
   imports: [
@@ -18,9 +21,9 @@ import { FlexLayoutModule } from "@angular/flex-layout";
     MatInputModule,
     MatButtonModule,
     FlexLayoutModule,
-
+    AppRoutingModule
   ],
-  declarations: [AdminPageComponent,LoginPageComponent],
+  declarations: [AdminPageComponent,LoginPageComponent, ChartCreatorComponent, VariableDefinerComponent],
   providers: [Users, RestService, InterceptService]
 })
 export class AdminPageModule { }
