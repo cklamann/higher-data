@@ -10,7 +10,6 @@ const BasicStrategy = require('passport-http').BasicStrategy;
 const LocalStrategy = require('passport-local').Strategy;
 const fs = require('fs');
 
-const index = require('./routes/index');
 const users = require('./routes/users');
 const schools = require('./routes/schools');
 
@@ -41,8 +40,6 @@ mongoose.connect('mongodb://localhost/colleges');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-
-app.use('/', index);
 
 //for serving whatever static assets
 app.use(express.static(path.join(__dirname, 'public')));
