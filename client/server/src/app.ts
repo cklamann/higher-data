@@ -5,6 +5,7 @@ const logger = require('morgan'); //need to get types for this...
 const cookieParser = require('cookie-parser');
 import bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+mongoose.Promise = require('q').Promise;
 import passport = require('passport');
 const BasicStrategy = require('passport-http').BasicStrategy;
 const LocalStrategy = require('passport-local').Strategy;

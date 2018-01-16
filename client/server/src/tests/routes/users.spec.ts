@@ -1,7 +1,7 @@
 import { UserSchema } from '../../models/User';
 import assert = require('assert');
 import chai = require('chai');
-import chaiHttp = require('chai-http'); //http://chaijs.com/plugins/chai-http/n
+import chaiHttp = require('chai-http'); 
 import { expect } from 'chai';
 import chaiAsPromised = require('chai-as-promised');
 const app = require('../../app');
@@ -13,8 +13,6 @@ const connection = chai.request(app);
 
 const username = 'test',
 	password = 'test';
-
-//todo: tests are failing because....
 
 describe("userRoute", () => {
 
