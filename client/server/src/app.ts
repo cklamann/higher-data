@@ -12,6 +12,7 @@ const fs = require('fs');
 
 const users = require('./routes/users');
 const schools = require('./routes/schools');
+const variables = require('./routes/variables');
 
 mongoose.set('debug', true);
 
@@ -41,11 +42,11 @@ mongoose.connect('mongodb://localhost/colleges');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-//for serving whatever static assets
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/api/users', users);
 app.use('/api/schools', schools);
+app.use('/api/variables', variables);
 
 app.use(function(req, res, next) {
 	if (req.path.match(/\/api\/.+/)) {
