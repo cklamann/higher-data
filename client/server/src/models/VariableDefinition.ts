@@ -47,8 +47,12 @@ schema.path('variable').validate({
   message: 'Variable is not on any model!'
 });
 
+//todo: rethink how this thing is gonna work
+// 2. FE will create, at which point IDs will be set, then FE may update, at which point you'll know the IDs, both of parent and source objects
+// 3. so we'll just be adding to set if the id isn't there....
+
 export let VariableDefinitionSchema = model<intVariableDefinitionModel>('variableDefinition', schema);
 
-VariableDefinitionSchema.schema.static('update', (model:intVariableDefinitionModel, cb: any) => {
-  return VariableDefinitionSchema.update({ variable: model.variable }, { "sources": { "$addToSet": model.sources } }, cb); 
+VariableDefinitionSchema.schema.static('update', (model:intVariableDefinitionModel) => {
+  return VariableDefinitionSchema.update({ variable: model.variable }, { "$addToSet": {"sources": {"$each" : model.sources }}}); 
 });

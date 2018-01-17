@@ -5,6 +5,7 @@ import { AdminPageComponent } from '../admin-page/admin-page/admin-page.componen
 import { LoginPageComponent } from '../admin-page/login-page/login-page.component';
 import { BlogPageComponent } from '../blog/blog-page/blog-page.component';
 import { EditPageComponent } from '../blog/edit-page/edit-page.component';
+import { ChartCreatorComponent } from '../admin-page/admin-page/chart-creator/chart-creator.component';
 //see: https://blog.angular-university.io/angular2-router/
 //todo: build 404 page
 
@@ -18,14 +19,15 @@ const routes: Routes = [
 		component: LoginPageComponent,
 	}, {
 		path: 'admin',
-		component: AdminPageComponent
+		component: AdminPageComponent,
+		children: [
+			{ path: 'edit-blog', component: EditPageComponent },
+			{ path: 'create-chart', component: ChartCreatorComponent }
+		]
 	},
 	{
 		path: 'blog',
 		component: BlogPageComponent,
-		children: [
-			{ path: 'edit', component: EditPageComponent },
-		]
 	},
 	{
 		path: '**',

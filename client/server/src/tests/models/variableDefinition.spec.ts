@@ -3,7 +3,11 @@ import { SchoolSchema } from '../../models/School';
 import assert = require('assert');
 import chai = require('chai');
 import { expect } from 'chai';
+import * as _ from 'lodash';
 const app = require('../../app');
+
+
+//todo: test update functionality -- pull out of DB, then update extant (with _id), then update
 
 describe('Variable Definition Model', function() {
 
@@ -60,52 +64,57 @@ describe('Variable Definition Model', function() {
 
   describe('#dontSaveInvalid()', function() {
     it('should throw validation error', function(done) {
-      let badTestVar = testVar;
-      testVar.variable = "fake_var";
+      let badTestVar = _.cloneDeep(testVar);
+      badTestVar.variable = "fake_var";
       let badModel = new VariableDefinitionSchema(badTestVar);
       done();
       expect(() => badModel.validate()).to.throw('variableDefinition validation failed: variable: Variable is not on any model!');
     });
   });
 
-  describe('#update()', function() {
-    it('should update source array without duplicating', function(done) {
-      let payload = {
-        variable: testVar.variable,
-        sources: [{
-          start_year: 2015,
-          end_year: 2017,
-          source: "IPEDS",
-          table: "test_ipeds_table",
-          formula: "1+1=2",
-          definition: "test definition",
-          notes: "some updated notes!"
-        }],
-      };
-
-      VariableDefinitionSchema.schema.statics.update(payload, function(err, variable) {
-        if (err) done(err);
-      });
-
-      VariableDefinitionSchema.findOne({ variable: payload.variable }, function(err, variable) {
-        console.log(variable);
-        done();
-        assert.equal(variable.sources.length, 1);
-        assert.equal(variable.sources[0].notes, "some updated notes!");
-      });
+  describe('#use find with promise', function() {
+    it('should find and print org', function(done) {
+      VariableDefinitionSchema.findOne({ "variable": testVar.variable }).exec()
+        .then(val => {
+          expect(val).to.be.an('object');
+        });
+      done();
     });
   });
 
+  describe('#update()', function() {
+    it('should update source array with a new source value', function(done) {
+      let payload = {
+        variable: testVar.variable,
+        sources: [{
+          start_year: 2019,
+          end_year: 2020,
+          source: "IPEDS",
+          table: "test_ipeds_table",
+          formula: "2+2=4",
+          definition: "some other test definition",
+          notes: "some other notes!"
+        }],
+      };
+
+      VariableDefinitionSchema.schema.statics.update(payload)
+        .then(res => {
+          return VariableDefinitionSchema.findOne({ variable: payload.variable }).exec()
+        }).then(variable => {
+          done();
+          console.log(variable);
+          assert.equal(variable.sources.length, 2);
+        })
+        .catch(err => done(err));
+    });
+  });
   after('remove test var', function(done) {
-    VariableDefinitionSchema.find({ variable: testVar.variable }).remove().exec();
-    done();
-  })
+    VariableDefinitionSchema.find({ variable: testVar.variable }).remove().exec().then(() => done());
+  });
 
   after('remove test school', function(done) {
     SchoolSchema.find({
-      unitid: 12345,
-    }).remove().exec();
-    done();
+      unitid: 12345
+    }).remove().exec().then(() => done());
   });
-
 });
