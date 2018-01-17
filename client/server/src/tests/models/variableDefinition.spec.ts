@@ -83,10 +83,8 @@ describe('Variable Definition Model', function() {
   });
 
   describe('#update()', function() {
-    it('should update source array with a new source value', function(done) {
-      let payload = {
-        variable: testVar.variable,
-        sources: [{
+    it('should update source array with a new source object and a new source value', function(done) {
+      let newSource:intVariableSource = {
           start_year: 2019,
           end_year: 2020,
           source: "IPEDS",
@@ -94,16 +92,19 @@ describe('Variable Definition Model', function() {
           formula: "2+2=4",
           definition: "some other test definition",
           notes: "some other notes!"
-        }],
-      };
+        };
 
-      VariableDefinitionSchema.schema.statics.update(payload)
+      VariableDefinitionSchema.findOne({variable:testVar.variable}).exec()
         .then(res => {
-          return VariableDefinitionSchema.findOne({ variable: payload.variable }).exec()
+          res.sources[0].source = "new fancy updated source!";
+          res.sources.push(newSource);
+          return VariableDefinitionSchema.schema.statics.update(res);
         }).then(variable => {
           done();
-          console.log(variable);
           assert.equal(variable.sources.length, 2);
+          expect(variable.sources[0]).to.include({"source" : "new fancy updated source!"});
+          expect(variable.sources[0]).to.not.include({"source" : "new fancy imagined source!"});
+          expect(variable.sources[1]).to.include({"notes" : "some other notes!"});
         })
         .catch(err => done(err));
     });

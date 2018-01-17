@@ -1,7 +1,11 @@
 import { model, Schema, Document, Model } from 'mongoose';
 import { SchoolSchema } from './School';
+import * as Q from 'q';
+import * as _ from 'lodash';
 
 export let ObjectId = Schema.Types.ObjectId;
+
+//todo: make all fields required by schema
 
 export interface intVariableDefinitionModel extends Document {
   variable: string;
@@ -20,6 +24,7 @@ export interface intVariableSource extends Document {
 };
 
 const sourcesSchema = new Schema({
+  id: ObjectId,
   start_year: Number,
   end_year: Number,
   source: String,
@@ -31,28 +36,40 @@ const sourcesSchema = new Schema({
 
 const schema: Schema = new Schema({
   id: ObjectId,
-  variable: String,
   type: String,
+  variable: String,
   sources: [sourcesSchema]
 });
 
 schema.path('variable').validate({
   isAsync: true,
-  validator: function(value:any, respond:any) {
-    SchoolSchema.findOne({ "data.variable": value }, function(err,res) {
-      if (!res || err) respond(false); 
+  validator: function(value, respond) {
+    SchoolSchema.findOne({ "data.variable": value }, function(err, res) {
+      if (!res || err) respond(false);
       else (respond(true));
     });
   },
   message: 'Variable is not on any model!'
 });
 
-//todo: rethink how this thing is gonna work
-// 2. FE will create, at which point IDs will be set, then FE may update, at which point you'll know the IDs, both of parent and source objects
-// 3. so we'll just be adding to set if the id isn't there....
-
+export let variableSourcesSchema = model<intVariableSource>('variableSource', sourcesSchema)
 export let VariableDefinitionSchema = model<intVariableDefinitionModel>('variableDefinition', schema);
 
-VariableDefinitionSchema.schema.static('update', (model:intVariableDefinitionModel) => {
-  return VariableDefinitionSchema.update({ variable: model.variable }, { "$addToSet": {"sources": {"$each" : model.sources }}}); 
+VariableDefinitionSchema.schema.static('update', (model: intVariableDefinitionModel) => {
+  return VariableDefinitionSchema.findById(model._id).exec()
+    .then(variable => {
+      model.sources.forEach(source => {
+        if (source.isNew) {
+          variable.sources = variable.sources.concat([source]);
+        } else {
+          let child = variable.sources.id(source._id); //todo: resolve this typing issue
+          _.assignWith(child, source, (objVal, srcVal, key) => {
+            if (key === "_id") {
+              return objVal;
+            }
+          });
+        }
+      });
+      return variable.save();
+    }).then(() => VariableDefinitionSchema.findById(model._id).exec())
 });
