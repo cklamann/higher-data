@@ -1,4 +1,5 @@
 import { model, Schema, Document, Model } from 'mongoose';
+import * as _ from 'lodash';
 
 export let ObjectId = Schema.Types.ObjectId;
 
@@ -15,7 +16,17 @@ export interface intSchoolModel extends Document {
   data: any;
 };
 
-//todo: fill out data model
+export interface intSchoolData extends Document {
+  fiscal_year: number,
+  variable: string,
+  value: string,
+};
+
+const schoolDataSchema = new Schema({
+  fiscal_year: Number,
+  variable: String,
+  value: String
+});
 
 let schema: Schema = new Schema({
   id: ObjectId,
@@ -24,21 +35,21 @@ let schema: Schema = new Schema({
   state: String,
   city: String,
   ein: Number,
-  sector: String,
   locale: String,
+  sector: {
+    type: String,
+    enum: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+  },
   hbcu: String,
   slug: String,
-  data: Array
+  data: [schoolDataSchema]
 });
-
-//todo: make sure trim all values that come out of data
 
 export let SchoolSchema = model<intSchoolModel>('school', schema);
 
-//note that docs say to avoid arrow functions when declaring statics, but i was
-//losing this binding anyway so why not
+
 SchoolSchema.schema.static('search', (name: string, cb: any) => {
-  return SchoolSchema.find({ instnm: { $regex: `${name}+.`, $options: 'is'} }, cb).limit(25).select('-data');
+  return SchoolSchema.find({ instnm: { $regex: `${name}+.`, $options: 'is' } }, cb).limit(25).select('-data');
 });
 
 
@@ -46,6 +57,64 @@ SchoolSchema.schema.static('getVariableList', (cb: any) => {
   return SchoolSchema.distinct("data.variable", cb);
 });
 
-//todo: add more methods for: 
-//1. return many schools with 1 variable with optional filters on school type [throttle at 200, give offset]
-//2. return 1 school with many variables with optional filters on school type
+SchoolSchema.schema.static('fetchVariable', (variable: string, filters: array = [], limit: number, cb: any) => {
+  if (typeof limit === 'function') cb = limit;
+  if (typeof filters === 'number') limit = filters;
+
+  let fils = [{ "data.variable": variable }];
+  if (_.isArray(filters) && !_.isEmpty(filters)) {
+    filters.forEach(filt => {
+      let res = {};
+      res[filt.name] = {
+        "$eq": filt.value
+      };
+      fils.push(res);
+    });
+  }
+
+  return SchoolSchema.aggregate([
+    {
+      "$match": {
+        "$and": fils
+      }
+    },
+    {
+      "$project": {
+        unitid: 1,
+        data: {
+          "$filter": {
+            input: "$data",
+            as: "data",
+            cond: { "$eq": ["$$data.variable", variable] }
+          }
+        }
+      }
+    }
+  ]).limit(limit ? limit : 1000000).exec(cb);
+});
+
+SchoolSchema.schema.static('fetchSchoolWithVariables', (unitid: number, variables: Array<string>, cb: any): intSchoolModel => {
+  return SchoolSchema.aggregate([
+    {
+      "$match": {
+        "unitid": unitid
+      }
+    },
+    {
+      "$project": {
+        unitid: 1,
+        sector: 1,
+        instnm: 1,
+        city: 1,
+        state: 1,
+        data: {
+          "$filter": {
+            input: "$data",
+            as: "data",
+            cond: { "$in": ["$$data.variable", variables] }
+          }
+        }
+      }
+    }
+  ]).exec(cb);
+});

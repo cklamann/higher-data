@@ -1,15 +1,16 @@
 import express = require('express');
-import { UserSchema, intUserModel } from './models/User'; 
 import path = require('path');
 const logger = require('morgan'); //need to get types for this...
 const cookieParser = require('cookie-parser');
 import bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+mongoose.Promise = global.Promise;
 import passport = require('passport');
 const BasicStrategy = require('passport-http').BasicStrategy;
 const LocalStrategy = require('passport-local').Strategy;
 const fs = require('fs');
 
+import { UserSchema, intUserModel } from './models/User'; 
 const users = require('./routes/users');
 const schools = require('./routes/schools');
 const variables = require('./routes/variables');

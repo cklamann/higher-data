@@ -9,6 +9,7 @@
   "dependencies": {
     "@types/chai-as-promised": "^7.1.0",
     "@types/chai-http": "^3.0.3",
+    "@types/mathjs": "0.0.37",
     "@types/passport": "^0.4.2",
     "@types/passport-http": "^0.3.3",
     "@types/passport-local": "^1.0.32",
@@ -38,6 +39,7 @@
     "gulp-typescript": "^3.2.3",
     "gulp-util": "^3.0.8",
     "lodash": "^4.17.4",
+    "mathjs": "^3.20.0",
     "mongo-connect": "0.0.6",
     "node-sass": "^4.7.2",
     "node-sass-middleware": "^0.11.0",

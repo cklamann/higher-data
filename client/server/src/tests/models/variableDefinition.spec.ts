@@ -9,6 +9,7 @@ describe('Variable Definition Model', function() {
 
   const testVar: intVariableDefinitionModel = {
     variable: "test_var",
+    type: "currency",
     sources: [{
       start_year: 2015,
       end_year: 2017,

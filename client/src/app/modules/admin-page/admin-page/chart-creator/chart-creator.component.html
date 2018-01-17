@@ -1,6 +1,7 @@
 <div>
     <form [formGroup]="chartBuilderForm" (ngSubmit)="onSubmit()" fxLayout="column">
     	<div fxLayout="row">
+	        <!--todo: match to backend chart model-->
 	        <mat-form-field>
 	            <input matInput formControlName="chartName" type="text" placeholder = "Chart Name"/>
 	        </mat-form-field>
