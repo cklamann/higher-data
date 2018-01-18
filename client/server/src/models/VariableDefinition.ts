@@ -3,9 +3,7 @@ import { SchoolSchema } from './School';
 import * as Q from 'q';
 import * as _ from 'lodash';
 
-export let ObjectId = Schema.Types.ObjectId;
-
-//todo: make all fields required by schema
+let ObjectId = Schema.Types.ObjectId;
 
 export interface intVariableDefinitionModel extends Document {
   variable: string;
@@ -43,7 +41,7 @@ const schema: Schema = new Schema({
 
 schema.path('variable').validate({
   isAsync: true,
-  validator: function(value, respond) {
+  validator: function(value:any, respond:any) {
     SchoolSchema.findOne({ "data.variable": value }, function(err, res) {
       if (!res || err) respond(false);
       else (respond(true));

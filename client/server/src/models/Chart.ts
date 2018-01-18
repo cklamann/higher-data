@@ -1,5 +1,5 @@
 import { model, Schema, Document, Model } from 'mongoose';
-import { Formula } from '../modules/Formula.module';
+import { ChartFormula, IntFormula } from '../modules/ChartFormula.module';
 
 export let ObjectId = Schema.Types.ObjectId;
 
@@ -12,7 +12,7 @@ export interface intChartModel extends Document {
 };
 
 export interface intChartVariable extends Document {
-  formula: Formula;
+  formula: IntFormula;
   notes: string;
   legendName: string
 };
@@ -32,15 +32,23 @@ const schema: Schema = new Schema({
   variables: [chartVariableSchema]
 });
 
-//todo: validate formula....
+schema.path('formula').validate({
+  isAsync: true,
+  validator: function(value: any, respond: any) {
+    let formula = new ChartFormula(value);
+    formula.validate()
+      .then(res => respond(true))
+      .catch(res => respond(false));
+  },
+  message: 'Formula is invalid!'
+});
 
 export let ChartSchema = model<intChartModel>('chartModel', schema);
+export let ChartVariableSchema = model<intChartVariable>('chartVariableModel', schema);
 
-//need a static fetch method that will return a model with a unitid bound to it
-//unitid is an instance property, must be there
-
-
-//idea is that front end passes back model, 
-//be makes new model, then validates all formulae
-//need an endpoint that will validate formulae on the fly, so we can hit it
-//while we build
+//path:
+//
+// FE passes back a unitid and a chart id
+//  route loops through formulas, newing up a ChartFormula each time and fetching data and saving it under legendName
+//  once all those promises resolve and the chartData is ready, create response object and send to FE
+//  for now, controller is just on the route, but wait and maybe that will change

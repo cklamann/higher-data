@@ -45,8 +45,8 @@ let schema: Schema = new Schema({
   data: [schoolDataSchema]
 });
 
+export let SchoolDataSchema = model<intSchoolData>('schoolData', schema);
 export let SchoolSchema = model<intSchoolModel>('school', schema);
-
 
 SchoolSchema.schema.static('search', (name: string, cb: any) => {
   return SchoolSchema.find({ instnm: { $regex: `${name}+.`, $options: 'is' } }, cb).limit(25).select('-data');
@@ -57,14 +57,15 @@ SchoolSchema.schema.static('getVariableList', (cb: any) => {
   return SchoolSchema.distinct("data.variable", cb);
 });
 
-SchoolSchema.schema.static('fetchVariable', (variable: string, filters: array = [], limit: number, cb: any) => {
-  if (typeof limit === 'function') cb = limit;
-  if (typeof filters === 'number') limit = filters;
-
+SchoolSchema.schema.static('fetchVariable', (variable: string, filters: array = [], limit: number) => {
+  if (typeof filters === 'number') {
+    limit = filters;
+    filters = [];
+  }
   let fils = [{ "data.variable": variable }];
   if (_.isArray(filters) && !_.isEmpty(filters)) {
     filters.forEach(filt => {
-      let res = {};
+      let res: any = {};
       res[filt.name] = {
         "$eq": filt.value
       };
@@ -90,10 +91,10 @@ SchoolSchema.schema.static('fetchVariable', (variable: string, filters: array = 
         }
       }
     }
-  ]).limit(limit ? limit : 1000000).exec(cb);
+  ]).limit(limit ? limit : 1000000).exec();
 });
 
-SchoolSchema.schema.static('fetchSchoolWithVariables', (unitid: number, variables: Array<string>, cb: any): intSchoolModel => {
+SchoolSchema.schema.static('fetchSchoolWithVariables', (unitid: number, variables: Array<string>): Promise<intSchoolModel> => {
   return SchoolSchema.aggregate([
     {
       "$match": {
@@ -116,5 +117,15 @@ SchoolSchema.schema.static('fetchSchoolWithVariables', (unitid: number, variable
         }
       }
     }
-  ]).exec(cb);
+  ]).exec().then(res => {
+    let result = res[0];
+    _.forEach(result.data, (v, k) => {
+      _.forEach(v, val => {
+        if(_.isString(val)){
+          val = val.trim(); // really should just run this on the whole db
+        }
+      });
+    });
+    return result;
+  })
 });
