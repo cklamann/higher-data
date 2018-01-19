@@ -1,9 +1,13 @@
 import { ChartSchema, ChartVariableSchema, intChartModel, intChartVariable } from '../../models/Chart';
 import assert = require('assert');
 import chai = require('chai');
+import * as chaiAsPromised from 'chai-as-promised';
 import { expect } from 'chai';
 import * as _ from 'lodash';
 const app = require('../../app');
+
+chai.should();
+chai.use(chaiAsPromised);
 
 describe('Chart Model', function() {
 
@@ -21,9 +25,55 @@ describe('Chart Model', function() {
     }]
   };
 
-  before('create chart', function(done) {
+  const badTestChart: intChartModel = {
+    name: 'bad_chart',
+    type: 'line',
+    category: 'fake',
+    valueType: 'currency',
+    description: 'sweet chart',
+    variables: [{
+      formula: '1+2 + fake_var',
+      notes: 'bad test notes',
+      legendName: 'bad test legend'
+    }]
+  };
+
+  const badTestChartFormula: intChartModel = {
+    name: 'bad_chart',
+    type: 'line',
+    category: 'fake',
+    active: true,
+    valueType: 'currency',
+    description: 'sweet chart',
+    variables: [{
+      formula: '1+2 + fake_var',
+      notes: 'bad test notes',
+      legendName: 'bad test legend'
+    }]
+  };
+
+  const badTestChartRequired: intChartModel = {
+    name: 'bad_chart',
+    type: 'line',
+    category: 'fake',
+    valueType: 'currency',
+    active: true,
+    description: 'sweet chart',
+    variables: [{
+      formula: '1+2',
+      legendName: 'test legend'
+    }]
+  };
+
+  const newVar: intChartVariable = {
+    formula: '5+6',
+    notes: 'new test notes',
+    legendName: 'new legend name'
+  }
+
+  beforeEach('create chart', function(done) {
     ChartSchema.create(testChart)
-      .then( () => done())
+      .then(() => done())
       .catch(err => done(err));
   });
 
@@ -33,43 +83,77 @@ describe('Chart Model', function() {
         .then(res => {
           done();
           assert.equal(res.type, 'line');
-          //expect(res).to.deep.include({ variable: 'test_var' })
         });
     });
   });
 
-  //todo: get update tests working
+  describe('#rawUpdate', function() {
+    it('should update correctly using a raw update method, despite validation and required fields issue', function(done) {
+      ChartSchema.findOne({ name: testChart.name }).exec()
+        .then(res => res.update(badTestChart))
+        .then(() => ChartSchema.findOne({ name: badTestChart.name }))
+        .then(chart => {
+          done();
+          assert.equal(chart.variables.length, 1);
+        })
+        .catch(err => done(err));
+    });
+  });
 
-  // describe('#update()', function() {
-  //   it('should update source array with a new source object and a new source value', function(done) {
-  //     let newSource:intVariableSource = {
-  //         start_year: 2019,
-  //         end_year: 2020,
-  //         source: "IPEDS",
-  //         table: "test_ipeds_table",
-  //         formula: "2+2=4",
-  //         definition: "some other test definition",
-  //         notes: "some other notes!"
-  //       };
+  describe('#badUpdate', function() {
+    it('should update incorrectly using static update method because that actually catches validation errors', function(done) {
+      ChartSchema.findOne({ name: testChart.name }).exec()
+        .then(res => {
+          res.variables.push(badTestChartFormula.variables[0]);
+          ChartSchema.schema.statics.update(res)
+            .then(() => {
+              done();
+              assert.equal(true, false); //ugly hacks to make sure promise is rejected -- todo: get chai-as-promised working
+            })
+            .catch(err => {
+              done(); //no assertions will fire here but can verify error by passing error to done
+            });
+        });
+    });
+  });
 
-  //     VariableDefinitionSchema.findOne({variable:testVar.variable}).exec()
-  //       .then(res => {
-  //         res.sources[0].source = "new fancy updated source!";
-  //         res.sources.push(newSource);
-  //         return VariableDefinitionSchema.schema.statics.update(res);
-  //       }).then(variable => {
-  //         done();
-  //         assert.equal(variable.sources.length, 2);
-  //         expect(variable.sources[0]).to.include({"source" : "new fancy updated source!"});
-  //         expect(variable.sources[0]).to.not.include({"source" : "new fancy imagined source!"});
-  //         expect(variable.sources[1]).to.include({"notes" : "some other notes!"});
-  //       })
-  //       .catch(err => done(err));
-  //   });
-  // });
+  describe('#badUpdateRequired', function() {
+    it('should update incorrectly using static update method because that actually catches required field errors', function(done) {
+      ChartSchema.findOne({ name: testChart.name }).exec()
+        .then(res => {
+          res.variables.push(badTestChartRequired.variables[0]);
+          ChartSchema.schema.statics.update(res)
+            .then(() => {
+              done();
+              assert.equal(true, false);
+            })
+            .catch(err => {
+              done();
+            });
+        });
+    });
+  });
 
-  after('remove test chart', function(done) {
-    ChartSchema.find({ name: "fake_chart" }).remove().exec().then(() => done()).catch(err=>done(err));
+  describe('#update()', function() {
+    it('should update source array with a new source object and a new source value', function(done) {
+      ChartSchema.findOne({ name: testChart.name }).exec()
+        .then(res => {
+          res.variables[0].notes = "new fancy updated notes!";
+          res.variables.push(newVar);
+          return ChartSchema.schema.statics.update(res);
+        }).then(chart => {
+          done();
+          assert.equal(chart.variables.length, 2);
+          expect(chart.variables[0]).to.include({ "notes": "new fancy updated notes!" });
+          expect(chart.variables[0]).to.not.include({ "notes": "new fancy imagined notes" });
+          expect(chart.variables[1]).to.include({ "notes": "new test notes" });
+        })
+        .catch(err => done(err));
+    });
+  });
+
+  afterEach('remove test chart', function(done) {
+    ChartSchema.find({ name: "fake_chart" }).remove().exec().then(() => done()).catch(err => done(err));
   });
 
 });

@@ -18,7 +18,7 @@ export class ChartFormula implements IntFormula {
 		this.symbolNodes = this._getSymbolNodes();
 	}
 
-	validate() {
+	public validate() {
 		return this._verifyNodes();
 	}
 
@@ -29,13 +29,14 @@ export class ChartFormula implements IntFormula {
 			return {
 				[k]: v.map(item => {
 					return {
-						[item.variable]: parseFloat(item.value.trim()) //todo: address this
+						[item.variable]: parseFloat(item.value.trim()) //todo: cleanup database values -->just update from R
 					}
-				}).reduce((acc, curr, i) => {
+				}).reduce((acc, curr) => {
 					return _.assign(acc, curr);
 				}, {})
 			}
 		});
+		//make sure to process only years with all required values
 		return mapped.filter(group => _.values(group).length < this.symbolNodes.length);
 	}
 
@@ -47,7 +48,7 @@ export class ChartFormula implements IntFormula {
 		});
 	}
 
-	execute(unitid: number) {
+	public execute(unitid: number) {
 		return SchoolSchema.schema.statics.fetchSchoolWithVariables(unitid, this.symbolNodes)
 			.then( (school:intSchoolModel) => this._evaluate(this._transformModelForFormula(school)));
 	}

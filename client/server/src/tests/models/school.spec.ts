@@ -10,8 +10,6 @@ const app = require('../../app');
 
 describe('School Model', function() {
 
-  //todo: seed tests
-
   before('create a test school and a test variable', function(done) {
   SchoolSchema.create(nwData)
     .then( () => SchoolSchema.create(nwDataSector6))

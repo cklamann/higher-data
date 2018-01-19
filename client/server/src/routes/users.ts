@@ -31,6 +31,8 @@ router.post('/', function(req: any, res, next) {
 	});
 });
 
+/*delete user*/
+
 router.delete('/', passport.authenticate('basic', { session: false }), function(req, res, next) {
 	UserSchema.remove({ username: req.body.username }, function(err: Error) {
 		if (err) {
@@ -40,6 +42,8 @@ router.delete('/', passport.authenticate('basic', { session: false }), function(
 		res.json();
 	})
 })
+
+/*login user*/
 
 router.post('/login', (req, res, next) => {
 	if(!req.body.username || !req.body.password){

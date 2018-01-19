@@ -72,7 +72,6 @@ SchoolSchema.schema.static('fetchVariable', (variable: string, filters: Array<an
       fils.push(res);
     });
   }
-
   return SchoolSchema.aggregate([
     {
       "$match": {
@@ -122,7 +121,7 @@ SchoolSchema.schema.static('fetchSchoolWithVariables', (unitid: number, variable
     _.forEach(result.data, (v, k) => {
       _.forEach(v, val => {
         if(_.isString(val)){
-          val = val.trim(); // todo: run this on the whole db
+          val = val.trim();
         }
       });
     });

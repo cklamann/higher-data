@@ -22,19 +22,46 @@ export interface intChartVariable extends Document {
 };
 
 const chartVariableSchema = new Schema({
-  formula: String,
-  notes: String,
-  legendName: String,
+  formula: {
+    type:String,
+    required: true
+  },
+  notes: {
+    type:String,
+    required: true
+  },
+  legendName: {
+    type:String,
+    required: true
+  }
 });
 
 const schema: Schema = new Schema({
   id: ObjectId,
-  name: String,
-  type: String,
-  category: String,
-  active: Boolean,
-  valueType: String,
-  description: String,
+  name: {
+    type:String,
+    required: true
+  },
+  type: {
+    type:String,
+    required: true
+  },
+  category: {
+    type:String,
+    required: true
+  },
+  active: {
+    type:Boolean,
+    required: true
+  },
+  valueType: {
+    type:String,
+    required: true
+  },
+  description: {
+    type:String,
+    required: true
+  },
   variables: [chartVariableSchema]
 });
 
@@ -43,8 +70,10 @@ chartVariableSchema.path('formula').validate({
   validator: function(value: any, respond: any) {
     let formula = new ChartFormula(value);
     formula.validate()
-      .then(res => respond(true))
-      .catch(res => respond(false));
+      .then(res => {
+        respond(res);
+      })
+      .catch(err => respond(err));
   },
   message: 'Formula is invalid!'
 });
@@ -52,16 +81,13 @@ chartVariableSchema.path('formula').validate({
 export let ChartSchema = model<intChartModel>('chartModel', schema);
 export let ChartVariableSchema = model<intChartVariable>('chartVariableModel', schema);
 
-//todo: write tests for this method
 ChartSchema.schema.static('update', (model: intChartModel) => {
-  return ChartSchema.findById(model._id).exec()
+  return ChartSchema.findById(model._id).exec() 
     .then(chart => {
-      _.assignWith(chart, model, (objVal, srcVal, key) => {
-        if (key === "_id" || key === "variables") {
-          return objVal;
-        }
-      });
+      let copy = _.cloneDeep(model);
+      delete copy.variables;
+      chart.update(copy); //note -- this works just fine, but need to push into util and standardize
       chart.variables = Util.updateArray(chart.variables, model.variables);
       return chart.save();
-    }).then(() => ChartSchema.findById(model._id).exec())
+    }).then(() => ChartSchema.findById(model._id).exec());
 });

@@ -41,10 +41,11 @@ const schema: Schema = new Schema({
 schema.path('variable').validate({
   isAsync: true,
   validator: function(value: any, respond: any) {
-    SchoolSchema.findOne({ "data.variable": value }, function(err, res) {
-      if (!res || err) respond(false);
-      else (respond(true));
-    });
+    SchoolSchema.findOne({ "data.variable": value })
+      .then( res => {
+        if (!res) respond(false);
+        else (respond(true));
+      }).catch( err => respond(err));
   },
   message: 'Variable is not on any model!'
 });
