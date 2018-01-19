@@ -42,17 +42,6 @@ describe("userRoute", () => {
 		});
 	});
 
-	// describe("DELETE", () => {
-	// 	it('Post should return status 200', done => {
-	// 		connection.del('/api/users')
-	// 			.send({ username: username })
-	// 			.end((err, res: any) => {
-	// 				expect(res.statusCode).to.equal(200);
-	// 				done();
-	// 			});
-	// 	})
-	// });
-
 	after('remove user', function() {
 		UserSchema.find({
 			username: "test"

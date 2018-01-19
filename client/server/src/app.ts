@@ -13,6 +13,7 @@ import { UserSchema, intUserModel } from './models/User';
 const users = require('./routes/users');
 const schools = require('./routes/schools');
 const variables = require('./routes/variables');
+const charts = require('./routes/charts');
 
 mongoose.set('debug', true);
 
@@ -47,6 +48,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api/users', users);
 app.use('/api/schools', schools);
 app.use('/api/variables', variables);
+app.use('/api/charts', charts);
 
 app.use(function(req, res, next) {
 	if (req.path.match(/\/api\/.+/)) {

@@ -1,18 +1,23 @@
-//for now will just need get and post routes for creating, updating, and fetching
-//for updating, use the same pattern as in VariableDefinition
 import { Router, Response, Request, NextFunction } from "express";
-import { ChartSchema } from '../models/Chart';
+import { ChartSchema, intChartModel } from '../models/Chart';
 import * as passport from 'passport';
 
 let mongoose = require("mongoose");
 let router = Router();
 
+//if exists, update, otherwise create
+
 router.post('/', passport.authenticate('basic', { session: false }), function(req, res, next) {
-	ChartSchema.create(req.body.chartData)
-		.then( model => {
-			res.json(model);
-		})
-		.catch( err => next(err));
+	let promise;
+	if(req.body._id){
+		promise =	ChartSchema.schema.statics.update(req.body)
+	} else promise = ChartSchema.create(req.body);
+
+	promise.then( (chart: intChartModel) => {
+		res.json(chart);
+		return;
+	}).catch( (err:Error) => next(err));
+
 });
 
 module.exports = router;
