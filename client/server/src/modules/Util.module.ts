@@ -1,7 +1,7 @@
 import _ = require('lodash');
 import { Document } from 'mongoose';
 
-export function updateArray(arrayToUpdate: Array<any>, sourceArray: Array<any>): Array<any> {
+export function updateArray(arrayToUpdate: Array<Document>, sourceArray: Array<any>): Array<any> {
 	sourceArray.forEach(source => {
 		if (source.isNew) {
 			arrayToUpdate = arrayToUpdate.concat([source]); //workaround until mongoose removes $pushall

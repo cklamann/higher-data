@@ -57,7 +57,7 @@ SchoolSchema.schema.static('getVariableList', (cb: any) => {
   return SchoolSchema.distinct("data.variable", cb);
 });
 
-SchoolSchema.schema.static('fetchVariable', (variable: string, filters: array = [], limit: number) => {
+SchoolSchema.schema.static('fetchVariable', (variable: string, filters: Array<any> = [], limit: number) => {
   if (typeof filters === 'number') {
     limit = filters;
     filters = [];
@@ -117,12 +117,12 @@ SchoolSchema.schema.static('fetchSchoolWithVariables', (unitid: number, variable
         }
       }
     }
-  ]).exec().then(res => {
+  ]).exec().then( (res:Array<intSchoolModel>) => {
     let result = res[0];
     _.forEach(result.data, (v, k) => {
       _.forEach(v, val => {
         if(_.isString(val)){
-          val = val.trim(); // really should just run this on the whole db
+          val = val.trim(); // todo: run this on the whole db
         }
       });
     });

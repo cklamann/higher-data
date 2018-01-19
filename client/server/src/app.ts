@@ -7,7 +7,6 @@ const mongoose = require('mongoose');
 mongoose.Promise = require('q').Promise;
 import passport = require('passport');
 const BasicStrategy = require('passport-http').BasicStrategy;
-const LocalStrategy = require('passport-local').Strategy;
 const fs = require('fs');
 
 import { UserSchema, intUserModel } from './models/User'; 

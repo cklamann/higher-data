@@ -7,8 +7,6 @@ import * as _ from 'lodash';
 const app = require('../../app');
 
 
-//todo: test update functionality -- pull out of DB, then update extant (with _id), then update
-
 describe('Variable Definition Model', function() {
 
   const testVar: intVariableDefinitionModel = {

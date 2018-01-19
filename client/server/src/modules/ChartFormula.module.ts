@@ -49,7 +49,7 @@ export class ChartFormula implements IntFormula {
 
 	execute(unitid: number) {
 		return SchoolSchema.schema.statics.fetchSchoolWithVariables(unitid, this.symbolNodes)
-			.then(school => this._evaluate(this._transformModelForFormula(school)));
+			.then( (school:intSchoolModel) => this._evaluate(this._transformModelForFormula(school)));
 	}
 
 	private _getSymbolNodes() {
@@ -60,7 +60,7 @@ export class ChartFormula implements IntFormula {
 				parsed = parsed.content;
 			}
 			if (parsed.args) {
-				parsed.args.forEach(child => _recurse(child));
+				parsed.args.forEach( (child:any) => _recurse(child));
 			}
 			if (parsed.name) {
 				nodes.push(parsed.name);

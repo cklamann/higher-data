@@ -2,9 +2,6 @@ import { model, Schema, Document, Model } from 'mongoose';
 import { SchoolSchema } from './School';
 import * as Util from '../modules/Util.module';
 
-import * as Q from 'q';
-import * as _ from 'lodash';
-
 let ObjectId = Schema.Types.ObjectId;
 
 export interface intVariableDefinitionModel extends Document {
