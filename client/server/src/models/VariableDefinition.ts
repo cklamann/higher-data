@@ -1,5 +1,7 @@
 import { model, Schema, Document, Model } from 'mongoose';
 import { SchoolSchema } from './School';
+import * as Util from '../modules/Util.module';
+
 import * as Q from 'q';
 import * as _ from 'lodash';
 
@@ -41,7 +43,7 @@ const schema: Schema = new Schema({
 
 schema.path('variable').validate({
   isAsync: true,
-  validator: function(value:any, respond:any) {
+  validator: function(value: any, respond: any) {
     SchoolSchema.findOne({ "data.variable": value }, function(err, res) {
       if (!res || err) respond(false);
       else (respond(true));
@@ -56,18 +58,8 @@ export let VariableDefinitionSchema = model<intVariableDefinitionModel>('variabl
 VariableDefinitionSchema.schema.static('update', (model: intVariableDefinitionModel) => {
   return VariableDefinitionSchema.findById(model._id).exec()
     .then(variable => {
-      model.sources.forEach(source => {
-        if (source.isNew) {
-          variable.sources = variable.sources.concat([source]);
-        } else {
-          let child = variable.sources.id(source._id); //todo: resolve this typing issue
-          _.assignWith(child, source, (objVal, srcVal, key) => {
-            if (key === "_id") {
-              return objVal;
-            }
-          });
-        }
-      });
+      variable.type = model.type;
+      variable.sources = Util.updateArray(variable.sources, model.sources);
       return variable.save();
     }).then(() => VariableDefinitionSchema.findById(model._id).exec())
 });

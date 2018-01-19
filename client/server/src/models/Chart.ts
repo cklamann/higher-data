@@ -1,11 +1,15 @@
 import { model, Schema, Document, Model } from 'mongoose';
 import { ChartFormula, IntFormula } from '../modules/ChartFormula.module';
+import * as Util from '../modules/Util.module';
+import * as _ from 'lodash';
 
 export let ObjectId = Schema.Types.ObjectId;
 
 export interface intChartModel extends Document {
   name: string;
   type: string;
+  category: string;
+  active: boolean;
   valueType: string;
   description: string;
   variables: Array<intChartVariable>;
@@ -27,12 +31,14 @@ const schema: Schema = new Schema({
   id: ObjectId,
   name: String,
   type: String,
+  category: String,
+  active: Boolean,
   valueType: String,
   description: String,
   variables: [chartVariableSchema]
 });
 
-schema.path('formula').validate({
+chartVariableSchema.path('formula').validate({
   isAsync: true,
   validator: function(value: any, respond: any) {
     let formula = new ChartFormula(value);
@@ -46,9 +52,16 @@ schema.path('formula').validate({
 export let ChartSchema = model<intChartModel>('chartModel', schema);
 export let ChartVariableSchema = model<intChartVariable>('chartVariableModel', schema);
 
-//path:
-//
-// FE passes back a unitid and a chart id
-//  route loops through formulas, newing up a ChartFormula each time and fetching data and saving it under legendName
-//  once all those promises resolve and the chartData is ready, create response object and send to FE
-//  for now, controller is just on the route, but wait and maybe that will change
+//todo: write tests for this method
+ChartSchema.schema.static('update', (model: intChartModel) => {
+  return ChartSchema.findById(model._id).exec()
+    .then(chart => {
+      _.assignWith(chart, model, (objVal, srcVal, key) => {
+        if (key === "_id" || key === "variables") {
+          return objVal;
+        }
+      });
+      chart.variables = Util.updateArray(chart.variables, model.variables);
+      return chart.save();
+    }).then(() => ChartSchema.findById(model._id).exec())
+});

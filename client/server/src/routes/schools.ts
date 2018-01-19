@@ -1,5 +1,5 @@
-import { SchoolSchema, intSchoolModel } from '../models/School'; // get types using import
-import { Router, Response, Request, NextFunction } from "express"; //ditto, though kind pointless now
+import { SchoolSchema, intSchoolModel } from '../models/School'; 
+import { Router, Response, Request, NextFunction } from "express"; 
 
 let mongoose = require("mongoose");
 let router = Router();

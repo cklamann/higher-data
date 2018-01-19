@@ -39,7 +39,6 @@ export class ChartFormula implements IntFormula {
 		return mapped.filter(group => _.values(group).length < this.symbolNodes.length);
 	}
 
-	//todo: make interface for chartData
 	private _evaluate(chartData: Array<any>) {
 		return chartData.map(datum => {
 			return {
