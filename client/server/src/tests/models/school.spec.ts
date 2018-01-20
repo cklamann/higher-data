@@ -12,7 +12,6 @@ describe('School Model', function() {
 
   before('create a test school and a test variable', function(done) {
   SchoolSchema.create(nwData)
-    .then( () => SchoolSchema.create(nwDataSector6))
     .then( () => done())
     .catch( err => done(err));
    });
@@ -59,4 +58,11 @@ describe('School Model', function() {
         .catch((err) => done(err));
     });
   });
+
+  after('destroy test school and test variable', function(done) {
+    SchoolSchema.find(nwData).remove().exec()
+      .then(() => done())
+      .catch(err => done(err));
+  });
+
 });

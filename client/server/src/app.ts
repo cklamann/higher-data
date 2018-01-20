@@ -8,6 +8,8 @@ mongoose.Promise = require('q').Promise;
 import passport = require('passport');
 const BasicStrategy = require('passport-http').BasicStrategy;
 const fs = require('fs');
+import winston = require('winston');
+
 
 import { UserSchema, intUserModel } from './models/User'; 
 const users = require('./routes/users');

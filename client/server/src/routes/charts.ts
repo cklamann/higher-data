@@ -9,15 +9,23 @@ let router = Router();
 
 router.post('/', passport.authenticate('basic', { session: false }), function(req, res, next) {
 	let promise;
-	if(req.body._id){
-		promise =	ChartSchema.schema.statics.update(req.body)
+	if (req.body._id) {
+		promise = ChartSchema.schema.statics.update(req.body);
 	} else promise = ChartSchema.create(req.body);
 
-	promise.then( (chart: intChartModel) => {
+	promise.then((chart: intChartModel) => {
 		res.json(chart);
 		return;
-	}).catch( (err:Error) => next(err));
+	}).catch((err: Error) => next(err));
 
+});
+
+router.get('/', function(req, res, next): Promise<void> {
+	return ChartSchema.find({})
+		.then(chart => {
+			res.json(chart);
+			return;
+		}).catch(err => next(err));
 });
 
 module.exports = router;

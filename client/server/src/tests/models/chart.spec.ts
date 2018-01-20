@@ -140,6 +140,7 @@ describe('Chart Model', function() {
         .then(res => {
           res.variables[0].notes = "new fancy updated notes!";
           res.variables.push(newVar);
+          console.log(res);
           return ChartSchema.schema.statics.update(res);
         }).then(chart => {
           done();
@@ -153,7 +154,7 @@ describe('Chart Model', function() {
   });
 
   afterEach('remove test chart', function(done) {
-    ChartSchema.find({ name: "fake_chart" }).remove().exec().then(() => done()).catch(err => done(err));
+    ChartSchema.find({ name: { "$in": ["fake_chart","bad_chart"] } }).remove().exec().then(() => done()).catch(err => done(err));
   });
 
 });

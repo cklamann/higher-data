@@ -50,8 +50,8 @@ schema.path('variable').validate({
   message: 'Variable is not on any model!'
 });
 
-export let variableSourcesSchema = model<intVariableSource>('variableSource', sourcesSchema)
-export let VariableDefinitionSchema = model<intVariableDefinitionModel>('variableDefinition', schema);
+export let variableSourcesSchema = model<intVariableSource>('variable_source', sourcesSchema)
+export let VariableDefinitionSchema = model<intVariableDefinitionModel>('variable_definition', schema);
 
 VariableDefinitionSchema.schema.static('update', (model: intVariableDefinitionModel) => {
   return VariableDefinitionSchema.findById(model._id).exec()

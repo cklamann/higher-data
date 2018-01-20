@@ -78,15 +78,15 @@ chartVariableSchema.path('formula').validate({
   message: 'Formula is invalid!'
 });
 
-export let ChartSchema = model<intChartModel>('chartModel', schema);
-export let ChartVariableSchema = model<intChartVariable>('chartVariableModel', schema);
+export let ChartSchema = model<intChartModel>('chart', schema);
+export let ChartVariableSchema = model<intChartVariable>('chart_variable', schema);
 
 ChartSchema.schema.static('update', (model: intChartModel) => {
   return ChartSchema.findById(model._id).exec() 
     .then(chart => {
       let copy = _.cloneDeep(model);
       delete copy.variables;
-      chart.update(copy); //note -- this works just fine, but need to push into util and standardize
+      chart.update(copy); //todo: to push into util and standardize
       chart.variables = Util.updateArray(chart.variables, model.variables);
       return chart.save();
     }).then(() => ChartSchema.findById(model._id).exec());
