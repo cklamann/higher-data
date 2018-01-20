@@ -1,11 +1,11 @@
-import { UserSchema } from '../../models/User';
+import { UserSchema } from '../../schemas/UserSchema';
 import * as assert from 'assert';
 import * as chai from 'chai';
 //import * as chaiHttp from 'chai-http'; 
 const chaiHttp = require('chai-http') //doing this until updeate when it can be imported in es6 style....
 import { expect } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
-import { SchoolSchema } from '../../models/School';
+import { SchoolSchema } from '../../schemas/SchoolSchema';
 const app = require('../../app');
 
 chai.use(chaiHttp);

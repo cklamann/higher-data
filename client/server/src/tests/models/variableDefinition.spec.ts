@@ -1,5 +1,5 @@
-import { VariableDefinitionSchema, intVariableDefinitionModel, intVariableSource } from '../../models/VariableDefinition';
-import { SchoolSchema } from '../../models/School';
+import { VariableDefinitionSchema, intVariableDefinitionModel, intVariableSource } from '../../schemas/VariableDefinitionSchema';
+import { SchoolSchema } from '../../schemas/SchoolSchema';
 import assert = require('assert');
 import chai = require('chai');
 import { expect } from 'chai';

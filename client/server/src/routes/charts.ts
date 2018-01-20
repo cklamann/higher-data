@@ -1,5 +1,5 @@
 import { Router, Response, Request, NextFunction } from "express";
-import { ChartSchema, intChartModel } from '../models/Chart';
+import { ChartSchema, intChartModel } from '../schemas/ChartSchema';
 import * as passport from 'passport';
 
 let mongoose = require("mongoose");

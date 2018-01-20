@@ -1,10 +1,10 @@
-import { UserSchema } from '../../models/User';
+import { UserSchema } from '../../schemas/UserSchema';
 import * as assert from 'assert';
 import * as chai from 'chai';
 const chaiHttp = require('chai-http');
 import { expect } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
-import { ChartSchema, intChartModel, intChartVariable } from '../../models/Chart';
+import { ChartSchema, intChartModel, intChartVariable } from '../../schemas/ChartSchema';
 const app = require('../../app');
 
 chai.use(chaiHttp);
@@ -28,6 +28,7 @@ describe("CHART ROUTE", () => {
 		type: 'line',
 		category: 'fake',
 		active: true,
+		slug: 'the-slug',
 		valueType: 'currency',
 		description: 'sweet chart',
 		variables: [{

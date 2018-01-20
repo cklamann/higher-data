@@ -1,4 +1,4 @@
-import { UserSchema } from '../../models/User';
+import { UserSchema } from '../../schemas/UserSchema';
 import assert = require('assert');
 import chai = require('chai');
 import { expect } from 'chai';

@@ -1,5 +1,5 @@
 import { Router, Response, Request, NextFunction } from "express";
-import { UserSchema, intUserModel } from '../models/User';
+import { UserSchema, intUserModel } from '../schemas/UserSchema';
 import * as passport from 'passport';
 import * as crypto from 'crypto';
 let router = Router();

@@ -1,8 +1,8 @@
 import M = require('mathjs');
 import _ = require('lodash');
-import { SchoolSchema, intSchoolModel } from '../models/School';
+import { SchoolSchema, intSchoolModel } from '../schemas/SchoolSchema';
 
-import { VariableDefinitionSchema, intVariableDefinitionModel } from '../models/VariableDefinition';
+import { VariableDefinitionSchema, intVariableDefinitionModel } from '../schemas/VariableDefinitionSchema';
 
 export interface IntFormula {
 	validate(): Promise<boolean>;

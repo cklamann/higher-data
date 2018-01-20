@@ -1,4 +1,4 @@
-import { ChartSchema, ChartVariableSchema, intChartModel, intChartVariable } from '../../models/Chart';
+import { ChartSchema, ChartVariableSchema, intChartModel, intChartVariable } from '../../schemas/ChartSchema';
 import assert = require('assert');
 import chai = require('chai');
 import * as chaiAsPromised from 'chai-as-promised';
@@ -14,6 +14,7 @@ describe('Chart Model', function() {
   const testChart: intChartModel = {
     name: 'fake_chart',
     type: 'line',
+    slug: 'the-slug',
     category: 'fake',
     active: true,
     valueType: 'currency',
@@ -28,6 +29,7 @@ describe('Chart Model', function() {
   const badTestChart: intChartModel = {
     name: 'bad_chart',
     type: 'line',
+    slug: 'the-slug',
     category: 'fake',
     valueType: 'currency',
     description: 'sweet chart',
@@ -140,7 +142,6 @@ describe('Chart Model', function() {
         .then(res => {
           res.variables[0].notes = "new fancy updated notes!";
           res.variables.push(newVar);
-          console.log(res);
           return ChartSchema.schema.statics.update(res);
         }).then(chart => {
           done();

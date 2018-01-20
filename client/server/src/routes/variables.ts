@@ -1,5 +1,5 @@
-import { SchoolSchema, intSchoolModel } from '../models/School'; 
-import { VariableDefinitionSchema, intVariableDefinitionModel } from '../models/VariableDefinition';
+import { SchoolSchema, intSchoolModel } from '../schemas/SchoolSchema'; 
+import { VariableDefinitionSchema, intVariableDefinitionModel } from '../schemas/VariableDefinitionSchema';
 import { Router, Response, Request, NextFunction } from "express"; 
 import passport = require('passport');
 

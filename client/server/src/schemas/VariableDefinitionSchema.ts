@@ -1,5 +1,5 @@
 import { model, Schema, Document, Model } from 'mongoose';
-import { SchoolSchema } from './School';
+import { SchoolSchema } from './SchoolSchema';
 import * as Util from '../modules/Util.module';
 
 let ObjectId = Schema.Types.ObjectId;

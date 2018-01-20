@@ -1,5 +1,5 @@
-import { UserSchema } from '../../models/User';
-import { SchoolSchema } from '../../models/School';
+import { UserSchema } from '../../schemas/UserSchema';
+import { SchoolSchema } from '../../schemas/SchoolSchema';
 import assert = require('assert');
 import chai = require('chai');
 import { expect } from 'chai';

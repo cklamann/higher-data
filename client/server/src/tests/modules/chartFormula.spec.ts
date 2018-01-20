@@ -1,6 +1,6 @@
 import { ChartFormula } from '../../modules/ChartFormula.module';
-import { VariableDefinitionSchema, intVariableDefinitionModel } from '../../models/VariableDefinition';
-import { SchoolSchema } from '../../models/School';
+import { VariableDefinitionSchema, intVariableDefinitionModel } from '../../schemas/VariableDefinitionSchema';
+import { SchoolSchema } from '../../schemas/SchoolSchema';
 import assert = require('assert');
 import chai = require('chai');
 import { expect } from 'chai';
