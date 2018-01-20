@@ -1,5 +1,5 @@
 import { Router, Response, Request, NextFunction } from "express";
-import { ChartSchema, intChartModel } from '../schemas/ChartSchema';
+import { ChartSchema, intChartSchema } from '../schemas/ChartSchema';
 import * as passport from 'passport';
 
 let mongoose = require("mongoose");
@@ -13,7 +13,7 @@ router.post('/', passport.authenticate('basic', { session: false }), function(re
 		promise = ChartSchema.schema.statics.update(req.body);
 	} else promise = ChartSchema.create(req.body);
 
-	promise.then((chart: intChartModel) => {
+	promise.then((chart: intChartSchema) => {
 		res.json(chart);
 		return;
 	}).catch((err: Error) => next(err));

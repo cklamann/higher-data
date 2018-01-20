@@ -1,10 +1,13 @@
 import { UserSchema } from '../../schemas/UserSchema';
+import { nwData, dummyChartData } from '../fixtures/fixtures';
+import { VariableDefinitionSchema, intVariableDefinitionSchema } from '../../schemas/VariableDefinitionSchema';
+import { SchoolSchema } from '../../schemas/SchoolSchema';
 import * as assert from 'assert';
 import * as chai from 'chai';
 const chaiHttp = require('chai-http');
 import { expect } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
-import { ChartSchema, intChartModel, intChartVariable } from '../../schemas/ChartSchema';
+import { ChartSchema, intChartSchema, intChartVariable } from '../../schemas/ChartSchema';
 const app = require('../../app');
 
 chai.use(chaiHttp);
@@ -23,7 +26,31 @@ describe("CHART ROUTE", () => {
 		})
 	});
 
-	const testChart: intChartModel = {
+	const testVar1: intVariableDefinitionSchema = {
+		variable: "test_var_1",
+		type: "currency",
+		sources: [{
+			start_year: 2015,
+			end_year: 2017,
+			source: "IPEDS",
+			table: "test_ipeds_table",
+			formula: "source formula doesn't matter",
+			definition: "test definition",
+			notes: "some test notes"
+		}]
+	}
+
+	before('seed data and create a test school and variables', function(done) {
+		nwData.data = nwData.data.concat(dummyChartData);
+		SchoolSchema.create(nwData)
+			.then(() => {
+				return VariableDefinitionSchema.create([testVar1]);
+			})
+			.then(() => done())
+			.catch(err => done(err));
+	});
+	
+	const testChart: intChartSchema = {
 		name: 'fake_chart',
 		type: 'line',
 		category: 'fake',
@@ -32,14 +59,14 @@ describe("CHART ROUTE", () => {
 		valueType: 'currency',
 		description: 'sweet chart',
 		variables: [{
-			formula: '1+2',
+			formula: '1+test_var_1',
 			notes: 'test notes',
 			legendName: 'test legend'
 		}]
 	};
 
 	const newVariables: intChartVariable = {
-		formula: '1+2+3',
+		formula: '1+2+test_var_1',
 		notes: 'more test notes',
 		legendName: 'a test legend'
 	}
@@ -86,7 +113,6 @@ describe("CHART ROUTE", () => {
 				.then(res => {
 					expect(res).to.have.status(200);
 					expect(res.body).to.be.an('array');
-					console.log(res.body);
 					done();
 				}).catch(err => done(err));
 		})
@@ -104,4 +130,10 @@ describe("CHART ROUTE", () => {
 		}).remove().exec();
 		done();
 	});
+
+	after('remove test org and variables', function(done) {
+		VariableDefinitionSchema.find({ name: { "$in": ["test_var_1", "test_var_2"] } }).remove().exec()
+			.then(() => SchoolSchema.find({ unitid: nwData.unitid }).remove().exec())
+			.then(() => done()).catch(err => done(err));
+	})
 });

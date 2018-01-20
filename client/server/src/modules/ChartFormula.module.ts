@@ -1,14 +1,14 @@
 import M = require('mathjs');
 import _ = require('lodash');
-import { SchoolSchema, intSchoolModel } from '../schemas/SchoolSchema';
+import { SchoolSchema, intSchoolSchema } from '../schemas/SchoolSchema';
 
-import { VariableDefinitionSchema, intVariableDefinitionModel } from '../schemas/VariableDefinitionSchema';
+import { VariableDefinitionSchema, intVariableDefinitionSchema } from '../schemas/VariableDefinitionSchema';
 
-export interface IntFormula {
+export interface intFormula {
 	validate(): Promise<boolean>;
 }
 
-export class ChartFormula implements IntFormula {
+export class ChartFormula implements intFormula {
 	formula: string;
 	symbolNodes: Array<string>;
 	parsed: object;
@@ -22,9 +22,8 @@ export class ChartFormula implements IntFormula {
 		return this._verifyNodes();
 	}
 
-	private _transformModelForFormula(school: intSchoolModel): Array<any> {
-		let schoolCopy = _.cloneDeep(school);
-		let grouped = _.groupBy(schoolCopy.data, 'fiscal_year');
+	private _transformModelForFormula(school: intSchoolSchema): Array<any> {
+		let grouped = _.groupBy(school.data, 'fiscal_year');
 		let mapped = _.map(grouped, (v, k) => {
 			return {
 				[k]: v.map(item => {
@@ -36,21 +35,22 @@ export class ChartFormula implements IntFormula {
 				}, {})
 			}
 		});
-		//make sure to process only years with all required values
+		//make sure to process only years with all required fields
 		return mapped.filter(group => _.values(group).length < this.symbolNodes.length);
 	}
 
 	private _evaluate(chartData: Array<any>) {
 		return chartData.map(datum => {
 			return {
-				[_.keys(datum)[0]] : M.eval(this.formula, _.values(datum)[0])
-			}	
+				fiscal_year: _.keys(datum)[0],
+				value: M.eval(this.formula, _.values(datum)[0])
+			}
 		});
 	}
 
-	public execute(unitid: number) {
+	public execute(unitid: number): Promise<Array<any>> {
 		return SchoolSchema.schema.statics.fetchSchoolWithVariables(unitid, this.symbolNodes)
-			.then( (school:intSchoolModel) => this._evaluate(this._transformModelForFormula(school)));
+			.then((school: intSchoolSchema) => this._evaluate(this._transformModelForFormula(school)));
 	}
 
 	private _getSymbolNodes() {
@@ -61,7 +61,7 @@ export class ChartFormula implements IntFormula {
 				parsed = parsed.content;
 			}
 			if (parsed.args) {
-				parsed.args.forEach( (child:any) => _recurse(child));
+				parsed.args.forEach((child: any) => _recurse(child));
 			}
 			if (parsed.name) {
 				nodes.push(parsed.name);
@@ -75,6 +75,9 @@ export class ChartFormula implements IntFormula {
 			.then(variables => {
 				let allVars = _.flatMap(variables, vari => vari.variable);
 				let valid: boolean = true;
+				if (this.symbolNodes.length === 0) {
+					valid = false;
+				}
 				this.symbolNodes.forEach(node => {
 					if (allVars.indexOf(node) === -1) {
 						valid = false;

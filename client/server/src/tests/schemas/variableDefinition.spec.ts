@@ -1,4 +1,4 @@
-import { VariableDefinitionSchema, intVariableDefinitionModel, intVariableSource } from '../../schemas/VariableDefinitionSchema';
+import { VariableDefinitionSchema, intVariableDefinitionSchema, intVariableSource } from '../../schemas/VariableDefinitionSchema';
 import { SchoolSchema } from '../../schemas/SchoolSchema';
 import assert = require('assert');
 import chai = require('chai');
@@ -7,9 +7,9 @@ import * as _ from 'lodash';
 const app = require('../../app');
 
 
-describe('Variable Definition Model', function() {
+describe('Variable Definition Schema', function() {
 
-  const testVar: intVariableDefinitionModel = {
+  const testVar: intVariableDefinitionSchema = {
     variable: "test_var",
     type: "currency",
     sources: [{

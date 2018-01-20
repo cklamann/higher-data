@@ -9,8 +9,8 @@ import passport = require('passport');
 const BasicStrategy = require('passport-http').BasicStrategy;
 const fs = require('fs');
 import winston = require('winston');
-import { UserSchema, intUserModel } from './schemas/UserSchema';
-import { SchoolSchema, intSchoolModel } from './schemas/SchoolSchema';
+import { UserSchema, intUserSchema } from './schemas/UserSchema';
+import { SchoolSchema, intSchoolSchema } from './schemas/SchoolSchema';
 
 const users = require('./routes/users');
 const schools = require('./routes/schools');

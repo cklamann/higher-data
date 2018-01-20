@@ -8,7 +8,7 @@ import * as q from 'q';
 
 const app = require('../../app');
 
-describe('School Model', function() {
+describe('School Schema', function() {
 
   before('create a test school and a test variable', function(done) {
   SchoolSchema.create(nwData)
@@ -20,10 +20,10 @@ describe('School Model', function() {
     it('should return specified variable for all schools', function(done) {
       SchoolSchema.schema.statics.fetchVariable('black_p', 10)
         .then(function(res) {
-          done();
           expect(res).to.be.an('array');
           expect(res[0].data.filter(datum => datum.variable === "black_p").length).to.be.greaterThan(0);
           expect(res[0].data.filter(datum => datum.variable === "white_p").length).to.equal(0);
+          done();
         })
         .catch(err => done(err));
     });
@@ -34,9 +34,9 @@ describe('School Model', function() {
       let filters = [{ name: "sector", value: "5" }];
       SchoolSchema.schema.statics.fetchVariable('black_p')
         .then(res => {
-          done();
           expect(res).to.be.an('array');
           expect(res[0].data.filter(datum => datum.variable === "black_p").length).to.be.greaterThan(0);
+          done();
         })
         .catch(err => done(err));
     });
@@ -47,20 +47,20 @@ describe('School Model', function() {
       let variables = ["hispanic_p", "asian_p"];
       SchoolSchema.schema.statics.fetchSchoolWithVariables(nwData.unitid, variables)
         .then(res => {
-          done()
           expect(res).to.be.an('object');
           expect(res.unitid).to.equal(nwData.unitid);
           expect(res.data).to.be.an('array');
           expect(res.data.filter(datum => datum.variable === "hispanic_p").length).to.be.greaterThan(0);
           expect(res.data.filter(datum => datum.variable === "asian_p").length).to.be.greaterThan(0);
           expect(res.data.filter(datum => datum.variable === "white_p").length).to.equal(0);
+          done()
         })
         .catch((err) => done(err));
     });
   });
 
   after('destroy test school and test variable', function(done) {
-    SchoolSchema.find(nwData).remove().exec()
+    SchoolSchema.find({unitid:nwData.unitid}).remove().exec()
       .then(() => done())
       .catch(err => done(err));
   });

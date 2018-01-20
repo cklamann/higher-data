@@ -3,7 +3,7 @@ import * as _ from 'lodash';
 
 export let ObjectId = Schema.Types.ObjectId;
 
-export interface intSchoolModel extends Document {
+export interface intSchoolSchema extends Document {
   unitid: number;
   instnm: string;
   state: string;
@@ -46,7 +46,7 @@ let schema: Schema = new Schema({
 });
 
 export let SchoolDataSchema = model<intSchoolData>('schoolData', schema);
-export let SchoolSchema = model<intSchoolModel>('school', schema);
+export let SchoolSchema = model<intSchoolSchema>('school', schema);
 
 SchoolSchema.schema.static('search', (name: string, cb: any) => {
   return SchoolSchema.find({ instnm: { $regex: `${name}+.`, $options: 'is' } }, cb).limit(25).select('-data');
@@ -93,7 +93,7 @@ SchoolSchema.schema.static('fetchVariable', (variable: string, filters: Array<an
   ]).limit(limit ? limit : 1000000).exec();
 });
 
-SchoolSchema.schema.static('fetchSchoolWithVariables', (unitid: number, variables: Array<string>): Promise<intSchoolModel> => {
+SchoolSchema.schema.static('fetchSchoolWithVariables', (unitid: number, variables: Array<string>) => {
   return SchoolSchema.aggregate([
     {
       "$match": {
@@ -116,7 +116,7 @@ SchoolSchema.schema.static('fetchSchoolWithVariables', (unitid: number, variable
         }
       }
     }
-  ]).exec().then( (res:Array<intSchoolModel>) => {
+  ]).exec().then( (res:Array<intSchoolSchema>) => {
     let result = res[0];
     _.forEach(result.data, (v, k) => {
       _.forEach(v, val => {
@@ -127,4 +127,12 @@ SchoolSchema.schema.static('fetchSchoolWithVariables', (unitid: number, variable
     });
     return result;
   })
+});
+
+SchoolSchema.schema.static('fetch', (arg:string) => {
+  let promise;
+  if (!!_.toNumber(arg)){
+    promise = SchoolSchema.findOne({ unitid: arg }).select('-data');
+  } else promise = SchoolSchema.findOne({ slug: arg }).select('-data');
+  return promise; 
 });

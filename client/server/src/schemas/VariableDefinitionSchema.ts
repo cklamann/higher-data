@@ -4,7 +4,7 @@ import * as Util from '../modules/Util.module';
 
 let ObjectId = Schema.Types.ObjectId;
 
-export interface intVariableDefinitionModel extends Document {
+export interface intVariableDefinitionSchema extends Document {
   variable: string;
   type: string;
   sources: Array<intVariableSource>;
@@ -51,9 +51,9 @@ schema.path('variable').validate({
 });
 
 export let variableSourcesSchema = model<intVariableSource>('variable_source', sourcesSchema)
-export let VariableDefinitionSchema = model<intVariableDefinitionModel>('variable_definition', schema);
+export let VariableDefinitionSchema = model<intVariableDefinitionSchema>('variable_definition', schema);
 
-VariableDefinitionSchema.schema.static('update', (model: intVariableDefinitionModel) => {
+VariableDefinitionSchema.schema.static('update', (model: intVariableDefinitionSchema) => {
   return VariableDefinitionSchema.findById(model._id).exec()
     .then(variable => {
       variable.type = model.type;

@@ -1,11 +1,11 @@
 import { model, Schema, Document, Model } from 'mongoose';
-import { ChartFormula, IntFormula } from '../modules/ChartFormula.module';
+import { ChartFormula, intFormula } from '../modules/ChartFormula.module';
 import * as Util from '../modules/Util.module';
 import * as _ from 'lodash';
 
 export let ObjectId = Schema.Types.ObjectId;
 
-export interface intChartModel extends Document {
+export interface intChartSchema extends Document {
   name: string;
   slug: string;
   type: string;
@@ -17,7 +17,7 @@ export interface intChartModel extends Document {
 };
 
 export interface intChartVariable extends Document {
-  formula: IntFormula;
+  formula: string;
   notes: string;
   legendName: string
 };
@@ -83,15 +83,15 @@ chartVariableSchema.path('formula').validate({
   message: 'Formula is invalid!'
 });
 
-export let ChartSchema = model<intChartModel>('chart', schema);
+export let ChartSchema = model<intChartSchema>('chart', schema);
 export let ChartVariableSchema = model<intChartVariable>('chart_variable', schema);
 
-ChartSchema.schema.static('update', (model: intChartModel) => {
+ChartSchema.schema.static('update', (model:intChartSchema) => {
   return ChartSchema.findById(model._id).exec() 
     .then(chart => {
       let copy = _.cloneDeep(model);
       delete copy.variables;
-      chart.update(copy); //todo: to push into util and standardize
+      chart.update(copy);
       chart.variables = Util.updateArray(chart.variables, model.variables);
       return chart.save();
     }).then(() => ChartSchema.findById(model._id).exec());

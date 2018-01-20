@@ -1,5 +1,5 @@
-import { SchoolSchema, intSchoolModel } from '../schemas/SchoolSchema'; 
-import { VariableDefinitionSchema, intVariableDefinitionModel } from '../schemas/VariableDefinitionSchema';
+import { SchoolSchema, intSchoolSchema } from '../schemas/SchoolSchema'; 
+import { VariableDefinitionSchema, intVariableDefinitionSchema } from '../schemas/VariableDefinitionSchema';
 import { Router, Response, Request, NextFunction } from "express"; 
 import passport = require('passport');
 
@@ -8,7 +8,7 @@ let router = Router();
 let School = SchoolSchema;
 
 router.get('/', passport.authenticate('basic', { session: false }), function(req, res, next) {
-	School.schema.statics.getVariableList((err: any, resp: intSchoolModel[]): Response => {
+	School.schema.statics.getVariableList((err: any, resp: intSchoolSchema[]): Response => {
 		if (err) next(err);
 		return res.json(resp);
 	});
@@ -18,7 +18,7 @@ router.post('/', passport.authenticate('basic', { session: false }), function(re
 	if(!req.body.variable){
 		res.sendStatus(400);
 	}
-	VariableDefinitionSchema.schema.statics.update(req.body.variable, (err:any, variable:intVariableDefinitionModel) => {
+	VariableDefinitionSchema.schema.statics.update(req.body.variable, (err:any, variable:intVariableDefinitionSchema) => {
 		res.json(variable);
 	})
 });

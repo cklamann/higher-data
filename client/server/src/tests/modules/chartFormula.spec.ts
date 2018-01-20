@@ -1,5 +1,5 @@
 import { ChartFormula } from '../../modules/ChartFormula.module';
-import { VariableDefinitionSchema, intVariableDefinitionModel } from '../../schemas/VariableDefinitionSchema';
+import { VariableDefinitionSchema, intVariableDefinitionSchema } from '../../schemas/VariableDefinitionSchema';
 import { SchoolSchema } from '../../schemas/SchoolSchema';
 import assert = require('assert');
 import chai = require('chai');
@@ -10,7 +10,7 @@ const app = require('../../app');
 
 describe('FORMULA MODEL', function() {
 
-	const testVar: intVariableDefinitionModel = {
+	const testVar: intVariableDefinitionSchema = {
 		variable: "test_var",
 		type: "currency",
 		sources: [{
@@ -49,10 +49,10 @@ describe('FORMULA MODEL', function() {
 	describe('get the symbol nodes', function() {
 		it('should return an array of symbol nodes in the formula', function(done) {
 			let form1 = new ChartFormula(testChartFormulaBad);
-			done();
 			expect(form1.symbolNodes).to.be.an('array');
 			expect(form1.symbolNodes).to.contain('fake_var');
 			assert(form1.symbolNodes.length == 2);
+			done();
 		})
 	});
 
@@ -61,8 +61,8 @@ describe('FORMULA MODEL', function() {
 			let form1 = new ChartFormula(testChartFormula);
 			let validated = form1.validate()
 				.then(res => {
-					done();
 					expect(res).to.equal(true);
+					done();
 				})
 				.catch(err => done(err));
 		});
@@ -73,10 +73,10 @@ describe('FORMULA MODEL', function() {
 			let form1 = new ChartFormula(testChartFormulaBad);
 			let validated = form1.validate()
 				.then(res => {
-					done();
 					expect(res).to.equal(false);
+					done();
 				})
-				.catch(err => err);
+				.catch(err => done(err));
 		})
 	});
 
@@ -85,16 +85,14 @@ describe('FORMULA MODEL', function() {
 			let form1 = new ChartFormula(nwChartFormula);
 			form1.execute(nwData.unitid)
 				.then(res => {
-					done();
 					expect(res).to.be.an('array');
 					//confirm it's an array of objects
 					res.forEach(resp => expect(resp).to.be.an('object'));
-					//confirm there's only one object per array
-					res.forEach(resp => expect(Object.keys(resp)).to.have.lengthOf(1));
-					//confirm that the value is numeric
-					res.forEach(resp => _.values(resp).forEach(val => expect(val).to.be.a('number')));
+					//confirm there's only one kv pair per array
+					res.forEach(resp => expect(Object.keys(resp)).to.have.lengthOf(2));
+					done();
 				})
-				.catch(err => err);
+				.catch(err => done(err));
 		})
 	});
 
@@ -108,8 +106,7 @@ describe('FORMULA MODEL', function() {
 			unitid: 12345,
 		}).remove().exec();
 
-		SchoolSchema.findOne({ unitid: nwData.unitid }).remove().exec();
-		done();
+		SchoolSchema.find({ unitid: nwData.unitid }).remove().exec().then( () => done());
 	});
 
 });

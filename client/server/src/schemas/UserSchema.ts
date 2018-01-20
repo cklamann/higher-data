@@ -1,6 +1,6 @@
 import { model, Schema, Document, Model } from 'mongoose';
 
-export interface intUserModel extends Document {
+export interface intUserSchema extends Document {
 	username: string,
 	password: string,
 	isAdmin: boolean,
@@ -13,4 +13,4 @@ let schema: Schema = new Schema({
 	isAdmin: Boolean
 });
 
-export let UserSchema = model<intUserModel>('user', schema);
+export let UserSchema = model<intUserSchema>('user', schema);

@@ -1,7 +1,9 @@
 import _ = require('lodash');
 import { Document } from 'mongoose';
 
-export function updateArray(arrayToUpdate: Array<Document>, sourceArray: Array<any>): Array<any> {
+//typing on arrayToUpdate not recognizing mongoose id method, even as document...
+
+export function updateArray(arrayToUpdate: any, sourceArray: Array<any>): Array<any> {
 	sourceArray.forEach(source => {
 		if (source.isNew) {
 			arrayToUpdate = arrayToUpdate.concat([source]); //workaround until mongoose removes $pushall

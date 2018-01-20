@@ -1,5 +1,5 @@
 import { Router, Response, Request, NextFunction } from "express";
-import { UserSchema, intUserModel } from '../schemas/UserSchema';
+import { UserSchema, intUserSchema } from '../schemas/UserSchema';
 import * as passport from 'passport';
 import * as crypto from 'crypto';
 let router = Router();
@@ -18,7 +18,7 @@ router.get('/', function(req, res, next) {
 /* create new user */
 router.post('/', function(req: any, res, next) {
 	const pw = encryptPw(req.body.password);
-	let user = UserSchema.create({ username: req.body.username, password: pw, isAdmin: req.body.isAdmin }, function(err: Error, doc: Promise<intUserModel>) {
+	let user = UserSchema.create({ username: req.body.username, password: pw, isAdmin: req.body.isAdmin }, function(err: Error, doc: Promise<intUserSchema>) {
 		if (err) {
 			res.status(422);
 			res.json({ name: err.name, msg: err.message });
