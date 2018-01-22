@@ -18,7 +18,7 @@ export class AppComponent implements OnInit {
 		const redir = cookies.filter(c => c.match(/^redirect=.+/))[0];
 		document.cookie = "redirect" + '=; Max-Age=-99999999;';
 		if (redir) {
-			this.router.navigate(["/" + redir.slice(12)]);
+			this.router.navigate([decodeURIComponent(redir.slice(9))]);
 		}
 	}
 

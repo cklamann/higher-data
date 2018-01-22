@@ -18,14 +18,12 @@ export class ChartCreatorComponent implements OnInit {
 		
 	}
 
-	//todo: create chart type selector -- should just be a list of child charts classes
-	//from chartService
 	createForm() {
 		this.chartBuilderForm = this.fb.group({
 			chartName: ['', [Validators.minLength(3), Validators.required]],
 			chartDescription: ['', [Validators.minLength(3), Validators.required]],
 			variables: this.fb.array([
-				//
+				this.initVariable()
 			])
 		});
 	}

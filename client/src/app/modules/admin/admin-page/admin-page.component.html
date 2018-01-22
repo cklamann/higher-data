@@ -1,8 +1,27 @@
-<nav fxLayout = "row" fxLayoutAlign="center center" class = "mat-elevation-z3">
-	<div fxFlex="none" fxLayout = "row" fxLayoutAlign="start center">
-	  	<a class = "mat-button" fxFlex="none" mat-button [routerLink]="['edit-blog']">edit blog</a>
-  		<a class = "mat-button" fxFlex="none" mat-button [routerLink]="['manage-charts']">manage charts</a>
-  		<a class = "mat-button" fxFlex="none" mat-button [routerLink]="['manage-variables']">manage variables</a>
-  	</div>
+<!--admin subnav-->
+<nav mat-tab-nav-bar fxLayout = "row" fxLayoutAlign="center center" class = "mat-elevation-z3">
+	<a 
+		mat-tab-link
+	    [routerLink]="['edit-blog']"
+	    routerLinkActive #rla1="routerLinkActive"
+	    [active]="rla1.isActive">
+	    edit blog
+	</a>
+	<a 
+		mat-tab-link
+	    [routerLink]="['manage-charts']"
+	    routerLinkActive #rla2="routerLinkActive"
+	    [active]="rla2.isActive">
+	    manage charts
+	</a>
+	<a 
+	  	mat-tab-link
+	    [routerLink]="['manage-variables']"
+	    routerLinkActive #rla3="routerLinkActive"
+	    [active]="rla3.isActive">
+	    manage variables
+	</a>
 </nav>
+
+
 <router-outlet></router-outlet>
