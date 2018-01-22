@@ -1,14 +1,14 @@
-import express = require('express');
-import path = require('path');
+import * as express from 'express';
+import * as path from 'path';
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
-import bodyParser = require('body-parser');
+import * as bodyParser from 'body-parser';
 const mongoose = require('mongoose');
 mongoose.Promise = require('q').Promise;
-import passport = require('passport');
+import * as passport from 'passport';
 const BasicStrategy = require('passport-http').BasicStrategy;
 const fs = require('fs');
-import winston = require('winston');
+import * as winston from 'winston';
 import { UserSchema, intUserSchema } from './schemas/UserSchema';
 import { SchoolSchema, intSchoolSchema } from './schemas/SchoolSchema';
 
@@ -20,6 +20,8 @@ const charts = require('./routes/charts');
 mongoose.set('debug', true);
 
 const app = express();
+
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(logger('common', {
   stream: fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' })
@@ -44,8 +46,6 @@ mongoose.connect('mongodb://localhost/colleges');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-
-app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/api/users', users);
 app.use('/api/schools', schools);

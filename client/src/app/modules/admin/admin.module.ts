@@ -26,4 +26,4 @@ import { VariableDefinerComponent } from './admin-page/variable-definer/variable
   declarations: [AdminPageComponent,LoginPageComponent, ChartCreatorComponent, VariableDefinerComponent],
   providers: [Users, RestService, InterceptService]
 })
-export class AdminPageModule { }
+export class AdminModule { }

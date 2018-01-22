@@ -55,6 +55,7 @@ router.post('/login', (req, res, next) => {
 	});
 	user.then(user => {
 		if (!user || user.password != encryptPw(req.body.password)) {
+			console.log(user);
 			res.sendStatus(401);
 		}
 		res.json(user);

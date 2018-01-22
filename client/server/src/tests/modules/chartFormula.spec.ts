@@ -88,8 +88,10 @@ describe('FORMULA MODEL', function() {
 					expect(res).to.be.an('array');
 					//confirm it's an array of objects
 					res.forEach(resp => expect(resp).to.be.an('object'));
-					//confirm there's only one kv pair per array
+					//confirm there's only one kv  per array
 					res.forEach(resp => expect(Object.keys(resp)).to.have.lengthOf(2));
+					//confirm that the value is numeric
+					res.forEach(resp => _.values(resp).forEach(val => expect(val).to.be.a('number')));
 					done();
 				})
 				.catch(err => done(err));

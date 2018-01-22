@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { intSchoolModel } from '../../../server/src/models/School';
+import { intSchoolSchema } from '../../../server/src/schemas/SchoolSchema';
 import { RestService } from '../services/rest/rest.service';
 import { Observable } from 'rxjs';
 import 'rxjs/add/operator/map';
@@ -13,7 +13,7 @@ import 'rxjs/add/operator/map';
 export class Schools {
 	constructor(private rest: RestService) { }
 
-	fetch(id: number): Observable<intSchoolModel[]> {
+	fetch(id: number): Observable<intSchoolSchema[]> {
 		return this.rest.get(`schools/${id}`);
 	}
 
@@ -29,7 +29,7 @@ export class Schools {
 
 export class School {
 	private instnm: string;
-	constructor(obj: intSchoolModel) {
+	constructor(obj: intSchoolSchema) {
 		Object.assign(this, obj);
 	}
 

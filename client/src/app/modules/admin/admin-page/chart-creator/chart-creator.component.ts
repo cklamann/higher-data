@@ -13,6 +13,11 @@ export class ChartCreatorComponent implements OnInit {
 	constructor(private fb: FormBuilder, private auth: AuthService) {
 		this.createForm();
 	}
+
+	ngOnInit(){
+		
+	}
+
 	//todo: create chart type selector -- should just be a list of child charts classes
 	//from chartService
 	createForm() {
@@ -20,7 +25,7 @@ export class ChartCreatorComponent implements OnInit {
 			chartName: ['', [Validators.minLength(3), Validators.required]],
 			chartDescription: ['', [Validators.minLength(3), Validators.required]],
 			variables: this.fb.array([
-				this.initVariable()
+				//
 			])
 		});
 	}

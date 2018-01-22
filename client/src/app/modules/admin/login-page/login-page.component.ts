@@ -31,6 +31,8 @@ export class LoginPageComponent {
 			},
 			err => {
 				if (err) {
+					console.log("errrrrorrororo");
+					console.log(err);
 					this._invalidPassword = "Username or password invalid";
 				}
 			});

@@ -8,13 +8,14 @@ import { SchoolSearchComponent } from './school-search/school-search.component';
 import { ChartPageComponent } from './chart-page.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule, MatFormFieldModule, MatOptionModule, MatInputModule } from '@angular/material';
+import { MatToolbarModule } from '@angular/material/toolbar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { AppRoutingModule } from '../app-routing/app-routing.module';
 
 @NgModule({
 	//imports will be available to all components in module 
-	imports: [BrowserModule, HttpClientModule, ReactiveFormsModule, MatAutocompleteModule, MatFormFieldModule, MatOptionModule, MatInputModule, BrowserAnimationsModule, FlexLayoutModule, AppRoutingModule],
+	imports: [BrowserModule, HttpClientModule, ReactiveFormsModule, MatAutocompleteModule, MatFormFieldModule, MatOptionModule, MatInputModule, BrowserAnimationsModule, FlexLayoutModule, AppRoutingModule, MatToolbarModule],
 	declarations: [ChartPageComponent, SchoolSearchComponent], //list all components in the module
 	providers: [RestService, Schools] // module-wide providers, still need to be imported in each component
 })

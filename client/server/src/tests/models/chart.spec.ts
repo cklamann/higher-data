@@ -57,7 +57,7 @@ describe('Chart Model', function() {
       table: "test_ipeds_table",
       formula: "source formula doesn't matter",
       definition: "test definition",
-      notes: "some test notes"
+      notes: "some test notes would go here"
     }]
   }
 
@@ -81,7 +81,6 @@ describe('Chart Model', function() {
       chart.export()
         .then(chart => {
           chart.data.forEach(datum => console.log(datum));
-          console.log(chart);
           expect(chart).to.be.an('object');
           expect(chart.chart.name).to.equal(testChart.name);
           expect(chart.school.unitid).to.equal(nwData.unitid);
