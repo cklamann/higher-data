@@ -4,7 +4,9 @@ import { AdminPageComponent } from './admin-page/admin-page.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule, MatInputModule, MatTabsModule } from '@angular/material';
 import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material';
 import { MatCardModule } from '@angular/material';
+import { MatOptionModule,MatSelectModule } from '@angular/material';
 import { Users } from '../../models/Users';
 import { RestService } from '../../services/rest/rest.service';
 import { InterceptService } from '../../services/intercept/intercept.service';
@@ -21,12 +23,15 @@ import { VariableDefinerComponent } from './admin-page/variable-definer/variable
     FlexLayoutModule,
     MatCardModule,
     MatFormFieldModule,
+    MatButtonToggleModule,
     MatInputModule,
+    MatOptionModule,
+    MatSelectModule,
     MatTabsModule,
     MatButtonModule,
     ReactiveFormsModule,
   ],
-  declarations: [AdminPageComponent,LoginPageComponent, ChartCreatorComponent, VariableDefinerComponent],
+  declarations: [AdminPageComponent, LoginPageComponent, ChartCreatorComponent, VariableDefinerComponent],
   providers: [Users, RestService, InterceptService]
 })
 export class AdminModule { }

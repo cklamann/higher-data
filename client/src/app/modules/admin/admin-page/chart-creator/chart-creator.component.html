@@ -1,10 +1,6 @@
 <!--todo:
-1) set max width
-2) make formula into tokenized textbox
-3) center card
-3) split card in half, other half for chart preview
-4) add toggle for new/edit
-*make sure to leave space for chart preview
+1) realtime formula validation that returns a message from the validator about which variable does not exist (and, later, whether variables are of incompatible types)
+2) add toggle to upper right corner for new/edit and add search box to edit page. Since search box will be needed elsewhere, should put in a shared module.
 -->
 <div class = "card-holder" fxLayoutWrap fxLayour="row">
 	<mat-card fxLayout="row" fxLayoutWrap fxFlex = "100" fxFlex.gt-sm="50">
@@ -18,34 +14,59 @@
 			    	<div fxLayout="row" fxFlex = "100" fxLayoutWrap>
 				        <!--todo: match to backend chart model-->
 				        <mat-form-field fxFlex = "100" fxFlex.gt-sm="45">
-				            <input matInput formControlName="chartName" type="text" placeholder = "Chart Name"/>
+				            <input matInput formControlName="name" type="text" placeholder = "Chart Name"/>
 				        </mat-form-field>
 				        <mat-form-field fxFlex = "100" fxFlex.gt-sm="45">
-				            <input matInput formControlName="chartDescription" type="text" placeholder="Chart Description">
+				            <input matInput formControlName="description" type="text" placeholder="Chart Description">
+				        </mat-form-field>
+				        <mat-form-field fxFlex = "100" fxFlex.gt-sm="45">
+				            <mat-select class="form-control" formControlName="type" placeholder = "Type">
+          						<mat-option *ngFor="let type of chartTypes" [value]="type">{{type}}
+          						</mat-option>
+      						</mat-select>
+				        </mat-form-field>
+				        <mat-form-field fxFlex = "100" fxFlex.gt-sm="45">
+				            <mat-select class="form-control" formControlName="category" placeholder = "Category">
+          						<mat-option *ngFor="let type of chartCategories" [value]="type">{{type}}
+          						</mat-option>
+      						</mat-select>
+				        </mat-form-field>
+				        <div fxFlex = "100" fxFlex.gt-sm="45">
+				            <mat-button-toggle-group formControlName="active">
+				            	<mat-button-toggle value="true">
+          							Active
+						        </mat-button-toggle>
+						        <mat-button-toggle value="false">
+						          	Inactive
+						        </mat-button-toggle>
+				            </mat-button-toggle-group>
+				        </div>
+				        <mat-form-field fxFlex = "100" fxFlex.gt-sm="45">
+				            <mat-select class="form-control" formControlName="valueType" placeholder = "Value Type">
+          						<mat-option *ngFor="let type of chartValueTypes" [value]="type">{{type}}
+          						</mat-option>
+      						</mat-select>
 				        </mat-form-field>
 				    </div>
-				    <div fxLayout="row" fxFlex = "100">
-			        	<ul formArrayName="variables" fxFlex="100" fxLayoutWrap>
-			        		<!--todo: use divs with offsets instead of lis for more control-->
-			        		<li fxFlex = "100" *ngFor="let variable of chartBuilderForm.controls.variables.controls; let i=index"
-			        		[formGroupName]="i" fxLayout="row" fxLayoutAlign="none center" fxLayoutWrap>
-								<i class="material-icons mat-icon-button" (click)="removeVariable()">indeterminate_check_box</i>
-			        			<span fxFlex = "90">Variable {{i + 1}}</span>
-			                    <mat-form-field fxFlex = "90" fxFlex.gt-sm="50">
-				                    <input matInput type="text" formControlName="name" placeholder="Name">
-								</mat-form-field>		                
-			                	<mat-form-field fxFlex = "90" fxFlex.gt-sm="50">
-			                   		<input matInput type="text" formControlName="legendName" placeholder="Legend Name">
-			                	</mat-form-field>
-			                	<mat-form-field fxFlex = "90" fxFlex.gt-sm="90">
-			                   		<textarea matInput formControlName="formula" placeholder="Formula"></textarea>
-			                	</mat-form-field>
-			        		</li>
-			        		<li fxLayout="row" fxFlex = "100">
-		                      	<button fxFlex="nogrow" mat-mini-fab class = "mat-elevation-z3" type="button" (click)="addVariable()">+</button>
-		                      	<button fxFlex="nogrow" mat-button>Submit</button>
-			        		</li>
-				    	</ul>
+				    <div fxLayout="row" formArrayName="variables" fxFlex="100" fxLayoutWrap>
+		        		<div fxFlex = "100" *ngFor="let variable of chartBuilderForm.controls.variables.controls; let i=index"
+		        		[formGroupName]="i" fxLayout="row" fxLayoutAlign="end center" fxLayoutWrap>
+							<i class="material-icons mat-icon-button" (click)="removeVariable()">indeterminate_check_box</i>
+		        			<span fxFlex = "90">Variable {{i + 1}}</span>
+		                	<mat-form-field fxFlex = "90" fxFlex.gt-sm="45">
+		                   		<input matInput type="text" formControlName="legendName" placeholder="Legend Name">
+		                	</mat-form-field>
+		                    <mat-form-field fxFlex = "90" fxFlex.gt-sm="45">
+			                    <input matInput type="text" formControlName="notes" placeholder="Notes">
+							</mat-form-field>		                
+		                	<mat-form-field fxFlex = "90">
+		                   		<textarea matInput formControlName="formula" placeholder="Formula"></textarea>
+		                	</mat-form-field>
+		        		</div>
+		        		<div fxLayout="row" fxFlex = "100" fxLayoutAlign = "space-around center">
+	                      	<i fxFlex="nogrow" class = "material-icons mat-icon-button"(click)="addVariable()">add_box</i>
+	                      	<button fxFlex="nogrow" mat-button>Submit</button>
+		        		</div>
 				    </div>
 			    </form>
 			</div>
