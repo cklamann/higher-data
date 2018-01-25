@@ -91,7 +91,7 @@ describe('FORMULA MODEL', function() {
 					//confirm there's only one kv  per array
 					res.forEach(resp => expect(Object.keys(resp)).to.have.lengthOf(2));
 					//confirm that the value is numeric
-					res.forEach(resp => _.values(resp).forEach(val => expect(val).to.be.a('number')));
+					res.forEach(resp => _.values(resp).forEach(val => expect(parseInt(val)).to.be.a('number')));
 					done();
 				})
 				.catch(err => done(err));
