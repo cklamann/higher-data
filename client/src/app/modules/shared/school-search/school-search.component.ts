@@ -4,7 +4,7 @@ import { Schools, School } from '../../../models/Schools';
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/map';
 
-//todo: export selected model into parent directive
+//todo: export selected model into parent component
 
 @Component({
 	selector: 'app-school-search',
