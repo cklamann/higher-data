@@ -4,6 +4,8 @@ import { SchoolSchema, intSchoolSchema, intSchoolData } from '../schemas/SchoolS
 
 import { VariableDefinitionSchema, intVariableDefinitionSchema } from '../schemas/VariableDefinitionSchema';
 
+//todo: write tests for optional parameters, missing required values, etc
+
 export interface intFormula {
 	validate(): Promise<boolean>;
 }
@@ -22,12 +24,13 @@ export class ChartFormula implements intFormula {
 	formula: string;
 	cleanFormula: string;
 	symbolNodes: Array<string>;
-	optionalSymbolNodes: Array<string>
+	optionalSymbolNodes: Array<string>;
+
 	constructor(formula: string) {
 		this.formula = formula;
-		this.cleanFormula = this._cleanFormula();
+		this.cleanFormula = this._stripOptionalMarkers(formula);
 		this.symbolNodes = this._getSymbolNodes(this.cleanFormula);
-		this.optionalSymbolNodes = this._getSymbolNodes(this.formula).filter(node => node.match(/^\?.+/));
+		this.optionalSymbolNodes = this._getSymbolNodes(this.formula).filter(node => node.match(/^\?.+/)).map(node => this._stripOptionalMarkers(node));
 	}
 
 	public validate() {
@@ -99,7 +102,7 @@ export class ChartFormula implements intFormula {
 		return _.uniq(vals);
 	}
 
-	private _getSymbolNodes(formula) {
+	private _getSymbolNodes(formula: string): string[] {
 		let nodes: any = [],
 			parsed: any = M.parse(formula)
 		_recurse(parsed);
@@ -117,6 +120,7 @@ export class ChartFormula implements intFormula {
 		return nodes;
 	}
 
+	//verify that there's at least one variable and that a definition exists for every variable passed in
 	private _verifyNodes(): Promise<boolean> {
 		return VariableDefinitionSchema.find().exec()
 			.then(variables => {
@@ -134,8 +138,7 @@ export class ChartFormula implements intFormula {
 			});
 	}
 
-	private _cleanFormula(): string {
-		let formula = _.cloneDeep(this.formula);
-		return formula.replace(/\?/g, "");
+	private _stripOptionalMarkers(item:string): string {
+		return item.replace(/\?/g, "");
 	}
 }
