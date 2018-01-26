@@ -1,6 +1,6 @@
-import M = require('mathjs');
-import _ = require('lodash');
-import Q = require('q');
+import * as M from 'mathjs';
+import * as _ from 'lodash';
+import * as Q from 'q';
 import { SchoolSchema, intSchoolSchema } from '../schemas/SchoolSchema';
 import { ChartSchema, intChartSchema, intChartVariable } from '../schemas/ChartSchema'
 import { ChartFormula, intFormula } from '../modules/ChartFormula.module';
@@ -15,8 +15,8 @@ export interface intChartExportData {
 }
 
 export class Chart implements intChartModel {
-	schoolP: intSchoolSchema;
-	chartP: any;//typing doing funny things here and i suspect elsewhere
+	schoolP: any; //odd typing things going on
+	chartP: any;
 	chart: intChartSchema;
 	school: intSchoolSchema;
 

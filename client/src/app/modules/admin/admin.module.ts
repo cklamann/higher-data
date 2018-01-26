@@ -6,7 +6,7 @@ import { MatFormFieldModule, MatInputModule, MatTabsModule } from '@angular/mate
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material';
 import { MatCardModule } from '@angular/material';
-import { MatOptionModule,MatSelectModule } from '@angular/material';
+import { MatOptionModule, MatSelectModule } from '@angular/material';
 import { Users } from '../../models/Users';
 import { RestService } from '../../services/rest/rest.service';
 import { InterceptService } from '../../services/intercept/intercept.service';
@@ -15,6 +15,7 @@ import { FlexLayoutModule } from "@angular/flex-layout";
 import { AppRoutingModule } from '../app-routing/app-routing.module';
 import { ChartCreatorComponent } from './admin-page/chart-creator/chart-creator.component';
 import { VariableDefinerComponent } from './admin-page/variable-definer/variable-definer.component';
+import { SharedModule } from '../shared/shared.module';
 
 @NgModule({
   imports: [
@@ -30,6 +31,7 @@ import { VariableDefinerComponent } from './admin-page/variable-definer/variable
     MatTabsModule,
     MatButtonModule,
     ReactiveFormsModule,
+    SharedModule
   ],
   declarations: [AdminPageComponent, LoginPageComponent, ChartCreatorComponent, VariableDefinerComponent],
   providers: [Users, RestService, InterceptService]

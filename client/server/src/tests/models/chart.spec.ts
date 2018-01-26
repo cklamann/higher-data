@@ -3,8 +3,8 @@ import { Chart, intChartModel, intChartExportData } from '../../models/Chart';
 import { intSchoolSchema, SchoolSchema } from '../../schemas/SchoolSchema';
 import { VariableDefinitionSchema, intVariableDefinitionSchema } from '../../schemas/VariableDefinitionSchema';
 import { nwData, nwDataSector6, dummyChartData } from '../fixtures/fixtures';
-import assert = require('assert');
-import chai = require('chai');
+import * as assert from 'assert';
+import * as chai from 'chai';
 import { expect } from 'chai';
 import * as _ from 'lodash';
 const app = require('../../app');
@@ -80,7 +80,6 @@ describe('Chart Model', function() {
       let chart = new Chart(nwData.unitid, testChart.slug);
       chart.export()
         .then(chart => {
-          chart.data.forEach(datum => console.log(datum));
           expect(chart).to.be.an('object');
           expect(chart.chart.name).to.equal(testChart.name);
           expect(chart.school.unitid).to.equal(nwData.unitid);

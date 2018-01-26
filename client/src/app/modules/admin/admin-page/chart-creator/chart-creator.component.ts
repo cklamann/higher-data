@@ -72,7 +72,7 @@ export class ChartCreatorComponent implements OnInit {
 	}
 
 	onSubmit() {
-		//send form to backend route that does not exist yet
+		//send form to backend
 	}
 
 	fetch() {

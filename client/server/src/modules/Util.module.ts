@@ -1,4 +1,4 @@
-import _ = require('lodash');
+import * as _ from 'lodash';
 import { Document } from 'mongoose';
 
 //typing on arrayToUpdate not recognizing mongoose id method, even as document...

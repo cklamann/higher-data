@@ -13,7 +13,7 @@ export interface intSchoolSchema extends Document {
   locale: string;
   hbcu: string;
   slug: string;
-  data: any;
+  data: Array<intSchoolData>;
 };
 
 export interface intSchoolData extends Document {
