@@ -10,10 +10,6 @@ const app = require('../../app');
 
 describe('FORMULA MODEL', function() {
 
-	//todo: move some of the tests from chart.spec.ts here -- specifically the ones that test the arithmetic...
-	//todo: write tests that test the private methods
-	//todo: move all the setup / teardown code into one file
-
 	const testVar: intVariableDefinitionSchema = {
 		variable: "test_var",
 		type: "currency",
@@ -28,9 +24,15 @@ describe('FORMULA MODEL', function() {
 		}]
 	}
 
+	//helpful to have minimum value on hand for proving value is there / addition got done
+	let room_and_board = nwData.data.filter(datum => datum.variable === "room_and_board")
+		.map(item => parseFloat(item.value)),
+		min_room_and_board = _.min(room_and_board);
+
 	const testChartFormula: string = '(test_var - 5) / 5',
 		testChartFormulaBad: string = '(fake_var - 5) / ( 5 * other_fake_var)',
-		nwChartFormula: string = 'in_state_tuition + room_and_board';
+		nwChartFormula: string = 'in_state_tuition + room_and_board',
+		optionalChartFormula: string = 'in_state_tuition + __opt_room_and_board';
 
 	before('create a test school and a test variable', function(done) {
 		SchoolSchema.create(nwData);
@@ -59,8 +61,6 @@ describe('FORMULA MODEL', function() {
 			done();
 		})
 	});
-
-	//todo: test the optional symbol nodes
 
 	describe('validate the good formula', function() {
 		it('should return true', function(done) {
@@ -103,10 +103,7 @@ describe('FORMULA MODEL', function() {
 	});
 
 	describe('return a variable with no math involved', function() {
-		it('should return tuition', function(done) {
-			let tuition = nwData.data.filter(datum => datum.variable === "room_and_board")
-				.map(item => parseFloat(item.value)),
-				min = _.min(tuition);
+		it('should return room and board', function(done) {
 
 			let form1 = new ChartFormula('room_and_board');
 			form1.execute(nwData.unitid)
@@ -121,21 +118,15 @@ describe('FORMULA MODEL', function() {
 					//confirm that the value is numeric
 					res.forEach(resp => _.values(resp).forEach(val => expect(parseInt(val)).to.be.a('number')));
 					//confirm that each result is greater than the minimum tuition value (confirm addition happened)
-					res.forEach(resp => _.values(resp).forEach(val => parseInt(val) >= min));
+					res.forEach(resp => _.values(resp).forEach(val => parseInt(val) >= min_room_and_board));
 					done();
 				})
 				.catch(err => done(err));
 		})
 	});
 
-	//this is our problem....
-
 	describe('transform the data with some simple arithmetic', function() {
 		it('should return tuition plus room and board', function(done) {
-			let tuition = nwData.data.filter(datum => datum.variable === "room_and_board")
-				.map(item => parseFloat(item.value)),
-				min = _.min(tuition);
-
 			let form1 = new ChartFormula(nwChartFormula);
 			form1.execute(nwData.unitid)
 				.then(res => {
@@ -149,11 +140,44 @@ describe('FORMULA MODEL', function() {
 					//confirm that the value is numeric
 					res.forEach(resp => _.values(resp).forEach(val => expect(parseInt(val)).to.be.a('number')));
 					//confirm that each result is greater than the minimum tuition value (confirm addition happened)
-					res.forEach(resp => assert(parseFloat(resp.value) > min));
+					res.forEach(resp => assert(parseFloat(resp.value) > min_room_and_board));
 					done();
 				})
 				.catch(err => done(err));
 		})
+	});
+
+	describe('test optional variable', function() {
+		it('should return data with missing optional data filled in as zeroes', function(done) {
+			let formula = new ChartFormula(nwChartFormula);
+			formula.execute(nwData.unitid)
+				.then(res => {
+					expect(res).to.be.an('array');
+					//confirm the array has data
+					expect(res.length).to.be.greaterThan(0);
+					//confirm it's an array of objects
+					res.forEach(resp => expect(resp).to.be.an('object'));
+					//confirm there's only one kv per array
+					res.forEach(resp => expect(Object.keys(resp)).to.have.lengthOf(2));
+					//confirm that the value is numeric
+					res.forEach(resp => _.values(resp).forEach(val => expect(parseInt(val)).to.be.a('number')));
+					//confirm that each result is greater than or equal to r&b
+					res.forEach(resp => assert(parseFloat(resp.value) >= min_room_and_board));
+					done();
+				}).catch(err => done(err));
+		});
+	});
+
+	describe('test missing variables', function() {
+		it('should return an empty array', function(done) {
+			let formula = new ChartFormula('room_and_board + nonexistant');
+			formula.execute(nwData.unitid)
+				.then(res => {
+					expect(res).to.be.an('array');
+					expect(res.length).to.equal(0);
+					done();
+				}).catch(err => done(err));
+		});
 	});
 
 	after('remove test var', function(done) {
@@ -166,7 +190,7 @@ describe('FORMULA MODEL', function() {
 			unitid: 12345,
 		}).remove().exec();
 
-		SchoolSchema.find({ unitid: nwData.unitid }).remove().exec().then( () => done());
+		SchoolSchema.find({ unitid: nwData.unitid }).remove().exec().then(() => done());
 	});
 
 });

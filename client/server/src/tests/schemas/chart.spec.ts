@@ -198,7 +198,7 @@ describe('Chart Schema', function() {
   });
 
   after('remove test org and variables', function(done) {
-    VariableDefinitionSchema.find({ name: { "$in": ["test_var_1", "test_var_2"] } }).remove().exec()
+    VariableDefinitionSchema.find({ variable: { "$in": ["test_var_1", "test_var_2"] } }).remove().exec()
       .then(() => SchoolSchema.find({ unitid: nwData.unitid }).remove().exec())
       .then(() => done()).catch(err => done(err));
   })

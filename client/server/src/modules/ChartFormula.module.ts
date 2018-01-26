@@ -29,11 +29,6 @@ export class ChartFormula implements intFormula {
 		this.cleanFormula = this._stripOptionalMarkers(formula);
 		this.symbolNodes = this._getSymbolNodes(this.cleanFormula);
 		this.optionalSymbolNodes = this._getSymbolNodes(this.formula).filter(node => node.match(/^__opt_.+/)).map(node => this._stripOptionalMarkers(node));
-		console.log("***********************");
-		console.log(this.formula);
-		console.log(this.symbolNodes);
-		//the above are correct -- it seems like test_var_2 is not getting pulled back from the db
-		//since it's not on the retun payload
 	}
 
 	public validate() {
@@ -53,7 +48,9 @@ export class ChartFormula implements intFormula {
 				}, {})
 			}
 		});
-		return mapped; //todo: filter out incomplete years, also rethink data structure
+
+		let filtered = mapped.filter(item => _.values(_.values(item)[0]).length === this.symbolNodes.length);
+		return filtered; //todo: filter out incomplete years, also rethink data structure -- yes! cause mathjs will blow up otherwise
 	}
 
 	private _evaluate(chartData: Array<any>) {
@@ -68,10 +65,6 @@ export class ChartFormula implements intFormula {
 	public execute(unitid: number): Promise<intChartDatum[]> {
 		return SchoolSchema.schema.statics.fetchSchoolWithVariables(unitid, this.symbolNodes)
 			.then((school: intSchoolSchema) => {
-				console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
-				console.log(this.symbolNodes);
-				console.log(school.data);
-				///shit just ain't coming back right when called from elsewhere? Why? the symbol nodes are right
 				const fullData = this._fillMissingOptionalData(school.data);
 				return this._evaluate(this._transformModelForFormula(fullData));
 			});

@@ -14,7 +14,7 @@ describe('Chart Model', function() {
   const testChartValidNoMath: intChartSchema = {
     name: 'fake_chart',
     type: 'line',
-    slug: 'the-slug',
+    slug: 'no-math-slug',
     category: 'fake',
     active: true,
     valueType: 'currency',
@@ -29,22 +29,7 @@ describe('Chart Model', function() {
   const testChartValidAddition: intChartSchema = {
     name: 'valid_addition_chart',
     type: 'line',
-    slug: 'the-slug',
-    category: 'fake',
-    active: true,
-    valueType: 'currency',
-    description: 'sweet chart',
-    variables: [{
-      formula: 'test_var_1 + test_var_2',
-      notes: 'test notes',
-      legendName: 'test legend'
-    }]
-  };
-
-  const testChartOptionalVar: intChartSchema = {
-    name: 'fake_chart_with_optional_var',
-    type: 'line',
-    slug: 'optional-slug',
+    slug: 'valid-addition-slug',
     category: 'fake',
     active: true,
     valueType: 'currency',
@@ -145,13 +130,7 @@ describe('Chart Model', function() {
   });
 
 
-  beforeEach('create chart optional var', function(done) {
-    ChartSchema.create(testChartOptionalVar)
-      .then(() => done())
-      .catch(err => done(err));
-  });
-
-  beforeEach('create chart optional var', function(done) {
+  beforeEach('create valid addition chart', function(done) {
     ChartSchema.create(testChartValidAddition)
       .then(() => done())
       .catch(err => done(err));
@@ -174,7 +153,6 @@ describe('Chart Model', function() {
     });
   });
 
-  //todo: investigate these things --> seem to not be
   describe('Return chart with data with valid simple addition formula', function() {
     it('should return a chart model with a single array of data that is the result of two summed variables', function(done) {
       let chart = new Chart(nwData.unitid, testChartValidAddition.slug);
@@ -186,7 +164,6 @@ describe('Chart Model', function() {
           expect(chart.data).to.be.an('array');
           assert.equal(chart.data.length, testChartValidAddition.variables.length);
           chart.data.forEach(group => assert(group.data.length>0));
-          chart.data.forEach(group => group.data.forEach(datum => console.log(datum)));
           chart.data.forEach(group => group.data.forEach(datum => assert(parseFloat(datum.value)>99)));
           done();
         }).catch(err => done(err));
@@ -194,33 +171,12 @@ describe('Chart Model', function() {
     });
   });
 
-  describe('Chart Model', function() {
-    it('should return a chart model with missing optional data filled in as zeroes', function(done) {
-      let chart = new Chart(nwData.unitid, testChartOptionalVar.slug);
-      chart.export()
-        .then(chart => {
-          expect(chart).to.be.an('object');
-          expect(chart.chart.name).to.equal(testChartOptionalVar.name);
-          expect(chart.school.unitid).to.equal(nwData.unitid);
-          expect(chart.data).to.be.an('array');
-          assert.equal(chart.data.length, testChartOptionalVar.variables.length);
-          chart.data.forEach(group => assert(group.data.length > 0));
-          done();
-        }).catch(err => done(err));
-
-    });
-  });
-
   afterEach('remove test chart', function(done) {
-    ChartSchema.find({ name: { "$in": ["fake_chart", "bad_chart","vaild_addition_chart", "fake_chart_with_optional_var"] } }).remove().exec().then(() => done()).catch(err => done(err));
-  });
-
-  afterEach('remove test chart', function(done) {
-    ChartSchema.find({ name: { "$in": ["fake_chart", "bad_chart"] } }).remove().exec().then(() => done()).catch(err => done(err));
+    ChartSchema.find({ name: { "$in": ["fake_chart", "bad_chart", "valid_addition_chart", "fake_chart_with_optional_var"] } }).remove().exec().then(() => done()).catch(err => done(err));
   });
 
   after('remove test org and variables', function(done) {
-    VariableDefinitionSchema.find({ name: { "$in": ["test_var_1", "test_var_2", "test_var_3", "test_var_4"] } }).remove().exec()
+    VariableDefinitionSchema.find({ variable: { "$in": ["test_var_1", "test_var_2", "test_var_3", "test_var_4"] } }).remove().exec()
       .then(() => SchoolSchema.find({ unitid: { $in: [nwData.unitid, nwDataSector6.unitid] } }).remove().exec())
       .then(() => done()).catch(err => done(err));
   })
