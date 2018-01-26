@@ -7,16 +7,28 @@ import { ChartFormula, intFormula } from '../modules/ChartFormula.module';
 import { VariableDefinitionSchema, intVariableDefinitionSchema } from '../schemas/VariableDefinitionSchema';
 
 export interface intChartModel {
-	export(): any; //this is sole public method
+	export(): Q.Promise<intChartExport>; 
+}
+
+export interface intChartDatum {
+	fiscal_year: string,
+	value: string	
+}
+
+export interface intChartExport {
+	chart: intChartSchema,
+	school: intSchoolSchema,
+	data: intChartExportData[]
 }
 
 export interface intChartExportData {
-	//define data model type here
+	legendName: string,
+	data: intChartDatum[]
 }
 
 export class Chart implements intChartModel {
-	schoolP: any; //odd typing things going on
-	chartP: any;
+	schoolP: Q.Promise<intSchoolSchema>; 
+	chartP: any; //odd typing things going on...
 	chart: intChartSchema;
 	school: intSchoolSchema;
 
@@ -25,12 +37,12 @@ export class Chart implements intChartModel {
 		this.chartP = ChartSchema.findOne({ slug: chartSlug });
 	}
 
-	public export() {
+	public export(): Q.Promise<intChartExport> {
 		return Q.all([this.chartP, this.schoolP])
 			.then((vals: any) => {
 				this.chart = vals[0];
 				this.school = vals[1];
-				let promises: Array<Promise<object>> = []; //todo, define object with interface 
+				let promises: Promise<object>[] = [];  
 				this.chart.variables.forEach((variable: intChartVariable) => {
 					let varVal = new ChartFormula(variable.formula);
 					promises.push(varVal.execute(this.school.unitid));
@@ -49,7 +61,7 @@ export class Chart implements intChartModel {
 				return {
 					chart: this.chart,
 					school: this.school,
-					data: data
+					data: data,
 				}
 			})
 			.catch(err => err);

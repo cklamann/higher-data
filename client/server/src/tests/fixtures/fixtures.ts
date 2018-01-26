@@ -14,3 +14,16 @@ export let dummyChartData = [
 	{ variable: "test_var_2", fiscal_year: "2004", value: "180" },
 	{ variable: "test_var_2", fiscal_year: "2005", value: "190" }
 ]
+
+export let dummyChartData2 = [
+	{ variable: "test_var_3", fiscal_year: "2001", value: "50" },
+	{ variable: "test_var_3", fiscal_year: "2002", value: "60" },
+	{ variable: "test_var_3", fiscal_year: "2003", value: "70" },
+	{ variable: "test_var_3", fiscal_year: "2004", value: "80" },
+	{ variable: "test_var_3", fiscal_year: "2005", value: "90" },
+	{ variable: "test_var_4", fiscal_year: "2001", value: "150" },
+	{ variable: "test_var_4", fiscal_year: "2002", value: "160" },
+	{ variable: "test_var_4", fiscal_year: "2003", value: "170" },
+	{ variable: "test_var_4", fiscal_year: "2004", value: "180" },
+	{ variable: "test_var_4", fiscal_year: "2005", value: "190" }
+]

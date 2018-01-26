@@ -10,6 +10,10 @@ const app = require('../../app');
 
 describe('FORMULA MODEL', function() {
 
+	//todo: move some of the tests from chart.spec.ts here -- specifically the ones that test the arithmetic...
+	//todo: write tests that test the private methods
+	//todo: move all the setup / teardown code into one file
+
 	const testVar: intVariableDefinitionSchema = {
 		variable: "test_var",
 		type: "currency",
@@ -56,6 +60,8 @@ describe('FORMULA MODEL', function() {
 		})
 	});
 
+	//todo: test the optional symbol nodes
+
 	describe('validate the good formula', function() {
 		it('should return true', function(done) {
 			let form1 = new ChartFormula(testChartFormula);
@@ -80,18 +86,55 @@ describe('FORMULA MODEL', function() {
 		})
 	});
 
-	describe('transform the data', function() {
+	//todo: test clean formula
+	//todo: test optional symbol nodes
+
+	describe('return a variable with no math involved', function() {
+		it('should return tuition', function(done) {
+			let tuition = nwData.data.filter(datum => datum.variable === "room_and_board")
+				.map(item => parseFloat(item.value)),
+				min = _.min(tuition);
+
+			let form1 = new ChartFormula('room_and_board');
+			form1.execute(nwData.unitid)
+				.then(res => {
+					expect(res).to.be.an('array');
+					//confirm the array has data
+					expect(res.length).to.be.greaterThan(0);
+					//confirm it's an array of objects
+					res.forEach(resp => expect(resp).to.be.an('object'));
+					//confirm there's only one kv per array
+					res.forEach(resp => expect(Object.keys(resp)).to.have.lengthOf(2));
+					//confirm that the value is numeric
+					res.forEach(resp => _.values(resp).forEach(val => expect(parseInt(val)).to.be.a('number')));
+					//confirm that each result is greater than the minimum tuition value (confirm addition happened)
+					res.forEach(resp => _.values(resp).forEach(val => parseInt(val) >= min));
+					done();
+				})
+				.catch(err => done(err));
+		})
+	});
+
+	describe('transform the data with some simple arithmetic', function() {
 		it('should return tuition plus room and board', function(done) {
+			let tuition = nwData.data.filter(datum => datum.variable === "room_and_board")
+				.map(item => parseFloat(item.value)),
+				min = _.min(tuition);
+
 			let form1 = new ChartFormula(nwChartFormula);
 			form1.execute(nwData.unitid)
 				.then(res => {
 					expect(res).to.be.an('array');
+					//confirm the array has data
+					expect(res.length).to.be.greaterThan(0);
 					//confirm it's an array of objects
 					res.forEach(resp => expect(resp).to.be.an('object'));
-					//confirm there's only one kv  per array
+					//confirm there's only one kv per array
 					res.forEach(resp => expect(Object.keys(resp)).to.have.lengthOf(2));
 					//confirm that the value is numeric
 					res.forEach(resp => _.values(resp).forEach(val => expect(parseInt(val)).to.be.a('number')));
+					//confirm that each result is greater than the minimum tuition value (confirm addition happened)
+					res.forEach(resp => _.values(resp).forEach(val => console.log(parseInt(val))));
 					done();
 				})
 				.catch(err => done(err));

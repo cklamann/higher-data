@@ -1,8 +1,8 @@
 import * as M from 'mathjs';
 import * as _ from 'lodash';
 import { SchoolSchema, intSchoolSchema, intSchoolData } from '../schemas/SchoolSchema';
-
 import { VariableDefinitionSchema, intVariableDefinitionSchema } from '../schemas/VariableDefinitionSchema';
+import { intChartDatum } from '../models/Chart';
 
 //todo: write tests for optional parameters, missing required values, etc
 
@@ -23,14 +23,14 @@ export interface intFormulaData {
 export class ChartFormula implements intFormula {
 	formula: string;
 	cleanFormula: string;
-	symbolNodes: Array<string>;
-	optionalSymbolNodes: Array<string>;
+	symbolNodes: string[];
+	optionalSymbolNodes: string[];
 
 	constructor(formula: string) {
 		this.formula = formula;
 		this.cleanFormula = this._stripOptionalMarkers(formula);
 		this.symbolNodes = this._getSymbolNodes(this.cleanFormula);
-		this.optionalSymbolNodes = this._getSymbolNodes(this.formula).filter(node => node.match(/^\?.+/)).map(node => this._stripOptionalMarkers(node));
+		this.optionalSymbolNodes = this._getSymbolNodes(this.formula).filter(node => node.match(/^__opt_.+/)).map(node => this._stripOptionalMarkers(node));
 	}
 
 	public validate() {
@@ -50,7 +50,8 @@ export class ChartFormula implements intFormula {
 				}, {})
 			}
 		});
-		return mapped;
+		//don't pass year to formula if it doesn't have all the required variabls
+		return mapped.filter( item => _.values(item).length == this.symbolNodes.length);
 	}
 
 	private _evaluate(chartData: Array<any>) {
@@ -62,7 +63,7 @@ export class ChartFormula implements intFormula {
 		});
 	}
 
-	public execute(unitid: number): Promise<Array<any>> {
+	public execute(unitid: number): Promise<intChartDatum[]> {
 		return SchoolSchema.schema.statics.fetchSchoolWithVariables(unitid, this.symbolNodes)
 			.then((school: intSchoolSchema) => {
 				const fullData = this._fillMissingOptionalData(school.data);
@@ -121,6 +122,7 @@ export class ChartFormula implements intFormula {
 	}
 
 	//verify that there's at least one variable and that a definition exists for every variable passed in
+	//this is for on create rather than on build
 	private _verifyNodes(): Promise<boolean> {
 		return VariableDefinitionSchema.find().exec()
 			.then(variables => {
@@ -139,6 +141,6 @@ export class ChartFormula implements intFormula {
 	}
 
 	private _stripOptionalMarkers(item:string): string {
-		return item.replace(/\?/g, "");
+		return item.replace(/__opt_/g, "");
 	}
 }
