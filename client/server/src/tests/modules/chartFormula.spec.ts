@@ -86,8 +86,21 @@ describe('FORMULA MODEL', function() {
 		})
 	});
 
-	//todo: test clean formula
-	//todo: test optional symbol nodes
+	describe('test clean formula', function() {
+		it('should return a cleaned formula from one with optional arguments', function(done) {
+			let form1 = new ChartFormula('__opt_room_and_board + hat');
+			assert(form1.cleanFormula == "room_and_board + hat");
+			done();
+		})
+	});
+
+	describe('test optional symbol nodes', function() {
+		it('should return optional symbol nodes as clean variables', function(done) {
+			let form1 = new ChartFormula('__opt_room_and_board + cow');
+			assert(form1.optionalSymbolNodes[0] == "room_and_board");
+			done();
+		})
+	});
 
 	describe('return a variable with no math involved', function() {
 		it('should return tuition', function(done) {
@@ -115,6 +128,8 @@ describe('FORMULA MODEL', function() {
 		})
 	});
 
+	//this is our problem....
+
 	describe('transform the data with some simple arithmetic', function() {
 		it('should return tuition plus room and board', function(done) {
 			let tuition = nwData.data.filter(datum => datum.variable === "room_and_board")
@@ -134,7 +149,7 @@ describe('FORMULA MODEL', function() {
 					//confirm that the value is numeric
 					res.forEach(resp => _.values(resp).forEach(val => expect(parseInt(val)).to.be.a('number')));
 					//confirm that each result is greater than the minimum tuition value (confirm addition happened)
-					res.forEach(resp => _.values(resp).forEach(val => console.log(parseInt(val))));
+					res.forEach(resp => assert(parseFloat(resp.value) > min));
 					done();
 				})
 				.catch(err => done(err));

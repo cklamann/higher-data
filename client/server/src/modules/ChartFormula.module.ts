@@ -4,8 +4,6 @@ import { SchoolSchema, intSchoolSchema, intSchoolData } from '../schemas/SchoolS
 import { VariableDefinitionSchema, intVariableDefinitionSchema } from '../schemas/VariableDefinitionSchema';
 import { intChartDatum } from '../models/Chart';
 
-//todo: write tests for optional parameters, missing required values, etc
-
 export interface intFormula {
 	validate(): Promise<boolean>;
 }
@@ -18,7 +16,7 @@ export interface intFormulaData {
 	[key: string]: intFormulaValues
 }
 
-// [ { '2003': { in_state_tuition: 27108, room_and_board: 8446 } } ]
+// [ { '2003': [{ in_state_tuition: 27108, room_and_board: 8446 }] } ]
 
 export class ChartFormula implements intFormula {
 	formula: string;
@@ -31,6 +29,11 @@ export class ChartFormula implements intFormula {
 		this.cleanFormula = this._stripOptionalMarkers(formula);
 		this.symbolNodes = this._getSymbolNodes(this.cleanFormula);
 		this.optionalSymbolNodes = this._getSymbolNodes(this.formula).filter(node => node.match(/^__opt_.+/)).map(node => this._stripOptionalMarkers(node));
+		console.log("***********************");
+		console.log(this.formula);
+		console.log(this.symbolNodes);
+		//the above are correct -- it seems like test_var_2 is not getting pulled back from the db
+		//since it's not on the retun payload
 	}
 
 	public validate() {
@@ -50,8 +53,7 @@ export class ChartFormula implements intFormula {
 				}, {})
 			}
 		});
-		//don't pass year to formula if it doesn't have all the required variabls
-		return mapped.filter( item => _.values(item).length == this.symbolNodes.length);
+		return mapped; //todo: filter out incomplete years, also rethink data structure
 	}
 
 	private _evaluate(chartData: Array<any>) {
@@ -66,6 +68,10 @@ export class ChartFormula implements intFormula {
 	public execute(unitid: number): Promise<intChartDatum[]> {
 		return SchoolSchema.schema.statics.fetchSchoolWithVariables(unitid, this.symbolNodes)
 			.then((school: intSchoolSchema) => {
+				console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+				console.log(this.symbolNodes);
+				console.log(school.data);
+				///shit just ain't coming back right when called from elsewhere? Why? the symbol nodes are right
 				const fullData = this._fillMissingOptionalData(school.data);
 				return this._evaluate(this._transformModelForFormula(fullData));
 			});
@@ -73,12 +79,12 @@ export class ChartFormula implements intFormula {
 
 	private _fillMissingOptionalData(schoolData: any[]): intSchoolData[] {
 		const yearRange = this._getYearRange(schoolData),
-		extantVars = this._getUniqueVars(schoolData),
-		missingNodes: string[] = this.optionalSymbolNodes.filter(node => extantVars.indexOf(node) == -1); 
-		
+			extantVars = this._getUniqueVars(schoolData),
+			missingNodes: string[] = this.optionalSymbolNodes.filter(node => extantVars.indexOf(node) == -1);
+
 		missingNodes.forEach(item => {
 			yearRange.forEach(fiscal_year => {
-				if(schoolData.filter(datum => datum.fiscal_year == fiscal_year && item == datum.variable).length === 0) {
+				if (schoolData.filter(datum => datum.fiscal_year == fiscal_year && item == datum.variable).length === 0) {
 					schoolData.push({
 						"fiscal_year": fiscal_year,
 						"variable": item,
@@ -140,7 +146,7 @@ export class ChartFormula implements intFormula {
 			});
 	}
 
-	private _stripOptionalMarkers(item:string): string {
+	private _stripOptionalMarkers(item: string): string {
 		return item.replace(/__opt_/g, "");
 	}
 }
