@@ -3,7 +3,11 @@ import { ChartFormula, intFormula } from '../modules/ChartFormula.module';
 import * as Util from '../modules/Util.module';
 import * as _ from 'lodash';
 
-export let ObjectId = Schema.Types.ObjectId;
+export interface intChartVariableModel {
+  formula: string;
+  notes: string;
+  legendName: string;
+}
 
 export interface intChartModel {
   name: string;
@@ -13,23 +17,16 @@ export interface intChartModel {
   active: boolean;
   valueType: string;
   description: string;
-  variables: Array<intChartVariableModel>;
+  variables: intChartVariableModel[];
 }
 
-export interface intChartSchema extends Document, intChartModel { };
-
-export interface intChartVariableModel {
-  formula: string;
-  notes: string;
-  legendName: string;
-}
-
-
-export interface intChartVariableSchema extends Document {
-  variables: intChartVariableSchema[]
+export interface intChartVariableSchema extends Document, intChartVariableModel { };
+export interface intChartSchema extends Document, intChartModel { 
+  variables : intChartVariableSchema[];
 };
 
-const chartVariableSchema = new Schema({
+
+const chartVariableSchema:Schema = new Schema({
   formula: {
     type: String,
     required: true
@@ -45,7 +42,6 @@ const chartVariableSchema = new Schema({
 });
 
 const schema: Schema = new Schema({
-  id: ObjectId,
   name: {
     type: String,
     required: true
@@ -91,7 +87,7 @@ chartVariableSchema.path('formula').validate({
 });
 
 export let ChartSchema = model<intChartSchema>('chart', schema);
-export let ChartVariableSchema = model<intChartVariableSchema>('chart_variable', schema);
+export let ChartVariableSchema = model<intChartVariableSchema>('chart_variable', chartVariableSchema);
 
 //todo: there's no reason to have this in a static,
 //verify it does everything you want it to do in some more tests then just use in route
