@@ -5,7 +5,7 @@ import * as _ from 'lodash';
 
 export let ObjectId = Schema.Types.ObjectId;
 
-export interface intChartSchema extends Document {
+export interface intChartModel {
   name: string;
   slug: string;
   type: string;
@@ -13,26 +13,33 @@ export interface intChartSchema extends Document {
   active: boolean;
   valueType: string;
   description: string;
-  variables: Array<intChartVariable>;
-};
+  variables: Array<intChartVariableModel>;
+}
 
-export interface intChartVariable extends Document {
+export interface intChartSchema extends Document, intChartModel { };
+
+export interface intChartVariableModel {
   formula: string;
   notes: string;
-  legendName: string
+  legendName: string;
+}
+
+
+export interface intChartVariableSchema extends Document {
+  variables: intChartVariableSchema[]
 };
 
 const chartVariableSchema = new Schema({
   formula: {
-    type:String,
+    type: String,
     required: true
   },
   notes: {
-    type:String,
+    type: String,
     required: true
   },
   legendName: {
-    type:String,
+    type: String,
     required: true
   }
 });
@@ -40,7 +47,7 @@ const chartVariableSchema = new Schema({
 const schema: Schema = new Schema({
   id: ObjectId,
   name: {
-    type:String,
+    type: String,
     required: true
   },
   slug: {
@@ -48,23 +55,23 @@ const schema: Schema = new Schema({
     required: true
   },
   type: {
-    type:String,
+    type: String,
     required: true
   },
   category: {
-    type:String,
+    type: String,
     required: true
   },
   active: {
-    type:Boolean,
+    type: Boolean,
     required: true
   },
   valueType: {
-    type:String,
+    type: String,
     required: true
   },
   description: {
-    type:String,
+    type: String,
     required: true
   },
   variables: [chartVariableSchema]
@@ -84,15 +91,11 @@ chartVariableSchema.path('formula').validate({
 });
 
 export let ChartSchema = model<intChartSchema>('chart', schema);
-export let ChartVariableSchema = model<intChartVariable>('chart_variable', schema);
+export let ChartVariableSchema = model<intChartVariableSchema>('chart_variable', schema);
 
-ChartSchema.schema.static('update', (model:intChartSchema) => {
-  return ChartSchema.findById(model._id).exec() 
-    .then(chart => {
-      let copy = _.cloneDeep(model);
-      delete copy.variables;
-      chart.update(copy);
-      chart.variables = Util.updateArray(chart.variables, model.variables);
-      return chart.save();
-    }).then(() => ChartSchema.findById(model._id).exec());
+//todo: there's no reason to have this in a static,
+//verify it does everything you want it to do in some more tests then just use in route
+//and extend pattern to variableDefinition
+ChartSchema.schema.static('update', (model: intChartSchema) => {
+  return ChartSchema.update({_id:model._id},model).then(() => model);
 });

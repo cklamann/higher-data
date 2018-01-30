@@ -2,31 +2,26 @@ import * as M from 'mathjs';
 import * as _ from 'lodash';
 import * as Q from 'q';
 import { SchoolSchema, intSchoolSchema } from '../schemas/SchoolSchema';
-import { ChartSchema, intChartSchema, intChartVariable } from '../schemas/ChartSchema'
-import { ChartFormula, intFormula } from '../modules/ChartFormula.module';
+import { ChartSchema, intChartSchema, intChartVariableModel } from '../schemas/ChartSchema'
+import { ChartFormula, intFormula, intChartFormulaResult } from '../modules/ChartFormula.module';
 import { VariableDefinitionSchema, intVariableDefinitionSchema } from '../schemas/VariableDefinitionSchema';
 
-export interface intChartModel {
+export interface  intChartExporter {
 	export(): Q.Promise<intChartExport>; 
-}
-
-export interface intChartDatum {
-	fiscal_year: string,
-	value: string	
 }
 
 export interface intChartExport {
 	chart: intChartSchema,
 	school: intSchoolSchema,
-	data: intChartExportData[]
+	data: intChartExportDataParentModel[]
 }
 
-export interface intChartExportData {
+export interface intChartExportDataParentModel {
 	legendName: string,
-	data: intChartDatum[]
+	data: intChartFormulaResult[]
 }
 
-export class Chart implements intChartModel {
+export class Chart implements intChartExporter {
 	schoolP: Q.Promise<intSchoolSchema>; 
 	chartP: any; //odd typing things going on...
 	chart: intChartSchema;
@@ -43,7 +38,7 @@ export class Chart implements intChartModel {
 				this.chart = vals[0];
 				this.school = vals[1];
 				let promises: Promise<object>[] = [];  
-				this.chart.variables.forEach((variable: intChartVariable) => {
+				this.chart.variables.forEach((variable: intChartVariableModel) => {
 					let varVal = new ChartFormula(variable.formula);
 					promises.push(varVal.execute(this.school.unitid));
 				});

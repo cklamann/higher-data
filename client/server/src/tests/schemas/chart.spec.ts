@@ -1,6 +1,6 @@
-import { ChartSchema, ChartVariableSchema, intChartSchema, intChartVariable } from '../../schemas/ChartSchema';
+import { ChartSchema, ChartVariableSchema, intChartModel, intChartVariableModel } from '../../schemas/ChartSchema';
 import { nwData, dummyChartData } from '../fixtures/fixtures';
-import { VariableDefinitionSchema, intVariableDefinitionSchema } from '../../schemas/VariableDefinitionSchema';
+import { VariableDefinitionSchema, intVariableDefinitionModel} from '../../schemas/VariableDefinitionSchema';
 import { SchoolSchema } from '../../schemas/SchoolSchema';
 import assert = require('assert');
 import chai = require('chai');
@@ -14,7 +14,7 @@ chai.use(chaiAsPromised);
 
 describe('Chart Schema', function() {
 
-  const testVar1: intVariableDefinitionSchema = {
+  const testVar1: intVariableDefinitionModel = {
     variable: "test_var_1",
     type: "currency",
     sources: [{
@@ -28,7 +28,7 @@ describe('Chart Schema', function() {
     }]
   }
 
-  const testVar2: intVariableDefinitionSchema = {
+  const testVar2: intVariableDefinitionModel = {
     variable: "test_var_2",
     type: "currency",
     sources: [{
@@ -50,7 +50,7 @@ describe('Chart Schema', function() {
       }).then(() => done()).catch((err) => done(err));
   });
 
-  const testChart: intChartSchema = {
+  const testChart: intChartModel = {
     name: 'fake_chart',
     type: 'line',
     slug: 'the-slug',
@@ -65,12 +65,13 @@ describe('Chart Schema', function() {
     }]
   };
 
-  const badTestChart: intChartSchema = {
+  const badTestChart: intChartModel = {
     name: 'bad_chart',
     type: 'line',
     slug: 'the-slug',
     category: 'fake',
     valueType: 'currency',
+    active: true,
     description: 'sweet chart',
     variables: [{
       formula: '1+2 + fake_var',
@@ -79,8 +80,9 @@ describe('Chart Schema', function() {
     }]
   };
 
-  const badTestChartFormula: intChartSchema = {
+  const badTestChartFormula: intChartModel = {
     name: 'bad_chart',
+    slug: 'bad_chart_slug',
     type: 'line',
     category: 'fake',
     active: true,
@@ -93,20 +95,22 @@ describe('Chart Schema', function() {
     }]
   };
 
-  const badTestChartRequired: intChartSchema = {
+  const badTestChartRequired: intChartModel = {
     name: 'bad_chart',
     type: 'line',
+    slug: 'bad_test_chart',
     category: 'fake',
     valueType: 'currency',
     active: true,
     description: 'sweet chart',
     variables: [{
       formula: '1+2',
-      legendName: 'test legend'
+      legendName: 'test legend',
+      notes: 'some bad notes'
     }]
   };
 
-  const newVar: intChartVariable = {
+  const newVar: intChartVariableModel = {
     formula: 'test_var_1 + 5',
     notes: 'new test notes',
     legendName: 'new legend name'
@@ -151,7 +155,7 @@ describe('Chart Schema', function() {
               assert.equal(true, false); //ugly hacks to make sure promise is rejected -- todo: get chai-as-promised working
               done();
             })
-            .catch(err => {
+            .catch( (err:Error) => {
               done(); //no assertions will fire here but can verify error by passing error to done
             });
         });
@@ -168,7 +172,7 @@ describe('Chart Schema', function() {
               assert.equal(true, false);
               done();
             })
-            .catch(err => {
+            .catch( (err:Error) => {
               done();
             });
         });

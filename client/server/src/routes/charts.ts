@@ -7,18 +7,19 @@ let router = Router();
 
 //if exists, update, otherwise create
 
-router.post('/', passport.authenticate('basic', { session: false }), function(req, res, next) {
-	let promise;
-	if (req.body._id) {
-		promise = ChartSchema.schema.statics.update(req.body);
-	} else promise = ChartSchema.create(req.body);
+//  router.post('/', passport.authenticate('basic', { session: false }), function(req, res, next) {
+// 	let promise;
+// 	 console.log("******************");
+// 	 console.log(req.body);
+// 	if (req.body._id) {
+// 		promise = ChartSchema.schema.statics.update(req.body);
+// 	} else promise = ChartSchema.create(req.body);
 
-	promise.then((chart: intChartSchema) => {
-		res.json(chart);
-		return;
-	}).catch((err: Error) => next(err));
-
-});
+// 	promise.then((chart: intChartSchema) => {
+// 		res.json(chart);
+// 		return;
+// 	}).catch((err: Error) => next(err));
+// });
 
 router.get('/', function(req, res, next): Promise<void> {
 	return ChartSchema.find({})

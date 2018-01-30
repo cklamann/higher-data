@@ -1,7 +1,7 @@
-import { ChartSchema, ChartVariableSchema, intChartSchema, intChartVariable } from '../../schemas/ChartSchema';
-import { Chart, intChartModel } from '../../models/Chart';
+import { ChartSchema, ChartVariableSchema, intChartSchema, intChartModel, intChartVariableModel } from '../../schemas/ChartSchema';
+import { Chart, intChartExport } from '../../models/ChartExporter';
 import { intSchoolSchema, SchoolSchema } from '../../schemas/SchoolSchema';
-import { VariableDefinitionSchema, intVariableDefinitionSchema } from '../../schemas/VariableDefinitionSchema';
+import { VariableDefinitionSchema, intVariableDefinitionSchema, intVariableDefinitionModel } from '../../schemas/VariableDefinitionSchema';
 import { nwData, nwDataSector6, dummyChartData, dummyChartData2 } from '../fixtures/fixtures';
 import * as assert from 'assert';
 import * as chai from 'chai';
@@ -11,7 +11,7 @@ const app = require('../../app');
 
 describe('Chart Model', function() {
 
-  const testChartValidNoMath: intChartSchema = {
+  const testChartValidNoMath: intChartModel = {
     name: 'fake_chart',
     type: 'line',
     slug: 'no-math-slug',
@@ -26,7 +26,7 @@ describe('Chart Model', function() {
     }]
   };
 
-  const testChartValidAddition: intChartSchema = {
+  const testChartValidAddition: intChartModel = {
     name: 'valid_addition_chart',
     type: 'line',
     slug: 'valid-addition-slug',
@@ -41,7 +41,7 @@ describe('Chart Model', function() {
     }]
   };
 
-  const testVar1: intVariableDefinitionSchema = {
+  const testVar1: intVariableDefinitionModel = {
     variable: "test_var_1",
     type: "currency",
     sources: [{
@@ -55,7 +55,7 @@ describe('Chart Model', function() {
     }]
   }
 
-  const testVar2: intVariableDefinitionSchema = {
+  const testVar2: intVariableDefinitionModel = {
     variable: "test_var_2",
     type: "currency",
     sources: [{
@@ -69,7 +69,7 @@ describe('Chart Model', function() {
     }]
   }
 
-  const testVar3: intVariableDefinitionSchema = {
+  const testVar3: intVariableDefinitionModel = {
     variable: "test_var_3",
     type: "currency",
     sources: [{
@@ -83,7 +83,7 @@ describe('Chart Model', function() {
     }]
   }
 
-  const testVar4: intVariableDefinitionSchema = {
+  const testVar4: intVariableDefinitionModel = {
     variable: "test_var_4",
     type: "currency",
     sources: [{
@@ -177,7 +177,7 @@ describe('Chart Model', function() {
 
   after('remove test org and variables', function(done) {
     VariableDefinitionSchema.find({ variable: { "$in": ["test_var_1", "test_var_2", "test_var_3", "test_var_4"] } }).remove().exec()
-      .then(() => SchoolSchema.find({ unitid: { $in: [nwData.unitid, nwDataSector6.unitid] } }).remove().exec())
+      .then(() => SchoolSchema.find({ unitid: { "$in": [nwData.unitid, nwDataSector6.unitid] } }).remove().exec())
       .then(() => done()).catch(err => done(err));
   })
 

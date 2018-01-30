@@ -1,5 +1,5 @@
-import { VariableDefinitionSchema, intVariableDefinitionSchema, intVariableSource } from '../../schemas/VariableDefinitionSchema';
-import { SchoolSchema } from '../../schemas/SchoolSchema';
+import { VariableDefinitionSchema, intVariableDefinitionSchema, intVariableDefinitionModel, intVariableSourceModel, variableSourcesSchema } from '../../schemas/VariableDefinitionSchema';
+import { SchoolSchema, intSchoolSchema } from '../../schemas/SchoolSchema';
 import assert = require('assert');
 import chai = require('chai');
 import { expect } from 'chai';
@@ -9,7 +9,7 @@ const app = require('../../app');
 
 describe('Variable Definition Schema', function() {
 
-  const testVar: intVariableDefinitionSchema = {
+  const testVar: intVariableDefinitionModel = {
     variable: "test_var",
     type: "currency",
     sources: [{
@@ -31,7 +31,7 @@ describe('Variable Definition Schema', function() {
         value: 4,
         fiscal_year: '2019'
       }]
-    }, function(err, school) {
+    }, function(err:Error, school:intSchoolSchema) {
       done();
     });
   });
@@ -82,7 +82,7 @@ describe('Variable Definition Schema', function() {
 
   describe('#update()', function() {
     it('should update source array with a new source object and a new source value', function(done) {
-      let newSource:intVariableSource = {
+      let newSource = new variableSourcesSchema({
           start_year: 2019,
           end_year: 2020,
           source: "IPEDS",
@@ -90,7 +90,7 @@ describe('Variable Definition Schema', function() {
           formula: "2+2=4",
           definition: "some other test definition",
           notes: "some other notes!"
-        };
+        });
 
       VariableDefinitionSchema.findOne({variable:testVar.variable}).exec()
         .then(res => {

@@ -1,6 +1,6 @@
 import { ChartFormula } from '../../modules/ChartFormula.module';
-import { VariableDefinitionSchema, intVariableDefinitionSchema } from '../../schemas/VariableDefinitionSchema';
-import { SchoolSchema } from '../../schemas/SchoolSchema';
+import { VariableDefinitionSchema, intVariableDefinitionSchema, intVariableDefinitionModel } from '../../schemas/VariableDefinitionSchema';
+import { SchoolSchema, intSchoolDataModel, SchoolDataSchema, intSchoolDataSchema, intSchoolModel } from '../../schemas/SchoolSchema';
 import assert = require('assert');
 import chai = require('chai');
 import { expect } from 'chai';
@@ -10,7 +10,9 @@ const app = require('../../app');
 
 describe('FORMULA MODEL', function() {
 
-	const testVar: intVariableDefinitionSchema = {
+	//todo:test that incomplete years get filtered out
+
+	const testVar: intVariableDefinitionModel = {
 		variable: "test_var",
 		type: "currency",
 		sources: [{
@@ -24,8 +26,20 @@ describe('FORMULA MODEL', function() {
 		}]
 	}
 
+	const dataWithIncompleteYear: any[] = [
+		{ variable: "in_state_tuition", fiscal_year: 2003, value: "50" },
+		{ variable: "in_state_tuition", fiscal_year: 2004, value: "60" },
+		{ variable: "room_and_board", fiscal_year: 2003, value: "70" },
+		{ variable: "room_and_board", fiscal_year: 2004, value: "80" },
+		{ variable: "room_and_board", fiscal_year: 2005, value: "90" },
+	]
+
+	const schoolWithIncompleteYears: intSchoolModel = _.cloneDeep(nwData);
+	schoolWithIncompleteYears.unitid = 666668;
+	schoolWithIncompleteYears.data = dataWithIncompleteYear;
+
 	//helpful to have minimum value on hand for proving value is there / addition got done
-	let room_and_board = nwData.data.filter(datum => datum.variable === "room_and_board")
+	const room_and_board = nwData.data.filter(datum => datum.variable === "room_and_board")
 		.map(item => parseFloat(item.value)),
 		min_room_and_board = _.min(room_and_board);
 
@@ -33,6 +47,12 @@ describe('FORMULA MODEL', function() {
 		testChartFormulaBad: string = '(fake_var - 5) / ( 5 * other_fake_var)',
 		nwChartFormula: string = 'in_state_tuition + room_and_board',
 		optionalChartFormula: string = 'in_state_tuition + __opt_room_and_board';
+
+	before('create test school with incomplete variable', function(done) {
+		SchoolSchema.create(schoolWithIncompleteYears)
+			.then(() => done())
+			.catch((err) => done(err));
+	});
 
 	before('create a test school and a test variable', function(done) {
 		SchoolSchema.create(nwData);
@@ -180,17 +200,25 @@ describe('FORMULA MODEL', function() {
 		});
 	});
 
+	describe('test missing year', function() {
+		it('should return 2 years worth of data because one was filtered out', function(done) {
+			let formula = new ChartFormula('room_and_board + in_state_tuition');
+			formula.execute(schoolWithIncompleteYears.unitid)
+				.then(res => {
+					expect(res).to.be.an('array');
+					expect(res.length).to.equal(2);
+					done();
+				}).catch(err => done(err));
+		});
+	});
+
 	after('remove test var', function(done) {
 		VariableDefinitionSchema.find({ variable: testVar.variable }).remove().exec();
 		done();
 	})
 
 	after('remove test schools', function(done) {
-		SchoolSchema.find({
-			unitid: 12345,
-		}).remove().exec();
-
-		SchoolSchema.find({ unitid: nwData.unitid }).remove().exec().then(() => done());
+		SchoolSchema.find({ unitid: { "$in":  [nwData.unitid, schoolWithIncompleteYears.unitid, 12345] } } ).remove().exec().then(() => done());
 	});
 
 });

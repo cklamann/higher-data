@@ -1,19 +1,15 @@
 import * as M from 'mathjs';
 import * as _ from 'lodash';
-import { SchoolSchema, intSchoolSchema, intSchoolData } from '../schemas/SchoolSchema';
+import { SchoolSchema, intSchoolModel, intSchoolDataModel } from '../schemas/SchoolSchema';
 import { VariableDefinitionSchema, intVariableDefinitionSchema } from '../schemas/VariableDefinitionSchema';
-import { intChartDatum } from '../models/Chart';
 
 export interface intFormula {
 	validate(): Promise<boolean>;
 }
 
-export interface intFormulaValues {
-	[propName: string]: number
-}
-
-export interface intFormulaData {
-	[key: string]: intFormulaValues
+export interface intChartFormulaResult {
+	fiscal_year: string,
+	value: any
 }
 
 // [ { '2003': [{ in_state_tuition: 27108, room_and_board: 8446 }] } ]
@@ -35,13 +31,13 @@ export class ChartFormula implements intFormula {
 		return this._verifyNodes();
 	}
 
-	private _transformModelForFormula(data: intSchoolData[]): intFormulaData[] {
+	private _transformModelForFormula(data: intSchoolDataModel[]): object[] {
 		let grouped = _.groupBy(data, 'fiscal_year');
 		let mapped = _.map(grouped, (v, k) => {
 			return {
 				[k]: v.map(item => {
 					return {
-						[item.variable]: parseFloat(item.value.trim()) //todo: cleanup database values -->just update from R
+						[item.variable] : parseFloat(item.value.trim()) //todo: cleanup database values -->just update from R
 					}
 				}).reduce((acc, curr) => {
 					return _.assign(acc, curr);
@@ -50,10 +46,11 @@ export class ChartFormula implements intFormula {
 		});
 
 		let filtered = mapped.filter(item => _.values(_.values(item)[0]).length === this.symbolNodes.length);
-		return filtered; //todo: filter out incomplete years, also rethink data structure -- yes! cause mathjs will blow up otherwise
+		return filtered;
 	}
 
-	private _evaluate(chartData: Array<any>) {
+	//any is the intermediate data model
+	private _evaluate(chartData: any[]):intChartFormulaResult[] {
 		return chartData.map(datum => {
 			return {
 				fiscal_year: _.keys(datum)[0],
@@ -62,15 +59,16 @@ export class ChartFormula implements intFormula {
 		});
 	}
 
-	public execute(unitid: number): Promise<intChartDatum[]> {
+	public execute(unitid: number): Promise<intChartFormulaResult[]> {
 		return SchoolSchema.schema.statics.fetchSchoolWithVariables(unitid, this.symbolNodes)
-			.then((school: intSchoolSchema) => {
-				const fullData = this._fillMissingOptionalData(school.data);
-				return this._evaluate(this._transformModelForFormula(fullData));
+			.then((school: intSchoolModel) => {
+				const fullData = this._fillMissingOptionalData(school.data),
+					transformedData = this._transformModelForFormula(fullData);
+				return this._evaluate(transformedData);
 			});
 	}
 
-	private _fillMissingOptionalData(schoolData: any[]): intSchoolData[] {
+	private _fillMissingOptionalData(schoolData: intSchoolDataModel[]): intSchoolDataModel[] {
 		const yearRange = this._getYearRange(schoolData),
 			extantVars = this._getUniqueVars(schoolData),
 			missingNodes: string[] = this.optionalSymbolNodes.filter(node => extantVars.indexOf(node) == -1);
@@ -81,7 +79,7 @@ export class ChartFormula implements intFormula {
 					schoolData.push({
 						"fiscal_year": fiscal_year,
 						"variable": item,
-						"value": 0
+						"value": "0"
 					});
 				}
 			});
@@ -90,13 +88,13 @@ export class ChartFormula implements intFormula {
 		return schoolData;
 	}
 
-	private _getYearRange(yearsData: Array<intSchoolData>): Array<string> {
-		const range: Array<any> = yearsData.filter(obj => obj.fiscal_year);
-		const vals: Array<string> = _.values(range);
+	private _getYearRange(yearsData: intSchoolDataModel[]): Array<number> {
+		const range: any[] = yearsData.filter(obj => obj.fiscal_year);
+		const vals: number[] = _.values(range);
 		return _.uniq(vals).sort();
 	}
 
-	private _getUniqueVars(yearsData: Array<intSchoolData>): Array<string> {
+	private _getUniqueVars(yearsData: intSchoolDataModel[]): Array<string> {
 		const vars: Array<any> = yearsData.filter(obj => obj.variable);
 		const vals: Array<string> = _.values(vars);
 		return _.uniq(vals);

@@ -3,7 +3,7 @@ import * as _ from 'lodash';
 
 export let ObjectId = Schema.Types.ObjectId;
 
-export interface intSchoolSchema extends Document {
+export interface intSchoolModel {
   unitid: number;
   instnm: string;
   state: string;
@@ -13,14 +13,21 @@ export interface intSchoolSchema extends Document {
   locale: string;
   hbcu: string;
   slug: string;
-  data: Array<intSchoolData>;
+  data: intSchoolDataModel[];
 };
 
-export interface intSchoolData extends Document {
+export interface intSchoolDataModel {
   fiscal_year: number,
   variable: string,
   value: string,
 };
+
+
+export interface intSchoolSchema extends Document, intSchoolModel {
+  data: intSchoolDataSchema[];
+};
+
+export interface intSchoolDataSchema extends Document, intSchoolDataModel { };
 
 const schoolDataSchema = new Schema({
   fiscal_year: Number,
@@ -45,7 +52,7 @@ let schema: Schema = new Schema({
   data: [schoolDataSchema]
 });
 
-export let SchoolDataSchema = model<intSchoolData>('schoolData', schema);
+export let SchoolDataSchema = model<intSchoolDataSchema>('schoolData', schema);
 export let SchoolSchema = model<intSchoolSchema>('school', schema);
 
 SchoolSchema.schema.static('search', (name: string, cb: any) => {
@@ -57,7 +64,7 @@ SchoolSchema.schema.static('getVariableList', (cb: any) => {
   return SchoolSchema.distinct("data.variable", cb);
 });
 
-SchoolSchema.schema.static('fetchVariable', (variable: string, filters: Array<any> = [], limit: number) => {
+SchoolSchema.schema.static('fetchVariable', (variable: string, filters: Array<any> = [], limit: number):intSchoolSchema => {
   if (typeof filters === 'number') {
     limit = filters;
     filters = [];
@@ -93,7 +100,7 @@ SchoolSchema.schema.static('fetchVariable', (variable: string, filters: Array<an
   ]).limit(limit ? limit : 1000000).exec();
 });
 
-SchoolSchema.schema.static('fetchSchoolWithVariables', (unitid: number, variables: Array<string>) => {
+SchoolSchema.schema.static('fetchSchoolWithVariables', (unitid: number, variables: string[]):intSchoolModel => {
   return SchoolSchema.aggregate([
     {
       "$match": {
@@ -116,7 +123,7 @@ SchoolSchema.schema.static('fetchSchoolWithVariables', (unitid: number, variable
         }
       }
     }
-  ]).exec().then( (res:Array<intSchoolSchema>) => {
+  ]).exec().then( (res:intSchoolModel[]) => {
     let result = res[0];
     _.forEach(result.data, (v, k) => {
       _.forEach(v, val => {

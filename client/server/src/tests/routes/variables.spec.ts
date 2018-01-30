@@ -5,7 +5,7 @@ import * as chai from 'chai';
 const chaiHttp = require('chai-http') //doing this until updeate when it can be imported in es6 style....
 import { expect } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
-import { SchoolSchema } from '../../schemas/SchoolSchema';
+import { SchoolSchema, intSchoolModel } from '../../schemas/SchoolSchema';
 const app = require('../../app');
 
 chai.use(chaiHttp);
@@ -32,7 +32,7 @@ describe("VARIABLE ROUTE", () => {
 				value: 4,
 				fiscal_year: '2019'
 			}]
-		}, function(err, school) {
+		}, function(err:Error, school:intSchoolModel) {
 			done();
 		});
 	});

@@ -1,18 +1,19 @@
 import { UserSchema } from '../../schemas/UserSchema';
 import { nwData, dummyChartData } from '../fixtures/fixtures';
-import { VariableDefinitionSchema, intVariableDefinitionSchema } from '../../schemas/VariableDefinitionSchema';
+import { VariableDefinitionSchema, intVariableDefinitionSchema, intVariableDefinitionModel } from '../../schemas/VariableDefinitionSchema';
 import { SchoolSchema } from '../../schemas/SchoolSchema';
 import * as assert from 'assert';
 import * as chai from 'chai';
 const chaiHttp = require('chai-http');
 import { expect } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
-import { ChartSchema, intChartSchema, intChartVariable } from '../../schemas/ChartSchema';
+import { ChartSchema, intChartSchema, intChartVariableModel, intChartModel } from '../../schemas/ChartSchema';
 const app = require('../../app');
 
 chai.use(chaiHttp);
 chai.use(chaiAsPromised);
 const connection = chai.request(app);
+const agent = chai.request.agent(app);
 
 describe("CHART ROUTE", () => {
 
@@ -26,7 +27,7 @@ describe("CHART ROUTE", () => {
 		})
 	});
 
-	const testVar1: intVariableDefinitionSchema = {
+	const testVar1: intVariableDefinitionModel = {
 		variable: "test_var_1",
 		type: "currency",
 		sources: [{
@@ -49,8 +50,8 @@ describe("CHART ROUTE", () => {
 			.then(() => done())
 			.catch(err => done(err));
 	});
-	
-	const testChart: intChartSchema = {
+
+	const testChart: intChartModel = {
 		name: 'fake_chart',
 		type: 'line',
 		category: 'fake',
@@ -65,14 +66,14 @@ describe("CHART ROUTE", () => {
 		}]
 	};
 
-	const newVariables: intChartVariable = {
+	const newVariable: intChartVariableModel = {
 		formula: '1+2+test_var_1',
 		notes: 'more test notes',
 		legendName: 'a test legend'
 	}
 
 	describe('create', () => {
-		it('Post should return status 200 and newly created chart', done => {
+		it('Post should return status 200 and newly created chart, then update it', done => {
 			connection.post('/api/charts')
 				.set('Authorization', `Basic ${username}:${password}`)
 				.send(testChart)
@@ -82,27 +83,21 @@ describe("CHART ROUTE", () => {
 					expect(res.body).to.be.an('object');
 					expect(res.body).to.haveOwnProperty('valueType').that.is.a('string');
 					expect(res.body.variables).to.be.an('array');
-					done();
-				});
-		});
-	});
-
-	describe('update', () => {
-		it('Post should return status 200 and newly updated chart', done => {
-			testChart.variables.push(newVariables);
-			testChart.type = "updated type";
-			connection.post('/api/charts')
-				.set('Authorization', `Basic ${username}:${password}`)
-				.send(testChart)
-				.end((err, res) => {
-					if (err) done(err);
-					expect(res).to.have.status(200);
-					expect(res.body).to.be.an('object');
-					expect(res.body).to.haveOwnProperty('valueType').that.is.a('string');
-					expect(res.body.variables).to.be.an('array');
-					assert.equal(res.body.variables.length, 2);
-					assert.equal(res.body.type, "updated type");
-					done();
+					res.body.variables.push(newVariable);
+					res.body.type = "updated type";
+					return agent.post('/api/charts')
+						.set('Authorization', `Basic ${username}:${password}`)
+						.send(res.body)
+						.end((err,res) => {
+							expect(res).to.have.status(200);
+							expect(res.body).to.be.an('object');
+							expect(res.body).to.haveOwnProperty('valueType').that.is.a('string');
+							expect(res.body).to.haveOwnProperty('type').that.equals('updated type');
+							expect(res.body.variables).to.be.an('array'); 
+							assert.equal(res.body.variables.length, 2);
+							assert.equal(res.body.type, "updated type");
+							done();
+						});
 				});
 		});
 	});
