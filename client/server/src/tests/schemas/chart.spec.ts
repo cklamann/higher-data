@@ -66,6 +66,12 @@ describe('Chart Schema', function() {
     legendName: 'test legend'
   }
 
+  const testChartVariableGood2: intChartVariableModel = {
+    formula: '1+test_var_2',
+    notes: 'test notes',
+    legendName: 'test legend'
+  }
+
   //this is bad because of nonexistent variable in the formula
   const testChartVariableBad: intChartVariableModel = {
     formula: '1+2 + fake_var',
@@ -111,7 +117,7 @@ describe('Chart Schema', function() {
     });
   });
 
-  describe('fail validationi by updating empty chart with a variable', function() {
+  describe('fail validation by updating empty chart with a variable that has an invalid formula', function() {
     it('should return without error', function(done) {
       ChartSchema.findOne({ name: testChart.name })
         .then(model => {
@@ -123,16 +129,15 @@ describe('Chart Schema', function() {
     });
   });
 
-  //todo: fill out patter -- this is largely experimental with mongo -- looking for a good update patter
-  // we've already updated and empty variables[] with good and bad variables, still need to: 
-    //push in a new one (that's good)
-    //update an existing one (solo)
-      //for all this, can we just save the whole model and see if it works -- i.e., get back chart from FE, then .save()?
-      //what's the drawback -- it will throw validation errors if there's a problem... well, if there's no id would need to
-      // new it up (possibly in a loop) for each new variable, but oh well
-    //update and existing one (of two)
-    //update chart spec and an existing variable
-    //remove an existing variable
+
+
+  //todo: fill out pattern -- keep testing crud
+  // refactor fetches for front end to pass in {lean:true} option because you don't want a mongoose object
+  // when testing crud mehods, expect to get the lean object back. so work on that pattern:
+    // pass in lean object (built in a fixture)
+      //update lean object with new variable and save
+      //update a variable on the lean object and save
+      //remember don't need to push into db to get a schema, can just new it up based on model and push
 
   // describe('verify that I cannot search for a variable by id because that\'s not how mongo works', function() {
   //   it('should return without error', function(done) {
