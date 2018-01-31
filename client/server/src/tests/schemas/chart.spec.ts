@@ -1,4 +1,4 @@
-import { ChartSchema, ChartVariableSchema, intChartModel, intChartVariableModel } from '../../schemas/ChartSchema';
+import { ChartSchema, intChartModel, intChartVariableModel, ChartVariableSchema, intChartVariableSchema } from '../../schemas/ChartSchema';
 import { nwData, dummyChartData } from '../fixtures/fixtures';
 import { VariableDefinitionSchema, intVariableDefinitionSchema, intVariableDefinitionModel } from '../../schemas/VariableDefinitionSchema';
 import { SchoolSchema } from '../../schemas/SchoolSchema';
@@ -7,9 +7,10 @@ import * as chaiAsPromised from 'chai-as-promised';
 import { expect } from 'chai';
 import * as _ from 'lodash';
 const app = require('../../app');
-
 chai.use(chaiAsPromised);
 const assert = chai.assert;
+
+//todo: clean up all this unneeded fixture stuff, can just get your document with new(testObj) instead of fetching
 
 describe('Chart Schema', function() {
 
@@ -80,145 +81,45 @@ describe('Chart Schema', function() {
   };
 
 
-  beforeEach('create chart', function(done) {
-    ChartSchema.create(testChart)
-      .then(() => done())
-      .catch(err => done(err));
-  });
-
-  afterEach('remove test chart', function(done) {
-    ChartSchema.find({ name: { "$in": ["fake_chart", "bad_chart"] } }).remove().exec().then(() => done()).catch(err => done(err));
-  });
-
-  describe('test test chart exists', function() {
-    it('should return without error', function(done) {
-      ChartSchema.findOne({ name: testChart.name })
-        .then(res => {
-          assert.equal(res.type, testChart.type);
-          done();
-        });
-    });
-  });
-
-  describe('update empty chart with a variable', function() {
-    it('should return without error', function(done) {
-      ChartSchema.findOne({ name: testChart.name })
-        .then(model => {
-          let newVar = new ChartVariableSchema(testChartVariableGood);
-          model.variables = model.variables.concat(newVar); //$pushall problem...
-          model.save()
-            .then(res => ChartSchema.findOne({ _id: model._id }).exec())
-            .then(updated => {
-              assert(updated.variables[0].formula === testChartVariableGood.formula);
-              done();
-            })
-            .catch(err => done(err));
-        });
-    });
-  });
-
   describe('fail validation by updating empty chart with a variable that has an invalid formula', function() {
-    it('should return without error', function(done) {
-      ChartSchema.findOne({ name: testChart.name })
-        .then(model => {
-          let newVar = new ChartVariableSchema(testChartVariableBad);
-          model.variables = model.variables.concat(newVar); //$pushall problem...
-          assert.isRejected(model.save(), "chart validation failed: variables.0.formula: Formula is invalid!");
-          done();
-        }).catch(err => done(err));
+    it('should return without error', function() {
+      const model = new ChartSchema(testChart),
+        newVar = <any>testChartVariableBad; //cast to any to avoid typescript error
+      model.variables.push(newVar);
+      return assert.isRejected(model.validate(), "chart validation failed: variables.0.formula: Formula is invalid!");
     });
   });
 
+  describe('fail validation via static update method by filling empty chart with a variable that has an invalid formula', function() {
+    it('should return without error', function() {
+      const model = new ChartSchema(testChart),
+        updateModel = testChart,
+        newVar = <any>testChartVariableBad;
+      updateModel.variables.push(newVar);
+      return assert.isRejected(model.schema.statics.fetchAndUpdate(updateModel), "chart validation failed: variables.0.formula: Formula is invalid!");
+    });
+  });
 
+  describe('pass validation by updating empty chart with a variable that has a valid formula', function() {
+    it('should return without error', function() {
+      testChart.variables = []; //reset from previous tests, dammit
+      const model = new ChartSchema(testChart),
+        newVar = <any>testChartVariableGood; //cast to any to avoid typescript error
+      model.variables.push(newVar);
+      return assert.isFulfilled(model.validate());
+    });
+  });
 
-  //todo: fill out pattern -- keep testing crud
-  // refactor fetches for front end to pass in {lean:true} option because you don't want a mongoose object
-  // when testing crud mehods, expect to get the lean object back. so work on that pattern:
-    // pass in lean object (built in a fixture)
-      //update lean object with new variable and save
-      //update a variable on the lean object and save
-      //remember don't need to push into db to get a schema, can just new it up based on model and push
-
-  // describe('verify that I cannot search for a variable by id because that\'s not how mongo works', function() {
+  // describe('use static update to update empty model with new variable', function() {
   //   it('should return without error', function(done) {
-  //     ChartSchema.findOne({ name: testChart.name })
+  //     const model = new ChartSchema(testChart),
+  //       updateModel = testChart,
+  //       newVar = <any>testChartVariableGood;
+  //     updateModel.variables.push(newVar);
+  //     model.schema.statics.fetchAndUpdate(updateModel)
   //       .then(res => {
-  //         let variable = res.variables[0];
-  //         ChartVariableSchema.findOne({ _id: variable._id })
-  //           .then(res => {
-  //             assert.equal(res, null);
-  //             done();
-  //           })
-  //           .catch(err => done(err));
-  //       });
-  //   });
-  // });
-
-  // describe('#rawUpdate', function() {
-  //   it('should update correctly using a r aw u pdate m ethod, despite validation and required fields issue', function(done) {
-  //     ChartSchema.findOne({ name: testChart.name }).exec()
-  //       .then(res => ChartSchema.update({ _id: res._id }, badTestChart))
-  //       .then(() => ChartSchema.findOne({ name: badTestChart.name }))
-  //       .then(chart => {
-  //         assert.equal(chart.variables.length, 1);
   //         done();
   //       })
-  //       .catch(err => done(err));
-  //   });
-  // });
-
-  // //yeah this is all wrong...
-
-  // describe('#badUpdate', function() {
-  //   it('should update incorrectly using static update method because that actually catches validation errors', function(done) {
-  //     ChartSchema.findOne({ name: testChart.name }).exec()
-  //       .then(res => {
-  //         const badVar = new ChartVariableSchema(badTestChartFormula.variables[0]);
-  //         res.variables.push(badVar);
-  //         ChartSchema.update({ _id: res._id }, res)
-  //           .then(() => {
-  //             assert.equal(true, false); //ugly hacks to make sure promise is rejected -- todo: get chai-as-promised working
-  //             done(;
-  //           })
-  //           .catch((err: Error) => {
-  //             done(err); //no assertions will fire here but can verify error by passing error to done
-  //           });
-  //       });
-  //   });
-  // });
-
-  // describe('#badUpdateRequired', function() {
-  //   it('should update incorrectly using static update method because that actually catches required field errors', function(done) {
-  //     ChartSchema.findOne({ name: testChart.name }).exec()
-  //       .then(res => {
-  //         res.variables.push(badTestChartRequired.variables[0]);
-  //         ChartSchema.schema.statics.update(res)
-  //           .then(() => {
-  //             assert.equal(true, false);
-  //             done(;
-  //           })
-  //           .catch((err: Error) => {
-  //             done();
-  //           });
-  //       });
-  //   });
-  // });
-
-  // describe('#update()', function() {
-  //   it('should update source array with a new source object and a new source value', function(done) {
-  //     ChartSchema.findOne({ name: testChart.name }).exec()
-  //       .then(res => {
-  //         res.variables[0].notes = "new fancy updated notes!";
-  //         res.variables.push(newVar);
-  //         return ChartSchema.schema.statics.update(res);
-  //       }).then(chart => {
-  //         assert.equal(chart.variables.length, 2);
-  //         expect(chart.variables[0]).to.include({ "notes": "new fancy updated notes!" });
-  //         expect(chart.variables[0]).to.not.include({ "notes": "new fancy imagined notes" });
-  //         expect(chart.variables[1]).to.include({ "notes": "new test notes" });
-  //         done();
-  //       })
-  //       .catch(err => done(err));
   //   });
   // });
 

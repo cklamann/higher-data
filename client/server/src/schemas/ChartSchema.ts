@@ -3,16 +3,6 @@ import { ChartFormula, intFormula } from '../modules/ChartFormula.module';
 import * as Util from '../modules/Util.module';
 import * as _ from 'lodash';
 
-//todo: with both this and variableDefinition schema:
-
-// 1) remove childSchema -- you'll never need it -- just use model
-// 2) add instance method fetchAndUpdate
-  // this method will:
-    // 1) validate parent (question: does validating parent validate children?)
-    // 2) loop through children and validate, if child is new, must new it up before validating
-          //saving errors as they arise
-    // 3) if no errors, remove old model, insert new (since there's no refs, ids don't matter!)
-
 export interface intChartVariableModel {
   formula: string;
   notes: string;
@@ -31,12 +21,12 @@ export interface intChartModel {
 }
 
 export interface intChartVariableSchema extends Document, intChartVariableModel { };
-export interface intChartSchema extends Document, intChartModel { 
-  variables : intChartVariableSchema[];
+export interface intChartSchema extends Document, intChartModel {
+  variables: intChartVariableSchema[];
 };
 
 
-const chartVariableSchema:Schema = new Schema({
+const chartVariableSchema: Schema = new Schema({
   formula: {
     type: String,
     required: true
@@ -93,15 +83,21 @@ chartVariableSchema.path('formula').validate({
       })
       .catch(err => respond(err));
   },
-  message: 'Formula is invalid!'
+  message: `Formula is invalid!`
 });
 
 export let ChartSchema = model<intChartSchema>('chart', schema);
 export let ChartVariableSchema = model<intChartVariableSchema>('chart_variable', chartVariableSchema);
 
 
-ChartSchema.schema.static('update', (model: intChartSchema) => {
-  //validate parent and children
-  //if invalid, return an error with validation messages
-  return ChartSchema.update({_id:model._id},model).then(() => model);
+ChartSchema.schema.static('fetchAndUpdate', (model: intChartModel): Promise<intChartSchema> => {
+  const newSchema = new ChartSchema(model);
+  return newSchema.validate()
+    .then( () => {
+      return ChartSchema.findOne({ _id: newSchema._id })
+        .then(originalModel => {
+          return originalModel.update(newSchema);
+        })
+        .then( () => newSchema);
+    });
 });
