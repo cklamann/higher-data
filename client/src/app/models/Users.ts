@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { intUserSchema } from '../../../server/src/schemas/UserSchema';
+import { intUserModel } from '../../../server/src/schemas/UserSchema';
 import { RestService } from '../services/rest/rest.service';
 import { Observable } from 'rxjs';
 import 'rxjs/add/observable/throw';
@@ -9,13 +9,13 @@ import 'rxjs/add/observable/throw';
 export class Users {
 	constructor(private rest: RestService) { }
 
-	fetch(id: number): Observable<intUserSchema[]> {
+	fetch(id: number): Observable<intUserModel[]> {
 		return this.rest.get(`users/${id}`);
 	}
 }
 //not sure we need a whole model here?
 export class User {
-	constructor(obj: intUserSchema) {
+	constructor(obj: intUserModel) {
 		Object.assign(this, obj);
 	}
 

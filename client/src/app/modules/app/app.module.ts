@@ -11,7 +11,8 @@ import { DocsPageModule } from '../docs-page/docs-page.module';
 import { SharedModule } from '../shared/shared.module'
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { InterceptService } from '../../services/intercept/intercept.service';
-import { AuthService } from '../../services/auth/auth.service'
+import { AuthService } from '../../services/auth/auth.service';
+import {RestService} from '../../services/rest/rest.service';
 import { BlogModule } from '../blog/blog.module';
 
 @NgModule({

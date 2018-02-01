@@ -30,9 +30,19 @@ export interface intSchoolSchema extends Document, intSchoolModel {
 export interface intSchoolDataSchema extends Document, intSchoolDataModel { };
 
 const schoolDataSchema = new Schema({
-  fiscal_year: Number,
-  variable: String,
-  value: String
+  fiscal_year: {
+    type: Number,
+    requied: true,
+  },
+  variable: {
+    type: String,
+    required: true
+  },
+  value: {
+    type: String,
+    required: true,
+    trim: true
+  }
 });
 
 let schema: Schema = new Schema({
@@ -64,7 +74,7 @@ SchoolSchema.schema.static('getVariableList', (cb: any) => {
   return SchoolSchema.distinct("data.variable", cb);
 });
 
-SchoolSchema.schema.static('fetchVariable', (variable: string, filters: Array<any> = [], limit: number):intSchoolSchema => {
+SchoolSchema.schema.static('fetchVariable', (variable: string, filters: Array<any> = [], limit: number): intSchoolSchema => {
   if (typeof filters === 'number') {
     limit = filters;
     filters = [];
@@ -100,7 +110,7 @@ SchoolSchema.schema.static('fetchVariable', (variable: string, filters: Array<an
   ]).limit(limit ? limit : 1000000).exec();
 });
 
-SchoolSchema.schema.static('fetchSchoolWithVariables', (unitid: number, variables: string[]):intSchoolModel => {
+SchoolSchema.schema.static('fetchSchoolWithVariables', (unitid: number, variables: string[]): intSchoolModel => {
   return SchoolSchema.aggregate([
     {
       "$match": {
@@ -123,11 +133,11 @@ SchoolSchema.schema.static('fetchSchoolWithVariables', (unitid: number, variable
         }
       }
     }
-  ]).exec().then( (res:intSchoolModel[]) => {
+  ]).exec().then((res: intSchoolModel[]) => {
     let result = res[0];
     _.forEach(result.data, (v, k) => {
       _.forEach(v, val => {
-        if(_.isString(val)){
+        if (_.isString(val)) {
           val = val.trim();
         }
       });
@@ -136,10 +146,10 @@ SchoolSchema.schema.static('fetchSchoolWithVariables', (unitid: number, variable
   })
 });
 
-SchoolSchema.schema.static('fetch', (arg:string) => {
+SchoolSchema.schema.static('fetch', (arg: string) => {
   let promise;
-  if (!!_.toNumber(arg)){
+  if (!!_.toNumber(arg)) {
     promise = SchoolSchema.findOne({ unitid: arg }).select('-data');
   } else promise = SchoolSchema.findOne({ slug: arg }).select('-data');
-  return promise; 
+  return promise;
 });

@@ -1,45 +1,34 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatSelect } from '@angular/material';
+import { Charts } from '../../../models/Charts';
+import { intChartModel } from '../../../../../server/src/schemas/ChartSchema';
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/map';
 
 
 @Component({
-  selector: 'app-chart-search',
-  templateUrl: './chart-search.component.html',
-  styleUrls: ['./chart-search.component.scss']
+	selector: 'app-chart-search',
+	templateUrl: './chart-search.component.html',
+	styleUrls: ['./chart-search.component.scss']
 })
 export class ChartSearchComponent implements OnInit {
-	searchForm: FormGroup;
-	searchTerm: string;
-	selectedChart: any; //todo: replace these with chartModel
-	autocompleteResults: any[];
-	constructor(private fb: FormBuilder /*,private Charts: any*/) { //Charts should be new Chart model that doesn't exist yet
+	chartSelectForm: FormGroup;
+	selectedChart: intChartModel;
+	charts: intChartModel[] = [];
+	constructor(private fb: FormBuilder, private Charts: Charts) {
 		this.createForm();
 	}
 
 	ngOnInit() {
-		this.listenForSearchChanges(); 
+		this.Charts.fetchAll()
+			.subscribe(res => this.charts = res);
 	}
 
 	createForm() {
-		this.searchForm = this.fb.group({
-			searchText: ['', [Validators.minLength(3), Validators.required]],
+		this.chartSelectForm = this.fb.group({
+			chart: [''],
 		});
 	}
 
-	listenForSearchChanges(): void {
-		this.searchForm.valueChanges.debounceTime(500).subscribe(input => {
-			if (input.searchText.length > 3 && input.searchText != this.searchTerm) {
-				this.searchTerm = input.searchText;
-				this.Charts.search(`${input.searchText}`).subscribe(res => {
-					this.autocompleteResults = res;
-				});
-			}
-		});
-	}
-
-	showChartName(chart: any): any {
-		return chart ? chart.getName() : chart;
-	}
 }

@@ -1,13 +1,8 @@
-<form [formGroup]="searchForm" novalidate flex>
-    <mat-form-field class = "chart-search">
-        <input type="text" matInput formControlName="searchText" [matAutocomplete]="auto" placeholder="Chart Search"/>
+<form [formGroup]="chartSelectForm" novalidate fxFlex = "100" fxFlex.gt-sm="100">
+    <mat-form-field class = "chart-search" fxFlex = "100" fxFlex.gt-sm="100">
+        <mat-select class="form-control" formControlName="chart" placeholder = "Chart">
+            <mat-option *ngFor="let name of charts" [value]="_id">{{name}}</mat-option>
+        </mat-select>
     </mat-form-field>
-    <mat-autocomplete 
-    	#auto="matAutocomplete" 
-        [displayWith]="showChartName">        
-        <mat-option *ngFor="let option of autocompleteResults" 
-        	[value]="option">
-            {{ option.name }}
-        </mat-option>
-    </mat-autocomplete>
 </form>
+

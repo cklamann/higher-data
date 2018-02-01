@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { AuthService } from '../../../../services/auth/auth.service';
-import { intChartSchema } from '../../../../../../server/src/schemas/ChartSchema';
+import { intChartModel } from '../../../../../../server/src/schemas/ChartSchema';
 
 @Component({
 	selector: 'app-chart-creator',
@@ -11,23 +11,23 @@ import { intChartSchema } from '../../../../../../server/src/schemas/ChartSchema
 export class ChartCreatorComponent implements OnInit {
 
 	chartBuilderForm: FormGroup;
-	charts: Array<intChartSchema>;
-	chartTypes: Array<string>;
-	chartCategories: Array<string>;
-	chartValueTypes: Array<string>;
+	chartTypes: string[];
+	chartCategories: string[];
+	chartValueTypes: string[];
+	showChartSearch: boolean = false;
 
 	constructor(private fb: FormBuilder, private auth: AuthService) {
 
 	}
 
-	ngOnInit(){
+	ngOnInit() {
 		this.createForm();
 		this.chartTypes = this.mockTypes();
 		this.chartCategories = this.mockCategories();
 		this.chartValueTypes = this.mockValueTypes();
 	}
 
-	private mockTypes(){
+	private mockTypes() {
 		return ['line', 'bar', 'area'];
 	}
 
@@ -77,6 +77,11 @@ export class ChartCreatorComponent implements OnInit {
 
 	fetch() {
 		//get all the charts and populate dropdown with them		
+	}
+
+
+	toggleChartSearch(): void {
+		this.showChartSearch = !this.showChartSearch;
 	}
 
 }
