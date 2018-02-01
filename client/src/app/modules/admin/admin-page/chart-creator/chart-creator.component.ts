@@ -21,6 +21,8 @@ export class ChartCreatorComponent implements OnInit {
 
 	}
 
+	//todo: once chart search is emitting values, listen for them here and populate form with them on change
+
 	ngOnInit() {
 		this.createForm();
 		this.chartTypes = this.mockTypes();
@@ -74,7 +76,6 @@ export class ChartCreatorComponent implements OnInit {
 	}
 
 	onSubmit() {
-		console.log(this.chartBuilderForm.value);
 		return this.Charts.save(this.chartBuilderForm.value).subscribe();
 	}
 

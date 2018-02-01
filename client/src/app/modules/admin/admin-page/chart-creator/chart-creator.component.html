@@ -1,6 +1,6 @@
 <div class = "card-holder" fxLayoutWrap fxLayour="row">
 	<mat-card fxLayout="row" fxLayoutWrap fxFlex = "100" fxFlex.gt-sm="50">
-		<mat-card-header fxFlex = "90" fxLayoutWrap fxLayout="row" fxLayoutAlign="space-between center">
+		<mat-card-header fxFlex = "90" fxLayoutWrap fxLayout="row" fxLayoutAlign.gt-sm="space-between center">
 	    	<div class = "card-info" fxFlex ="35">
 		    	<mat-card-title><h2>Chart Management</h2></mat-card-title>
 	    	</div>
@@ -71,7 +71,7 @@
 		        		</div>
 		        		<div fxLayout="row" fxFlex = "100" fxLayoutAlign = "space-around center">
 	                      	<i fxFlex="nogrow" class = "material-icons mat-icon-button"(click)="addVariable()">add_box</i>
-	                      	<button fxFlex="nogrow" mat-button [disabled] = "chartBuilderForm.invalid">Submit</button>
+	                      	<button fxFlex="nogrow" mat-button [disabled] = "chartBuilderForm.invalid">Save</button>
 		        		</div>
 				    </div>
 			    </form>

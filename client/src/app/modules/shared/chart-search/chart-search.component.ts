@@ -23,6 +23,7 @@ export class ChartSearchComponent implements OnInit {
 	ngOnInit() {
 		this.Charts.fetchAll()
 			.subscribe(res => this.charts = res);
+		//intitialize listen for changes to select box
 	}
 
 	createForm() {
@@ -30,5 +31,7 @@ export class ChartSearchComponent implements OnInit {
 			chart: [''],
 		});
 	}
+
+	// todo: create listener function -- should emit chart object on selection
 
 }
