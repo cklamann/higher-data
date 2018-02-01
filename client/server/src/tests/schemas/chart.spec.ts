@@ -1,4 +1,4 @@
-import { ChartSchema, intChartModel, intChartVariableModel, ChartVariableSchema, intChartVariableSchema } from '../../schemas/ChartSchema';
+import { ChartSchema, intChartSchema, intChartModel, intChartVariableModel, ChartVariableSchema, intChartVariableSchema } from '../../schemas/ChartSchema';
 import { nwData, dummyChartData } from '../fixtures/fixtures';
 import { VariableDefinitionSchema, intVariableDefinitionSchema, intVariableDefinitionModel } from '../../schemas/VariableDefinitionSchema';
 import { SchoolSchema } from '../../schemas/SchoolSchema';
@@ -6,9 +6,11 @@ import * as chai from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import { expect } from 'chai';
 import * as _ from 'lodash';
-const app = require('../../app');
+
 chai.use(chaiAsPromised);
 const assert = chai.assert;
+const app = require('../../app');
+
 
 //todo: clean up all this unneeded fixture stuff, can just get your document with new(testObj) instead of fetching
 
@@ -80,7 +82,6 @@ describe('Chart Schema', function() {
     legendName: 'bad test legend'
   };
 
-
   describe('fail validation by updating empty chart with a variable that has an invalid formula', function() {
     it('should return without error', function() {
       const model = new ChartSchema(testChart),
@@ -102,26 +103,44 @@ describe('Chart Schema', function() {
 
   describe('pass validation by updating empty chart with a variable that has a valid formula', function() {
     it('should return without error', function() {
-      testChart.variables = []; //reset from previous tests, dammit
+      testChart.variables = []; //reset...
       const model = new ChartSchema(testChart),
-        newVar = <any>testChartVariableGood; //cast to any to avoid typescript error
+        newVar = <any>testChartVariableGood; 
       model.variables.push(newVar);
       return assert.isFulfilled(model.validate());
     });
   });
 
-  // describe('use static update to update empty model with new variable', function() {
-  //   it('should return without error', function(done) {
-  //     const model = new ChartSchema(testChart),
-  //       updateModel = testChart,
-  //       newVar = <any>testChartVariableGood;
-  //     updateModel.variables.push(newVar);
-  //     model.schema.statics.fetchAndUpdate(updateModel)
-  //       .then(res => {
-  //         done();
-  //       })
-  //   });
-  // });
+  describe('use static update to change an extant variable', function() {
+    it('should return without error', function(done) {
+      testChart.variables = []; //reset...
+      const model = new ChartSchema(testChart),
+        newVar = <any>testChartVariableGood;
+      model.variables.push(newVar);
+      model.save()
+        .then(() => ChartSchema.findById(model._id))
+        .then(model => {
+          model.category = "updated category";
+          model.variables[0].notes = "New updated notes";
+          model.variables.push(<any>testChartVariableGood2);
+          return model;
+        })
+        .then(model => {
+          return model.schema.statics.fetchAndUpdate(model)
+        })
+        .then((res: intChartModel) => {
+          assert.equal(res.category, "updated category");
+          assert.equal(res.variables.length, 2);
+          assert.equal(res.variables[0].notes, "New updated notes");
+          done();
+        })
+        .catch((err: Error) => done(err));
+    });
+  });
+
+  afterEach('remove test chart', function(done){
+    ChartSchema.remove({ name: testChart.name }).exec().then(() => done()).catch(err => done(err));
+  });
 
   after('remove test org and variables', function(done) {
     VariableDefinitionSchema.find({ variable: { "$in": ["test_var_1", "test_var_2"] } }).remove().exec()

@@ -3,9 +3,9 @@ import * as _ from 'lodash';
 import { SchoolSchema, intSchoolModel, intSchoolDataModel } from '../schemas/SchoolSchema';
 import { VariableDefinitionSchema, intVariableDefinitionSchema } from '../schemas/VariableDefinitionSchema';
 
-// export interface intFormula {
-// 	validate(): Promise<boolean>;
-// }
+export interface intFormula {
+	validate(): Promise<boolean>;
+}
 
 export interface intChartFormulaResult {
 	fiscal_year: string,
@@ -133,9 +133,6 @@ export class ChartFormula implements intFormula {
 						valid = false;
 					}
 				});
-				console.log("****************************");
-				console.log(this.symbolNodes);
-				console.log(valid);
 				return valid;
 			});
 	}

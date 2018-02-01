@@ -1,6 +1,5 @@
 import { model, Schema, Document, Model } from 'mongoose';
 import { SchoolSchema } from './SchoolSchema';
-import * as Util from '../modules/Util.module';
 
 let ObjectId = Schema.Types.ObjectId;
 
@@ -59,11 +58,13 @@ schema.path('variable').validate({
 export let variableSourcesSchema = model<intVariableSourceSchema>('variable_source', sourcesSchema)
 export let VariableDefinitionSchema = model<intVariableDefinitionSchema>('variable_definition', schema);
 
-VariableDefinitionSchema.schema.static('update', (model: intVariableDefinitionSchema) => {
-  return VariableDefinitionSchema.findById(model._id).exec()
-    .then(variable => {
-      variable.type = model.type;
-      variable.sources = Util.updateArray(variable.sources, model.sources);
-      return variable.save();
-    }).then(() => VariableDefinitionSchema.findById(model._id).exec())
-});
+VariableDefinitionSchema.schema.statics = {
+  fetchAndUpdate: (model: intVariableDefinitionModel): Promise<intVariableDefinitionSchema> => {
+    const newSchema = new VariableDefinitionSchema(model);
+    return newSchema.validate()
+      .then(() => {
+        return newSchema.update(newSchema)
+          .then(() => newSchema);
+      });
+  }
+}

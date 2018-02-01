@@ -1,6 +1,5 @@
 import { model, Schema, Document, Model } from 'mongoose';
 import { ChartFormula, intFormula } from '../modules/ChartFormula.module';
-import * as Util from '../modules/Util.module';
 import * as _ from 'lodash';
 
 export interface intChartVariableModel {
@@ -90,14 +89,13 @@ export let ChartSchema = model<intChartSchema>('chart', schema);
 export let ChartVariableSchema = model<intChartVariableSchema>('chart_variable', chartVariableSchema);
 
 
-ChartSchema.schema.static('fetchAndUpdate', (model: intChartModel): Promise<intChartSchema> => {
-  const newSchema = new ChartSchema(model);
-  return newSchema.validate()
-    .then( () => {
-      return ChartSchema.findOne({ _id: newSchema._id })
-        .then(originalModel => {
-          return originalModel.update(newSchema);
-        })
-        .then( () => newSchema);
-    });
-});
+ChartSchema.schema.statics = {
+  fetchAndUpdate: (model: intChartSchema): Promise<intChartSchema> => {
+    const newSchema = new ChartSchema(model);
+    return newSchema.validate()
+      .then(() => {
+        return newSchema.update(newSchema)
+          .then(() => newSchema);
+      });
+  }
+}
