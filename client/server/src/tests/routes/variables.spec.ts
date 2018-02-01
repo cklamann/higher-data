@@ -1,7 +1,6 @@
 import { UserSchema } from '../../schemas/UserSchema';
 import * as assert from 'assert';
 import * as chai from 'chai';
-//import * as chaiHttp from 'chai-http'; 
 const chaiHttp = require('chai-http') //doing this until updeate when it can be imported in es6 style....
 import { expect } from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
@@ -16,6 +15,8 @@ describe("VARIABLE ROUTE", () => {
 
 	const username = "tester",
 		password = "schmester";
+
+	const creds = Buffer.from(`${username}:${password}`).toString('base64');
 
 	before('create user', function() {
 		UserSchema.create({
@@ -32,7 +33,7 @@ describe("VARIABLE ROUTE", () => {
 				value: 4,
 				fiscal_year: '2019'
 			}]
-		}, function(err:Error, school:intSchoolModel) {
+		}, function(err: Error, school: intSchoolModel) {
 			done();
 		});
 	});
@@ -40,7 +41,7 @@ describe("VARIABLE ROUTE", () => {
 	describe('fetch all', () => {
 		it('Post should return status 200', done => {
 			connection.get('/api/variables')
-				.set('Authorization', `Basic ${username}:${password}`)
+				.set('Authorization', `Basic ${creds}`)
 				.end((err, res) => {
 					if (err) done(err);
 					expect(res).to.have.status(200);
@@ -51,10 +52,10 @@ describe("VARIABLE ROUTE", () => {
 	});
 
 	after('remove user', function() {
-			UserSchema.find({
-				username: "tester"
-			}).remove().exec();
-		});
+		UserSchema.find({
+			username: "tester"
+		}).remove().exec();
+	});
 
 	after('remove test school', function(done) {
 		SchoolSchema.find({

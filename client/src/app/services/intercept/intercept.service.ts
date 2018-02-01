@@ -9,10 +9,9 @@ export class InterceptService implements HttpInterceptor {
 	constructor(private router: Router) { }
 
 	intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-		let token = localStorage.getItem('tihe_token') ? localStorage.getItem('tihe_token') : ''; 
-		let username = localStorage.getItem('tihe_username') ? localStorage.getItem('tihe_username') : ''; 
-		const authReq = req.clone({
-			headers: req.headers.set('Authorization', 'Basic ' + username + ":" + token)
+		const token = localStorage.getItem('tihe_token') ? localStorage.getItem('tihe_token') : 'foo:foo',
+		authReq = req.clone({
+			headers: req.headers.set('Authorization', `Basic ${token}`)
 		});
 		return next.handle(authReq)
 			.map((event: HttpEvent<any>) => {

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { intChartModel, intChartVariableModel } from '../../../server/src/schemas/ChartSchema';
 import { RestService } from '../services/rest/rest.service';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import 'rxjs/add/observable/throw';
 
 
@@ -16,6 +16,10 @@ export class Charts {
 	fetchAll(): Observable<intChartModel[]> {
 		return this.rest.get(`charts`);
 	}
+
+	save(model: intChartModel): any {
+		return this.rest.post(`charts`, model);
+	}
 }
 
 export class Chart implements intChartModel {
@@ -25,7 +29,7 @@ export class Chart implements intChartModel {
 	category: string;
 	active: boolean;
 	valueType: string;
-	description: string;	
+	description: string;
 	variables: intChartVariableModel[];
 	constructor(obj: intChartModel) {
 		this.name = obj.name;

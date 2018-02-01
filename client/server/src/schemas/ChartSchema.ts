@@ -43,7 +43,8 @@ const chartVariableSchema: Schema = new Schema({
 const schema: Schema = new Schema({
   name: {
     type: String,
-    required: true
+    required: true,
+    unique: true
   },
   slug: {
     type: String,

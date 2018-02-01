@@ -1,38 +1,23 @@
 import { Router, Response, Request, NextFunction } from "express";
 import { UserSchema, intUserSchema } from '../schemas/UserSchema';
 import * as passport from 'passport';
-import * as crypto from 'crypto';
 let router = Router();
-
-function encryptPw(pw: string): string {
-	console.log(pw)
-	const cipher = crypto.createCipher('aes192', 'a password');
-	let encrypted = cipher.update(pw, 'utf8', 'hex');
-	return encrypted += cipher.final('hex');
-}
 
 /* get users */
 router.get('/', function(req, res, next) {
 
 });
 
-/* todo: restrict this route , convert callbacks to promises, create tests*/
+//todo: restrict route on prod!
 
 /* create new user */
 router.post('/', function(req: any, res, next) {
-	console.log(req.body);
-	const pw = encryptPw(req.body.password);
-	let user = UserSchema.create({ username: req.body.username, password: pw, isAdmin: req.body.isAdmin }, function(err: Error, doc: Promise<intUserSchema>) {
-		if (err) {
-			res.status(422);
-			res.json({ name: err.name, msg: err.message });
-		}
-		return doc;
-	});
+	UserSchema.schema.statics.create(req.body)
+		.then((user:any) => {
+			res.json(user);
+		})
+		.catch( (err:Error) => next(err));
 
-	user.then(user => {
-		res.json(user)
-	});
 });
 
 /*delete user*/
@@ -50,7 +35,7 @@ router.delete('/', passport.authenticate('basic', { session: false }), function(
 /*login user*/
 
 router.post('/login', (req, res, next) => {
-	if(!req.body.username || !req.body.password){
+	if (!req.body.username || !req.body.password) {
 		res.sendStatus(400);
 	}
 	let user = UserSchema.findOne({ username: req.body.username }, (err: Error, user) => {
@@ -58,8 +43,7 @@ router.post('/login', (req, res, next) => {
 		return user;
 	});
 	user.then(user => {
-		if (!user || user.password != encryptPw(req.body.password)) {
-			console.log(user);
+		if (!user || user.password != UserSchema.schema.statics.encryptPw(req.body.password)) {
 			res.sendStatus(401);
 		}
 		res.json(user);

@@ -20,6 +20,8 @@ describe("CHART ROUTE", () => {
 	const username = "tester",
 		password = "schmester";
 
+	const creds = Buffer.from(`${username}:${password}`).toString('base64');
+
 	before('create user', function() {
 		UserSchema.create({
 			username: username,
@@ -75,7 +77,7 @@ describe("CHART ROUTE", () => {
 	describe('create', () => {
 		it('Post should return status 200 and newly created chart, then update it', done => {
 			connection.post('/api/charts')
-				.set('Authorization', `Basic ${username}:${password}`)
+				.set('Authorization', `Basic ${creds}`)
 				.send(testChart)
 				.end((err, res) => {
 					if (err) done(err);
@@ -86,14 +88,14 @@ describe("CHART ROUTE", () => {
 					res.body.variables.push(newVariable);
 					res.body.type = "updated type";
 					return agent.post('/api/charts')
-						.set('Authorization', `Basic ${username}:${password}`)
+						.set('Authorization', `Basic ${creds}`)
 						.send(res.body)
-						.end((err,res) => {
+						.end((err, res) => {
 							expect(res).to.have.status(200);
 							expect(res.body).to.be.an('object');
 							expect(res.body).to.haveOwnProperty('valueType').that.is.a('string');
 							expect(res.body).to.haveOwnProperty('type').that.equals('updated type');
-							expect(res.body.variables).to.be.an('array'); 
+							expect(res.body.variables).to.be.an('array');
 							assert.equal(res.body.variables.length, 2);
 							assert.equal(res.body.type, "updated type");
 							done();

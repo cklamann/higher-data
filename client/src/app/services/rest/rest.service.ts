@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 
 
 @Injectable()
-export class RestService{
+export class RestService {
 
 	apiRoot: string;
 
@@ -19,6 +19,6 @@ export class RestService{
 
 	post(url: string, args: object): Observable<any> {
 		let params = Object.assign({}, args);
-		return this.http.post(`${this.apiRoot}/${url}`,params);
+		return this.http.post(`${this.apiRoot}/${url}`, params);
 	}
 }

@@ -19,8 +19,7 @@ export class AuthService implements intAuthService {
 		return this.rest.post(`users/login`, { username: username, password: password })
 			.map(res => {
 				if (res.password) {
-					localStorage.setItem("tihe_token", res.password);
-					localStorage.setItem("tihe_username", res.username);
+					localStorage.setItem("tihe_token", btoa(`${res.username}:${res.password}`));
 					this.user = new User(res);
 				} else {
 					res.throw();
@@ -29,7 +28,7 @@ export class AuthService implements intAuthService {
 	}
 
 	public authorize(): boolean {
-		if (localStorage.getItem("tihe_token") && localStorage.getItem("tihe_username")) {
+		if (localStorage.getItem("tihe_token")) {
 			return true;
 		} else {
 			this.router.navigate(['/login']);

@@ -34,6 +34,7 @@ describe("userRoute", () => {
 			connection.post('/api/users/login')
 				.send({ username: username, password: password })
 				.end((err, res: any) => {
+					if(err) done(err);
 					expect(res.statusCode).to.equal(200);
 					expect(res.body.password).to.be.a('string');
 					expect(res.body.username).to.be.a('string');

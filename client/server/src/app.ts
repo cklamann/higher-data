@@ -32,20 +32,20 @@ app.use(cookieParser());
 app.use(passport.initialize());
 
 passport.use(new BasicStrategy(
-  function(username: string, password: string, done: any) {
-    UserSchema.findOne({ username: username }, function(err, user) {
+  function(userid: string, password: string, done: any) {
+    UserSchema.findOne({ username: userid }, function(err, user) {
       if (err) return done(err);
       if (!user) return done(null, false);
       if (user.password != password) return done(null, false);
-      done(err, user);
+      done(err,user);
     });
   }
 ));
 
 mongoose.connect('mongodb://localhost/colleges');
 
-app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 app.use('/api/users', users);
 app.use('/api/schools', schools);

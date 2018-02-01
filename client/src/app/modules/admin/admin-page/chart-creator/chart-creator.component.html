@@ -1,13 +1,8 @@
-<!--todo:
-1) realtime formula validation that returns a message from the validator about which variable does not exist (and, later, whether variables are of incompatible types)
-^^ do this on home machine.... need some data first....
--->
 <div class = "card-holder" fxLayoutWrap fxLayour="row">
 	<mat-card fxLayout="row" fxLayoutWrap fxFlex = "100" fxFlex.gt-sm="50">
 		<mat-card-header fxFlex = "90" fxLayoutWrap fxLayout="row" fxLayoutAlign="space-between center">
 	    	<div class = "card-info" fxFlex ="35">
 		    	<mat-card-title><h2>Chart Management</h2></mat-card-title>
-		    	<!-- <mat-card-subtitle>a subtitle</mat-card-subtitle> -->
 	    	</div>
 	    	<div class = "chart-search" fxFlex="90" fxFlex.gt-sm="60" fxLayout="row" fxLayoutAlign="start center" *ngIf="!showChartSearch">
 				<i class="material-icons mat-icon-button" (click)="toggleChartSearch()">search</i>		    	
@@ -26,6 +21,9 @@
 				        </mat-form-field>
 				        <mat-form-field fxFlex = "100" fxFlex.gt-sm="40">
 				            <input matInput formControlName="description" type="text" placeholder="Chart Description">
+				        </mat-form-field>
+				        <mat-form-field fxFlex = "100" fxFlex.gt-sm="40">
+				            <input matInput formControlName="slug" type="text" placeholder="Slug">
 				        </mat-form-field>
 				        <mat-form-field fxFlex = "100" fxFlex.gt-sm="40">
 				            <mat-select class="form-control" formControlName="type" placeholder = "Type">
@@ -73,7 +71,7 @@
 		        		</div>
 		        		<div fxLayout="row" fxFlex = "100" fxLayoutAlign = "space-around center">
 	                      	<i fxFlex="nogrow" class = "material-icons mat-icon-button"(click)="addVariable()">add_box</i>
-	                      	<button fxFlex="nogrow" mat-button>Submit</button>
+	                      	<button fxFlex="nogrow" mat-button [disabled] = "chartBuilderForm.invalid">Submit</button>
 		        		</div>
 				    </div>
 			    </form>

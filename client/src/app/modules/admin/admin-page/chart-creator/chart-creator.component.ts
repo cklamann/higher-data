@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { AuthService } from '../../../../services/auth/auth.service';
 import { intChartModel } from '../../../../../../server/src/schemas/ChartSchema';
+import { Charts } from '../../../../models/Charts';
 
 @Component({
 	selector: 'app-chart-creator',
@@ -16,7 +17,7 @@ export class ChartCreatorComponent implements OnInit {
 	chartValueTypes: string[];
 	showChartSearch: boolean = false;
 
-	constructor(private fb: FormBuilder, private auth: AuthService) {
+	constructor(private fb: FormBuilder, private auth: AuthService, private Charts: Charts) {
 
 	}
 
@@ -47,6 +48,7 @@ export class ChartCreatorComponent implements OnInit {
 			category: ['', [Validators.minLength(3), Validators.required]],
 			active: ['', [Validators.minLength(3), Validators.required]],
 			valueType: ['', [Validators.minLength(3), Validators.required]],
+			slug: ['', [Validators.minLength(3), Validators.required]],
 			variables: this.fb.array([
 				this.initVariable()
 			])
@@ -72,13 +74,9 @@ export class ChartCreatorComponent implements OnInit {
 	}
 
 	onSubmit() {
-		//send form to backend
+		console.log(this.chartBuilderForm.value);
+		return this.Charts.save(this.chartBuilderForm.value).subscribe();
 	}
-
-	fetch() {
-		//get all the charts and populate dropdown with them		
-	}
-
 
 	toggleChartSearch(): void {
 		this.showChartSearch = !this.showChartSearch;
