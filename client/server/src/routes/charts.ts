@@ -20,7 +20,7 @@ let router = Router();
 });
 
 router.get('/', function(req, res, next): Promise<void> {
-	return ChartSchema.find({})
+	return ChartSchema.find({}).select('-__v')
 		.then(chart => {
 			res.json(chart);
 			return;

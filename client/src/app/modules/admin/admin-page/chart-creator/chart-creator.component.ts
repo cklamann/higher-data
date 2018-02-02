@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { AuthService } from '../../../../services/auth/auth.service';
-import { intChartModel } from '../../../../../../server/src/schemas/ChartSchema';
+import { intChartModel, intChartSchema } from '../../../../../../server/src/schemas/ChartSchema';
 import { Charts } from '../../../../models/Charts';
+import * as _ from 'lodash';
 
 @Component({
 	selector: 'app-chart-creator',
@@ -20,8 +21,6 @@ export class ChartCreatorComponent implements OnInit {
 	constructor(private fb: FormBuilder, private auth: AuthService, private Charts: Charts) {
 
 	}
-
-	//todo: once chart search is emitting values, listen for them here and populate form with them on change
 
 	ngOnInit() {
 		this.createForm();
@@ -44,6 +43,7 @@ export class ChartCreatorComponent implements OnInit {
 
 	createForm() {
 		this.chartBuilderForm = this.fb.group({
+			_id: '',
 			name: ['', [Validators.minLength(3), Validators.required]],
 			description: ['', [Validators.minLength(3), Validators.required]],
 			type: ['', [Validators.minLength(3), Validators.required]],
@@ -57,11 +57,12 @@ export class ChartCreatorComponent implements OnInit {
 		});
 	}
 
-	initVariable() {
+	initVariable(variable: any = null) {
 		return this.fb.group({
 			notes: ['', [Validators.minLength(3), Validators.required]],
 			formula: ['', [Validators.minLength(3), Validators.required]],
-			legendName: ['', [Validators.minLength(3), Validators.required]]
+			legendName: ['', [Validators.minLength(3), Validators.required]],
+			_id: '',
 		});
 	}
 
@@ -76,11 +77,46 @@ export class ChartCreatorComponent implements OnInit {
 	}
 
 	onSubmit() {
+		let formContent = _stripEmptyIds(this.chartBuilderForm.value);
 		return this.Charts.save(this.chartBuilderForm.value).subscribe();
 	}
+
 
 	toggleChartSearch(): void {
 		this.showChartSearch = !this.showChartSearch;
 	}
 
+	onChartSelect(chart: intChartSchema): void {
+		this.chartBuilderForm.patchValue({
+			_id: chart._id,
+			name: chart.name,
+			description: chart.description,
+			category: chart.category,
+			active: chart.active,
+			type: chart.type,
+			slug: chart.slug,
+			valueType: chart.valueType
+		});
+		//hmmm... seems like the cleanest way to do this is to first initialize all the arrays with validators
+		//by wiping out current .variables, then pushing in chart.variables.length number of variables with addVariable()
+		//then, i think, could just do a straight up this.chartBuilderForm.setValue(chart) and be done, since the
+		//variable array size would now match!
+		const vars = chart.variables.map(vari => this.fb.group(vari)), 
+			variableFormArray = this.fb.array(vars);
+		this.chartBuilderForm.setControl('variables', variableFormArray);
+	}
+
+
+}
+//private helpers --> todo: move to utility class
+let _stripEmptyIds = function(model: any): any {
+	_.forEach(model, (item, key, parent) => {
+		if (_.isArray(item)) {
+			item.forEach(val => _stripEmptyIds(val));
+		}
+		if (key === "_id" && item == "") {
+			delete parent[key];
+		}
+		return model;
+	});
 }

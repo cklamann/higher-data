@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSelect } from '@angular/material';
 import { Charts } from '../../../models/Charts';
@@ -14,8 +14,10 @@ import 'rxjs/add/operator/map';
 })
 export class ChartSearchComponent implements OnInit {
 	chartSelectForm: FormGroup;
-	selectedChart: intChartModel;
+	@Output() 
+	onChartSelect: EventEmitter<intChartModel> = new EventEmitter<intChartModel>();
 	charts: intChartModel[] = [];
+
 	constructor(private fb: FormBuilder, private Charts: Charts) {
 		this.createForm();
 	}
@@ -23,7 +25,7 @@ export class ChartSearchComponent implements OnInit {
 	ngOnInit() {
 		this.Charts.fetchAll()
 			.subscribe(res => this.charts = res);
-		//intitialize listen for changes to select box
+		this.listenForSearchChanges();
 	}
 
 	createForm() {
@@ -32,6 +34,10 @@ export class ChartSearchComponent implements OnInit {
 		});
 	}
 
-	// todo: create listener function -- should emit chart object on selection
+	listenForSearchChanges(): void {
+		this.chartSelectForm.valueChanges.debounceTime(500).subscribe(input => {
+			this.onChartSelect.emit(input.chart);
+		});
+	}
 
 }

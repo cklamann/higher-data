@@ -8,7 +8,7 @@
 				<i class="material-icons mat-icon-button" (click)="toggleChartSearch()">search</i>		    	
 			</div>
 	    	<div class = "chart-search" fxFlex="90" fxFlex.gt-sm="60" fxLayout="row" fxLayoutAlign="none center" *ngIf="showChartSearch">
-		    	<app-chart-search fxFlex="100" fxFlex.gt-sm="100"></app-chart-search>
+		    	<app-chart-search (onChartSelect)="onChartSelect($event)" fxFlex="100" fxFlex.gt-sm="100"></app-chart-search>
 				<i class="material-icons mat-icon-button" (click)="toggleChartSearch()">close</i>		    	
 			</div>
 	  	</mat-card-header>
