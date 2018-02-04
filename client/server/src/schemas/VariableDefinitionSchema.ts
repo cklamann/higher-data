@@ -14,8 +14,8 @@ export interface intVariableDefinitionSchema extends intVariableDefinitionModel,
 };
 
 export interface intVariableSourceModel {
-  start_year: number;
-  end_year: number;
+  startYear: string;
+  endYear: string;
   source: string;
   table: string;
   formula: string;
@@ -27,8 +27,8 @@ export interface intVariableSourceSchema extends intVariableSourceModel, Documen
 
 const sourcesSchema = new Schema({
   id: ObjectId,
-  start_year: Number,
-  end_year: Number,
+  startYear: String,
+  endYear: String,
   source: String,
   table: String,
   formula: String,
@@ -39,7 +39,10 @@ const sourcesSchema = new Schema({
 const schema: Schema = new Schema({
   id: ObjectId,
   type: String,
-  variable: String,
+  variable: {
+    type:String,
+    unique:true
+  },
   sources: [sourcesSchema]
 });
 

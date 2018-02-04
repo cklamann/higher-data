@@ -15,7 +15,7 @@ router.get('/fetch_names', passport.authenticate('basic', { session: false }), f
 });
 
 router.get('/fetch_by_name', function(req, res, next) {
-	VariableDefinitionSchema.findOne({ variable: req.query.name }).exec()
+	VariableDefinitionSchema.findOne({ variable: req.query.name }).select("-__v")
 		.then(resp => {
 			res.json(resp);
 			return;
@@ -32,12 +32,15 @@ router.get('/', function(req, res, next) {
 });
 
 router.post('/', passport.authenticate('basic', { session: false }), function(req, res, next) {
-	if(!req.body.variable){
-		res.sendStatus(400);
-	}
-	VariableDefinitionSchema.schema.statics.fetchAndUpdate(req.body.variable, (err:any, variable:intVariableDefinitionSchema) => {
-		res.json(variable);
-	})
+	let promise: Promise<any>;
+	if (req.body._id) {
+		promise = VariableDefinitionSchema.schema.statics.fetchAndUpdate(req.body);
+	} else promise = VariableDefinitionSchema.create(req.body);
+
+	promise.then((chart: intVariableDefinitionSchema) => {
+		res.json(chart);
+		return;
+	}).catch((err: Error) => next(err));
 });
 
 module.exports = router;

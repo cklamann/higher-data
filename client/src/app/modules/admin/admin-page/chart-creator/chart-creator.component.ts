@@ -86,25 +86,14 @@ export class ChartCreatorComponent implements OnInit {
 	}
 
 	onChartSelect(chart: intChartSchema): void {
-		this.chartBuilderForm.patchValue({
-			_id: chart._id,
-			name: chart.name,
-			description: chart.description,
-			category: chart.category,
-			active: chart.active,
-			type: chart.type,
-			slug: chart.slug,
-			valueType: chart.valueType
-		});
-		//hmmm... seems like the cleanest way to do this is to first initialize all the arrays with validators
-		//by wiping out current .variables, then pushing in chart.variables.length number of variables with addVariable()
-		//then, i think, could just do a straight up this.chartBuilderForm.setValue(chart) and be done, since the
-		//variable array size would now match!
-		const vars = chart.variables.map(vari => this.fb.group(vari)), 
-			variableFormArray = this.fb.array(vars);
-		this.chartBuilderForm.setControl('variables', variableFormArray);
+		this.chartBuilderForm.reset();
+		const control = <FormArray>this.chartBuilderForm.controls['variables'];
+		for (let i = 0; i < control.length; i++) {
+			control.removeAt(i);
+		}
+		chart.variables.forEach(variable => this.addVariable());
+		this.chartBuilderForm.setValue(chart);
 	}
-
 
 }
 //private helpers --> todo: move to utility class

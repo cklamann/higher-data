@@ -67,24 +67,18 @@ export class VariableDefinerComponent implements OnInit {
 		this.variableDefinitionForm.patchValue({
 			variable: variable
 		});
-
+		this.variableDefinitionForm.reset();
+		const control = <FormArray>this.variableDefinitionForm.controls['sources'];
+		for (let i = 0; i < control.length; i++){
+			control.removeAt(i);
+		} 
 		this.variableDefinitions.fetchByName(variable)
-			.subscribe( varDef => {
-				if(varDef){
-					//fill out form
-				}
-			})
-
-
-
-
-		//hmmm... seems like the cleanest way to do this is to first initialize all the arrays with validators
-		//by wiping out current .variables, then pushing in chart.variables.length number of variables with addVariable()
-		//then, i think, could just do a straight up this.chartBuilderForm.setValue(chart) and be done, since the
-		//variable array size would now match!
-		// const sources = variableDefinition.sources.map(source => this.fb.group(source)),
-		// 	sourceFormArray = this.fb.array(sources);
-		// this.variableDefinitionForm.setControl('sources', sourceFormArray);
+			.subscribe(varDef => {
+			if (varDef) {
+				varDef.sources.forEach(variable => this.addSource());
+				this.variableDefinitionForm.setValue(varDef);
+			}
+		})
 	}
 
 
