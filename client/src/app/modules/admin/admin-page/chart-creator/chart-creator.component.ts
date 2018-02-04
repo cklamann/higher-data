@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { intChartModel, intChartSchema } from '../../../../../../server/src/schemas/ChartSchema';
 import { Charts } from '../../../../models/Charts';
+import { VariableSelectComponent } from '../../../shared/variable-select/variable-select.component';
 import * as _ from 'lodash';
 
 @Component({
@@ -87,15 +88,22 @@ export class ChartCreatorComponent implements OnInit {
 
 	onChartSelect(chart: intChartSchema): void {
 		this.chartBuilderForm.reset();
-		const control = <FormArray>this.chartBuilderForm.controls['variables'];
-		for (let i = 0; i < control.length; i++) {
-			control.removeAt(i);
+		const control = <FormArray>this.chartBuilderForm.controls['variables'],
+			limit = _.clone(control.length);
+		for (let i = 0; i < limit; i++) {
+			control.removeAt(0);
 		}
 		chart.variables.forEach(variable => this.addVariable());
 		this.chartBuilderForm.setValue(chart);
 	}
 
+	onVariableSelect(variable: string, i: number): void {
+		let control = <FormArray>this.chartBuilderForm.controls['variables'];
+		control.at(i).patchValue({ formula: control.at(i).value.formula + " " + variable });
+	}
+
 }
+
 //private helpers --> todo: move to utility class
 let _stripEmptyIds = function(model: any): any {
 	_.forEach(model, (item, key, parent) => {

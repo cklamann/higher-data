@@ -68,6 +68,7 @@
 		                	<mat-form-field fxFlex = "90">
 		                   		<textarea matInput formControlName="formula" placeholder="Formula"></textarea>
 		                	</mat-form-field>
+					    	<app-variable-select (onVariableSelect)="onVariableSelect($event,i)" fxFlex="100" fxFlex.gt-sm="90"></app-variable-select>
 		        		</div>
 		        		<div fxLayout="row" fxFlex = "100" fxLayoutAlign = "space-around center">
 	                      	<i fxFlex="nogrow" class = "material-icons mat-icon-button"(click)="addVariable()">add_box</i>

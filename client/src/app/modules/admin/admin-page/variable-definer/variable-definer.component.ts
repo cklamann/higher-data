@@ -21,7 +21,6 @@ export class VariableDefinerComponent implements OnInit {
 
 	ngOnInit() {
 		this.createForm();
-		//load in all variables, listen for changes -- when the change happens, fetch definition and load in form
 	}
 
 	createForm() {
@@ -68,9 +67,10 @@ export class VariableDefinerComponent implements OnInit {
 			variable: variable
 		});
 		this.variableDefinitionForm.reset();
-		const control = <FormArray>this.variableDefinitionForm.controls['sources'];
-		for (let i = 0; i < control.length; i++){
-			control.removeAt(i);
+		const control = <FormArray>this.variableDefinitionForm.controls['sources'],
+			limit = _.clone(control.length);
+		for (let i = 0; i < limit; i++){
+			control.removeAt(0);
 		} 
 		this.variableDefinitions.fetchByName(variable)
 			.subscribe(varDef => {
