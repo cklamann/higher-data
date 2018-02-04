@@ -15,6 +15,7 @@ router.post('/', function(req: any, res, next) {
 	UserSchema.schema.statics.create(req.body)
 		.then((user:any) => {
 			res.json(user);
+			return;
 		})
 		.catch( (err:Error) => next(err));
 

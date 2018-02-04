@@ -4,11 +4,6 @@ import { RestService } from '../services/rest/rest.service';
 import { Observable } from 'rxjs';
 import 'rxjs/add/operator/map';
 
-//pattern here is public class w/ DI and therefore 'fake' static methods,
-//since can't inject into a static class
-//model class with instance methods on it, should be private but need typings exposed...
-//of course, could always just not use class software
-
 @Injectable()
 export class Schools {
 	constructor(private rest: RestService) { }

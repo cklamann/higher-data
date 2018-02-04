@@ -4,6 +4,7 @@ import { SchoolSearchComponent } from './school-search/school-search.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule, MatFormFieldModule, MatOptionModule, MatInputModule, MatSelectModule } from '@angular/material';
 import { ChartSearchComponent } from './chart-search/chart-search.component';
+import { VariableSelectComponent } from './variable-select/variable-select.component';
 import { Charts } from '../../models/Charts';
 
 
@@ -11,9 +12,9 @@ import { Charts } from '../../models/Charts';
 	imports: [
 		CommonModule, ReactiveFormsModule, MatAutocompleteModule, MatFormFieldModule, MatOptionModule, MatInputModule, MatSelectModule
 	],
-	declarations: [SchoolSearchComponent, ChartSearchComponent],
+	declarations: [SchoolSearchComponent, ChartSearchComponent, VariableSelectComponent],
 	exports: [
-		SchoolSearchComponent, ChartSearchComponent
+		SchoolSearchComponent, ChartSearchComponent, VariableSelectComponent
 	],
 	providers: [Charts]
 })

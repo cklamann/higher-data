@@ -8,6 +8,7 @@ import { MatButtonToggleModule } from '@angular/material';
 import { MatCardModule } from '@angular/material';
 import { MatOptionModule, MatSelectModule } from '@angular/material';
 import { Users } from '../../models/Users';
+import { VariableDefinitions } from '../../models/VariableDefinitions';
 import { RestService } from '../../services/rest/rest.service';
 import { InterceptService } from '../../services/intercept/intercept.service';
 import { LoginPageComponent } from './login-page/login-page.component'
@@ -34,6 +35,6 @@ import { SharedModule } from '../shared/shared.module';
     SharedModule
   ],
   declarations: [AdminPageComponent, LoginPageComponent, ChartCreatorComponent, VariableDefinerComponent],
-  providers: [Users, RestService, InterceptService]
+  providers: [Users, RestService, InterceptService, VariableDefinitions]
 })
 export class AdminModule { }

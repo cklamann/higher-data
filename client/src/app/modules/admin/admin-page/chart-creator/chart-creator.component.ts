@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
-import { AuthService } from '../../../../services/auth/auth.service';
 import { intChartModel, intChartSchema } from '../../../../../../server/src/schemas/ChartSchema';
 import { Charts } from '../../../../models/Charts';
 import * as _ from 'lodash';
@@ -18,7 +17,7 @@ export class ChartCreatorComponent implements OnInit {
 	chartValueTypes: string[];
 	showChartSearch: boolean = false;
 
-	constructor(private fb: FormBuilder, private auth: AuthService, private Charts: Charts) {
+	constructor(private fb: FormBuilder, private Charts: Charts) {
 
 	}
 

@@ -1,3 +1,66 @@
-<p>
-  variable-definer works!
-</p>
+<div class = "card-holder" fxLayoutWrap fxLayour="row">
+	<mat-card fxLayout="row" fxLayoutWrap fxFlex = "100" fxFlex.gt-sm="50">
+		<mat-card-header fxFlex = "90" fxLayoutWrap fxLayout="row" fxLayoutAlign.gt-sm="space-between center">
+	    	<div class = "card-info" fxFlex ="35">
+		    	<mat-card-title><h2>Variable Definitions</h2></mat-card-title>
+	    	</div>
+	    	<div class = "variable-dropdown" fxFlex="90" fxFlex.gt-sm="60" fxLayout="row" fxLayoutAlign="none center">
+		    	<app-variable-select (onVariableSelect)="onVariableSelect($event)" fxFlex="100" fxFlex.gt-sm="100"></app-variable-select>
+			</div>
+	  	</mat-card-header>
+	  	<mat-card-content fxFlex ="90">	
+			<div>
+			    <form [formGroup]="variableDefinitionForm" (ngSubmit)="onSubmit()" fxLayout="row" fxLayoutWrap fxFlex = "100">
+			    	<div fxLayout="row" fxFlex = "100" fxLayoutWrap fxLayoutAlign="space-around center">
+				        <mat-form-field fxFlex = "100" fxFlex.gt-sm="40">
+				            <input matInput formControlName="variable" type="text" placeholder = "Variable"/>
+				        </mat-form-field>
+				        <mat-form-field fxFlex = "100" fxFlex.gt-sm="40">
+				            <input matInput formControlName="type" type="text" placeholder="Variable Type">
+				        </mat-form-field>
+				    </div>  
+				    <div fxLayout="row" formArrayName="sources" fxFlex="100" fxLayoutWrap>
+		        		<div fxFlex = "100" *ngFor="let source of variableDefinitionForm.controls.sources.controls; let i=index"
+		        		[formGroupName]="i" fxLayout="row" fxLayoutAlign="space-around center" fxLayoutWrap>
+							<i class="material-icons mat-icon-button" (click)="removeVariable()">indeterminate_check_box</i>
+		        			<span fxFlex = "90">Source {{i + 1}}</span>
+		                	<mat-form-field fxFlex = "90" fxFlex.gt-sm="40">
+		                   		<input matInput type="text" formControlName="startYear" placeholder="Start Year">
+		                	</mat-form-field>
+		                	<mat-form-field fxFlex = "90" fxFlex.gt-sm="40">
+		                   		<input matInput type="text" formControlName="endYear" placeholder="End Year">
+		                	</mat-form-field>
+		                	<mat-form-field fxFlex = "90" fxFlex.gt-sm="40">
+		                   		<input matInput type="text" formControlName="source" placeholder="Source">
+		                	</mat-form-field>
+		                	<mat-form-field fxFlex = "90" fxFlex.gt-sm="40">
+		                   		<input matInput type="text" formControlName="table" placeholder="Table">
+		                   	</mat-form-field>
+		                	<mat-form-field fxFlex = "90">
+		                   		<textarea matInput formControlName="formula" placeholder="Formula"></textarea>
+		                	</mat-form-field>
+		                	<mat-form-field fxFlex = "90" fxFlex.gt-sm="40">
+		                   		<input matInput type="text" formControlName="definition" placeholder="Definition">
+		                	</mat-form-field>
+		                    <mat-form-field fxFlex = "90" fxFlex.gt-sm="40">
+			                    <input matInput type="text" formControlName="notes" placeholder="Notes">
+							</mat-form-field>		                
+		        		</div>
+		        		<div fxLayout="row" fxFlex = "100" fxLayoutAlign = "space-around center">
+	                      	<i fxFlex="nogrow" class = "material-icons mat-icon-button"(click)="addSource()">add_box</i>
+	                      	<button fxFlex="nogrow" mat-button [disabled] = "variableDefinitionForm.invalid">Save</button>
+		        		</div>
+				    </div>
+			    </form>
+			</div>
+		</mat-card-content>
+	</mat-card>
+	<mat-card fxLayout="row" fxLayoutWrap fxFlex = "100" fxFlex.gt-sm="50">
+		<mat-card-header fxFlex = "90">
+	    	<mat-card-title>Definition Preview</mat-card-title>
+	  	</mat-card-header>
+	  	<mat-card-content fxFlex ="90">	
+			 <!--definition page preview?-->
+		</mat-card-content>
+	</mat-card>
+</div>
