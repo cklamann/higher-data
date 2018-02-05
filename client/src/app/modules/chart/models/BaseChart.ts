@@ -1,58 +1,65 @@
-import { Injectable } from '@angular/core';
 import { intChartModel, intChartVariableModel } from '../../../../../server/src/schemas/ChartSchema';
 import { intChartExport, intChartExportDataParentModel } from '../../../../../server/src/models/ChartExporter';
+import { ChartData } from './ChartData';
 import * as d3 from 'd3';
 import * as _ from 'lodash';
 
-//todo: make displayOptions interface
+
 //todo: make injectable factory to deliver objects
-//todo: remove bootstrap stuff
 
-//for child classes, follow DA pattern -> separate build and draw methods
-
-//because of tooltips, will likely need to (at least) loop through each this.data.data and assign this.data[i].legendName to all children
+export interface intChartDisplayOptions {
+	title: string;
+	valueType: string;
+	margins : {
+		top: number,
+		bottom: number,
+		left: number,
+		right: number
+	}
+}
 
 export class BaseChart {
 	selector: string;
-	container: d3.Selection;
-	canvas: d3.Selection;
+	container: d3.Selection<any, any, any, any>;
+	canvas: d3.Selection<any, any, any, any>;
 	zScale: any;
-	data: intChartExportDataParentModel[];
-	displayOptions: any;
+	chartData: ChartData;
+	displayOptions: intChartDisplayOptions;
 	xScale: any;
 	yScale: any;
 	constructor(data: intChartExport, displayOptions: any) {
-		this.data = data.data;
-		this.zScale = d3.scaleOrdinal(d3.schemeCategory20).domain(this.data.map(variable => variable.legendName));
+		this.chartData = new ChartData(data.data);
+		this.zScale = d3.scaleOrdinal(d3.schemeCategory20).domain(this.chartData.data.map(variable => variable.legendName));
 		this.displayOptions = displayOptions;
 		this.selector = _buildUniqueSelector();
 		this.container = d3.select("." + this.selector);
-		this.canvas = this._buildCanvas();
+		this._buildCanvas();
 	}
 
-	parseDate() { d3.timeParse("%Y"); }
+	parseDate(dateString: string): Date {
+		return d3.timeParse("%Y")(dateString);
+	}
 
 	addTitle() {
 		this.canvas.append("text")
 			.attr("x", 0)
-			.attr("y", 0 - (this.displayOptions.marginTop / 2))
+			.attr("y", 0 - (this.displayOptions.margins.top / 2))
 			.attr("class", "title")
 			.attr("text-anchor", "left")
-			.style("font-size", this.displayOptions.marginTop / 1.5 + "px")
+			.style("font-size", this.displayOptions.margins.top / 1.5 + "px")
 			.text(this.displayOptions.title);
 	}
 
 	private _buildCanvas() {
 		const winWidth = window.innerWidth,
 			w = winWidth > 992 ? 700 : winWidth > 768 ? 550 : winWidth > 576 ? 500 : 375, //todo: update w/ flexbox breakpoints
-			width = w - this.displayOptions.marginLeft - this.displayOptions.marginRight,
-			height = (width / 1.6) - this.displayOptions.marginTop - this.displayOptions.marginBottom;
+			width = w - this.displayOptions.margins.left - this.displayOptions.margins.right,
+			height = (width / 1.6) - this.displayOptions.margins.top - this.displayOptions.margins.bottom;
 		this.canvas = d3.select(this.selector).append("svg")
-			.attr("width", width + this.displayOptions.marginLeft + this.displayOptions.marginRight)
-			.attr("height", height + this.displayOptions.marginTop + this.displayOptions.marginBottom)
-			.attr("class", "center-block") //todo: remove bootstrap
+			.attr("width", width + this.displayOptions.margins.left + this.displayOptions.margins.right)
+			.attr("height", height + this.displayOptions.margins.top + this.displayOptions.margins.bottom)
 			.append("g")
-			.attr("transform", "translate(" + this.displayOptions.marginLeft + "," + this.displayOptions.marginTop + ")");
+			.attr("transform", "translate(" + this.displayOptions.margins.left + "," + this.displayOptions.margins.top + ")");
 		this.xScale = d3.scaleTime().range([0, width]);
 		this.yScale = d3.scaleLinear().range([height, 0]);
 	}
@@ -90,21 +97,16 @@ export class BaseChart {
 		return res + suffix;
 	}
 
-	getChartMaxTotal() { //todo:fix
-		let totals = this.data.map(year => year.getTotal());
-		return d3.max(totals);
-	}
-
-	getYears() { //todo: test
-		const years = _.flatMap(this.data, x => _.flatMap(x.data, datum => datum.fiscal_year));
+	getYears() {
+		const years = _.flatMap(this.chartData.data, x => _.flatMap(x.data, datum => datum.fiscal_year));
 		return _.uniq(years);
 	}
 
-	limitYears(count) {
-		if (this.data.length > count) {
-			this.data.slice(-1 * count);
-		}
-	}
+	formatAY(dateString) {
+		let year = dateString.getFullYear();
+		let fallYear = year - 1;
+		return fallYear + "-" + String(year).substring(2);
+	};
 
 }
 

@@ -37,7 +37,7 @@ export class ChartFormula implements intFormula {
 			return {
 				[k]: v.map(item => {
 					return {
-						[item.variable] : parseFloat(item.value.trim()) //todo: cleanup database values -->just update from R
+						[item.variable] : parseFloat(item.value.trim()) 
 					}
 				}).reduce((acc, curr) => {
 					return _.assign(acc, curr);
