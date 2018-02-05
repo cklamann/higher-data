@@ -66,7 +66,6 @@ export class VariableDefinerComponent implements OnInit {
 		this.variableDefinitionForm.patchValue({
 			variable: variable
 		});
-		this.variableDefinitionForm.reset();
 		const control = <FormArray>this.variableDefinitionForm.controls['sources'],
 			limit = _.clone(control.length);
 		for (let i = 0; i < limit; i++){

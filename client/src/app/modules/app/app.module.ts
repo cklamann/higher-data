@@ -9,16 +9,17 @@ import { AdminModule } from '../admin/admin.module';
 import { ChartPageModule } from '../chart-page/chart-page.module';
 import { DocsPageModule } from '../docs-page/docs-page.module';
 import { SharedModule } from '../shared/shared.module'
+import { BlogModule } from '../blog/blog.module';
+import { ChartModule } from '../chart/chart.module';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { InterceptService } from '../../services/intercept/intercept.service';
 import { AuthService } from '../../services/auth/auth.service';
-import {RestService} from '../../services/rest/rest.service';
-import { BlogModule } from '../blog/blog.module';
+import { RestService } from '../../services/rest/rest.service';
 
 @NgModule({
 	//imports will be available to all components in module 
 	imports: [BrowserModule, BrowserAnimationsModule, AppRoutingModule, DocsPageModule, ChartPageModule, AdminModule,
-		GlobalLayoutModule, FlexLayoutModule, HttpClientModule, BlogModule, SharedModule],
+		GlobalLayoutModule, FlexLayoutModule, HttpClientModule, BlogModule, SharedModule, ChartModule],
 	declarations: [AppComponent], //list all components in the module
 	bootstrap: [AppComponent],
 	providers: [{
