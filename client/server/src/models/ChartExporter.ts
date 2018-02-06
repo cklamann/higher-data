@@ -27,7 +27,7 @@ export class Chart implements intChartExporter {
 	chart: intChartSchema;
 	school: intSchoolSchema;
 
-	constructor(school: number, chartSlug: string) {
+	constructor(school: any, chartSlug: string) {
 		this.schoolP = SchoolSchema.schema.statics.fetch(school);
 		this.chartP = ChartSchema.findOne({ slug: chartSlug });
 	}

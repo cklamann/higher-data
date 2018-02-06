@@ -1,10 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Schools, School } from '../../../models/Schools';
+import { intSchoolModel } from '../../../../../server/src/schemas/SchoolSchema';
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/map';
-
-//todo: export selected model into parent component
 
 @Component({
 	selector: 'app-school-search',
@@ -16,6 +15,7 @@ export class SchoolSearchComponent implements OnInit {
 	searchTerm: string;
 	selectedSchool: School;
 	autocompleteResults: School[];
+	onSchoolSelect: EventEmitter<intSchoolModel> = new EventEmitter<intSchoolModel>();
 	constructor(private fb: FormBuilder, private Schools: Schools) {
 		this.createForm();
 	}
@@ -27,6 +27,7 @@ export class SchoolSearchComponent implements OnInit {
 	createForm() {
 		this.searchForm = this.fb.group({
 			searchText: ['', [Validators.minLength(3), Validators.required]],
+			schoolSelect: '',
 		});
 	}
 
@@ -39,6 +40,11 @@ export class SchoolSearchComponent implements OnInit {
 				});
 			}
 		});
+	}
+
+	onSchoolSelected(event):void{
+		console.log(event.option.value);
+		this.onSchoolSelect.emit(event.option.value);
 	}
 
 	showSchoolName(school: School): any {

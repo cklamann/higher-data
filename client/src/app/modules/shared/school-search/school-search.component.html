@@ -2,10 +2,11 @@
     <mat-form-field class = "school-search">
         <input type="text" matInput formControlName="searchText" [matAutocomplete]="auto" placeholder="School Search"/>
     </mat-form-field>
-    <mat-autocomplete 
+    <mat-autocomplete
+        (optionSelected)="onSchoolSelected($event)" 
     	#auto="matAutocomplete" 
         [displayWith]="showSchoolName">        
-        <mat-option *ngFor="let option of autocompleteResults" 
+        <mat-option  *ngFor="let option of autocompleteResults" 
         	[value]="option">
             {{ option.instnm }}
         </mat-option>

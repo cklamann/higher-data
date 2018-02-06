@@ -4,10 +4,7 @@ import { ChartData } from './ChartData';
 import * as d3 from 'd3';
 import * as _ from 'lodash';
 
-
-//todo: make injectable factory to deliver objects
-
-export interface intChartDisplayOptions {
+interface intChartDisplayOptions {
 	title: string;
 	valueType: string;
 	margins : {
@@ -27,10 +24,19 @@ export class BaseChart {
 	displayOptions: intChartDisplayOptions;
 	xScale: any;
 	yScale: any;
-	constructor(data: intChartExport, displayOptions: any) {
-		this.chartData = new ChartData(data.data);
+	constructor(chart: intChartExport) {
+		this.chartData = new ChartData(chart.data);
 		this.zScale = d3.scaleOrdinal(d3.schemeCategory20).domain(this.chartData.data.map(variable => variable.legendName));
-		this.displayOptions = displayOptions;
+		this.displayOptions = {
+			title: chart.chart.name,
+			valueType: chart.chart.valueType,
+			margins: {
+				top: 10,
+				bottom: 10,
+				left: 10,
+				right: 10
+			}
+		};
 		this.selector = _buildUniqueSelector();
 		this.container = d3.select("." + this.selector);
 		this._buildCanvas();
