@@ -19,7 +19,7 @@ export class ChartCreatorComponent implements OnInit {
 	showChartSearch: boolean = false;
 
 	constructor(private fb: FormBuilder, private Charts: Charts) {
-
+		
 	}
 
 	ngOnInit() {

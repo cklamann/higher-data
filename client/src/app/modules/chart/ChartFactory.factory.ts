@@ -1,21 +1,15 @@
 import { Injectable, OnInit } from '@angular/core';
-import { LineChart } from './models/LineChart';
 import { RestService } from '../../services/rest/rest.service';
 import { intChartExport } from '../../../../server/src/models/ChartExporter';
+import { Observable } from 'rxjs';
 
 @Injectable()
 
 export class ChartFactory {
-	constructor(public LineChart: LineChart, private rest: RestService) { }
+	constructor(private rest: RestService) { }
 
-	newChart(schoolSlug, chartSlug, displayOptions) {
-
-		this.rest.get(`schools/${schoolSlug}/charts/${chartSlug}`)
-			.subscribe((chart: intChartExport) => {
-				if (chart.chart.type == "line") {
-					return new LineChart(chart);
-				}
-			})
+	newChart(schoolSlug, chartSlug):Observable<intChartExport> {
+		return this.rest.get(`schools/${schoolSlug}/charts/${chartSlug}`)
 
 	}
 }

@@ -15,7 +15,9 @@ export class SchoolSearchComponent implements OnInit {
 	searchTerm: string;
 	selectedSchool: School;
 	autocompleteResults: School[];
-	onSchoolSelect: EventEmitter<intSchoolModel> = new EventEmitter<intSchoolModel>();
+	@Output()
+	onSchoolSelect: EventEmitter<intSchoolModel|null> = new EventEmitter<intSchoolModel|null>();
+	
 	constructor(private fb: FormBuilder, private Schools: Schools) {
 		this.createForm();
 	}
@@ -34,6 +36,7 @@ export class SchoolSearchComponent implements OnInit {
 	listenForSearchChanges(): void {
 		this.searchForm.valueChanges.debounceTime(500).subscribe(input => {
 			if (input.searchText.length > 3 && input.searchText != this.searchTerm) {
+				this.onSchoolSelect.emit(null);
 				this.searchTerm = input.searchText;
 				this.Schools.search(`${input.searchText}`).subscribe(res => {
 					this.autocompleteResults = res;
@@ -43,7 +46,6 @@ export class SchoolSearchComponent implements OnInit {
 	}
 
 	onSchoolSelected(event):void{
-		console.log(event.option.value);
 		this.onSchoolSelect.emit(event.option.value);
 	}
 
