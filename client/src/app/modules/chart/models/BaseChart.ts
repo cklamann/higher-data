@@ -24,22 +24,37 @@ export class BaseChart {
 	displayOptions: intChartDisplayOptions;
 	xScale: any;
 	yScale: any;
-	constructor(chart: intChartExport) {
+	width: number;
+	height:number;
+	constructor(chart: intChartExport, selector: string) {
 		this.chartData = new ChartData(chart.data);
+		this.selector = selector;
 		this.zScale = d3.scaleOrdinal(d3.schemeCategory20).domain(this.chartData.data.map(variable => variable.legendName));
 		this.displayOptions = {
 			title: chart.chart.name,
 			valueType: chart.chart.valueType,
 			margins: {
 				top: 10,
-				bottom: 10,
-				left: 10,
+				bottom: 50,
+				left: 70,
 				right: 10
 			}
 		};
-		this.selector = _buildUniqueSelector();
+		this.buildCanvas();
+	}
+
+	buildCanvas(){
 		this.container = d3.select("." + this.selector);
-		this._buildCanvas();
+		const winWidth = window.innerWidth,
+			w = winWidth > 992 ? 700 : winWidth > 768 ? 550 : winWidth > 576 ? 500 : 375; //todo: update w/ flexbox breakpoints
+			this.width = w - this.displayOptions.margins.left - this.displayOptions.margins.right;
+			this.height = (this.width / 1.6) - this.displayOptions.margins.top - this.displayOptions.margins.bottom;
+		this.canvas = this.container.append("svg")
+			.attr("width", this.width + this.displayOptions.margins.left + this.displayOptions.margins.right)
+			.attr("height", this.height + this.displayOptions.margins.top + this.displayOptions.margins.bottom)
+			.append("g")
+			.attr("transform", "translate(" + this.displayOptions.margins.left + "," + this.displayOptions.margins.top + ")");
+		this.yScale = d3.scaleLinear().range([this.height, 0]);
 	}
 
 	parseDate(dateString: string): Date {
@@ -54,20 +69,6 @@ export class BaseChart {
 			.attr("text-anchor", "left")
 			.style("font-size", this.displayOptions.margins.top / 1.5 + "px")
 			.text(this.displayOptions.title);
-	}
-
-	private _buildCanvas() {
-		const winWidth = window.innerWidth,
-			w = winWidth > 992 ? 700 : winWidth > 768 ? 550 : winWidth > 576 ? 500 : 375, //todo: update w/ flexbox breakpoints
-			width = w - this.displayOptions.margins.left - this.displayOptions.margins.right,
-			height = (width / 1.6) - this.displayOptions.margins.top - this.displayOptions.margins.bottom;
-		this.canvas = d3.select(this.selector).append("svg")
-			.attr("width", width + this.displayOptions.margins.left + this.displayOptions.margins.right)
-			.attr("height", height + this.displayOptions.margins.top + this.displayOptions.margins.bottom)
-			.append("g")
-			.attr("transform", "translate(" + this.displayOptions.margins.left + "," + this.displayOptions.margins.top + ")");
-		this.xScale = d3.scaleTime().range([0, width]);
-		this.yScale = d3.scaleLinear().range([height, 0]);
 	}
 
 	remove() {

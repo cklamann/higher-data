@@ -12,10 +12,4 @@ export class ChartFactory {
 	fetchChart(schoolSlug, chartSlug):Observable<intChartExport> {
 		return this.rest.get(`schools/${schoolSlug}/charts/${chartSlug}`)
 	}
-
-	newChart(data:intChartExport){
-		if(data.chart.type === "line"){
-			return new LineChart(data);
-		}
-	}
 }

@@ -6,8 +6,8 @@ import * as _ from 'lodash';
 
 
 export class LineChart extends BaseChart {
-	constructor(data: intChartExport) {
-		super(data);
+	constructor(data: intChartExport, selector:string) {
+		super(data,selector);
 	}
 
 	build() {
@@ -16,13 +16,12 @@ export class LineChart extends BaseChart {
 
 	draw() {
 
-		this.xScale.domain([
-			d3.min(this.chartData.data, c => d3.min(c.data, d => d.fiscal_year)),
-			d3.max(this.chartData.data, c => d3.min(c.data, d => d.fiscal_year))
-		]);
+		this.xScale = d3.scaleTime().range([0, this.width]);
+		let dateRange = d3.extent(_.uniq(_.flatMap(this.chartData.data, c => _.flatMap(c.data, d => d.fiscal_year))));
+		this.xScale.domain( dateRange);
 		this.yScale.domain([
 			this.chartData.getMin(),
-			this.chartData.getMax()
+			this.chartData.getMax() //evidently works
 		]);
 
 		const line:any = d3.line()
@@ -34,25 +33,25 @@ export class LineChart extends BaseChart {
 			.tickFormat(x => this.formatAY(x));
 
 		const xGrid = d3.axisBottom(this.xScale)
-			.tickSizeInner(-this.canvas.attr("height"))
+			.tickSizeInner(-this.height)
 			.tickFormat(x => "");
 
 		this.canvas.append("g")
 			.attr("class", "axis axis--x")
-			.attr("transform", "translate(0," + this.canvas.attr('height') + ")")
+			.attr("transform", "translate(0," + this.height + ")")
 			.call(xAxis);
 
 		this.canvas.append("g")
 			.attr("class", "grid x-grid")
 			.style("opacity", 0.5)
-			.attr("transform", "translate(0," + this.canvas.attr('height') + ")")
+			.attr("transform", "translate(0," + this.height + ")")
 			.call(xGrid);
 
 		const yAxis = d3.axisLeft(this.yScale)
 			.tickFormat(x => this.formatNumber(x, this.displayOptions.valueType));
 
 		const yGrid = d3.axisLeft(this.yScale)
-			.tickSizeInner(-this.canvas.attr('width'))
+			.tickSizeInner(-this.width)
 			.tickFormat(x => "");
 
 		this.canvas.append("g")
@@ -112,7 +111,7 @@ export class LineChart extends BaseChart {
 		d3.selectAll("text")
 			.attr("font-size", "12");
 
-		let rotationDegrees = this.canvas.attr('width') < 501 ? 45 : 30;
+		let rotationDegrees = +this.width < 501 ? 45 : 30;
 
 		d3.selectAll("g.axis--x text")
 			.attr("transform", "rotate(" + rotationDegrees + ")")
@@ -136,4 +135,5 @@ export class LineChart extends BaseChart {
 		// 		this.draw();
 		// 	}); //todo: fix this!
 	}
+
 };

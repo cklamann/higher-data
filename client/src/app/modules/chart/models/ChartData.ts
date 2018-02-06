@@ -92,6 +92,7 @@ function _baseTransform(data: intChartExportDataParentModel[]): intBaseChartData
 			datum = Object.assign(datum, { legendName: variable.legendName });
 			datum.value = parseFloat(datum.value);
 			datum.key = variable.legendName.toLowerCase().replace(' ', '_');
+			datum.fiscal_year = d3.timeParse("%Y")(datum.fiscal_year)
 			return datum;
 		});
 		variable.data = data;
