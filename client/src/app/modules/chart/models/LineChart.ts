@@ -112,7 +112,7 @@ export class LineChart extends BaseChart {
 		d3.selectAll("text")
 			.attr("font-size", "12");
 
-		let rotationDegrees = this.w < 501 ? 45 : 30;
+		let rotationDegrees = this.canvas.attr('width') < 501 ? 45 : 30;
 
 		d3.selectAll("g.axis--x text")
 			.attr("transform", "rotate(" + rotationDegrees + ")")
@@ -137,5 +137,3 @@ export class LineChart extends BaseChart {
 		// 	}); //todo: fix this!
 	}
 };
-
-}

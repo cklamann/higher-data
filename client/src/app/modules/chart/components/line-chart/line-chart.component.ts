@@ -8,26 +8,32 @@ import { LineChart } from '../../models/LineChart';
 @Component({
 	selector: 'app-line-chart',
 	templateUrl: './line-chart.component.html',
-	styleUrls: ['./line-chart.component.scss']
+	styleUrls: ['./line-chart.component.scss'],
+	providers: [ChartFactory]
 })
 
-// todo: methinks this should just be a generic chart component
-// it checks the type on chartData.chart.type and news up the proper chart using the factory
-// hmm that would mean returning the instantiation logic to the factory
-// I like this idea
-// also, fucking angular's new watching stuff sucks --> todo: turn these values into observables
-// and just watch them like so: https://stackoverflow.com/questions/38571812/how-to-detect-when-an-input-value-changes-in-angular
 
 export class LineChartComponent implements OnInit {
 
-	@Input() chartData: intChartExport; 
+	@Input() chartData: intChartExport;
+	chart: LineChart;
 
-	constructor() { 
-		 
+	constructor() {
+
 	}
 
 	ngOnInit() {
 
+	}
+
+	ngOnChanges(changes: SimpleChanges) {
+		if (changes.chartData && changes.chartData.currentValue && changes.chartData.currentValue.chart.type == 'line') {
+			this.chart = new LineChart(changes.chartData.currentValue); // this is getting called...
+			console.log(this.chart);
+			//getting built -- i think the problem is timing -- need to wait
+			//till view is updated with new selector before running chart
+			//could move canvas functionality to build method and just call it
+		}
 	}
 
 }

@@ -13,8 +13,7 @@
 				<app-chart-search (onChartSelect)="onChartSelect($event)" fxFlex = "90" fxFlex.gt-sm="45"></app-chart-search>
 			</div>
 			<div fxLayoutWrap="row" fxFlex="100" class="chart-container-outer">
-				<div fxFlex = "100" fxFlex.gt-sm="75" class="chart-container-inner" style="height:300px;background-color: blue">
-				</div>
+				<app-line-chart [chartData]="chartData"></app-line-chart>
 				<div fxFlex = "100" fxFlex.gt-sm="25" class="legend-container">
 					<ul>
 						<li>Legend Item
