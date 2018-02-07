@@ -17,19 +17,21 @@ export class LineChart extends BaseChart {
 	draw() {
 
 		this.xScale = d3.scaleTime().range([0, this.width]);
-		let dateRange = d3.extent(_.uniq(_.flatMap(this.chartData.data, c => _.flatMap(c.data, d => d.fiscal_year))));
-		this.xScale.domain( dateRange);
+		let dateRange:Array<Date> = _.uniq(_.flatMap(this.chartData.data, c => _.flatMap(c.data, d => d.fiscal_year)));	
+		this.xScale.domain( d3.extent(dateRange));
 		this.yScale.domain([
 			this.chartData.getMin(),
-			this.chartData.getMax() //evidently works
+			this.chartData.getMax() 
 		]);
 
 		const line:any = d3.line()
 			.x((d: any) => this.xScale(d.fiscal_year))
 			.y((d: any) => this.yScale(d.value));
 
+		let tickNumber = dateRange.length > 20 ? 20 : dateRange.length;
+
 		const xAxis = d3.axisBottom(this.xScale)
-			.ticks(20)
+			.ticks(tickNumber)
 			.tickFormat(x => this.formatAY(x));
 
 		const xGrid = d3.axisBottom(this.xScale)
