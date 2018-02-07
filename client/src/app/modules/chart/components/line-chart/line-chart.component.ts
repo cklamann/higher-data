@@ -16,6 +16,7 @@ import { LineChart } from '../../models/LineChart';
 export class LineChartComponent implements OnInit {
 
 	@Input() chartData: intChartExport;
+	@Input() chartOverrides: object = {};
 	chart: LineChart;
 	myRandomSelector: string = "selector" + Math.floor(Math.random() * 10000)
 
@@ -29,11 +30,9 @@ export class LineChartComponent implements OnInit {
 
 	ngOnChanges(changes: SimpleChanges) {
 		if (changes.chartData && changes.chartData.currentValue && changes.chartData.currentValue.chart.type == 'line') {
-			this.chart = new LineChart(changes.chartData.currentValue, this.myRandomSelector); 
+			if (this.chart) this.chart.remove();
+			this.chart = new LineChart(changes.chartData.currentValue, this.myRandomSelector, this.chartOverrides); 
 			this.chart.draw();
-			//getting built -- i think the problem is timing -- need to wait
-			//till view is updated with new selector before running chart
-			//could move canvas functionality to build method and just call it
 		}
 	}
 

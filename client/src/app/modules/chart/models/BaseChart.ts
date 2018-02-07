@@ -4,18 +4,20 @@ import { ChartData } from './ChartData';
 import * as d3 from 'd3';
 import * as _ from 'lodash';
 
-interface intChartDisplayOptions {
+export interface intChartDisplayOptions {
 	title: string;
 	valueType: string;
-	margins : {
+	margins: {
 		top: number,
 		bottom: number,
 		left: number,
 		right: number
 	}
+	widthRatio: number
 }
 
 export class BaseChart {
+	
 	selector: string;
 	container: d3.Selection<any, any, any, any>;
 	canvas: d3.Selection<any, any, any, any>;
@@ -25,12 +27,13 @@ export class BaseChart {
 	xScale: any;
 	yScale: any;
 	width: number;
-	height:number;
-	constructor(chart: intChartExport, selector: string) {
+	height: number;
+
+	constructor(chart: intChartExport, selector: string, overrides: object = {}) {
 		this.chartData = new ChartData(chart.data);
 		this.selector = selector;
 		this.zScale = d3.scaleOrdinal(d3.schemeCategory20).domain(this.chartData.data.map(variable => variable.legendName));
-		this.displayOptions = {
+		this.displayOptions = Object.assign({
 			title: chart.chart.name,
 			valueType: chart.chart.valueType,
 			margins: {
@@ -38,17 +41,19 @@ export class BaseChart {
 				bottom: 50,
 				left: 70,
 				right: 10
-			}
-		};
+			},
+			widthRatio: 1
+		}, overrides);
 		this.buildCanvas();
 	}
 
-	buildCanvas(){
+	buildCanvas() {
 		this.container = d3.select("." + this.selector);
-		const winWidth = window.innerWidth,
-			w = winWidth > 992 ? 700 : winWidth > 768 ? 550 : winWidth > 576 ? 500 : 375; //todo: update w/ flexbox breakpoints
-			this.width = w - this.displayOptions.margins.left - this.displayOptions.margins.right;
-			this.height = (this.width / 1.6) - this.displayOptions.margins.top - this.displayOptions.margins.bottom;
+		const winWidth = window.innerWidth;
+		let w = winWidth > 992 ? 700 : winWidth > 768 ? 550 : winWidth > 576 ? 500 : 375;
+		w = w * this.displayOptions.widthRatio;
+		this.width = w - this.displayOptions.margins.left - this.displayOptions.margins.right;
+		this.height = (this.width / 1.6) - this.displayOptions.margins.top - this.displayOptions.margins.bottom;
 		this.canvas = this.container.append("svg")
 			.attr("width", this.width + this.displayOptions.margins.left + this.displayOptions.margins.right)
 			.attr("height", this.height + this.displayOptions.margins.top + this.displayOptions.margins.bottom)
@@ -120,4 +125,3 @@ export class BaseChart {
 function _buildUniqueSelector(): string {
 	return "placeholder";
 }
-

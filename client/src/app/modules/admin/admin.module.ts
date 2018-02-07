@@ -17,6 +17,8 @@ import { AppRoutingModule } from '../app-routing/app-routing.module';
 import { ChartCreatorComponent } from './admin-page/chart-creator/chart-creator.component';
 import { VariableDefinerComponent } from './admin-page/variable-definer/variable-definer.component';
 import { SharedModule } from '../shared/shared.module';
+import { ChartModule } from '../chart/chart.module';
+import { ChartFactory } from '../chart/ChartFactory.factory';
 
 @NgModule({
   imports: [
@@ -32,9 +34,10 @@ import { SharedModule } from '../shared/shared.module';
     MatTabsModule,
     MatButtonModule,
     ReactiveFormsModule,
-    SharedModule
+    SharedModule,
+    ChartModule
   ],
   declarations: [AdminPageComponent, LoginPageComponent, ChartCreatorComponent, VariableDefinerComponent],
-  providers: [Users, RestService, InterceptService, VariableDefinitions]
+  providers: [Users, RestService, InterceptService, VariableDefinitions, ChartFactory]
 })
 export class AdminModule { }

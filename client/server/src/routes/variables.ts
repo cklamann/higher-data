@@ -1,6 +1,8 @@
-import { SchoolSchema, intSchoolSchema } from '../schemas/SchoolSchema'; 
+import { SchoolSchema, intSchoolSchema } from '../schemas/SchoolSchema';
 import { VariableDefinitionSchema, intVariableDefinitionSchema } from '../schemas/VariableDefinitionSchema';
-import { Router, Response, Request, NextFunction } from "express"; 
+import { Router, Response, Request, NextFunction } from "express";
+import { intChartModel } from '../schemas/ChartSchema';
+import { ChartExport } from '../models/ChartExporter';
 import * as passport from 'passport';
 
 let mongoose = require("mongoose");
@@ -29,6 +31,32 @@ router.get('/', function(req, res, next) {
 			return res.json(resp);
 		})
 		.catch(err => next(err))
+});
+
+router.get('/:variable/preview/:school', passport.authenticate('basic', { session: false }), function(req, res, next) {
+	let chartModel: intChartModel = {
+		name: "preview",
+		slug: "preview",
+		type: "line",
+		category: "test",
+		active: true,
+		valueType: "decimal2",
+		description: "test",
+		variables: [{
+			formula: req.params.variable,
+			notes: "test",
+			legendName: req.params.variable
+		}]
+	}
+
+	SchoolSchema.schema.statics.fetch(req.params.school)
+		.then((school: intSchoolSchema) => {
+			const chart = new ChartExport(school, chartModel);
+			chart.export().then(chart => {
+				res.json(chart);
+				return;
+			}).catch(err => next(err));
+		})
 });
 
 router.post('/', passport.authenticate('basic', { session: false }), function(req, res, next) {

@@ -59,7 +59,7 @@ export class ChartFormula implements intFormula {
 		});
 	}
 
-	public execute(unitid: number): Promise<intChartFormulaResult[]> {
+	public execute(unitid: number): Q.Promise<intChartFormulaResult[]> {
 		return SchoolSchema.schema.statics.fetchSchoolWithVariables(unitid, this.symbolNodes)
 			.then((school: intSchoolModel) => {
 				const fullData = this._fillMissingOptionalData(school.data),

@@ -33,8 +33,8 @@ describe("CHART ROUTE", () => {
 		variable: "test_var_1",
 		type: "currency",
 		sources: [{
-			start_year: 2015,
-			end_year: 2017,
+			startYear: 2015,
+			endYear: 2017,
 			source: "IPEDS",
 			table: "test_ipeds_table",
 			formula: "source formula doesn't matter",

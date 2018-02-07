@@ -9,7 +9,11 @@ import { LineChart } from './models/LineChart';
 export class ChartFactory {
 	constructor(private rest: RestService) { }
 
-	fetchChart(schoolSlug, chartSlug):Observable<intChartExport> {
-		return this.rest.get(`schools/${schoolSlug}/charts/${chartSlug}`)
+	fetchChart(schoolSlug:string, chartSlug:string):Observable<intChartExport> {
+		return this.rest.get(`schools/${schoolSlug}/charts/${chartSlug}`);
+	}
+
+	fetchPreview(variable:string,schoolSlug:string):Observable<intChartExport> {
+		return this.rest.get(`variables/${variable}/preview/${schoolSlug}`);
 	}
 }

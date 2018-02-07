@@ -16,8 +16,8 @@ describe('FORMULA MODEL', function() {
 		variable: "test_var",
 		type: "currency",
 		sources: [{
-			start_year: 2015,
-			end_year: 2017,
+			startYear: 2015,
+			endYear: 2017,
 			source: "IPEDS",
 			table: "test_ipeds_table",
 			formula: "1+1=2",

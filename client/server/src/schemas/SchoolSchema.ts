@@ -146,10 +146,10 @@ SchoolSchema.schema.static('fetchSchoolWithVariables', (unitid: number, variable
   })
 });
 
-SchoolSchema.schema.static('fetch', (arg: string) => {
+SchoolSchema.schema.static('fetch', (arg: string): Promise<intSchoolSchema> => {
   let promise;
   if (!!_.toNumber(arg)) {
-    promise = SchoolSchema.findOne({ unitid: arg }).select('-data');
-  } else promise = SchoolSchema.findOne({ slug: arg }).select('-data');
+    promise = SchoolSchema.findOne({ unitid: arg }).select('-data').exec();
+  } else promise = SchoolSchema.findOne({ slug: arg }).select('-data').exec();
   return promise;
 });

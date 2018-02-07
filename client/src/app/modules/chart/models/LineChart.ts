@@ -6,8 +6,8 @@ import * as _ from 'lodash';
 
 
 export class LineChart extends BaseChart {
-	constructor(data: intChartExport, selector:string) {
-		super(data,selector);
+	constructor(data: intChartExport, selector:string, overrides:any) {
+		super(data,selector,overrides);
 	}
 
 	build() {

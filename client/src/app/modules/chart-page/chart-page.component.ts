@@ -40,7 +40,6 @@ export class ChartPageComponent implements OnInit {
 			this.ChartFactory.fetchChart(this.school.slug, this.chart.slug)
 				.subscribe(res => {
 					this.chartData = res
-					console.log(this.chartData);
 				});
 		}
 	}

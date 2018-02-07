@@ -1,5 +1,5 @@
 import { ChartSchema, ChartVariableSchema, intChartSchema, intChartModel, intChartVariableModel } from '../../schemas/ChartSchema';
-import { Chart, intChartExport } from '../../models/ChartExporter';
+import { ChartExport, intChartExport } from '../../models/ChartExporter';
 import { intSchoolSchema, SchoolSchema } from '../../schemas/SchoolSchema';
 import { VariableDefinitionSchema, intVariableDefinitionSchema, intVariableDefinitionModel } from '../../schemas/VariableDefinitionSchema';
 import { nwData, nwDataSector6, dummyChartData, dummyChartData2 } from '../fixtures/fixtures';
@@ -138,7 +138,7 @@ describe('Chart Model', function() {
 
   describe('Return chart with one variable that does no arithmetic', function() {
     it('should return a chart model with data in its data array', function(done) {
-      let chart = new Chart(nwData.unitid, testChartValidNoMath.slug);
+      let chart = new ChartExport(nwData, testChartValidNoMath);
       chart.export()
         .then(chart => {
           expect(chart).to.be.an('object');
@@ -155,7 +155,7 @@ describe('Chart Model', function() {
 
   describe('Return chart with data with valid simple addition formula', function() {
     it('should return a chart model with a single array of data that is the result of two summed variables', function(done) {
-      let chart = new Chart(nwData.unitid, testChartValidAddition.slug);
+      let chart = new ChartExport(nwData, testChartValidAddition);
       chart.export()
         .then(chart => {
           expect(chart).to.be.an('object');

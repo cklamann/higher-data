@@ -4,6 +4,9 @@ import { VariableDefinitions } from '../../../../models/VariableDefinitions'
 import { intVariableDefinitionModel, intVariableDefinitionSchema } from '../../../../../../server/src/schemas/VariableDefinitionSchema';
 import { Charts } from '../../../../models/Charts';
 import { VariableSelectComponent } from '../../../shared/variable-select/variable-select.component';
+import { ChartFactory } from '../../../chart/ChartFactory.factory';
+import { intSchoolModel } from '../../../../../../server/src/schemas/SchoolSchema';
+import { intChartExport } from '../../../../../../server/src/models/ChartExporter';
 import * as _ from 'lodash';
 
 @Component({
@@ -14,8 +17,16 @@ import * as _ from 'lodash';
 export class VariableDefinerComponent implements OnInit {
 
 	variableDefinitionForm: FormGroup;
+	school: intSchoolModel;
+	chartData: intChartExport;
+	variable: string;
+	chartOverrides: object = {
+		widthRatio: .5
+	}
 
-	constructor(private fb: FormBuilder, private variableDefinitions: VariableDefinitions) {
+	constructor(private fb: FormBuilder,
+		private variableDefinitions: VariableDefinitions,
+		private ChartFactory: ChartFactory) {
 
 	}
 
@@ -63,25 +74,40 @@ export class VariableDefinerComponent implements OnInit {
 	}
 
 	onVariableSelect(variable: string): void {
+		this.variable = variable;
 		this.variableDefinitionForm.patchValue({
 			variable: variable
 		});
 		const control = <FormArray>this.variableDefinitionForm.controls['sources'],
 			limit = _.clone(control.length);
-		for (let i = 0; i < limit; i++){
+		for (let i = 0; i < limit; i++) {
 			control.removeAt(0);
-		} 
+		}
 		this.variableDefinitions.fetchByName(variable)
 			.subscribe(varDef => {
-			if (varDef) {
-				varDef.sources.forEach(variable => this.addSource());
-				this.variableDefinitionForm.setValue(varDef);
-			}
-		})
+				if (varDef) {
+					varDef.sources.forEach(variable => this.addSource());
+					this.variableDefinitionForm.setValue(varDef);
+				}
+			})
+		this._loadChart();
 	}
 
+	onSchoolSelect(school: intSchoolModel) {
+		this.school = school;
+		this._loadChart();
+	}
 
+	private _loadChart() {
+		if (!this.variable) return;
+		const schoolSlug = this.school ? this.school.slug : 'northwestern-university-147767';
+		this.ChartFactory.fetchPreview(this.variable, schoolSlug)
+			.subscribe(res => {
+				this.chartData = res;
+			});
+	}
 }
+
 //private helpers --> todo: move to utility class
 let _stripEmptyIds = function(model: any): any {
 	_.forEach(model, (item, key, parent) => {
