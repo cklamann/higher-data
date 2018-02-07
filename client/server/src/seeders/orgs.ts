@@ -20,8 +20,8 @@ UserSchema.find({ username: testUser.username }).remove()
 
 //this seeder will let you build a simple chart
 
-SchoolSchema.find({ unitid: Orgs.nwData.unitid }).remove().then(() => {
-	let nw = new SchoolSchema(Orgs.nwData).save()
+SchoolSchema.find({ unitid: Orgs.nwData.unitid }).remove().exec().then(() => {
+	return new SchoolSchema(Orgs.nwData).save()
 }).then((res) => console.log(res));
 
 const in_state_tuition: intVariableDefinitionModel = {

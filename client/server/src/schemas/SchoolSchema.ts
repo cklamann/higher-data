@@ -31,7 +31,7 @@ export interface intSchoolDataSchema extends Document, intSchoolDataModel { };
 
 const schoolDataSchema = new Schema({
   fiscal_year: {
-    type: Number,
+    type: String,
     requied: true,
   },
   variable: {
@@ -43,15 +43,15 @@ const schoolDataSchema = new Schema({
     required: true,
     trim: true
   }
-});
+},{ _id : false });
 
 let schema: Schema = new Schema({
   id: ObjectId,
-  unitid: Number,
+  unitid: String,
   instnm: String,
   state: String,
   city: String,
-  ein: Number,
+  ein: String,
   locale: String,
   sector: {
     type: String,
