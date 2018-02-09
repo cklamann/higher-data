@@ -5,7 +5,7 @@ import { Charts } from '../../../../models/Charts';
 import { VariableSelectComponent } from '../../../shared/variable-select/variable-select.component';
 import { intSchoolModel } from '../../../../../../server/src/schemas/SchoolSchema';
 import { intChartExport } from '../../../../../../server/src/models/ChartExporter';
-import { ChartFactory } from '../../../chart/ChartFactory.factory';
+import { ChartService } from '../../../chart/ChartService.service';
 
 import * as _ from 'lodash';
 
@@ -27,7 +27,7 @@ export class ChartCreatorComponent implements OnInit {
 		widthRatio: .5
 	}
 
-	constructor(private fb: FormBuilder, private Charts: Charts, private ChartFactory: ChartFactory) {
+	constructor(private fb: FormBuilder, private Charts: Charts, private ChartService: ChartService) {
 
 	}
 

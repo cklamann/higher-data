@@ -1,19 +1,19 @@
 import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { ChartFactory } from '../../ChartFactory.factory';
+import { ChartService } from '../../ChartService.service';
 import { Charts } from '../../../../models/Charts';
 import { RestService } from '../../../../services/rest/rest.service';
 import { intChartExport } from '../../../../../../server/src/models/ChartExporter';
 import { LineChart } from '../../models/LineChart';
 
 @Component({
-	selector: 'app-line-chart',
-	templateUrl: './line-chart.component.html',
-	styleUrls: ['./line-chart.component.scss'],
-	providers: [ChartFactory]
+	selector: 'app-trend-chart',
+	templateUrl: './trend-chart.component.html',
+	styleUrls: ['./trend-chart.component.scss'],
+	providers: [ChartService]
 })
 
 
-export class LineChartComponent implements OnInit {
+export class TrendChartComponent implements OnInit {
 
 	@Input() chartData: intChartExport;
 	@Input() chartOverrides: object = {};
@@ -29,13 +29,14 @@ export class LineChartComponent implements OnInit {
 	}
 
 	//to refactor: 
-	  // 1) rename this and everything that uses it to trend-chart/trendChart/TrendChart
-	  // 2) rename chartFactory to chartService and delegate chart-type determination to it
+	  // 2) delegate chart-type determination to ChartService
 	//idea is that any trend chart can pass into here, depending -- either a line or an area chart -- handle the details in the factory
 
 	ngOnChanges(changes: SimpleChanges) {
 		if (changes.chartData && changes.chartData.currentValue && changes.chartData.currentValue.chart.type == 'line') {
 			if (this.chart) this.chart.remove();
+			
+			//this.chart = ChartService.resolveChart(changes.chartData.currentValue, this.myRandomSelector, this.chartOverrides);
 			this.chart = new LineChart(changes.chartData.currentValue, this.myRandomSelector, this.chartOverrides); 
 			this.chart.draw();
 		}

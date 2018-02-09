@@ -18,7 +18,7 @@ import { ChartCreatorComponent } from './admin-page/chart-creator/chart-creator.
 import { VariableDefinerComponent } from './admin-page/variable-definer/variable-definer.component';
 import { SharedModule } from '../shared/shared.module';
 import { ChartModule } from '../chart/chart.module';
-import { ChartFactory } from '../chart/ChartFactory.factory';
+import { ChartService } from '../chart/ChartService.service';
 
 @NgModule({
   imports: [
@@ -38,6 +38,6 @@ import { ChartFactory } from '../chart/ChartFactory.factory';
     ChartModule
   ],
   declarations: [AdminPageComponent, LoginPageComponent, ChartCreatorComponent, VariableDefinerComponent],
-  providers: [Users, RestService, InterceptService, VariableDefinitions, ChartFactory]
+  providers: [Users, RestService, InterceptService, VariableDefinitions, ChartService]
 })
 export class AdminModule { }

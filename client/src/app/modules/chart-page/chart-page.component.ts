@@ -3,15 +3,15 @@ import { Schools, School } from '../../models/Schools';
 import { MatToolbar, MatToolbarRow } from '@angular/material/toolbar';
 import { intSchoolModel } from '../../../../server/src/schemas/SchoolSchema';
 import { intChartModel } from '../../../../server/src/schemas/ChartSchema';
-import { ChartFactory } from '../../modules/chart/ChartFactory.factory';
+import { ChartService } from '../../modules/chart/ChartService.service';
 import { intChartExport } from '../../../../server/src/models/ChartExporter';
-import { LineChartComponent } from '../chart/components/line-chart/line-chart.component'
+import { TrendChartComponent } from '../chart/components/trend-chart/trend-chart.component'
 
 @Component({
 	selector: 'chart-page',
 	templateUrl: './chart-page.component.html',
 	styleUrls: ['./chart-page.component.scss'],
-	providers: [ChartFactory]
+	providers: [ChartService]
 })
 export class ChartPageComponent implements OnInit {
 	title: string = 'Schools';
@@ -19,7 +19,7 @@ export class ChartPageComponent implements OnInit {
 	school: intSchoolModel;
 	chart: intChartModel;
 	chartData: intChartExport;
-	constructor(public Schools: Schools, private ChartFactory: ChartFactory) { }
+	constructor(public Schools: Schools, private ChartService: ChartService) { }
 
 	ngOnInit(): void {
 
@@ -37,7 +37,7 @@ export class ChartPageComponent implements OnInit {
 
 	private _loadChart() {
 		if (this.chart && this.school) {
-			this.ChartFactory.fetchChart(this.school.slug, this.chart.slug)
+			this.ChartService.fetchChart(this.school.slug, this.chart.slug)
 				.subscribe(res => {
 					this.chartData = res
 				});

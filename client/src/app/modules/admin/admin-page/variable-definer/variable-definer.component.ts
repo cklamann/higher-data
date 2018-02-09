@@ -4,7 +4,7 @@ import { VariableDefinitions } from '../../../../models/VariableDefinitions'
 import { intVariableDefinitionModel, intVariableDefinitionSchema } from '../../../../../../server/src/schemas/VariableDefinitionSchema';
 import { Charts } from '../../../../models/Charts';
 import { VariableSelectComponent } from '../../../shared/variable-select/variable-select.component';
-import { ChartFactory } from '../../../chart/ChartFactory.factory';
+import { ChartService } from '../../../chart/ChartService.service';
 import { intSchoolModel } from '../../../../../../server/src/schemas/SchoolSchema';
 import { intChartExport } from '../../../../../../server/src/models/ChartExporter';
 import * as _ from 'lodash';
@@ -26,7 +26,7 @@ export class VariableDefinerComponent implements OnInit {
 
 	constructor(private fb: FormBuilder,
 		private variableDefinitions: VariableDefinitions,
-		private ChartFactory: ChartFactory) {
+		private ChartService: ChartService) {
 
 	}
 
@@ -101,7 +101,7 @@ export class VariableDefinerComponent implements OnInit {
 	private _loadChart() {
 		if (!this.variable) return;
 		const schoolSlug = this.school ? this.school.slug : 'northwestern-university-147767';
-		this.ChartFactory.fetchPreview(this.variable, schoolSlug)
+		this.ChartService.fetchVariablePreview(this.variable, schoolSlug)
 			.subscribe(res => {
 				this.chartData = res;
 			});
