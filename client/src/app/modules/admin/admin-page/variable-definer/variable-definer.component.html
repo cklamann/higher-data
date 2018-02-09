@@ -56,8 +56,8 @@
 		</mat-card-content>
 	</mat-card>
 	<mat-card fxLayout="row" fxLayoutWrap fxFlex = "100" fxFlex.gt-sm="50" fxLayoutAlign = "center start">
-		<mat-card-header fxFlex = "90">
-	    	<mat-card-title>Definition Preview</mat-card-title>
+		<mat-card-header fxFlex = "90" fxLayoutAlign="center">
+	    	<!-- <mat-card-title fxFlex = "100">Definition Preview</mat-card-title> -->
 	    	<app-school-search (onSchoolSelect)="onSchoolSelect($event)" fxFlex = "80" fxFlex.gt-sm="45"></app-school-search>
 	  	</mat-card-header>
 	  	<mat-card-content fxFlex ="90">	
