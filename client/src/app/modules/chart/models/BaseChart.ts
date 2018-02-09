@@ -57,6 +57,7 @@ export class BaseChart {
 		this.canvas = this.container.append("svg")
 			.attr("width", this.width + this.displayOptions.margins.left + this.displayOptions.margins.right)
 			.attr("height", this.height + this.displayOptions.margins.top + this.displayOptions.margins.bottom)
+			.style("display","flex")
 			.append("g")
 			.attr("transform", "translate(" + this.displayOptions.margins.left + "," + this.displayOptions.margins.top + ")");
 		this.yScale = d3.scaleLinear().range([this.height, 0]);
