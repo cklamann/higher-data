@@ -3,6 +3,10 @@ import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { intChartModel, intChartSchema } from '../../../../../../server/src/schemas/ChartSchema';
 import { Charts } from '../../../../models/Charts';
 import { VariableSelectComponent } from '../../../shared/variable-select/variable-select.component';
+import { intSchoolModel } from '../../../../../../server/src/schemas/SchoolSchema';
+import { intChartExport } from '../../../../../../server/src/models/ChartExporter';
+import { ChartFactory } from '../../../chart/ChartFactory.factory';
+
 import * as _ from 'lodash';
 
 @Component({
@@ -17,9 +21,14 @@ export class ChartCreatorComponent implements OnInit {
 	chartCategories: string[];
 	chartValueTypes: string[];
 	showChartSearch: boolean = false;
+	school: intSchoolModel;
+	chartData: intChartExport;
+	chartOverrides: object = {
+		widthRatio: .5
+	}
 
-	constructor(private fb: FormBuilder, private Charts: Charts) {
-		
+	constructor(private fb: FormBuilder, private Charts: Charts, private ChartFactory: ChartFactory) {
+
 	}
 
 	ngOnInit() {
@@ -100,6 +109,20 @@ export class ChartCreatorComponent implements OnInit {
 	onVariableSelect(variable: string, i: number): void {
 		let control = <FormArray>this.chartBuilderForm.controls['variables'];
 		control.at(i).patchValue({ formula: control.at(i).value.formula + " " + variable });
+	}
+
+	getPreview(){
+		console.log("get preview works");
+		//fetch chart and display in preview -- but first, let's refactor that chart directive
+	}
+
+	onSchoolSelect(school: intSchoolModel) {
+		this.school = school;
+		this._loadChart();
+	}
+
+	_loadChart(){
+		console.log("loading chart");
 	}
 
 }

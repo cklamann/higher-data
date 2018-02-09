@@ -27,15 +27,15 @@ describe('FORMULA MODEL', function() {
 	}
 
 	const dataWithIncompleteYear: any[] = [
-		{ variable: "in_state_tuition", fiscal_year: 2003, value: "50" },
-		{ variable: "in_state_tuition", fiscal_year: 2004, value: "60" },
-		{ variable: "room_and_board", fiscal_year: 2003, value: "70" },
-		{ variable: "room_and_board", fiscal_year: 2004, value: "80" },
-		{ variable: "room_and_board", fiscal_year: 2005, value: "90" },
+		{ variable: "in_state_tuition", fiscal_year: "2003", value: "50" },
+		{ variable: "in_state_tuition", fiscal_year: "2004", value: "60" },
+		{ variable: "room_and_board", fiscal_year: "2003", value: "70" },
+		{ variable: "room_and_board", fiscal_year: "2004", value: "80" },
+		{ variable: "room_and_board", fiscal_year: "2005", value: "90" },
 	]
 
 	const schoolWithIncompleteYears: intSchoolModel = _.cloneDeep(nwData);
-	schoolWithIncompleteYears.unitid = 666668;
+	schoolWithIncompleteYears.unitid = "666668";
 	schoolWithIncompleteYears.data = dataWithIncompleteYear;
 
 	//helpful to have minimum value on hand for proving value is there / addition got done
@@ -57,10 +57,10 @@ describe('FORMULA MODEL', function() {
 	before('create a test school and a test variable', function(done) {
 		SchoolSchema.create(nwData);
 		SchoolSchema.create({
-			unitid: 12345,
+			unitid: "12345",
 			data: [{
 				variable: 'test_var',
-				value: 10,
+				value: "10",
 				fiscal_year: '2019'
 			}]
 		})

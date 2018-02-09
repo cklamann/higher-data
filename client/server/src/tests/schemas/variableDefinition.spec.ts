@@ -15,8 +15,8 @@ describe('Variable Definition Schema', function() {
     variable: "test_var",
     type: "currency",
     sources: [{
-      start_year: 2015,
-      end_year: 2017,
+      startYear: "2015",
+      endYear: "2017",
       source: "IPEDS",
       table: "test_ipeds_table",
       formula: "1+1=2",
@@ -27,10 +27,10 @@ describe('Variable Definition Schema', function() {
 
   before('create school', done => {
     SchoolSchema.create({
-      unitid: 12345,
+      unitid: "12345",
       data: [{
         variable: 'test_var',
-        value: 4,
+        value: "4",
         fiscal_year: '2019'
       }]
     }).then(() => done()).catch(err => done(err));
@@ -72,8 +72,8 @@ describe('Variable Definition Schema', function() {
   describe('#update()', function() {
     it('should update source array with a new source object and a new source value', function(done) {
       let newSource = new variableSourcesSchema({
-        start_year: 2019,
-        end_year: 2020,
+        startYear: "2019",
+        endYear: "2020",
         source: "IPEDS",
         table: "test_ipeds_table",
         formula: "2+2=4",
@@ -102,7 +102,7 @@ describe('Variable Definition Schema', function() {
 
   after('remove test school', function(done) {
     SchoolSchema.find({
-      unitid: 12345
+      unitid: "12345"
     }).remove().exec().then(() => done());
   });
 });

@@ -10,9 +10,9 @@ gulp.task('typeScript', function () {
 });
 
 gulp.task('default', ['typeScript'], function() {
-
+	
 });
 
 gulp.task('watch', function(){
-	gulp.watch('src/**/*.ts', ['typeScript']);
+	gulp.watch(['src/**/*.ts','!src/test/*'], ['typeScript']);
 });

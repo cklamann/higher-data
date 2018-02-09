@@ -4,11 +4,11 @@ import * as _ from 'lodash';
 export let ObjectId = Schema.Types.ObjectId;
 
 export interface intSchoolModel {
-  unitid: number;
+  unitid: string;
   instnm: string;
   state: string;
   city: string;
-  ein: number;
+  ein: string;
   sector: string;
   locale: string;
   hbcu: string;
@@ -17,7 +17,7 @@ export interface intSchoolModel {
 };
 
 export interface intSchoolDataModel {
-  fiscal_year: number,
+  fiscal_year: string,
   variable: string,
   value: string,
 };

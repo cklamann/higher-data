@@ -28,6 +28,11 @@ export class LineChartComponent implements OnInit {
 
 	}
 
+	//to refactor: 
+	  // 1) rename this and everything that uses it to trend-chart/trendChart/TrendChart
+	  // 2) rename chartFactory to chartService and delegate chart-type determination to it
+	//idea is that any trend chart can pass into here, depending -- either a line or an area chart -- handle the details in the factory
+
 	ngOnChanges(changes: SimpleChanges) {
 		if (changes.chartData && changes.chartData.currentValue && changes.chartData.currentValue.chart.type == 'line') {
 			if (this.chart) this.chart.remove();

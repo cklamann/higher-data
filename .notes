@@ -27,12 +27,6 @@ https://medium.com/@AdamRNeary/refactoring-mongoose-with-q-99d2759a97b6
 
 store charts as entire docs, with child variables[], each of which contains a formula, definition, and so on -- front end takes care of integrity, though there's some be validation checks. Can recycle formulas/lines on fe.
 
-
-
-
-
-
-
 ---database---
 
 how to upload from R? mongoimport --db colleges --collection chart_data --drop --file ~/Desktop/trendsDump.json --jsonArray
@@ -42,3 +36,9 @@ how to upload from R? mongoimport --db colleges --collection chart_data --drop -
 db.chart_data.find({opeid:{$eq:"147767"},"data.variable":{$eq:"room_and_board"}})
 
 rename: -> db.chart_data.updateMany({}, {$rename: {"opeid": "unitid"}})
+
+
+---BEFORE DEPLOY---
+
+1) make sure all routes, including create users, are covered by auth
+2) remove all uniques from schemas

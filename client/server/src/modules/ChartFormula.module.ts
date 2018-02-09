@@ -59,7 +59,7 @@ export class ChartFormula implements intFormula {
 		});
 	}
 
-	public execute(unitid: number): Q.Promise<intChartFormulaResult[]> {
+	public execute(unitid: string): Q.Promise<intChartFormulaResult[]> {
 		return SchoolSchema.schema.statics.fetchSchoolWithVariables(unitid, this.symbolNodes)
 			.then((school: intSchoolModel) => {
 				const fullData = this._fillMissingOptionalData(school.data),
@@ -88,10 +88,11 @@ export class ChartFormula implements intFormula {
 		return schoolData;
 	}
 
-	private _getYearRange(yearsData: intSchoolDataModel[]): Array<number> {
+	private _getYearRange(yearsData: intSchoolDataModel[]): Array<string> {
 		const range: any[] = yearsData.filter(obj => obj.fiscal_year);
 		const vals: number[] = _.values(range);
-		return _.uniq(vals).sort();
+		let res = _.uniq(vals).sort();
+		return res.map( year => String(year));
 	}
 
 	private _getUniqueVars(yearsData: intSchoolDataModel[]): Array<string> {
