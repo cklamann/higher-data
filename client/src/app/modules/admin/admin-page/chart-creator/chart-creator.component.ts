@@ -111,9 +111,8 @@ export class ChartCreatorComponent implements OnInit {
 		control.at(i).patchValue({ formula: control.at(i).value.formula + " " + variable });
 	}
 
-	getPreview(){
-		console.log("get preview works");
-		//fetch chart and display in preview -- but first, let's refactor that chart directive
+	getPreview() {
+		this._loadChart();
 	}
 
 	onSchoolSelect(school: intSchoolModel) {
@@ -121,8 +120,11 @@ export class ChartCreatorComponent implements OnInit {
 		this._loadChart();
 	}
 
-	_loadChart(){
-		console.log("loading chart");
+	private _loadChart() {
+		if (this.chartBuilderForm.valid && this.school) {
+			this.ChartService.fetchChartPreview(this.school, this.chartBuilderForm.value)
+				.subscribe(res => this.chartData = res);
+		}
 	}
 
 }

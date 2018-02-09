@@ -18,23 +18,20 @@ export class ChartService {
 		return this.rest.get(`schools/${schoolSlug}/charts/${chartSlug}`);
 	}
 
+	fetchChartPreview(schoolModel: intSchoolModel, chartModel: intChartModel) {
+		return this.rest.post(`charts/preview`,{school:schoolModel,chart:chartModel});
+	}
+
 	fetchVariablePreview(variable: string, schoolSlug: string): Observable<intChartExport> {
 		return this.rest.get(`variables/${variable}/preview/${schoolSlug}`);
 	}
 
-	fetchChartPreview(chartModel: intChartModel, schoolModel: intSchoolModel) {
-
-	}
-
-	//note: to fetch a preview without saving, need to pass back the chart model in a post, not the chart slug
-
-	resolveChart(chartData: intChartExport, selector: string, overrides: intChartDisplayOptions) {
+	resolveChart(chartData: intChartExport, selector: string, overrides: object) {
 		switch (chartData.chart.type) {
 			case "line":
 				return new LineChart(chartData, selector, overrides);
 		}
 
 	}
-
 
 }

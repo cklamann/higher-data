@@ -8,7 +8,7 @@ import 'rxjs/add/operator/map';
 export class Schools {
 	constructor(private rest: RestService) { }
 
-	fetch(id: number): Observable<intSchoolModel[]> {
+	fetch(id: string): Observable<intSchoolModel> {
 		return this.rest.get(`schools/${id}`);
 	}
 

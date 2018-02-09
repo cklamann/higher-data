@@ -15,7 +15,15 @@ router.get('/search', function(req, res, next) {
 		res.json(resp);
 		return;
 	});
+});
 
+router.get('/:id', function(req, res, next) {
+	School.findOne({unitid:req.params.id}).select('-data')
+		.then(school => {
+			res.json(school);
+			return;
+		})
+		.catch(err => next(err));
 });
 
 router.get('/:school/charts/:chart', function(req, res, next) {

@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, Input, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Schools, School } from '../../../models/Schools';
 import { intSchoolModel } from '../../../../../server/src/schemas/SchoolSchema';
@@ -15,6 +15,10 @@ export class SchoolSearchComponent implements OnInit {
 	searchTerm: string;
 	selectedSchool: School;
 	autocompleteResults: School[];
+	
+	@Input()
+	defaultSchoolId:string;
+
 	@Output()
 	onSchoolSelect: EventEmitter<intSchoolModel|null> = new EventEmitter<intSchoolModel|null>();
 	
@@ -23,7 +27,12 @@ export class SchoolSearchComponent implements OnInit {
 	}
 
 	ngOnInit() {
-		this.listenForSearchChanges(); 
+		this.listenForSearchChanges();
+		console.log(this.defaultSchoolId);
+		if(this.defaultSchoolId){
+			this.Schools.fetch(this.defaultSchoolId)
+				.subscribe( res => this.onSchoolSelect.emit(res))
+		} 
 	}
 
 	createForm() {

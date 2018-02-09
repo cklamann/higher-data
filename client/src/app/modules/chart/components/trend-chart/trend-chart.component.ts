@@ -20,7 +20,7 @@ export class TrendChartComponent implements OnInit {
 	chart: LineChart;
 	myRandomSelector: string = "selector" + Math.floor(Math.random() * 10000)
 
-	constructor() {
+	constructor(private ChartService:ChartService) {
 
 	}
 
@@ -28,16 +28,11 @@ export class TrendChartComponent implements OnInit {
 
 	}
 
-	//to refactor: 
-	  // 2) delegate chart-type determination to ChartService
-	//idea is that any trend chart can pass into here, depending -- either a line or an area chart -- handle the details in the factory
-
 	ngOnChanges(changes: SimpleChanges) {
 		if (changes.chartData && changes.chartData.currentValue && changes.chartData.currentValue.chart.type == 'line') {
 			if (this.chart) this.chart.remove();
 			
-			//this.chart = ChartService.resolveChart(changes.chartData.currentValue, this.myRandomSelector, this.chartOverrides);
-			this.chart = new LineChart(changes.chartData.currentValue, this.myRandomSelector, this.chartOverrides); 
+			this.chart = this.ChartService.resolveChart(changes.chartData.currentValue, this.myRandomSelector, this.chartOverrides);
 			this.chart.draw();
 		}
 	}
