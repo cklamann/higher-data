@@ -17,7 +17,7 @@ export interface intChartDisplayOptions {
 }
 
 export class BaseChart {
-	
+
 	selector: string;
 	container: d3.Selection<any, any, any, any>;
 	canvas: d3.Selection<any, any, any, any>;
@@ -40,24 +40,35 @@ export class BaseChart {
 				top: 10,
 				bottom: 50,
 				left: 70,
-				right: 10
+				right: 70
 			},
 			widthRatio: 1
 		}, overrides);
 		this.buildCanvas();
+
+		window.addEventListener('resize', () => {
+			this.remove();
+			this.buildCanvas();
+			this.draw();
+		}, false);
+	}
+
+	draw() {
+		throw new Error("draw method should be overridden by child");
 	}
 
 	buildCanvas() {
 		this.container = d3.select("." + this.selector);
 		const winWidth = window.innerWidth;
-		let w = winWidth > 992 ? 700 : winWidth > 768 ? 550 : winWidth > 576 ? 500 : 375;
+		//angular material: layout-gt-xs = width >= 600px; layout-gt-sm =	width >= 960px
+		let w = winWidth > 960 ? .5 * winWidth : winWidth > 600 ? winWidth - 50 : winWidth - 20;
 		w = w * this.displayOptions.widthRatio;
 		this.width = w - this.displayOptions.margins.left - this.displayOptions.margins.right;
-		this.height = (this.width / 1.6) - this.displayOptions.margins.top - this.displayOptions.margins.bottom;
+		this.height = (this.width / 1.5) - this.displayOptions.margins.top - this.displayOptions.margins.bottom;
 		this.canvas = this.container.append("svg")
 			.attr("width", this.width + this.displayOptions.margins.left + this.displayOptions.margins.right)
 			.attr("height", this.height + this.displayOptions.margins.top + this.displayOptions.margins.bottom)
-			.style("display","flex")
+			.style("display", "flex")
 			.append("g")
 			.attr("transform", "translate(" + this.displayOptions.margins.left + "," + this.displayOptions.margins.top + ")");
 		this.yScale = d3.scaleLinear().range([this.height, 0]);

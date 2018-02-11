@@ -4,3 +4,22 @@
 path {
     fill: none;
 }
+.d3-tip {
+    position: absolute;
+    text-align: left;
+    padding: 4px;
+    font: 12px sans-serif;
+    background: black;
+    border: 0px;
+    border-radius: 8px;
+    pointer-events: none;
+    z-index: 99999;
+    color: white;
+    ul {
+        margin: 0 0;
+        padding: 0 0;
+        li {
+            list-style: none;
+        }
+    }
+}

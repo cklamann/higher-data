@@ -6,25 +6,24 @@ import * as _ from 'lodash';
 
 
 export class LineChart extends BaseChart {
-	constructor(data: intChartExport, selector:string, overrides:any) {
-		super(data,selector,overrides);
+	constructor(data: intChartExport, selector: string, overrides: any) {
+		super(data, selector, overrides);
 	}
 
 	build() {
-		
+
 	};
 
 	draw() {
-
 		this.xScale = d3.scaleTime().range([0, this.width]);
-		let dateRange:Array<Date> = _.uniq(_.flatMap(this.chartData.data, c => _.flatMap(c.data, d => d.fiscal_year)));	
-		this.xScale.domain( d3.extent(dateRange));
+		let dateRange: Array<Date> = _.uniq(_.flatMap(this.chartData.data, c => _.flatMap(c.data, d => d.fiscal_year)));
+		this.xScale.domain(d3.extent(dateRange));
 		this.yScale.domain([
 			this.chartData.getMin(),
-			this.chartData.getMax() 
+			this.chartData.getMax()
 		]);
 
-		const line:any = d3.line()
+		const line: any = d3.line()
 			.x((d: any) => this.xScale(d.fiscal_year))
 			.y((d: any) => this.yScale(d.value));
 
@@ -74,6 +73,7 @@ export class LineChart extends BaseChart {
 			.attr("d", d => {
 				return line(d.data);
 			})
+			.style("stroke-width", 2)
 			.style("stroke", d => this.zScale(d.legendName))
 			.style("opacity", 0)
 			.transition()
@@ -95,14 +95,14 @@ export class LineChart extends BaseChart {
 				.attr("cy", d => that.yScale(d.value))
 				.style("stroke", that.zScale(line.legendName))
 				.style("fill", that.zScale(line.legendName))
-				// .on("mouseover", d => {
-				// 	tool.transition()
-				// 		.duration(200)
-				// 		.style("opacity", 1);
-				// 	tool.html(that.getToolTip(d.fiscal_year))
-				// 		.style("left", (d3.event.pageX) + "px")
-				// 		.style("top", (d3.event.pageY) + "px");
-				// }) //todo: fix this!
+				.on("mouseover", d => {
+					tool.transition()
+						.duration(200)
+						.style("opacity", 1);
+					tool.html(that.getToolTip(d.fiscal_year))
+						.style("left", (d3.event.pageX) + "px")
+						.style("top", (d3.event.pageY - 10) + "px");
+				})
 				.on("mouseout", function(d) {
 					tool.transition()
 						.duration(200)
@@ -119,23 +119,38 @@ export class LineChart extends BaseChart {
 			.attr("transform", "rotate(" + rotationDegrees + ")")
 			.style("text-anchor", "start");
 
-		const legend = d3.select(".legend-container").selectAll("li")
-			.data(this.chartData.data);
+		const legend = d3.select(".legend-container ul").selectAll("li")
+			.data(this.chartData.data.filter(datum => datum.data.length > 0)); //exclude empty
 
 		legend.exit().remove();
 
-		// legend.enter()
-		// 	.append("li")
-		// 	.attr("class", "legend-element")
-		// 	.merge(legend)
-		// 	.html((d, i) => this.getLegendLine(d, i));
+		legend.enter()
+			.append("li")
+			.attr("class", "legend-element")
+			.merge(legend)
+			.html((d, i) => "<span style='color:" + this.zScale(d.legendName) + "'>&#9679;</span>" + d.legendName);
 
-		// d3.selectAll(".legend-element")
-		// 	.on("click", d => {
-		// 		this.removeElement(d.fiscal_year);
-		// 		this.removeChart();
-		// 		this.draw();
-		// 	}); //todo: fix this!
+		d3.selectAll(".legend-element")
+			.on("click", d => {
+				this.chartData.data.forEach((datum, i) => {
+					if (datum.legendName === d.legendName) {
+						this.chartData.data[i].data = [];
+					}
+				});
+				this.canvas.selectAll("*").remove();
+				this.draw();
+			});
+	}
+
+	getToolTip(fiscal_year) {
+		console.log("called");
+		let items = _.flatMap(this.chartData.data, datum => {
+			let item = datum.data.find(item => item.fiscal_year === fiscal_year),
+				color = this.zScale(item.legendName);
+			return `<li><span style='color: ${color}'>&#9679;</span> ${item.legendName} : ${item.value}</li>`;
+		}),
+			list = items.join('');
+		return "<ul>" + list + "<ul>";
 	}
 
 };
