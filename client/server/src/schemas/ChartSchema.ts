@@ -21,6 +21,7 @@ export interface intChartModel {
 
 export interface intChartVariableSchema extends Document, intChartVariableModel { };
 export interface intChartSchema extends Document, intChartModel {
+  _id: Schema.Types.ObjectId,
   variables: intChartVariableSchema[];
 };
 
@@ -38,7 +39,7 @@ const chartVariableSchema: Schema = new Schema({
     type: String,
     required: true
   }
-});
+}, {_id:false});
 
 const schema: Schema = new Schema({
   name: {
@@ -94,9 +95,7 @@ ChartSchema.schema.statics = {
   fetchAndUpdate: (model: intChartSchema): Promise<intChartSchema> => {
     const newSchema = new ChartSchema(model);
     return newSchema.validate()
-      .then(() => {
-        return newSchema.update(newSchema)
-          .then(() => newSchema);
-      });
+      .then(() => ChartSchema.findByIdAndUpdate(model._id, model, { new: true }));
+      // .catch(err => err); //todo: catch the error and send intelligent response
   }
 }

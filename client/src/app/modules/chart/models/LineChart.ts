@@ -131,7 +131,7 @@ export class LineChart extends BaseChart {
 			.html((d, i) => "<span style='color:" + this.zScale(d.legendName) + "'>&#9679;</span>" + d.legendName);
 
 		d3.selectAll(".legend-element")
-			.on("click", d => {
+			.on("click", (d:any) => {
 				this.chartData.data.forEach((datum, i) => {
 					if (datum.legendName === d.legendName) {
 						this.chartData.data[i].data = [];

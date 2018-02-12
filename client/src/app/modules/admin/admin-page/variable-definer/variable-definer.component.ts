@@ -70,8 +70,8 @@ export class VariableDefinerComponent implements OnInit {
 
 	onSubmit() {
 		let formContent = _stripEmptyIds(this.variableDefinitionForm.value);
-		this.variableDefinitions.save(this.variableDefinitionForm.value).subscribe()
-			.then(res => {
+		this.variableDefinitions.save(this.variableDefinitionForm.value)
+			.subscribe(res => {
 				this.variableDefinitionForm.patchValue({
 					_id: res._id
 				})

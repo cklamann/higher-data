@@ -61,9 +61,11 @@ router.get('/:variable/preview/:school', passport.authenticate('basic', { sessio
 
 router.post('/', passport.authenticate('basic', { session: false }), function(req, res, next) {
 	let promise: Promise<any>;
-	if (req.body._id) {
+	if (req.body._id){
 		promise = VariableDefinitionSchema.schema.statics.fetchAndUpdate(req.body);
-	} else promise = VariableDefinitionSchema.create(req.body);
+	} else {
+		promise = VariableDefinitionSchema.create(req.body);
+	}
 
 	promise.then((chart: intVariableDefinitionSchema) => {
 		res.json(chart);
