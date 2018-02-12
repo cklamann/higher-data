@@ -33,7 +33,7 @@ router.get('/', function(req, res, next) {
 		.catch(err => next(err))
 });
 
-router.get('/:variable/preview/:school', passport.authenticate('basic', { session: false }), function(req, res, next) {
+router.get('/:variable/chart/:school', passport.authenticate('basic', { session: false }), function(req, res, next) {
 	let chartModel: intChartModel = {
 		name: "preview",
 		slug: "preview",

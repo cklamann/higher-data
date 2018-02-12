@@ -4,7 +4,6 @@ import { MatSelect } from '@angular/material';
 import { Charts } from '../../../models/Charts';
 import { intChartModel } from '../../../../../server/src/schemas/ChartSchema';
 import 'rxjs/add/operator/debounceTime';
-import 'rxjs/add/operator/map';
 
 
 @Component({

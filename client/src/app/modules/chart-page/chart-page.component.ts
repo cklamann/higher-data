@@ -35,6 +35,11 @@ export class ChartPageComponent implements OnInit {
 		this._loadChart();
 	}
 
+	onCutBySelect(variable) {
+		this.ChartService.cutChartDataBy(variable, this.school.slug, this.chartData)
+			.subscribe( res => this.chartData = res);
+	}
+
 	private _loadChart() {
 		if (this.chart && this.school) {
 			this.ChartService.fetchChart(this.school.slug, this.chart.slug)

@@ -73,8 +73,7 @@ export class ChartCreatorComponent implements OnInit {
 		return this.fb.group({
 			notes: ['', [Validators.minLength(3), Validators.required]],
 			formula: ['', [Validators.minLength(3), Validators.required]],
-			legendName: ['', [Validators.minLength(3), Validators.required]],
-			_id: '',
+			legendName: ['', [Validators.minLength(3), Validators.required]]
 		});
 	}
 

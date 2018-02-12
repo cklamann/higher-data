@@ -48,12 +48,17 @@ export class BaseChart {
 			widthRatio: 1
 		}, overrides);
 		this.buildCanvas();
+		this.build();
 
 		window.addEventListener('resize', () => {
 			this.remove();
 			this.buildCanvas();
-			this.draw();
+			this.build();
 		}, false);
+	}
+
+	build(){
+		throw new Error("build method should be overriden by child");
 	}
 
 	draw() {
@@ -74,7 +79,6 @@ export class BaseChart {
 			.style("display", "flex")
 			.append("g")
 			.attr("transform", "translate(" + this.displayOptions.margins.left + "," + this.displayOptions.margins.top + ")");
-		this.yScale = d3.scaleLinear().range([this.height, 0]);
 	}
 
 	parseDate(dateString: string): Date {
@@ -106,8 +110,4 @@ export class BaseChart {
 		return fallYear + "-" + String(year).substring(2);
 	};
 
-}
-
-function _buildUniqueSelector(): string {
-	return "placeholder";
 }

@@ -3,7 +3,8 @@ import { ChartService } from '../../ChartService.service';
 import { Charts } from '../../../../models/Charts';
 import { RestService } from '../../../../services/rest/rest.service';
 import { intChartExport } from '../../../../../../server/src/models/ChartExporter';
-import { LineChart } from '../../models/LineChart';
+import { BaseChart } from '../../models/BaseChart';
+import * as _ from 'lodash';
 
 @Component({
 	selector: 'app-trend-chart',
@@ -17,10 +18,10 @@ export class TrendChartComponent implements OnInit {
 
 	@Input() chartData: intChartExport;
 	@Input() chartOverrides: object = {};
-	chart: LineChart;
+	chart: BaseChart;
 	myRandomSelector: string = "selector" + Math.floor(Math.random() * 10000)
 
-	constructor(private ChartService:ChartService) {
+	constructor(private ChartService: ChartService) {
 
 	}
 
@@ -29,10 +30,24 @@ export class TrendChartComponent implements OnInit {
 	}
 
 	ngOnChanges(changes: SimpleChanges) {
-		if (changes.chartData && changes.chartData.currentValue && changes.chartData.currentValue.chart.type == 'line') {
+		if (changes.chartData && changes.chartData.currentValue && changes.chartData.currentValue.chart) {
+			this.onChartDataChanges(changes.chartData);
+		}
+	}
+
+	onChartDataChanges(chartDataChanges) {
+		//if chart or school is new, fetch new chart
+		if (!chartDataChanges.previousValue ||
+			!_.isEqual(chartDataChanges.previousValue.chart, chartDataChanges.currentValue.chart) || 
+			!_.isEqual(chartDataChanges.previousValue.school, chartDataChanges.currentValue.school)){
 			if (this.chart) this.chart.remove();
-			
-			this.chart = this.ChartService.resolveChart(changes.chartData.currentValue, this.myRandomSelector, this.chartOverrides);
+			this.chart = this.ChartService.resolveChart(chartDataChanges.currentValue, this.myRandomSelector, this.chartOverrides);
+			this.chart.draw();
+		} 
+		//if only the data changed, redraw current chart
+		else if(_.isEqual(chartDataChanges.previousValue.chart, chartDataChanges.currentValue.chart) &&
+			!_.isEqual(chartDataChanges.previousValue.data, chartDataChanges.currentValue.data)) {
+			this.chart.chartData = chartDataChanges.currentValue.data;
 			this.chart.draw();
 		}
 	}

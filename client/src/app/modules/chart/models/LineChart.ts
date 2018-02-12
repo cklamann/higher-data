@@ -6,63 +6,66 @@ import * as _ from 'lodash';
 
 
 export class LineChart extends BaseChart {
+	xAxis: any;
+	yAxis: any;
+	xGrid: any;
+	yGrid: any;
 	constructor(data: intChartExport, selector: string, overrides: any) {
 		super(data, selector, overrides);
 	}
 
 	build() {
+		this.xScale = d3.scaleTime().range([0, this.width]);
+		this.yScale = d3.scaleLinear().range([this.height, 0]);
 
+		this.xAxis = d3.axisBottom(this.xScale)
+			.tickFormat(x => this.formatAY(x));
+
+		this.canvas.append("g")
+			.attr("class", "axis axis--x")
+			.attr("transform", "translate(0," + this.height + ")")
+
+		this.xGrid = d3.axisBottom(this.xScale)
+			.tickSizeInner(-this.height)
+			.tickFormat(x => "");
+
+		this.yAxis = d3.axisLeft(this.yScale)
+			.tickFormat(x => this.formatNumber(x, this.displayOptions.valueType));
+
+		this.canvas.append("g")
+			.attr("class", "axis axis--y");
+
+		this.yGrid = d3.axisLeft(this.yScale)
+			.tickSizeInner(-this.width)
+			.tickFormat(x => "");
+
+		this.canvas.append("g")
+			.attr("class", "grid y-grid")
+			.style("opacity", 0.5);
+
+		this.draw();
 	};
 
 	draw() {
-		this.xScale = d3.scaleTime().range([0, this.width]);
+
 		let dateRange: Array<Date> = _.uniq(_.flatMap(this.chartData.data, c => _.flatMap(c.data, d => d.fiscal_year)));
 		this.xScale.domain(d3.extent(dateRange));
+		let tickNumber = dateRange.length > 20 ? 20 : dateRange.length;
+		this.xAxis.ticks(tickNumber)
+
 		this.yScale.domain([
 			this.chartData.getMin(),
 			this.chartData.getMax()
 		]);
 
+		this.canvas.select('.axis--x').transition().duration(500).call(this.xAxis);
+		this.canvas.select('.axis--y').transition().duration(500).call(this.yAxis);
+		this.canvas.select('.x-grid').transition().duration(500).call(this.xGrid);
+		this.canvas.select('.y-grid').transition().duration(500).call(this.yGrid);
+
 		const line: any = d3.line()
 			.x((d: any) => this.xScale(d.fiscal_year))
 			.y((d: any) => this.yScale(d.value));
-
-		let tickNumber = dateRange.length > 20 ? 20 : dateRange.length;
-
-		const xAxis = d3.axisBottom(this.xScale)
-			.ticks(tickNumber)
-			.tickFormat(x => this.formatAY(x));
-
-		const xGrid = d3.axisBottom(this.xScale)
-			.tickSizeInner(-this.height)
-			.tickFormat(x => "");
-
-		this.canvas.append("g")
-			.attr("class", "axis axis--x")
-			.attr("transform", "translate(0," + this.height + ")")
-			.call(xAxis);
-
-		this.canvas.append("g")
-			.attr("class", "grid x-grid")
-			.style("opacity", 0.5)
-			.attr("transform", "translate(0," + this.height + ")")
-			.call(xGrid);
-
-		const yAxis = d3.axisLeft(this.yScale)
-			.tickFormat(x => this.formatNumber(x, this.displayOptions.valueType));
-
-		const yGrid = d3.axisLeft(this.yScale)
-			.tickSizeInner(-this.width)
-			.tickFormat(x => "");
-
-		this.canvas.append("g")
-			.attr("class", "axis axis--y")
-			.call(yAxis);
-
-		this.canvas.append("g")
-			.attr("class", "grid y-grid")
-			.style("opacity", 0.5)
-			.call(yGrid);
 
 		const lines = this.canvas.selectAll(".line")
 			.data(this.chartData.data)
@@ -131,7 +134,7 @@ export class LineChart extends BaseChart {
 			.html((d, i) => "<span style='color:" + this.zScale(d.legendName) + "'>&#9679;</span>" + d.legendName);
 
 		d3.selectAll(".legend-element")
-			.on("click", (d:any) => {
+			.on("click", (d: any) => {
 				this.chartData.data.forEach((datum, i) => {
 					if (datum.legendName === d.legendName) {
 						this.chartData.data[i].data = [];

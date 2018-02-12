@@ -54,7 +54,6 @@ export class VariableDefinerComponent implements OnInit {
 			formula: ['', [Validators.minLength(3), Validators.required]],
 			definition: ['', [Validators.minLength(3), Validators.required]],
 			notes: ['', [Validators.minLength(3), Validators.required]],
-			_id: '',
 		});
 	}
 
@@ -82,7 +81,8 @@ export class VariableDefinerComponent implements OnInit {
 		this.variable = variable;
 		this.variableDefinitionForm.patchValue({
 			variable: variable,
-			_id: ''
+			_id: '',
+			type: ''
 		});
 		const control = <FormArray>this.variableDefinitionForm.controls['sources'],
 			limit = _.clone(control.length);
@@ -92,13 +92,8 @@ export class VariableDefinerComponent implements OnInit {
 		this.variableDefinitions.fetchByName(variable)
 			.subscribe(varDef => {
 				if (varDef) {
-					if (varDef._id) {
-						this.variableDefinitionForm.patchValue({
-							_id: varDef._id
-						})
-					}
-					varDef.sources.forEach(variable => this.addSource());
-					this.variableDefinitionForm.setValue(varDef);
+					varDef.sources.forEach(variable => this.addSource()); 
+					this.variableDefinitionForm.setValue(varDef); 
 				}
 			})
 		this._loadChart();
@@ -112,7 +107,7 @@ export class VariableDefinerComponent implements OnInit {
 	private _loadChart() {
 		if (!this.variable) return;
 		const schoolSlug = this.school ? this.school.slug : 'northwestern-university-147767';
-		this.ChartService.fetchVariablePreview(this.variable, schoolSlug)
+		this.ChartService.fetchChartByVariable(this.variable, schoolSlug)
 			.subscribe(res => {
 				this.chartData = res;
 			});
