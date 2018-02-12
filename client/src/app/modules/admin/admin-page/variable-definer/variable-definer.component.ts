@@ -21,7 +21,7 @@ export class VariableDefinerComponent implements OnInit {
 	chartData: intChartExport;
 	variable: string;
 	chartOverrides: object = {
-		widthRatio: .5
+		widthRatio: .75
 	}
 
 	constructor(private fb: FormBuilder,

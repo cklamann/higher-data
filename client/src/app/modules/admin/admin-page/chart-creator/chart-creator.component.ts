@@ -6,6 +6,7 @@ import { VariableSelectComponent } from '../../../shared/variable-select/variabl
 import { intSchoolModel } from '../../../../../../server/src/schemas/SchoolSchema';
 import { intChartExport } from '../../../../../../server/src/models/ChartExporter';
 import { ChartService } from '../../../chart/ChartService.service';
+import { UtilService } from '../../../../services/util/util';
 
 import * as _ from 'lodash';
 
@@ -24,18 +25,19 @@ export class ChartCreatorComponent implements OnInit {
 	school: intSchoolModel;
 	chartData: intChartExport;
 	chartOverrides: object = {
-		widthRatio: .5
+		widthRatio: .75
 	}
 
-	constructor(private fb: FormBuilder, private Charts: Charts, private ChartService: ChartService) {
-
-	}
+	constructor(private fb: FormBuilder,
+		private Charts: Charts,
+		private ChartService: ChartService,
+		private util: UtilService) { }
 
 	ngOnInit() {
 		this.createForm();
 		this.chartTypes = this.mockTypes();
 		this.chartCategories = this.mockCategories();
-		this.chartValueTypes = this.mockValueTypes();
+		this.chartValueTypes = this.getValueTypes();
 	}
 
 	private mockTypes() {
@@ -45,10 +47,11 @@ export class ChartCreatorComponent implements OnInit {
 	private mockCategories() {
 		return ['Enrollment', 'Finance', 'Teaching'];
 	}
-
-	private mockValueTypes() {
-		return ['currency', 'percentage', 'integer'];
+	private getValueTypes() {
+		const formatters = this.util.numberFormatter().getFormats().map(formatter => formatter.name);
+		return _.values(formatters);
 	}
+
 
 	createForm() {
 		this.chartBuilderForm = this.fb.group({

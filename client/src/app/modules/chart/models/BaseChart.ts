@@ -1,6 +1,7 @@
 import { intChartModel, intChartVariableModel } from '../../../../../server/src/schemas/ChartSchema';
 import { intChartExport, intChartExportDataParentModel } from '../../../../../server/src/models/ChartExporter';
 import { ChartData } from './ChartData';
+import { UtilService } from '../../../services/util/util';
 import * as d3 from 'd3';
 import * as _ from 'lodash';
 
@@ -28,8 +29,10 @@ export class BaseChart {
 	yScale: any;
 	width: number;
 	height: number;
+	formatNumber:any;
 
 	constructor(chart: intChartExport, selector: string, overrides: object = {}) {
+		this.formatNumber = new UtilService().numberFormatter().format;
 		this.chartData = new ChartData(chart.data);
 		this.selector = selector;
 		this.zScale = d3.scaleOrdinal(d3.schemeCategory20).domain(this.chartData.data.map(variable => variable.legendName));
@@ -90,35 +93,6 @@ export class BaseChart {
 
 	remove() {
 		this.container.select("svg").remove();
-	}
-
-	formatNumber(num, numberFormat) {
-		let suffix = (num > 999999 && num < 999999999) ? " Mil" : num > 999999999 ? " Bil" : "",
-			figure = suffix === " Mil" ? num / 1000000 : suffix === " Bill" ? num / 1000000000 : num,
-			res;
-		switch (numberFormat) {
-			case "percentage":
-				res = d3.format('.1%')(figure);
-				break;
-			case "currency":
-				let decimals = suffix === "" ? 0 : 1;
-				res = d3.format("-$,." + decimals + "f")(figure);
-				break;
-			case "integer":
-				res = d3.format("-,.0f")(figure);
-				break;
-			case "decimal1":
-				res = d3.format("-,.1f")(figure);
-				break;
-			case "decimal2":
-				res = d3.format("-,.2f")(figure);
-				break;
-			default:
-				res = figure;
-				console.log("Bad numberFormat passed to chart!");
-				console.trace();
-		}
-		return res + suffix;
 	}
 
 	getYears() {
