@@ -23,7 +23,9 @@ export class VariableSelectComponent implements OnInit {
 
 	ngOnInit() {
 		this.VariableDefinitions.fetchNames()
-			.subscribe(variables => this.variables = variables);
+			.subscribe(variables => {
+				this.variables = variables;
+			});
 		this.listenForSelectChanges();
 	}
 

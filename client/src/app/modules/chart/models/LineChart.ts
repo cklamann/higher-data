@@ -143,7 +143,6 @@ export class LineChart extends BaseChart {
 	}
 
 	getToolTip(fiscal_year) {
-		console.log("called");
 		let items = _.flatMap(this.chartData.data, datum => {
 			let item = datum.data.find(item => item.fiscal_year === fiscal_year),
 				color = this.zScale(item.legendName);

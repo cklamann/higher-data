@@ -70,13 +70,19 @@ export class VariableDefinerComponent implements OnInit {
 
 	onSubmit() {
 		let formContent = _stripEmptyIds(this.variableDefinitionForm.value);
-		return this.variableDefinitions.save(this.variableDefinitionForm.value).subscribe();
+		this.variableDefinitions.save(this.variableDefinitionForm.value).subscribe()
+			.then(res => {
+				this.variableDefinitionForm.patchValue({
+					_id: res._id
+				})
+			})
 	}
 
 	onVariableSelect(variable: string): void {
 		this.variable = variable;
 		this.variableDefinitionForm.patchValue({
-			variable: variable
+			variable: variable,
+			_id: ''
 		});
 		const control = <FormArray>this.variableDefinitionForm.controls['sources'],
 			limit = _.clone(control.length);
@@ -86,6 +92,11 @@ export class VariableDefinerComponent implements OnInit {
 		this.variableDefinitions.fetchByName(variable)
 			.subscribe(varDef => {
 				if (varDef) {
+					if (varDef._id) {
+						this.variableDefinitionForm.patchValue({
+							_id: varDef._id
+						})
+					}
 					varDef.sources.forEach(variable => this.addSource());
 					this.variableDefinitionForm.setValue(varDef);
 				}

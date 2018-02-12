@@ -13,7 +13,7 @@ export class VariableDefinitions {
 		return this.rest.get(`variables/fetch_names`);
 	}
 
-	fetchByName(name: string): Observable<intVariableDefinitionModel> {
+	fetchByName(name: string): Observable<intVariableDefinitionSchema> {
 		return this.rest.get(`variables/fetch_by_name?name=${name}`);
 	}
 

@@ -49,7 +49,7 @@ export class UtilService {
 				},
 				{
 					name: "decimal2",
-					formmula: d3.format("-,.2f")
+					formula: d3.format("-,.2f")
 				}
 			];
 		}
