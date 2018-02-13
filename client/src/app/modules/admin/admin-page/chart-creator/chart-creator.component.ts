@@ -63,9 +63,7 @@ export class ChartCreatorComponent implements OnInit {
 			active: ['', [Validators.minLength(3), Validators.required]],
 			valueType: ['', [Validators.minLength(3), Validators.required]],
 			slug: ['', [Validators.minLength(3), Validators.required]],
-			variables: [this.fb.array([
-				this.initVariable()
-			]),Validators.length > 0], //this doesn't work
+			variables: this.fb.array([]),
 			cuts: this.fb.array([]) 
 		});
 	}
