@@ -46,7 +46,8 @@ export class ChartService {
 			.map(res => {
 				chartData.data.forEach(datum => {
 					datum.data = datum.data.map(item => {
-						let val = res.find(datum => datum.fiscal_year === item.fiscal_year).value;
+						let value = res.find(datum => datum.fiscal_year == item.fiscal_year;
+						let val = value ? value.value : 0;
 						return {
 							fiscal_year: item.fiscal_year,
 							value: item.value / val

@@ -64,7 +64,7 @@ export class ChartCreatorComponent implements OnInit {
 			valueType: ['', [Validators.minLength(3), Validators.required]],
 			slug: ['', [Validators.minLength(3), Validators.required]],
 			variables: this.fb.array([]),
-			cuts: this.fb.array([]) 
+			cuts: this.fb.array([])
 		});
 	}
 
@@ -105,7 +105,12 @@ export class ChartCreatorComponent implements OnInit {
 
 	onSubmit() {
 		let formContent = _stripEmptyIds(this.chartBuilderForm.value);
-		return this.Charts.save(this.chartBuilderForm.value).subscribe();
+		return this.Charts.save(this.chartBuilderForm.value)
+			.subscribe(res => {
+				this.chartBuilderForm.patchValue({
+					_id: res._id
+				})
+			});
 	}
 
 	toggleChartSearch(): void {

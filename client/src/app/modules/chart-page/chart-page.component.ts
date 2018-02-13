@@ -6,6 +6,9 @@ import { intChartModel } from '../../../../server/src/schemas/ChartSchema';
 import { ChartService } from '../../modules/chart/ChartService.service';
 import { intChartExport } from '../../../../server/src/models/ChartExporter';
 import { TrendChartComponent } from '../chart/components/trend-chart/trend-chart.component'
+import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
+import { intBaseChartDatum } from '../chart/models/ChartData';
+
 
 @Component({
 	selector: 'chart-page',
@@ -18,11 +21,19 @@ export class ChartPageComponent implements OnInit {
 	searchResults: School[];
 	school: intSchoolModel;
 	chart: intChartModel;
-	chartData: intChartExport;
-	constructor(public Schools: Schools, private ChartService: ChartService) { }
+	chartData: intChartExport; //todo: make this an array of data that we can pass to ChartDataExposed
+	chartDataExposed: intChartExport;
+	chartFiltersForm: FormGroup;
+	constructor(public Schools: Schools, private ChartService: ChartService, private fb: FormBuilder) { }
 
 	ngOnInit(): void {
+		this.createForm();
+	}
 
+	createForm() {
+		this.chartFiltersForm = this.fb.group({
+			filters: ''
+		});
 	}
 
 	onSchoolSelect(school: intSchoolModel | null) {
@@ -35,9 +46,11 @@ export class ChartPageComponent implements OnInit {
 		this._loadChart();
 	}
 
-	onCutBySelect(variable) {
-		this.ChartService.cutChartDataBy(variable, this.school.slug, this.chartData)
-			.subscribe( res => this.chartData = res);
+	onCutByChange($event) {
+		this.ChartService.cutChartDataBy($event.value, this.school.slug, _.cloneDeep(this.chartData))
+			.subscribe(res => {
+				this.chartDataExposed = res;
+			});
 	}
 
 	private _loadChart() {
@@ -45,13 +58,12 @@ export class ChartPageComponent implements OnInit {
 			this.ChartService.fetchChart(this.school.slug, this.chart.slug)
 				.subscribe(res => {
 					this.chartData = res
+					this.chartDataExposed = _.cloneDeep(res);
 				});
 		}
 	}
 
 	//todo: 'redirect' to this page with slugs as route params
 	//the feed route params to api, this will create stable links for all charts
-
-	//pattern: once data is loaded, then can just have a bunch of chart directives sitting there waiting for the data
 
 }

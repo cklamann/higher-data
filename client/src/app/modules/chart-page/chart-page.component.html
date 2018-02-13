@@ -12,8 +12,16 @@
 		    	<app-school-search (onSchoolSelect)="onSchoolSelect($event)" fxFlex = "90" fxFlex.gt-sm="45"></app-school-search>
 				<app-chart-search (onChartSelect)="onChartSelect($event)" fxFlex = "90" fxFlex.gt-sm="45"></app-chart-search>
 			</div>
+			<div fxLayoutWrap="row" fxFlex="100" *ngIf="chart">
+				<span>Filter by: </span>
+				<mat-radio-group formControlName="filter" (change) = "onCutByChange($event)">
+					<mat-radio-button *ngFor="let cut of chart.cuts" [value] = cut.formula>
+						{{cut.name}}
+					</mat-radio-button>
+				</mat-radio-group>
+			</div>
 			<div fxLayoutWrap="row" fxFlex="100" class="chart-container-outer">
-				<app-trend-chart [chartData]="chartData" fxFlex = "100" fxFlex.gt-sm="75" ></app-trend-chart>
+				<app-trend-chart [chartData]="chartDataExposed" fxFlex = "100" fxFlex.gt-sm="75" ></app-trend-chart>
 				<div class = "legend-container" fxFlex = "100" fxFlex.gt-sm="25">
 					<ul class = "legend"></ul>
 				</div>

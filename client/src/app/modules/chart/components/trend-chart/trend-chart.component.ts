@@ -4,6 +4,7 @@ import { Charts } from '../../../../models/Charts';
 import { RestService } from '../../../../services/rest/rest.service';
 import { intChartExport } from '../../../../../../server/src/models/ChartExporter';
 import { BaseChart } from '../../models/BaseChart';
+import {ChartData} from '../../models/ChartData';
 import * as _ from 'lodash';
 
 @Component({
@@ -47,7 +48,7 @@ export class TrendChartComponent implements OnInit {
 		//if only the data changed, redraw current chart
 		else if(_.isEqual(chartDataChanges.previousValue.chart, chartDataChanges.currentValue.chart) &&
 			!_.isEqual(chartDataChanges.previousValue.data, chartDataChanges.currentValue.data)) {
-			this.chart.chartData = chartDataChanges.currentValue.data;
+			this.chart.chartData = new ChartData(chartDataChanges.currentValue.data);
 			this.chart.draw();
 		}
 	}
