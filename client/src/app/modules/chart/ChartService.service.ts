@@ -7,10 +7,13 @@ import { LineChart } from './models/LineChart';
 import 'rxjs/add/operator/map';
 import { intChartModel } from '../../../../server/src/schemas/ChartSchema';
 import { intSchoolModel } from '../../../../server/src/schemas/SchoolSchema';
+import { intChartFormulaResult } from '../../../../server/src/modules/ChartFormula.module';
 
 
 @Injectable()
 
+
+//todo: reconcile this with Charts model -- is that not a better place for all this?
 
 export class ChartService {
 	constructor(private rest: RestService) { }
@@ -27,6 +30,10 @@ export class ChartService {
 		return this.rest.get(`variables/${variable}/chart/${schoolSlug}`);
 	}
 
+	fetchExport(formula: string, schoolSlug: string): Observable<intChartFormulaResult[]> {
+		return this.rest.post(`schools/export/${schoolSlug}`, { formula: formula })
+	}
+
 	resolveChart(chartData: intChartExport, selector: string, overrides: object) {
 		switch (chartData.chart.type) {
 			case "line":
@@ -35,11 +42,11 @@ export class ChartService {
 	}
 
 	cutChartDataBy(variable: string, schoolSlug: string, chartData: intChartExport): Observable<intChartExport> {
-		return this.fetchChartByVariable(variable, schoolSlug)
+		return this.fetchExport(variable, schoolSlug)
 			.map(res => {
 				chartData.data.forEach(datum => {
-					datum.data.map(item => {
-						let val = res.data[0].data.find(datum => datum.fiscal_year === item.fiscal_year).value;
+					datum.data = datum.data.map(item => {
+						let val = res.find(datum => datum.fiscal_year === item.fiscal_year).value;
 						return {
 							fiscal_year: item.fiscal_year,
 							value: item.value / val

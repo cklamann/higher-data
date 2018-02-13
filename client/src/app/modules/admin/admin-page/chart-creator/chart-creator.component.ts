@@ -63,17 +63,25 @@ export class ChartCreatorComponent implements OnInit {
 			active: ['', [Validators.minLength(3), Validators.required]],
 			valueType: ['', [Validators.minLength(3), Validators.required]],
 			slug: ['', [Validators.minLength(3), Validators.required]],
-			variables: this.fb.array([
+			variables: [this.fb.array([
 				this.initVariable()
-			])
+			]),Validators.length > 0], //this doesn't work
+			cuts: this.fb.array([]) 
 		});
 	}
 
-	initVariable(variable: any = null) {
+	initVariable() {
 		return this.fb.group({
 			notes: ['', [Validators.minLength(3), Validators.required]],
 			formula: ['', [Validators.minLength(3), Validators.required]],
 			legendName: ['', [Validators.minLength(3), Validators.required]]
+		});
+	}
+
+	initCut() {
+		return this.fb.group({
+			name: ['', [Validators.minLength(3)]],
+			formula: ['', [Validators.minLength(3)]]
 		});
 	}
 
@@ -82,8 +90,18 @@ export class ChartCreatorComponent implements OnInit {
 		control.push(this.initVariable());
 	}
 
+	addCut() {
+		const control = <FormArray>this.chartBuilderForm.controls['cuts'];
+		control.push(this.initCut());
+	}
+
 	removeVariable(i: number) {
 		const control = <FormArray>this.chartBuilderForm.controls['variables'];
+		control.removeAt(i);
+	}
+
+	removeCut(i: number) {
+		const control = <FormArray>this.chartBuilderForm.controls['cuts'];
 		control.removeAt(i);
 	}
 
@@ -92,24 +110,34 @@ export class ChartCreatorComponent implements OnInit {
 		return this.Charts.save(this.chartBuilderForm.value).subscribe();
 	}
 
-
 	toggleChartSearch(): void {
 		this.showChartSearch = !this.showChartSearch;
 	}
 
 	onChartSelect(chart: intChartSchema): void {
 		this.chartBuilderForm.reset();
-		const control = <FormArray>this.chartBuilderForm.controls['variables'],
-			limit = _.clone(control.length);
-		for (let i = 0; i < limit; i++) {
-			control.removeAt(0);
+		const vari = <FormArray>this.chartBuilderForm.controls['variables'],
+			vlimit = _.clone(vari.length);
+		for (let i = 0; i < vlimit; i++) {
+			vari.removeAt(0);
+		}
+		const cut = <FormArray>this.chartBuilderForm.controls['cuts'],
+			climit = _.clone(cut.length);
+		for (let i = 0; i < climit; i++) {
+			cut.removeAt(0);
 		}
 		chart.variables.forEach(variable => this.addVariable());
+		chart.cuts.forEach(variable => this.addCut());
 		this.chartBuilderForm.setValue(chart);
 	}
 
 	onVariableSelect(variable: string, i: number): void {
 		let control = <FormArray>this.chartBuilderForm.controls['variables'];
+		control.at(i).patchValue({ formula: control.at(i).value.formula + " " + variable });
+	}
+
+	onCutVariableSelect(variable: string, i: number): void {
+		let control = <FormArray>this.chartBuilderForm.controls['cuts'];
 		control.at(i).patchValue({ formula: control.at(i).value.formula + " " + variable });
 	}
 

@@ -2,6 +2,7 @@ import { SchoolSchema, intSchoolSchema } from '../schemas/SchoolSchema';
 import { Router, Response, Request, NextFunction } from "express";
 import { ChartExport, intChartExport } from '../models/ChartExporter';
 import { ChartSchema } from '../schemas/ChartSchema';
+import { ChartFormula, intChartFormulaResult } from '../modules/ChartFormula.module';
 import * as Q from 'q';
 
 
@@ -18,7 +19,7 @@ router.get('/search', function(req, res, next) {
 });
 
 router.get('/:id', function(req, res, next) {
-	School.findOne({unitid:req.params.id}).select('-data')
+	School.findOne({ unitid: req.params.id }).select('-data')
 		.then(school => {
 			res.json(school);
 			return;
@@ -40,5 +41,19 @@ router.get('/:school/charts/:chart', function(req, res, next) {
 		})
 
 });
+
+router.post('/export/:school', function(req, res, next): void {
+	SchoolSchema.schema.statics.fetch(req.params.school)
+		.then(school => {
+			let formula = new ChartFormula(req.body.formula);
+			if (!formula.validate()) next(new Error("formula invalid"));
+			return formula.execute(school.unitid);
+		})
+		.then(resp => {
+			res.json(resp);
+			return;
+		})
+		.catch(err => next(err));
+})
 
 module.exports = router;

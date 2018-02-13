@@ -8,6 +8,11 @@ export interface intChartVariableModel {
   legendName: string;
 }
 
+export interface intCutByModel {
+  name: string,
+  formula: string
+}
+
 export interface intChartModel {
   name: string;
   slug: string;
@@ -17,14 +22,15 @@ export interface intChartModel {
   valueType: string;
   description: string;
   variables: intChartVariableModel[];
+  cuts: intCutByModel[];
 }
 
 export interface intChartVariableSchema extends Document, intChartVariableModel { };
 export interface intChartSchema extends Document, intChartModel {
   _id: Schema.Types.ObjectId,
   variables: intChartVariableSchema[];
+  cuts: intCutByModel[];
 };
-
 
 const chartVariableSchema: Schema = new Schema({
   formula: {
@@ -39,7 +45,18 @@ const chartVariableSchema: Schema = new Schema({
     type: String,
     required: true
   }
-}, {_id:false});
+}, { _id: false });
+
+const cutBySchema: Schema = new Schema({
+  formula: {
+    type: String,
+    required: false
+  },
+  name: {
+    type: String,
+    required: false
+  }
+}, { _id: false });
 
 const schema: Schema = new Schema({
   name: {
@@ -71,7 +88,11 @@ const schema: Schema = new Schema({
     type: String,
     required: true
   },
-  variables: [chartVariableSchema]
+  variables: {
+    type: [chartVariableSchema],
+    required: true,
+  },
+  cuts: [cutBySchema]
 });
 
 chartVariableSchema.path('formula').validate({
@@ -84,7 +105,21 @@ chartVariableSchema.path('formula').validate({
       })
       .catch(err => respond(err));
   },
-  message: `Formula is invalid!`
+  message: `Variable formula is invalid!`
+});
+
+cutBySchema.path('formula').validate({
+  isAsync: true,
+  validator: function(value: any, respond: any) {
+    if(!value || _.isEmpty(value)) return true;
+    let formula = new ChartFormula(value);
+    formula.validate()
+      .then(res => {
+        respond(res);
+      })
+      .catch(err => respond(err));
+  },
+  message: `Cut By formula is invalid!`
 });
 
 export let ChartSchema = model<intChartSchema>('chart', schema);
@@ -96,6 +131,6 @@ ChartSchema.schema.statics = {
     const newSchema = new ChartSchema(model);
     return newSchema.validate()
       .then(() => ChartSchema.findByIdAndUpdate(model._id, model, { new: true }));
-      // .catch(err => err); //todo: catch the error and send intelligent response
+    // .catch(err => err); //todo: catch the error and send intelligent response
   }
 }

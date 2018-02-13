@@ -46,7 +46,8 @@ router.get('/:variable/chart/:school', passport.authenticate('basic', { session:
 			formula: req.params.variable,
 			notes: "test",
 			legendName: req.params.variable
-		}]
+		}],
+		cuts:[]
 	}
 
 	SchoolSchema.schema.statics.fetch(req.params.school)

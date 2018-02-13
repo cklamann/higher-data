@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { intChartModel, intChartVariableModel } from '../../../server/src/schemas/ChartSchema';
+import { intChartModel, intChartVariableModel, intCutByModel } from '../../../server/src/schemas/ChartSchema';
 import { RestService } from '../services/rest/rest.service';
 import { Observable, Subscription } from 'rxjs';
 import 'rxjs/add/observable/throw';
@@ -31,6 +31,7 @@ export class Chart implements intChartModel {
 	valueType: string;
 	description: string;
 	variables: intChartVariableModel[];
+	cuts: intCutByModel[];
 	constructor(obj: intChartModel) {
 		this.name = obj.name;
 		this.slug = obj.slug;
@@ -40,5 +41,6 @@ export class Chart implements intChartModel {
 		this.valueType = obj.valueType;
 		this.description = obj.description;
 		this.variables = obj.variables;
+		this.cuts = obj.cuts;
 	}
 }

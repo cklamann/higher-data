@@ -54,6 +54,23 @@
       						</mat-select>
 				        </mat-form-field>
 				    </div>
+				    <div fxLayout="row" formArrayName="cuts" fxFlex="100" fxLayoutWrap>
+		        		<div fxFlex = "100" *ngFor="let cut of chartBuilderForm.controls.cuts.controls; let i=index"
+		        		[formGroupName]="i" fxLayout="row" fxLayoutAlign="space-around center" fxLayoutWrap>
+							<i class="material-icons mat-icon-button" (click)="removeCut()">indeterminate_check_box</i>
+		        			<span fxFlex = "90">Cut {{i + 1}}</span>
+		                	<mat-form-field fxFlex = "90" fxFlex.gt-sm="40">
+		                   		<input matInput type="text" formControlName="name" placeholder="Name">
+		                	</mat-form-field>
+		                    <mat-form-field fxFlex = "90" fxFlex.gt-sm="40">
+			                    <input matInput type="text" formControlName="formula" placeholder="Formula">
+							</mat-form-field>		                
+					    	<app-variable-select (onVariableSelect)="onCutVariableSelect($event,i)" fxFlex="100" fxFlex.gt-sm="90"></app-variable-select>
+		        		</div>
+		        		<div fxLayout="row" fxFlex = "100" fxLayoutAlign = "start center">
+	                      	<i fxFlex="nogrow" class = "material-icons mat-icon-button"(click)="addCut()">add_box</i> Cut
+		        		</div>
+				    </div>
 				    <div fxLayout="row" formArrayName="variables" fxFlex="100" fxLayoutWrap>
 		        		<div fxFlex = "100" *ngFor="let variable of chartBuilderForm.controls.variables.controls; let i=index"
 		        		[formGroupName]="i" fxLayout="row" fxLayoutAlign="space-around center" fxLayoutWrap>
