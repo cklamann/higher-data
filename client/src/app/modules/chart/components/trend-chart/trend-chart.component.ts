@@ -4,7 +4,7 @@ import { Charts } from '../../../../models/Charts';
 import { RestService } from '../../../../services/rest/rest.service';
 import { intChartExport } from '../../../../../../server/src/models/ChartExporter';
 import { BaseChart } from '../../models/BaseChart';
-import {ChartData} from '../../models/ChartData';
+import { ChartData } from '../../models/ChartData';
 import * as _ from 'lodash';
 
 @Component({
@@ -39,14 +39,14 @@ export class TrendChartComponent implements OnInit {
 	onChartDataChanges(chartDataChanges) {
 		//if chart or school is new, fetch new chart
 		if (!chartDataChanges.previousValue ||
-			!_.isEqual(chartDataChanges.previousValue.chart, chartDataChanges.currentValue.chart) || 
-			!_.isEqual(chartDataChanges.previousValue.school, chartDataChanges.currentValue.school)){
+			!_.isEqual(chartDataChanges.previousValue.chart, chartDataChanges.currentValue.chart) ||
+			!_.isEqual(chartDataChanges.previousValue.school, chartDataChanges.currentValue.school)) {
 			if (this.chart) this.chart.remove();
 			this.chart = this.ChartService.resolveChart(chartDataChanges.currentValue, this.myRandomSelector, this.chartOverrides);
 			this.chart.draw();
-		} 
+		}
 		//if only the data changed, redraw current chart
-		else if(_.isEqual(chartDataChanges.previousValue.chart, chartDataChanges.currentValue.chart) &&
+		else if (_.isEqual(chartDataChanges.previousValue.chart, chartDataChanges.currentValue.chart) &&
 			!_.isEqual(chartDataChanges.previousValue.data, chartDataChanges.currentValue.data)) {
 			this.chart.chartData = new ChartData(chartDataChanges.currentValue.data);
 			this.chart.draw();

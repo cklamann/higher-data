@@ -5,7 +5,6 @@ import { ChartSchema } from '../schemas/ChartSchema';
 import { ChartFormula, intChartFormulaResult } from '../modules/ChartFormula.module';
 import * as Q from 'q';
 
-
 let mongoose = require("mongoose");
 let router = Router();
 let School = SchoolSchema;
@@ -28,12 +27,13 @@ router.get('/:id', function(req, res, next) {
 });
 
 router.get('/:school/charts/:chart', function(req, res, next) {
-	let promises: Promise<any>[] = [];
+	const promises: Promise<any>[] = [],
+		options = req.params.options ? req.params.options : { cut: '' };
 	promises.push(SchoolSchema.schema.statics.fetch(req.params.school));
 	promises.push(ChartSchema.findOne({ slug: req.params.chart }).exec());
 	Q.all(promises)
 		.then(fulfs => {
-			const chart = new ChartExport(fulfs[0], fulfs[1]);
+			const chart = new ChartExport(fulfs[0], fulfs[1], options);
 			chart.export().then(chart => {
 				res.json(chart);
 				return;

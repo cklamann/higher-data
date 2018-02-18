@@ -20,8 +20,8 @@ describe('Chart Schema', function() {
     variable: "test_var_1",
     type: "currency",
     sources: [{
-      start_year: 2015,
-      end_year: 2017,
+      startYear: "2015",
+      endYear: "2017",
       source: "IPEDS",
       table: "test_ipeds_table",
       formula: "source formula doesn't matter",
@@ -34,8 +34,8 @@ describe('Chart Schema', function() {
     variable: "test_var_2",
     type: "currency",
     sources: [{
-      start_year: 2015,
-      end_year: 2017,
+      startYear: "2015",
+      endYear: "2017",
       source: "IPEDS",
       table: "test_ipeds_table",
       formula: "source formula doesn't matter",
@@ -59,6 +59,7 @@ describe('Chart Schema', function() {
     category: 'fake',
     active: true,
     valueType: 'currency',
+    cuts:[],
     description: 'sweet chart',
     variables: []
   };
@@ -87,7 +88,7 @@ describe('Chart Schema', function() {
       const model = new ChartSchema(testChart),
         newVar = <any>testChartVariableBad; //cast to any to avoid typescript error
       model.variables.push(newVar);
-      return assert.isRejected(model.validate(), "chart validation failed: variables.0.formula: Formula is invalid!");
+      return assert.isRejected(model.validate(), "chart validation failed: variables.0.formula: Variable formula is invalid!");
     });
   });
 
@@ -97,7 +98,7 @@ describe('Chart Schema', function() {
         updateModel = testChart,
         newVar = <any>testChartVariableBad;
       updateModel.variables.push(newVar);
-      return assert.isRejected(model.schema.statics.fetchAndUpdate(updateModel), "chart validation failed: variables.0.formula: Formula is invalid!");
+      return assert.isRejected(model.schema.statics.fetchAndUpdate(updateModel), "chart validation failed: variables.0.formula: Variable formula is invalid!");
     });
   });
 

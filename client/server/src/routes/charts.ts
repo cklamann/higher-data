@@ -25,7 +25,7 @@ router.post('/', passport.authenticate('basic', { session: false }), function(re
 router.post('/preview', passport.authenticate('basic', { session: false }), function(req, res, next) {
 	const school:intSchoolModel = req.body.school,
 	chart: intChartModel = req.body.chart,
-	Chart = new ChartExport(school,chart);
+	Chart = new ChartExport(school,chart,{cut:''});
 	Chart.export().then(chart => {
 		res.json(chart);
 		return;

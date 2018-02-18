@@ -1,6 +1,6 @@
 import { Injectable, OnInit } from '@angular/core';
 import { RestService } from '../../services/rest/rest.service';
-import { intChartExport } from '../../../../server/src/models/ChartExporter';
+import { intChartExport, intChartExportOptions } from '../../../../server/src/models/ChartExporter';
 import { Observable } from 'rxjs';
 import { intChartDisplayOptions } from './models/BaseChart';
 import { LineChart } from './models/LineChart';
@@ -30,7 +30,7 @@ export class ChartService {
 		return this.rest.get(`variables/${variable}/chart/${schoolSlug}`);
 	}
 
-	fetchExport(formula: string, schoolSlug: string): Observable<intChartFormulaResult[]> {
+	fetchExport(formula: string, schoolSlug: string, options:intChartExportOptions): Observable<intChartFormulaResult[]> {
 		return this.rest.post(`schools/export/${schoolSlug}`, { formula: formula })
 	}
 
@@ -41,21 +41,24 @@ export class ChartService {
 		}
 	}
 
-	cutChartDataBy(variable: string, schoolSlug: string, chartData: intChartExport): Observable<intChartExport> {
-		return this.fetchExport(variable, schoolSlug)
-			.map(res => {
-				chartData.data.forEach(datum => {
-					datum.data = datum.data.map(item => {
-						let value = res.find(datum => datum.fiscal_year == item.fiscal_year;
-						let val = value ? value.value : 0;
-						return {
-							fiscal_year: item.fiscal_year,
-							value: item.value / val
-						}
-					}).filter(item => item.value < Infinity);
-				});
-				return chartData;
-			});
-	}
+
+	//todo:wipe out once finished
+
+	// cutChartDataBy(variable: string, schoolSlug: string, chartData: intChartExport): Observable<intChartExport> {
+	// 	return this.fetchExport(variable, schoolSlug)
+	// 		.map(res => {
+	// 			chartData.data.forEach(datum => {
+	// 				datum.data = datum.data.map(item => {
+	// 					let value = res.find(datum => datum.fiscal_year == item.fiscal_year);
+	// 					let val = value ? value.value : 0;
+	// 					return {
+	// 						fiscal_year: item.fiscal_year,
+	// 						value: item.value / val
+	// 					}
+	// 				}).filter(item => item.value < Infinity);
+	// 			});
+	// 			return chartData;
+	// 		});
+	// }
 
 }

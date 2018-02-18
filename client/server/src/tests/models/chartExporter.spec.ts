@@ -9,7 +9,7 @@ import { expect } from 'chai';
 import * as _ from 'lodash';
 const app = require('../../app');
 
-describe('Chart Model', function() {
+describe('ChartExporter', function() {
 
   const testChartValidNoMath: intChartModel = {
     name: 'fake_chart',
@@ -19,6 +19,7 @@ describe('Chart Model', function() {
     active: true,
     valueType: 'currency',
     description: 'sweet chart',
+    cuts: [],
     variables: [{
       formula: 'test_var_1',
       notes: 'test notes',
@@ -34,6 +35,7 @@ describe('Chart Model', function() {
     active: true,
     valueType: 'currency',
     description: 'sweet chart',
+    cuts:[{name:"fte_ug",formula: "fte_ug"}],
     variables: [{
       formula: 'test_var_1 + test_var_2',
       notes: 'test notes',
@@ -45,8 +47,8 @@ describe('Chart Model', function() {
     variable: "test_var_1",
     type: "currency",
     sources: [{
-      startYear: 2015,
-      endYear: 2017,
+      startYear: "2015",
+      endYear: "2017",
       source: "IPEDS",
       table: "test_ipeds_table",
       formula: "source formula doesn't matter",
@@ -59,8 +61,8 @@ describe('Chart Model', function() {
     variable: "test_var_2",
     type: "currency",
     sources: [{
-      startYear: 2015,
-      endYear: 2017,
+      startYear: "2015",
+      endYear: "2017",
       source: "IPEDS",
       table: "test_ipeds_table",
       formula: "source formula doesn't matter",
@@ -73,8 +75,8 @@ describe('Chart Model', function() {
     variable: "test_var_3",
     type: "currency",
     sources: [{
-      startYear: 2015,
-      endYear: 2017,
+      startYear: "2015",
+      endYear: "2017",
       source: "IPEDS",
       table: "test_ipeds_table",
       formula: "source formula doesn't matter",
@@ -87,8 +89,8 @@ describe('Chart Model', function() {
     variable: "test_var_4",
     type: "currency",
     sources: [{
-      startYear: 2015,
-      endYear: 2017,
+      startYear: "2015",
+      endYear: "2017",
       source: "IPEDS",
       table: "test_ipeds_table",
       formula: "source formula doesn't matter",
@@ -138,7 +140,7 @@ describe('Chart Model', function() {
 
   describe('Return chart with one variable that does no arithmetic', function() {
     it('should return a chart model with data in its data array', function(done) {
-      let chart = new ChartExport(nwData, testChartValidNoMath);
+      let chart = new ChartExport(nwData, testChartValidNoMath, { cut: '' });
       chart.export()
         .then(chart => {
           expect(chart).to.be.an('object');
@@ -155,7 +157,7 @@ describe('Chart Model', function() {
 
   describe('Return chart with data with valid simple addition formula', function() {
     it('should return a chart model with a single array of data that is the result of two summed variables', function(done) {
-      let chart = new ChartExport(nwData, testChartValidAddition);
+      let chart = new ChartExport(nwData, testChartValidAddition, { cut: '' });
       chart.export()
         .then(chart => {
           expect(chart).to.be.an('object');
@@ -163,8 +165,27 @@ describe('Chart Model', function() {
           expect(chart.school.unitid).to.equal(nwData.unitid);
           expect(chart.data).to.be.an('array');
           assert.equal(chart.data.length, testChartValidAddition.variables.length);
-          chart.data.forEach(group => assert(group.data.length>0));
-          chart.data.forEach(group => group.data.forEach(datum => assert(parseFloat(datum.value)>99)));
+          chart.data.forEach(group => assert(group.data.length > 0));
+          chart.data.forEach(group => group.data.forEach(datum => assert(parseFloat(datum.value) > 99)));
+          done();
+        }).catch(err => done(err));
+
+    });
+  });
+
+  describe('cut a chart by fte_ug', function() {
+    it('should return a chart export with cut values', function(done) {
+      let chart = new ChartExport(nwData, testChartValidAddition, { cut: 'fte_ug' });
+      chart.export()
+        .then(chart => {
+          expect(chart).to.be.an('object');
+          expect(chart.chart.name).to.equal(testChartValidAddition.name);
+          expect(chart.school.unitid).to.equal(nwData.unitid);
+          expect(chart.data).to.be.an('array');
+          assert.equal(chart.data.length, testChartValidAddition.variables.length);
+          chart.data.forEach(group => assert(group.data.length > 0));
+          //value should be less than 1 for each b/c we're dividing 3 digit # by 4-digit #
+          chart.data.forEach(group => group.data.forEach(datum => assert(parseFloat(datum.value) < 1)));
           done();
         }).catch(err => done(err));
 

@@ -15,30 +15,29 @@ export class SchoolSearchComponent implements OnInit {
 	searchTerm: string;
 	selectedSchool: School;
 	autocompleteResults: School[];
-	
+
 	@Input()
-	defaultSchoolId:string;
+	defaultName: string;
 
 	@Output()
-	onSchoolSelect: EventEmitter<intSchoolModel|null> = new EventEmitter<intSchoolModel|null>();
-	
+	onSchoolSelect: EventEmitter<intSchoolModel | null> = new EventEmitter<intSchoolModel | null>();
+
 	constructor(private fb: FormBuilder, private Schools: Schools) {
 		this.createForm();
 	}
 
 	ngOnInit() {
 		this.listenForSearchChanges();
-		console.log(this.defaultSchoolId);
-		if(this.defaultSchoolId){
-			this.Schools.fetch(this.defaultSchoolId)
-				.subscribe( res => this.onSchoolSelect.emit(res))
-		} 
+		if (this.defaultName) {
+			this.searchForm.patchValue({
+				searchText: this.defaultName
+			});
+		}
 	}
 
 	createForm() {
 		this.searchForm = this.fb.group({
 			searchText: ['', [Validators.minLength(3), Validators.required]],
-			schoolSelect: '',
 		});
 	}
 
@@ -54,7 +53,7 @@ export class SchoolSearchComponent implements OnInit {
 		});
 	}
 
-	onSchoolSelected(event):void{
+	onSchoolSelected(event): void {
 		this.onSchoolSelect.emit(event.option.value);
 	}
 

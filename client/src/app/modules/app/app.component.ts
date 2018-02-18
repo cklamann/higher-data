@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Schools, School } from '../../models/Schools';
 import { HeaderComponent } from '../global-layout/header/header.component';
 import { Router } from '@angular/router';
+import * as _ from 'lodash';
 
 
 @Component({
@@ -18,7 +19,11 @@ export class AppComponent implements OnInit {
 		const redir = cookies.filter(c => c.match(/^redirect=.+/))[0];
 		document.cookie = "redirect" + '=; Max-Age=-99999999;';
 		if (redir) {
-			this.router.navigate([decodeURIComponent(redir.slice(9))]);
+			//slice off cookie key
+			let target = decodeURIComponent(redir.slice(9));
+			let parts = target.split("?");
+			let queryParams = _.fromPairs(parts[1].split("&").map(pair => pair.split("=")));
+			this.router.navigate([parts[0]], { queryParams });
 		}
 	}
 

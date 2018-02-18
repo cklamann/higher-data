@@ -11,6 +11,7 @@ const fs = require('fs');
 import * as winston from 'winston';
 import { UserSchema, intUserSchema } from './schemas/UserSchema';
 import { SchoolSchema, intSchoolSchema } from './schemas/SchoolSchema';
+import * as _ from 'lodash';
 
 const users = require('./routes/users');
 const schools = require('./routes/schools');
@@ -37,7 +38,7 @@ passport.use(new BasicStrategy(
       if (err) return done(err);
       if (!user) return done(null, false);
       if (user.password != password) return done(null, false);
-      done(err,user);
+      done(err, user);
     });
   }
 ));
@@ -56,7 +57,12 @@ app.use(function(req, res, next) {
   if (req.path.match(/\/api\/.+/)) {
     res.sendStatus(404);
   } else {
-    res.cookie("redirect", req.path);
+    let queryVars = [];
+    _.forEach(req.query, (v, k) => queryVars.push(`${k}=${v}`));
+    queryVars.join("&");
+
+    let path = (queryVars) ? req.path + ("?" + queryVars) : req.path 
+    res.cookie("redirect", path);
     res.redirect('/index.html');
   }
 });

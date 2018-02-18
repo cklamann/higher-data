@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSelect } from '@angular/material';
 import { Charts } from '../../../models/Charts';
@@ -13,8 +13,13 @@ import 'rxjs/add/operator/debounceTime';
 })
 export class ChartSearchComponent implements OnInit {
 	chartSelectForm: FormGroup;
-	@Output() 
+
+	@Input()
+	defaultSlug: string;
+
+	@Output()
 	onChartSelect: EventEmitter<intChartModel> = new EventEmitter<intChartModel>();
+
 	charts: intChartModel[] = [];
 
 	constructor(private fb: FormBuilder, private Charts: Charts) {

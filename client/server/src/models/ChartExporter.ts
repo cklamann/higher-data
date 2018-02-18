@@ -19,9 +19,19 @@ export interface intChartExportDataParentModel {
 	data: intChartFormulaResult[]
 }
 
+export interface intChartExportOptions {
+	cut: string;
+}
+
 export class ChartExport {
 
-	constructor(public school: intSchoolModel, public chart: intChartModel) { }
+	constructor(public school: intSchoolModel, public chart: intChartModel, private options: intChartExportOptions) { 
+		if(this.options.cut){
+			this.chart.variables.forEach(vari => {
+				vari.formula = '(' + vari.formula + ')' + '/' + this.options.cut;
+			});
+		}
+	}
 
 	public export(): Q.Promise<intChartExport> {
 		let promises: Q.Promise<intChartFormulaResult[]>[] = [];

@@ -52,7 +52,7 @@ router.get('/:variable/chart/:school', passport.authenticate('basic', { session:
 
 	SchoolSchema.schema.statics.fetch(req.params.school)
 		.then((school: intSchoolSchema) => {
-			const chart = new ChartExport(school, chartModel);
+			const chart = new ChartExport(school, chartModel,{cut:''});
 			chart.export().then(chart => {
 				res.json(chart);
 				return;
