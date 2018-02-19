@@ -23,7 +23,7 @@ export class Schools {
 }
 
 export class School {
-	private instnm: string;
+	public instnm: string;
 	constructor(obj: intSchoolModel) {
 		Object.assign(this, obj);
 	}

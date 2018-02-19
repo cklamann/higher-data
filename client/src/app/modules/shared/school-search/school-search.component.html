@@ -5,7 +5,8 @@
     <mat-autocomplete
         (optionSelected)="onSchoolSelected($event)" 
     	#auto="matAutocomplete" 
-        [displayWith]="showSchoolName">        
+        [displayWith]="showSchoolName"
+        >        
         <mat-option  *ngFor="let option of autocompleteResults" 
         	[value]="option">
             {{ option.instnm }}

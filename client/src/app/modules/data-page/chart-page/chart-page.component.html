@@ -9,8 +9,8 @@
 	<div class = "inner-container" fxFlex="95" fxLayoutWrap fxFlex.gt-sm="80" fxLayout="row">
 		<div fxLayout="row" fxLayoutWrap fxFlex = "100" fxFlex.gt-sm="80" class = "chart-content">
 			<div fxLayout = "row" fxLayoutWrap fxLayoutAlign="space-around center" fxFlex = "100">
-		    	<app-school-search [defaultName] = "getDefaultName()" (onSchoolSelect)="onSchoolSelect($event)" fxFlex = "90" fxFlex.gt-sm="45"></app-school-search>
-				<app-chart-search [defaultSlug]="chartSlug" (onChartSelect)="onChartSelect($event)" fxFlex = "90" fxFlex.gt-sm="45"></app-chart-search>
+		    	<app-school-search [defaultModel] = "defaultModel" (onSchoolSelect)="onSchoolSelect($event)" fxFlex = "90" fxFlex.gt-sm="45"></app-school-search>
+				<app-chart-search [defaultChart]="defaultChart" (onChartSelect)="onChartSelect($event)" fxFlex = "90" fxFlex.gt-sm="45"></app-chart-search>
 			</div>
 			<div fxLayoutWrap="row" fxFlex="100" *ngIf="chart && chart.cuts.length>0">
 				<span>Filter by: </span>

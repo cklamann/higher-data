@@ -100,7 +100,7 @@
 	</mat-card>
 	<mat-card fxLayout="row" fxLayoutWrap fxFlex = "100" fxFlex.gt-sm="50" fxLayoutAlign = "center start">
 		<mat-card-header fxFlex = "90" fxLayoutAlign="center">
-	    	<app-school-search [defaultName]="Northwestern-University-147767" (onSchoolSelect)="onSchoolSelect($event)" fxFlex = "80" fxFlex.gt-sm="45"></app-school-search>
+	    	<app-school-search (onSchoolSelect)="onSchoolSelect($event)" fxFlex = "80" fxFlex.gt-sm="45"></app-school-search>
 	  	</mat-card-header>
 	  	<mat-card-content fxFlex ="90">	
 			<app-trend-chart [chartData]="chartData" [chartOverrides]="chartOverrides" fxFlex fxLayoutAlign="center center"></app-trend-chart>

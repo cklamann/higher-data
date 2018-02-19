@@ -1,6 +1,6 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, QueryList, Input, Output, EventEmitter, OnChanges, SimpleChanges, ViewChildren, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatSelect } from '@angular/material';
+import { MatSelect, MatOption } from '@angular/material';
 import { Charts } from '../../../models/Charts';
 import { intChartModel } from '../../../../../server/src/schemas/ChartSchema';
 import 'rxjs/add/operator/debounceTime';
@@ -11,14 +11,17 @@ import 'rxjs/add/operator/debounceTime';
 	templateUrl: './chart-search.component.html',
 	styleUrls: ['./chart-search.component.scss']
 })
+
 export class ChartSearchComponent implements OnInit {
 	chartSelectForm: FormGroup;
 
 	@Input()
-	defaultSlug: string;
+	defaultChart: intChartModel;
 
 	@Output()
 	onChartSelect: EventEmitter<intChartModel> = new EventEmitter<intChartModel>();
+
+	@ViewChildren(MatOption) options: QueryList<MatOption>;
 
 	charts: intChartModel[] = [];
 
@@ -28,7 +31,21 @@ export class ChartSearchComponent implements OnInit {
 
 	ngOnInit() {
 		this.Charts.fetchAll()
-			.subscribe(res => this.charts = res);
+			.subscribe(res => {
+				this.options.changes.subscribe(change => {
+					if (change.length) {
+						change.forEach(option => {
+							if (option.value.slug == this.defaultChart.slug) {
+								//hack: https://github.com/angular/material2/issues/7246, throws check error, fix
+								//note that this is a dev error only...
+								//https://blog.angularindepth.com/everything-you-need-to-know-about-the-expressionchangedafterithasbeencheckederror-error-e3fd9ce7dbb4
+								option['_selectViaInteraction']();
+							}
+						});
+					}
+				});
+				this.charts = res
+			});
 		this.listenForSearchChanges();
 	}
 
@@ -43,5 +60,4 @@ export class ChartSearchComponent implements OnInit {
 			this.onChartSelect.emit(input.chart);
 		});
 	}
-
 }

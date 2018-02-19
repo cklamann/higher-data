@@ -24,6 +24,8 @@ export class ChartPageComponent implements OnInit {
 	chartSlug: string = '';
 	chartData: intChartExport;
 	chartFiltersForm: FormGroup;
+	defaultModel: intSchoolModel;
+	defaultChart: intChartModel;
 	selections: {
 		chartSlug: string,
 		schoolSlug: string
@@ -40,12 +42,19 @@ export class ChartPageComponent implements OnInit {
 		this.route.params.subscribe(params => {
 			this.ChartService.fetchChart(params.chart, params.school)
 				.subscribe(res => {
+					if (!this.chartData) {
+						this.defaultModel = res.school;
+						this.defaultChart = res.chart;
+						this.selections.chartSlug = res.chart.slug;
+						this.selections.schoolSlug = res.school.slug;
+					}
 					this.chartData = res;
+
 				});
 		});
 
 		this.route.queryParams.subscribe(params => {
-			console.log(params);
+
 		});
 	}
 
@@ -53,13 +62,6 @@ export class ChartPageComponent implements OnInit {
 		this.chartFiltersForm = this.fb.group({
 			filters: ''
 		});
-	}
-
-	getDefaultName() {
-		//bleh this doesn't work -- need to think of a better way -- could just pipe it in, make sure
-		//auto complete responds, would get redundant.... passing it a default id and just having it fetch is 
-		//maybe best, i guess....
-		return this.chartData ? this.chartData.school.instnm : '';
 	}
 
 	onSchoolSelect(school: intSchoolModel | null) {
@@ -70,8 +72,10 @@ export class ChartPageComponent implements OnInit {
 	}
 
 	onChartSelect(chart: intChartModel) {
-		this.selections.chartSlug = chart.slug;
-		this._loadChart();
+		if (chart) {
+			this.selections.chartSlug = chart.slug;
+			this._loadChart();
+		}
 	}
 
 	onCutByChange($event) {
@@ -79,7 +83,7 @@ export class ChartPageComponent implements OnInit {
 	}
 
 	private _loadChart() {
-		if (this.selections.chartSlug && this.selections.schoolSlug) {
+		if ((this.selections.chartSlug && this.selections.schoolSlug) || (this.chartData)) {
 			this.router.navigate([`data/charts/${this.selections.schoolSlug}/${this.selections.chartSlug}`]);
 		}
 	}
