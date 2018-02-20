@@ -38,11 +38,11 @@ export class ChartSearchComponent implements OnInit {
 				this.charts = res;
 				return this.options.changes;
 			})
-			.first()
+			.first()//we are only interested in the initial values
 			.subscribe(change => {
 				if (change.length) {
 					change.forEach(option => {
-						if (option.value.slug == this.defaultChart.slug) {
+						if (option.value && this.defaultChart && option.value.slug == this.defaultChart.slug) {
 							//avoid viewsetaftercheck error
 							//todo: replace with better solution once angular solves it
 							setTimeout(() => {

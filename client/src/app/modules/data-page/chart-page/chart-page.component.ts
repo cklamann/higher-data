@@ -82,6 +82,10 @@ export class ChartPageComponent implements OnInit {
 		//add cutBy param to url/query
 	}
 
+	onInflationChange($event) {
+		console.log($event.value ? "checked" : "not checked");
+	}
+
 	private _loadChart() {
 		if ((this.selections.chartSlug && this.selections.schoolSlug) || (this.chartData)) {
 			this.router.navigate([`data/charts/${this.selections.schoolSlug}/${this.selections.chartSlug}`]);

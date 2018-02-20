@@ -12,13 +12,26 @@
 		    	<app-school-search [defaultModel] = "defaultModel" (onSchoolSelect)="onSchoolSelect($event)" fxFlex = "90" fxFlex.gt-sm="45"></app-school-search>
 				<app-chart-search [defaultChart]="defaultChart" (onChartSelect)="onChartSelect($event)" fxFlex = "90" fxFlex.gt-sm="45"></app-chart-search>
 			</div>
-			<div fxLayoutWrap="row" fxFlex="100" *ngIf="chart && chart.cuts.length>0">
-				<span>Filter by: </span>
-				<mat-radio-group formControlName="filter" (change) = "onCutByChange($event)">
-					<mat-radio-button *ngFor="let cut of chart.cuts" [value] = cut.formula>
-						{{cut.name}}
-					</mat-radio-button>
-				</mat-radio-group>
+			<!--todo: put these in some kind of panel to be less obtrusive?-->
+			<div fxLayout="row" fxFlex="100" *ngIf="chartData" fxLayoutAlign="start center">
+				<div *ngIf="chartData.chart.cuts.length>0" fxFlex = "100" fxLayoutAlign="start center">
+					<span>Filter by: </span>
+					<mat-radio-group formControlName="filter" (change) = "onCutByChange($event)">
+						<mat-radio-button *ngFor="let cut of chartData.chart.cuts" [value] = cut.formula>
+							{{cut.name}}
+						</mat-radio-button>
+					</mat-radio-group>
+				</div>
+				<div *ngIf="chartData.chart.valueType=='currency0' || chartData.chart.valueType=='currency1'" fxLayoutAlign="end center" fxFlex = "100">
+					<mat-radio-group formControlName="inflationAdjusted" (change) = "onInflationChange($event)">
+						<mat-radio-button [value] = true>
+							Inflation Adjusted
+						</mat-radio-button>
+						<mat-radio-button [value] = false>
+							Raw
+						</mat-radio-button>
+					</mat-radio-group>
+				</div>
 			</div>
 			<div fxLayoutWrap="row" fxFlex="100" class="chart-container-outer">
 				<app-trend-chart [chartData]="chartData" fxFlex = "100" fxFlex.gt-sm="75" ></app-trend-chart>
