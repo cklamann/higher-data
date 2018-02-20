@@ -1,9 +1,12 @@
-import { Component, OnInit, QueryList, Input, Output, EventEmitter, OnChanges, SimpleChanges, ViewChildren, ViewChild } from '@angular/core';
+import { Component, OnInit, QueryList, Input, Output, EventEmitter, ViewChildren} from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSelect, MatOption } from '@angular/material';
 import { Charts } from '../../../models/Charts';
 import { intChartModel } from '../../../../../server/src/schemas/ChartSchema';
+import { Observable } from 'rxjs';
 import 'rxjs/add/operator/debounceTime';
+import 'rxjs/add/operator/switchMap';
+import 'rxjs/add/operator/first';
 
 
 @Component({
@@ -31,20 +34,24 @@ export class ChartSearchComponent implements OnInit {
 
 	ngOnInit() {
 		this.Charts.fetchAll()
-			.subscribe(res => {
-				this.options.changes.subscribe(change => {
-					if (change.length) {
-						change.forEach(option => {
-							if (option.value.slug == this.defaultChart.slug) {
-								//hack: https://github.com/angular/material2/issues/7246, throws check error, fix
-								//note that this is a dev error only...
-								//https://blog.angularindepth.com/everything-you-need-to-know-about-the-expressionchangedafterithasbeencheckederror-error-e3fd9ce7dbb4
+			.switchMap(res => {
+				this.charts = res;
+				return this.options.changes;
+			})
+			.first()
+			.subscribe(change => {
+				if (change.length) {
+					change.forEach(option => {
+						if (option.value.slug == this.defaultChart.slug) {
+							//avoid viewsetaftercheck error
+							//todo: replace with better solution once angular solves it
+							setTimeout(() => {
 								option['_selectViaInteraction']();
-							}
-						});
-					}
-				});
-				this.charts = res
+							});
+
+						}
+					});
+				}
 			});
 		this.listenForSearchChanges();
 	}
