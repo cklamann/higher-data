@@ -13,6 +13,8 @@
 				<app-chart-search [defaultChart]="defaultChart" (onChartSelect)="onChartSelect($event)" fxFlex = "90" fxFlex.gt-sm="45"></app-chart-search>
 			</div>
 			<!--todo: put these in some kind of panel to be less obtrusive?-->
+			<!--yes: put them in a drop panel, stacking each option group-->
+			<!--todo: change radio fonts and colors, really ugly right now-->
 			<div fxLayout="row" fxFlex = "100" fxFlex.gt-sm="80" *ngIf="chartData" fxLayoutAlign="start center">
 				<div *ngIf="chartData.chart.cuts.length>0" fxLayoutAlign="start center">
 					<span>Filter by: </span>
