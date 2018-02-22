@@ -12,9 +12,9 @@
 		    	<app-school-search [defaultModel] = "defaultModel" (onSchoolSelect)="onSchoolSelect($event)" fxFlex = "90" fxFlex.gt-sm="45"></app-school-search>
 				<app-chart-search [defaultChart]="defaultChart" (onChartSelect)="onChartSelect($event)" fxFlex = "90" fxFlex.gt-sm="45"></app-chart-search>
 			</div>
-			<!--todo: put these in some kind of panel to be less obtrusive?-->
-			<!--yes: put them in a drop panel, stacking each option group-->
-			<!--todo: change radio fonts and colors, really ugly right now-->
+			<!--todo: put these and the other controls in a drop panel, labels on left column, options on right-->
+			<!--todo: put area chart selector here-->
+			<!--todo: retheme: change radio fonts and colors, really ugly right now, but should do that later, in retheme process-->
 			<div fxLayout="row" fxFlex = "100" fxFlex.gt-sm="80" *ngIf="chartData" fxLayoutAlign="start center">
 				<div *ngIf="chartData.chart.cuts.length>0" fxLayoutAlign="start center">
 					<span>Filter by: </span>
