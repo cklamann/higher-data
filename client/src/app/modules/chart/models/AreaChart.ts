@@ -12,7 +12,7 @@ export class AreaChart extends LineChart {
 	yGrid: any;
 	keys: string[];
 	stackData: any;
-	areaChartData: object[];
+	areaChartData: any;
 	constructor(data: intChartExport, selector: string, overrides: any) {
 		super(data, selector, overrides);
 	}
@@ -50,6 +50,7 @@ export class AreaChart extends LineChart {
 			.enter().append("g")
 			.attr("class", "layer");
 
+		//doesn't like area function here
 		layer.append("path")
 			.attr("class", "area")
 			.style("fill", (d, i) => colors[i])
@@ -122,21 +123,21 @@ export class AreaChart extends LineChart {
 	}
 
 	private _transformData(chartData: ChartData): any {
-		let newData: any = _.flatMap(chartData.data, datum => datum.data.map(item => {
+		let newData: any = _.flatMap(chartData.data, datum => datum.data.map( item => {
 			return {
 				date: item.fiscal_year
 			};
 		}));
-		newData = _.uniqBy(newData, datum => datum.date); //fucking garbage, not fucking giving unique values fuck
-		console.log(_.cloneDeep(newData));
+		newData = _.uniqBy(newData,datum=>datum.date.getFullYear());
 		chartData.data.forEach(datum => {
 			datum.data.forEach(item => {
-				let match = _.find(newData, piece => piece.date === item.fiscal_year);
+				let match = _.find(newData, piece => piece.date.getFullYear() === item.fiscal_year.getFullYear());
 				match[item.key] = item.value;
 			});
 		});
-		newData.forEach(variable => variable.date = this.parseDate(variable.date)); //this is shredding to null
+		newData.forEach(variable => variable.date = variable.date.getFullYear()); //this is shredding to null
 		newData = _.sortBy(newData, datum => datum.date);
+		console.log(_.cloneDeep(newData));
 		return newData;
 	}
 

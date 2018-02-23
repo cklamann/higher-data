@@ -40,17 +40,18 @@ export class ChartPageComponent implements OnInit {
 	ngOnInit(): void {
 		this.createForm();
 		this.route.params.subscribe(params => {
-			this.ChartService.fetchChart(params.chart, params.school)
-				.subscribe(res => {
-					if (!this.chartData) {
-						this.defaultModel = res.school;
-						this.defaultChart = res.chart;
-						this.selections.chartSlug = res.chart.slug;
-						this.selections.schoolSlug = res.school.slug;
-					}
-					this.chartData = res;
-
-				});
+			if(params.chart && params.school){
+				this.ChartService.fetchChart(params.chart, params.school)
+					.subscribe(res => {
+						if (!this.chartData) {
+							this.defaultModel = res.school;
+							this.defaultChart = res.chart;
+							this.selections.chartSlug = res.chart.slug;
+							this.selections.schoolSlug = res.school.slug;
+						}
+						this.chartData = res;
+					});
+			}
 		});
 
 		this.route.queryParams.subscribe(params => {

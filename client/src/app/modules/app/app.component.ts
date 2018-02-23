@@ -16,10 +16,12 @@ export class AppComponent implements OnInit {
 
 	ngOnInit(): void {
 		let cookies = document.cookie.split(';');
-		const redir = cookies.filter(c => c.match(/^redirect=.+/))[0];
+		const redir = cookies.find(c => {
+			c = c.trim();
+			return !!c.match(/^redirect=.+/);
+		});
 		document.cookie = "redirect" + '=; Max-Age=-99999999;';
 		if (redir) {
-			//slice off cookie key
 			let target = decodeURIComponent(redir.slice(9));
 			let parts = target.split("?");
 			let queryParams = _.fromPairs(parts[1].split("&").map(pair => pair.split("=")));
