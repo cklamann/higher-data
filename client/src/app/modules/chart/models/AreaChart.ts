@@ -123,12 +123,12 @@ export class AreaChart extends LineChart {
 	}
 
 	private _transformData(chartData: ChartData): any {
-		let newData: any = _.flatMap(chartData.data, datum => datum.data.map( item => {
+		let someData: any = _.flatMap(chartData.data, datum => datum.data.map(item => {
 			return {
 				date: item.fiscal_year
 			};
 		}));
-		newData = _.uniqBy(newData,datum=>datum.date.getFullYear());
+		let newData: any = _.uniqBy(someData, (datum: any) => datum.date.getFullYear());
 		chartData.data.forEach(datum => {
 			datum.data.forEach(item => {
 				let match = _.find(newData, piece => piece.date.getFullYear() === item.fiscal_year.getFullYear());
