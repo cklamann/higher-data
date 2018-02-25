@@ -27,20 +27,26 @@ export class TrendChartComponent implements OnInit {
 	}
 
 	ngOnInit() {
-		// problem was that having this method on base chart seemed to confuse d3
-		// it wasn't updating the way it was supposed to
-		// method should wipe out image, hold onto data, redraw chart
-		// not working by brute force method below, likely for the same reasons it wasn't working before
-		// but i think the listeners are maybe getting called 
-		// yea I think onChartDataChanges sees the change and tries to update and fails
-		// before, was setting ChartData to null, then reupping, but that fires the watcher and creates chaos
-		// better to have a clear way of doing it right 
-		window.addEventListener('resize', () => {
-			 this.chart.remove();
-			 this.chart.buildCanvas();
-			 this.chart.build();
-		}, false);
+		//responsiveness -- have to change data so d3 realizes it needs to redraw
+		(() => {
+			window.addEventListener("resize", resizeThrottler, false);
+			var resizeTimeout;
+			function resizeThrottler() {
+				if (!resizeTimeout) {
+					resizeTimeout = setTimeout( () => {
+						resizeTimeout = null;
+						actualResizeHandler();
+					}, 150);
+				}
+			}
 
+			let actualResizeHandler = () => {
+				if(this.chart){
+					this.chart.redraw();
+				}
+			}
+
+		} ());
 	}
 
 	ngOnChanges(changes: SimpleChanges) {

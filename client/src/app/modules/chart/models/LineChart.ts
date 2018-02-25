@@ -51,12 +51,20 @@ export class LineChart extends BaseChart {
 		let dateRange = this.chartData.getDateRange();
 		this.xScale.domain(d3.extent(dateRange));
 		let tickNumber = dateRange.length > 20 ? 20 : dateRange.length;
+		
+		let rotationDegrees = +this.width < 501 ? 45 : 30;
+		d3.selectAll("g.axis--x text")
+			.attr("transform", "rotate(" + rotationDegrees + ")")
+			.style("text-anchor", "start");
+
 		this.xAxis.ticks(tickNumber)
 
 		this.yScale.domain([
 			this.chartData.getMin(),
 			this.chartData.getMax()
 		]);
+
+		this._addKeysToChartData(); //not doing its job
 
 		this.canvas.select('.axis--x').transition().duration(500).call(this.xAxis);
 		this.canvas.select('.axis--y').transition().duration(500).call(this.yAxis);
@@ -68,9 +76,13 @@ export class LineChart extends BaseChart {
 			.y((d: any) => this.yScale(d.value));
 
 		const lines = this.canvas.selectAll(".line")
-			.data(this.chartData.data)
-			.enter().append("g")
-			.attr("class", "line");
+			.data(this.chartData.data, d => d.key); //for obscure reasons not working with d3keys, causing charts not redraw...
+
+		lines.exit().remove();
+
+		const update = lines.enter().append("g")
+			.attr("class", "line")
+			.merge(lines);
 
 		lines.append("path")
 			.attr("d", d => {
@@ -79,7 +91,7 @@ export class LineChart extends BaseChart {
 			.style("stroke-width", 2)
 			.style("stroke", d => this.zScale(d.key))
 			.style("opacity", 0)
-			.transition()
+			.transition(250)
 			.style("opacity", 1);
 
 		const tool = d3.select("body").append("div")
@@ -89,41 +101,39 @@ export class LineChart extends BaseChart {
 		let that = this;
 
 		lines.each(function(line) {
-			d3.select(this).selectAll("circle")
-				.data(line.data)
-				.enter()
+			const circles = d3.select(this).selectAll("circle")
+				.data(line.data, d => d.key);
+			circles.exit().remove();
+
+			const update = circles.enter()
 				.append("circle")
 				.attr("r", 4)
 				.attr("cx", d => that.xScale(d.fiscal_year))
 				.attr("cy", d => that.yScale(d.value))
 				.style("stroke", that.zScale(line.key))
 				.style("fill", that.zScale(line.key))
-				.on("mouseover", d => {
-					tool.transition()
-						.duration(200)
-						.style("opacity", 1);
-					tool.html(that.getToolTip(d.fiscal_year))
-						.style("left", (d3.event.pageX) + "px")
-						.style("top", (d3.event.pageY - 10) + "px");
-				})
-				.on("mouseout", function(d) {
-					tool.transition()
-						.duration(200)
-						.style("opacity", 0);
-				});
+				.attr("class", "circle")
+				.merge(circles);
+		});
+
+		this.canvas.selectAll('.circle').on("mouseover", d => {
+			tool.transition()
+				.duration(200)
+				.style("opacity", 1);
+			tool.html(that.getToolTip(d.fiscal_year))
+				.style("left", (d3.event.pageX) + "px")
+				.style("top", (d3.event.pageY - 10) + "px");
+		}).on("mouseout", function(d) {
+			tool.transition()
+				.duration(200)
+				.style("opacity", 0);
 		});
 
 		d3.selectAll("text")
 			.attr("font-size", "12");
 
-		let rotationDegrees = +this.width < 501 ? 45 : 30;
-
-		d3.selectAll("g.axis--x text")
-			.attr("transform", "rotate(" + rotationDegrees + ")")
-			.style("text-anchor", "start");
-
-		const legend = d3.select(".legend-container ul").selectAll("li")
-			.data(this.chartData.data.filter(datum => datum.data.length > 0)); //exclude empty
+		const legend = d3.select(".legend-container").selectAll("li")
+			.data(this.chartData.data); 
 
 		legend.exit().remove();
 
@@ -137,22 +147,26 @@ export class LineChart extends BaseChart {
 			.on("click", (d: any) => {
 				this.chartData.data.forEach((datum, i) => {
 					if (datum.legendName === d.legendName) {
-						this.chartData.data[i].data = [];
+						this.chartData.removeDatum(i);
 					}
 				});
-				this.canvas.selectAll("*").remove();
 				this.draw();
 			});
 	}
 
 	getToolTip(fiscal_year) {
 		let items = _.flatMap(this.chartData.data, datum => {
-			let item = datum.data.find(item => item.fiscal_year === fiscal_year),
-				color = this.zScale(item.key);
-			return `<li><span style='color: ${color}'>&#9679;</span> ${item.legendName} : ${item.value}</li>`;
+			let item = datum.data.find(item => item.fiscal_year.getFullYear() === fiscal_year.getFullYear());
+			return item ? `<li><span style='color: ${this.zScale(item.key)}'>&#9679;</span> ${item.legendName} : ${this.formatNumber(item.value, this.displayOptions.valueType)}</li>` : '';
 		}),
 			list = items.join('');
 		return "<ul>" + list + "<ul>";
+	}
+
+	private _addKeysToChartData() {
+		this.chartData.data.forEach(datum => {
+			datum.d3Key = Math.floor(this.yScale(10)) + Math.floor(this.xScale(10)) + datum.key;
+		})
 	}
 
 };

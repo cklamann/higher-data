@@ -5,8 +5,18 @@ import * as d3 from 'd3';
 
 export class ChartData {
 	data: intBaseChartData[];
+	_cachedData: intBaseChartData[];
 	constructor(data: intChartExportDataParentModel[]) {
 		this.data = _baseTransform(data);
+	}
+
+	clearValues = () => {
+		this._cachedData = _.cloneDeep(this.data);
+		this.data.forEach(datum => datum.data.forEach(item => item.value = 0));
+	}
+
+	restoreValues = () => {
+		this.data = this._cachedData;
 	}
 
 	sortByVal = flag => {
@@ -110,6 +120,7 @@ interface intChartDataYearDatum {
 export interface intBaseChartData extends intChartExportDataParentModel {
 	legendName: string;
 	key: string;
+	d3Key?:string;
 	data: intBaseChartDatum[];
 }
 

@@ -96,9 +96,15 @@ export class BaseChart {
 		d3.select(".legend-container").selectAll("*").remove();
 	}
 
-	getYears() {
-		const years = _.flatMap(this.chartData.data, x => _.flatMap(x.data, datum => datum.fiscal_year));
-		return _.uniq(years);
+	redraw() {
+		this.chartData.clearValues();
+		this.remove();
+		this.buildCanvas();
+		this.build();
+		this.chartData.restoreValues();
+		setTimeout(() => {
+			this.draw();
+		},50)
 	}
 
 	formatAY(dateString) {

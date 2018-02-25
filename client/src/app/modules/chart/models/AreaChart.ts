@@ -21,7 +21,12 @@ export class AreaChart extends LineChart {
 		let dateRange = this.chartData.getDateRange();
 		this.xScale.domain(d3.extent(dateRange));
 		let tickNumber = dateRange.length > 20 ? 20 : dateRange.length;
-		this.xAxis.ticks(tickNumber)
+		this.xAxis.ticks(tickNumber);
+
+		let rotationDegrees = +this.width < 501 ? 45 : 30;
+		d3.selectAll("g.axis--x text")
+			.attr("transform", "rotate(" + rotationDegrees + ")")
+			.style("text-anchor", "start");
 
 		let maxVal = d3.max(this.areaChartData, variable => {
 			let vals = d3.keys(variable).map(key => key !== 'date' ? variable[key] : 0);
@@ -47,7 +52,7 @@ export class AreaChart extends LineChart {
 		const layers = this.canvas.selectAll(".layer")
 			.data(this.stackData, d => d.key);
 
-		layers.exit().transition().duration(10000).remove();
+		layers.exit().transition().duration(100).remove();
 
 		const update = layers.enter().append("g")
 			.attr("class", "layer")
