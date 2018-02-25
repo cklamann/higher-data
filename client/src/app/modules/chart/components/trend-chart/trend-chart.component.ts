@@ -27,6 +27,19 @@ export class TrendChartComponent implements OnInit {
 	}
 
 	ngOnInit() {
+		// problem was that having this method on base chart seemed to confuse d3
+		// it wasn't updating the way it was supposed to
+		// method should wipe out image, hold onto data, redraw chart
+		// not working by brute force method below, likely for the same reasons it wasn't working before
+		// but i think the listeners are maybe getting called 
+		// yea I think onChartDataChanges sees the change and tries to update and fails
+		// before, was setting ChartData to null, then reupping, but that fires the watcher and creates chaos
+		// better to have a clear way of doing it right 
+		window.addEventListener('resize', () => {
+			 this.chart.remove();
+			 this.chart.buildCanvas();
+			 this.chart.build();
+		}, false);
 
 	}
 
@@ -37,19 +50,21 @@ export class TrendChartComponent implements OnInit {
 	}
 
 	onChartDataChanges(chartDataChanges) {
-		//if chart or school is new, fetch new chart
-		if (!chartDataChanges.previousValue ||
-			!_.isEqual(chartDataChanges.previousValue.chart, chartDataChanges.currentValue.chart) ||
-			!_.isEqual(chartDataChanges.previousValue.school, chartDataChanges.currentValue.school)) {
-			if (this.chart) this.chart.remove();
-			this.chart = this.ChartService.resolveChart(chartDataChanges.currentValue, this.myRandomSelector, this.chartOverrides);
-			this.chart.draw();
-		}
-		//if only the data changed, redraw current chart
-		else if (_.isEqual(chartDataChanges.previousValue.chart, chartDataChanges.currentValue.chart) &&
-			!_.isEqual(chartDataChanges.previousValue.data, chartDataChanges.currentValue.data)) {
-			this.chart.chartData = new ChartData(chartDataChanges.currentValue.data);
-			this.chart.draw();
+		if (chartDataChanges) {
+			//if chart or school is new, fetch new chart
+			if (!chartDataChanges.previousValue ||
+				!_.isEqual(chartDataChanges.previousValue.chart, chartDataChanges.currentValue.chart) ||
+				!_.isEqual(chartDataChanges.previousValue.school, chartDataChanges.currentValue.school)) {
+				if (this.chart) this.chart.remove();
+				this.chart = this.ChartService.resolveChart(chartDataChanges.currentValue, this.myRandomSelector, this.chartOverrides);
+				this.chart.draw();
+			}
+			//if only the data changed, redraw current chart
+			else if (_.isEqual(chartDataChanges.previousValue.chart, chartDataChanges.currentValue.chart) &&
+				!_.isEqual(chartDataChanges.previousValue.data, chartDataChanges.currentValue.data)) {
+				this.chart.chartData = new ChartData(chartDataChanges.currentValue.data);
+				this.chart.draw();
+			}
 		}
 	}
 

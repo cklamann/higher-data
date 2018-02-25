@@ -29,13 +29,13 @@ export class BaseChart {
 	yScale: any;
 	width: number;
 	height: number;
-	formatNumber:any;
+	formatNumber: any;
 
 	constructor(chart: intChartExport, selector: string, overrides: object = {}) {
 		this.formatNumber = new UtilService().numberFormatter().format;
 		this.chartData = new ChartData(chart.data);
 		this.selector = selector;
-		this.zScale = d3.scaleOrdinal(d3.schemeCategory20).domain(this.chartData.data.map(variable => variable.legendName));
+		this.zScale = d3.scaleOrdinal(d3.schemeCategory20).domain(this.chartData.data.map(variable => variable.key));
 		this.displayOptions = Object.assign({
 			title: chart.chart.name,
 			valueType: chart.chart.valueType,
@@ -50,14 +50,9 @@ export class BaseChart {
 		this.buildCanvas();
 		this.build();
 
-		window.addEventListener('resize', () => {
-			this.remove();
-			this.buildCanvas();
-			this.build();
-		}, false);
 	}
 
-	build(){
+	build() {
 		throw new Error("build method should be overriden by child");
 	}
 
@@ -97,6 +92,8 @@ export class BaseChart {
 
 	remove() {
 		this.container.select("svg").remove();
+		d3.selectAll(".d3-tip").remove();
+		d3.select(".legend-container").selectAll("*").remove();
 	}
 
 	getYears() {

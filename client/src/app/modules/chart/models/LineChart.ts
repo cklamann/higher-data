@@ -48,7 +48,7 @@ export class LineChart extends BaseChart {
 
 	draw() {
 
-		let dateRange: Array<Date> = _.uniq(_.flatMap(this.chartData.data, c => _.flatMap(c.data, d => d.fiscal_year)));
+		let dateRange = this.chartData.getDateRange();
 		this.xScale.domain(d3.extent(dateRange));
 		let tickNumber = dateRange.length > 20 ? 20 : dateRange.length;
 		this.xAxis.ticks(tickNumber)
@@ -77,7 +77,7 @@ export class LineChart extends BaseChart {
 				return line(d.data);
 			})
 			.style("stroke-width", 2)
-			.style("stroke", d => this.zScale(d.legendName))
+			.style("stroke", d => this.zScale(d.key))
 			.style("opacity", 0)
 			.transition()
 			.style("opacity", 1);
@@ -96,8 +96,8 @@ export class LineChart extends BaseChart {
 				.attr("r", 4)
 				.attr("cx", d => that.xScale(d.fiscal_year))
 				.attr("cy", d => that.yScale(d.value))
-				.style("stroke", that.zScale(line.legendName))
-				.style("fill", that.zScale(line.legendName))
+				.style("stroke", that.zScale(line.key))
+				.style("fill", that.zScale(line.key))
 				.on("mouseover", d => {
 					tool.transition()
 						.duration(200)
@@ -131,7 +131,7 @@ export class LineChart extends BaseChart {
 			.append("li")
 			.attr("class", "legend-element")
 			.merge(legend)
-			.html((d, i) => "<span style='color:" + this.zScale(d.legendName) + "'>&#9679;</span>" + d.legendName);
+			.html((d, i) => "<span style='color:" + this.zScale(d.key) + "'>&#9679;</span>" + d.legendName);
 
 		d3.selectAll(".legend-element")
 			.on("click", (d: any) => {
@@ -148,7 +148,7 @@ export class LineChart extends BaseChart {
 	getToolTip(fiscal_year) {
 		let items = _.flatMap(this.chartData.data, datum => {
 			let item = datum.data.find(item => item.fiscal_year === fiscal_year),
-				color = this.zScale(item.legendName);
+				color = this.zScale(item.key);
 			return `<li><span style='color: ${color}'>&#9679;</span> ${item.legendName} : ${item.value}</li>`;
 		}),
 			list = items.join('');

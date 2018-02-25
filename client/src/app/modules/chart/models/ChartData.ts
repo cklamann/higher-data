@@ -9,17 +9,50 @@ export class ChartData {
 		this.data = _baseTransform(data);
 	}
 
-	getTotal = (): number => d3.sum(_.flatMap(<any>this.data, varGroup => varGroup.data.reduce((prev, acc) => prev.value + acc.value)));
-
 	sortByVal = flag => {
 		this.data.forEach(datum => datum.data.sort(_numSort));
 		if (flag == 'desc') {
 			this.data.forEach(datum => datum.data.reverse());
 		}
 	};
-	getMax = () => d3.max(this.data, datum => d3.max(datum.data, item => item.value));
-	getMin = () => d3.min(this.data, datum => d3.min(datum.data, item => item.value));
+
+	getMax = (): number => d3.max(this.data, datum => d3.max(datum.data, item => item.value));
+	getMin = (): number => d3.min(this.data, datum => d3.min(datum.data, item => item.value));
+	getTotal = (): number => d3.sum(this.data, varGroup => this.sum(varGroup.data));
+
+	sum = (variableObj) => variableObj.reduce((a, b) => {
+		a = _.isNumber(a) ? a : a.value;
+		b = _.isNumber(b) ? a : b.value;
+		return a + b;
+	}, 0);
+
+	getDateRange = (): Array<Date> => {
+		let range = _.flatMap(this.data, c => _.flatMap(c.data, d => d.fiscal_year));
+		return _.uniqBy(range, item => item.getFullYear());
+	}
+
 	setNullsToZero = () => this.data.forEach(datum => datum.data.forEach(item => item.value === null ? item.value = 0 : item.value = item.value));
+
+	setMissingValsToZero = () => {
+		let dateRange = this.getDateRange();
+		this.data.forEach(datum => {
+			let diff = _.differenceBy(dateRange, datum.data.map(item => item.fiscal_year), (item) => item.getFullYear()),
+				filler: any = diff.map(date => {
+					return {
+						fiscal_year: date,
+						value: 0,
+						legendName: datum.legendName,
+						key: datum.key
+					}
+				})
+			if (!_.isEmpty(filler)) datum.data = datum.data.concat(filler);
+			datum.data.sort(_dateSort);
+		});
+	}
+
+	removeDatum = (index) => {
+		this.data = this.data.filter((val, i) => i != index);
+	}
 
 	nestByYear = () => new ChartDataNestedByYear(this);
 
@@ -76,6 +109,7 @@ interface intChartDataYearDatum {
 
 export interface intBaseChartData extends intChartExportDataParentModel {
 	legendName: string;
+	key: string;
 	data: intBaseChartDatum[];
 }
 
@@ -95,14 +129,20 @@ function _baseTransform(data: intChartExportDataParentModel[]): intBaseChartData
 			datum.fiscal_year = d3.timeParse("%Y")(datum.fiscal_year)
 			return datum;
 		});
-		variable.data = data;
+		variable.key = variable.data.length ? variable.data[0].key : "";
 		return variable;
-	});
+	}).filter(datum => datum.data.length > 0);
 }
 
 function _numSort(a, b) {
 	if (a.value < b.value) return -1;
 	if (a.value > b.value) return 1;
+	return 0;
+}
+
+function _dateSort(a, b) {
+	if (a.fiscal_year.getFullYear() < b.fiscal_year.getFullYear()) return -1;
+	if (a.fiscal_year.getFullYear() > b.fiscal_year.getFullYear()) return 1;
 	return 0;
 }
 

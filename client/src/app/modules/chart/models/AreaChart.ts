@@ -4,7 +4,6 @@ import { intBaseChartDatum, intBaseChartData, ChartData } from './ChartData';
 import * as d3 from 'd3';
 import * as _ from 'lodash';
 
-
 export class AreaChart extends LineChart {
 	xAxis: any;
 	yAxis: any;
@@ -18,17 +17,18 @@ export class AreaChart extends LineChart {
 	}
 
 	draw() {
-		const colors = ["#8e0152", "#c51b7d", "#de77ae", "#f1b6da", "#fde0ef", "#f7f7f7", "#e6f5d0", "#b8e186", "#7fbc41", "#4d9221", "#276419"];
-		this.areaChartData = this._transformData(this.chartData);
-		let dateRange: Array<Date> = _.uniq(_.flatMap(this.chartData.data, c => _.flatMap(c.data, d => d.fiscal_year)));
+		this.areaChartData = this._transformData();
+		let dateRange = this.chartData.getDateRange();
 		this.xScale.domain(d3.extent(dateRange));
 		let tickNumber = dateRange.length > 20 ? 20 : dateRange.length;
 		this.xAxis.ticks(tickNumber)
 
-		this.yScale.domain([
-			this.chartData.getMin(),
-			this.chartData.getMax()
-		]);
+		let maxVal = d3.max(this.areaChartData, variable => {
+			let vals = d3.keys(variable).map(key => key !== 'date' ? variable[key] : 0);
+			return d3.sum(vals);
+		});
+
+		this.yScale.domain([0, maxVal]); //must start at 0
 
 		this.canvas.select('.axis--x').transition().duration(500).call(this.xAxis);
 		this.canvas.select('.axis--y').transition().duration(500).call(this.yAxis);
@@ -41,19 +41,22 @@ export class AreaChart extends LineChart {
 			.y0(d => this.yScale(d[0]))
 			.y1(d => this.yScale(d[1]));
 
-		this.keys = _.keys(this.areaChartData[0]).filter(key => key != 'date');
-		stack.keys(this.keys, this.chartData.getMax());
+		stack.keys(this.chartData.data.map(datum => datum.key));
 		this.stackData = stack(this.areaChartData);
 
-		let layer = this.canvas.selectAll(".layer")
-			.data(this.stackData)
-			.enter().append("g")
-			.attr("class", "layer");
+		const layers = this.canvas.selectAll(".layer")
+			.data(this.stackData, d => d.key);
 
-		//doesn't like area function here
-		layer.append("path")
+		layers.exit().transition().duration(10000).remove();
+
+		const update = layers.enter().append("g")
+			.attr("class", "layer")
+			.merge(layers);
+
+		layers.append("path")
 			.attr("class", "area")
-			.style("fill", (d, i) => colors[i])
+			.transition(1000)
+			.style("fill", (d, i) => this.zScale(d.key))
 			.attr("d", area);
 
 		let legendData = _.sortBy(this.stackData, datum => datum.index).reverse(); // ensure descending order
@@ -67,18 +70,18 @@ export class AreaChart extends LineChart {
 			.append("li")
 			.attr("class", "legend-element")
 			.merge(legend)
-			.html(d => "legend placeholder");
+			.html(d => this._getLegendLine(d));
 
-		// d3.selectAll(".legend-element")
-		// 	.on("click", (d: any) => {
-		// 		this.chartData.data.forEach((datum, i) => {
-		// 			if (datum.legendName === d.legendName) {
-		// 				this.chartData.data[i].data = [];
-		// 			}
-		// 		});
-		// 		this.canvas.selectAll("*").remove();
-		// 		this.draw();
-		// 	});
+		d3.selectAll(".legend-element")
+			.on("click", (d: any) => {
+				this.chartData.data.forEach((datum, i) => {
+					if (datum.key === d.key) {
+						this.chartData.removeDatum(i);
+					}
+				});
+				d3.select('.legend-container').selectAll("*").remove();
+				this.draw();
+			});
 
 		let barScale = d3.scaleBand().rangeRound([0, this.width]).domain(this.areaChartData.map(datum => datum.date)).padding(0.0);
 
@@ -100,7 +103,7 @@ export class AreaChart extends LineChart {
 			tool.transition()
 				.duration(200)
 				.style("opacity", 1);
-			tool.html(this.getToolTip(d))
+			tool.html(this._getToolTip(d))
 				.style("left", (d3.event.pageX) + "px")
 				.style("top", (d3.event.pageY) + "px");
 		})
@@ -111,33 +114,46 @@ export class AreaChart extends LineChart {
 			});
 	}
 
-	getToolTip(fiscal_year) {
-		// let items = _.flatMap(this.chartData.data, datum => {
-		// 	let item = datum.data.find(item => item.fiscal_year === fiscal_year),
-		// 		color = this.zScale(item.legendName);
-		// 	return `<li><span style='color: ${color}'>&#9679;</span> ${item.legendName} : ${item.value}</li>`;
-		// }),
-		// 	list = items.join('');
-		// return "<ul>" + list + "<ul>";
-		return '';
+	private _getToolTip(datum): string {
+		let legendKeyMap = this.chartData.data.map(datum => {
+			return { key: datum.key, legendName: datum.legendName };
+		}),
+			copy = _.cloneDeep(datum);
+		delete copy.date;
+		let tips = _.map(copy, (v, k: string) => {
+			const legendName = legendKeyMap.find(item => item.key == k).legendName;
+			return {
+				key: k,
+				legendName: legendName,
+				index: this.stackData.find(datum => datum.key === k).index
+			}
+		})
+
+		tips.sort((a, b) => b.index < a.index ? -1 : b.index > a.index ? 1 : b.index >= a.index ? 0 : NaN);
+
+		return "<div>" + datum.date.getFullYear() + ":<br>" +
+			tips.map(tip => {
+				return "<span style='color:" + this.zScale(tip.key) + "'><i class='fa fa-circle' aria-hidden='true'></i></span>&nbsp" + tip.legendName + ": " + this.formatNumber(datum[tip.key], this.displayOptions.valueType);
+			}).join("<br>");
 	}
 
-	private _transformData(chartData: ChartData): any {
-		let someData: any = _.flatMap(chartData.data, datum => datum.data.map(item => {
-			return {
-				date: item.fiscal_year
-			};
-		}));
-		let newData: any = _.uniqBy(someData, (datum: any) => datum.date.getFullYear());
-		chartData.data.forEach(datum => {
+	private _getLegendLine(stackDatum) {
+		let legendName = this.chartData.data.find(datum => datum.key == stackDatum.key).legendName;
+		return "<span style='color:" + this.zScale(stackDatum.key) + "'><i class='fa fa-circle' aria-hidden='true'></i></span>&nbsp" + legendName;
+	}
+
+	private _transformData(): any {
+		this.chartData.setMissingValsToZero();
+		let newData: { date: Date }[] = this.chartData.getDateRange().map(date => {
+			return { date: date }
+		});
+		this.chartData.data.forEach(datum => {
 			datum.data.forEach(item => {
 				let match = _.find(newData, piece => piece.date.getFullYear() === item.fiscal_year.getFullYear());
 				match[item.key] = item.value;
 			});
 		});
-		newData.forEach(variable => variable.date = variable.date.getFullYear()); //this is shredding to null
 		newData = _.sortBy(newData, datum => datum.date);
-		console.log(_.cloneDeep(newData));
 		return newData;
 	}
 
