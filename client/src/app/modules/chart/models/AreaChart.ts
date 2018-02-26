@@ -42,7 +42,7 @@ export class AreaChart extends LineChart {
 
 		const stack = d3.stack().order(d3.stackOrderDescending);
 		let area = d3.area()
-			.x(d => this.xScale(d.data.date))
+			.x( (d:any) => this.xScale(d.data.date))
 			.y0(d => this.yScale(d[0]))
 			.y1(d => this.yScale(d[1]));
 
@@ -50,7 +50,7 @@ export class AreaChart extends LineChart {
 		this.stackData = stack(this.areaChartData);
 
 		const layers = this.canvas.selectAll(".layer")
-			.data(this.stackData, d => d.key);
+			.data(this.stackData, (d:any) => d.key);
 
 		layers.exit().transition().duration(100).remove();
 
@@ -60,7 +60,7 @@ export class AreaChart extends LineChart {
 
 		layers.append("path")
 			.attr("class", "area")
-			.transition(1000)
+			.transition(<any>1000)
 			.style("fill", (d, i) => this.zScale(d.key))
 			.attr("d", area);
 
@@ -94,7 +94,7 @@ export class AreaChart extends LineChart {
 			.data(this.areaChartData)
 			.enter().append("rect")
 			.attr("class", "bar")
-			.attr("x", d => barScale(d.date))
+			.attr("x", (d:any) => barScale(d.date))
 			.style('opacity', '0.0')
 			.attr("y", 0)
 			.attr("width", barScale.bandwidth())

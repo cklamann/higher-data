@@ -75,29 +75,23 @@ export class LineChart extends BaseChart {
 			.x((d: any) => this.xScale(d.fiscal_year))
 			.y((d: any) => this.yScale(d.value));
 
-		console.log(this.chartData.data);
 
-		const lines = this.canvas.selectAll(".line")
-			.data(this.chartData.data, d => d.d3Key); 
-
-
-		//todo: fix pattern....
-
-		const updated = lines.enter().append("g")
+		const lines = this.canvas.selectAll(".line");
+		const linesWithData = lines.data(this.chartData.data, (d: intBaseChartData) => d.d3Key);
+		const removedLines = linesWithData.exit().remove();
+		const enteredLines = linesWithData.enter()
+			.append("g")
 			.attr("class", "line");
 
-		updated.merge(lines);
-
-		lines.exit().remove();
-
-		updated.append("path")
+		const mergedLines = linesWithData.merge(enteredLines)
+			.append("path")
 			.attr("d", d => {
 				return line(d.data);
 			})
 			.style("stroke-width", 2)
 			.style("stroke", d => this.zScale(d.key))
 			.style("opacity", 0)
-			.transition(250)
+			.transition(<any>250)
 			.style("opacity", 1);
 
 		const tool = d3.select("body").append("div")
@@ -106,37 +100,33 @@ export class LineChart extends BaseChart {
 
 		let that = this;
 
-		lines.each(function(line) {
-			const circles = d3.select(this).selectAll("circle")
-				.data(line.data, d => d.d3Key);
-			
-			const updated = circles.enter();
+		mergedLines.each(function(theLine) {
+			const circles = d3.select(this).selectAll(".circle");
+			const circlesWithData = circles.data(theLine.data, (d: intBaseChartDatum) => d.fiscal_year + d.key);
+			const removedCircles = circlesWithData.exit().remove();
+			const enteredCircles = circlesWithData.enter().append("g")
+				.attr("class", "circle");
 
-			updated.merge(circles);
-
-			updated.append("circle")
+			const mergedCircles = circlesWithData.merge(enteredCircles)
+				.append("circle")
 				.attr("r", 4)
 				.attr("cx", d => that.xScale(d.fiscal_year))
 				.attr("cy", d => that.yScale(d.value))
 				.style("stroke", that.zScale(line.key))
 				.style("fill", that.zScale(line.key))
-				.attr("class", "circle")
-				
-			circles.exit().remove();
+				.on("mouseover", d => {
+					tool.transition()
+						.duration(200)
+						.style("opacity", 1);
+					tool.html(that.getToolTip(d.fiscal_year))
+						.style("left", (d3.event.pageX) + "px")
+						.style("top", (d3.event.pageY - 10) + "px");
+				}).on("mouseout", function(d) {
+					tool.transition()
+						.duration(200)
+						.style("opacity", 0);
+				});
 
-		});
-
-		this.canvas.selectAll('.circle').on("mouseover", d => {
-			tool.transition()
-				.duration(200)
-				.style("opacity", 1);
-			tool.html(that.getToolTip(d.fiscal_year))
-				.style("left", (d3.event.pageX) + "px")
-				.style("top", (d3.event.pageY - 10) + "px");
-		}).on("mouseout", function(d) {
-			tool.transition()
-				.duration(200)
-				.style("opacity", 0);
 		});
 
 		d3.selectAll("text")
@@ -164,7 +154,7 @@ export class LineChart extends BaseChart {
 			});
 	}
 
-	getToolTip(fiscal_year) {
+	getToolTip(fiscal_year: Date): string {
 		let items = _.flatMap(this.chartData.data, datum => {
 			let item = datum.data.find(item => item.fiscal_year.getFullYear() === fiscal_year.getFullYear());
 			return item ? `<li><span style='color: ${this.zScale(item.key)}'><i class='fa fa-circle' aria-hidden='true'></i></span> ${item.legendName} : ${this.formatNumber(item.value, this.displayOptions.valueType)}</li>` : '';
