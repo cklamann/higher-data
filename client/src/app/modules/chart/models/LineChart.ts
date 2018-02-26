@@ -132,7 +132,7 @@ export class LineChart extends BaseChart {
 		d3.selectAll("text")
 			.attr("font-size", "12");
 
-		const legend = d3.select(".legend-container").selectAll("li")
+		const legend = d3.select(".legend").selectAll("li")
 			.data(this.chartData.data); 
 
 		legend.exit().remove();
@@ -141,7 +141,7 @@ export class LineChart extends BaseChart {
 			.append("li")
 			.attr("class", "legend-element")
 			.merge(legend)
-			.html((d, i) => "<span style='color:" + this.zScale(d.key) + "'>&#9679;</span>" + d.legendName);
+			.html((d, i) => "<span style='color:" + this.zScale(d.key) + "'><i class='fa fa-circle' aria-hidden='true'></i></span> " + d.legendName);
 
 		d3.selectAll(".legend-element")
 			.on("click", (d: any) => {
@@ -157,10 +157,10 @@ export class LineChart extends BaseChart {
 	getToolTip(fiscal_year) {
 		let items = _.flatMap(this.chartData.data, datum => {
 			let item = datum.data.find(item => item.fiscal_year.getFullYear() === fiscal_year.getFullYear());
-			return item ? `<li><span style='color: ${this.zScale(item.key)}'>&#9679;</span> ${item.legendName} : ${this.formatNumber(item.value, this.displayOptions.valueType)}</li>` : '';
+			return item ? `<li><span style='color: ${this.zScale(item.key)}'><i class='fa fa-circle' aria-hidden='true'></i></span> ${item.legendName} : ${this.formatNumber(item.value, this.displayOptions.valueType)}</li>` : '';
 		}),
 			list = items.join('');
-		return "<ul>" + list + "<ul>";
+		return "<ul class='mat-caption'>" + list + "<ul>";
 	}
 
 	private _addKeysToChartData() {

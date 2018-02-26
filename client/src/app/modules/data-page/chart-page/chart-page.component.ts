@@ -17,6 +17,7 @@ import * as _ from 'lodash';
 	styleUrls: ['./chart-page.component.scss'],
 	providers: [ChartService]
 })
+
 export class ChartPageComponent implements OnInit {
 	title: string = 'Schools';
 	searchResults: School[];
@@ -26,6 +27,7 @@ export class ChartPageComponent implements OnInit {
 	chartFiltersForm: FormGroup;
 	defaultModel: intSchoolModel;
 	defaultChart: intChartModel;
+	chartOptionsVisible: boolean = false;
 	selections: {
 		chartSlug: string,
 		schoolSlug: string
@@ -40,7 +42,7 @@ export class ChartPageComponent implements OnInit {
 	ngOnInit(): void {
 		this.createForm();
 		this.route.params.subscribe(params => {
-			if(params.chart && params.school){
+			if (params.chart && params.school) {
 				this.ChartService.fetchChart(params.chart, params.school)
 					.subscribe(res => {
 						if (!this.chartData) {
@@ -49,7 +51,7 @@ export class ChartPageComponent implements OnInit {
 							this.selections.chartSlug = res.chart.slug;
 							this.selections.schoolSlug = res.school.slug;
 						}
-						this.chartData = res;
+						this._setChartData(res);
 					});
 			}
 		});
@@ -80,11 +82,39 @@ export class ChartPageComponent implements OnInit {
 	}
 
 	onCutByChange($event) {
-		//add cutBy param to url/query
+		this.chartData.options.cut = $event.value;
+		this.ChartService.fetchChart(this.chartData.chart.slug, this.chartData.school.slug, this.chartData.options)
+			.subscribe(res => this._setChartData(res));
 	}
 
 	onInflationChange($event) {
-		console.log($event.value ? "checked" : "not checked");
+		this.chartData.options.infationAdjusted = $event.value;
+		this.ChartService.fetchChart(this.chartData.school.slug, this.chartData.chart.slug, this.chartData.options)
+			.subscribe(res => this._setChartData(res));
+	}
+
+	getChartTitle(): string {
+		if (this.chartData) {
+			return `${this.chartData.school.instnm} (${this.chartData.school.state}): ${this.chartData.chart.name}`;
+		} else return "";
+	}
+
+	toggleChartOptionsVisible(): void {
+		this.chartOptionsVisible = !this.chartOptionsVisible;
+	}
+
+	hasOptions(): boolean {
+		return this.chartData &&
+			(this.chartData.chart.cuts.length > 0 ||
+				this.chartData.chart.valueType === "currency0");
+	}
+
+	getChartOptionsVisible(): boolean {
+		return this.chartOptionsVisible;
+	}
+
+	private _setChartData(res: intChartExport) {
+		this.chartData = res;
 	}
 
 	private _loadChart() {

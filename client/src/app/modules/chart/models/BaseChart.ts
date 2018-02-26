@@ -43,7 +43,7 @@ export class BaseChart {
 				top: 10,
 				bottom: 50,
 				left: 70,
-				right: 70
+				right: 50
 			},
 			widthRatio: 1
 		}, overrides);
@@ -64,7 +64,8 @@ export class BaseChart {
 		this.container = d3.select("." + this.selector);
 		const winWidth = window.innerWidth;
 		//angular material: layout-gt-xs = width >= 600px; layout-gt-sm =	width >= 960px
-		let w = winWidth > 960 ? .5 * winWidth : winWidth > 600 ? winWidth - 50 : winWidth - 20;
+		//.52 is width of chart canvas on full size, one smaller size, just leave 25px gutter
+		let w = winWidth > 960 ? .52 * winWidth : winWidth > 600 ? winWidth - 50 : winWidth - 20;
 		w = w * this.displayOptions.widthRatio;
 		this.width = w - this.displayOptions.margins.left - this.displayOptions.margins.right;
 		this.height = (this.width / 1.5) - this.displayOptions.margins.top - this.displayOptions.margins.bottom;
@@ -93,7 +94,7 @@ export class BaseChart {
 	remove() {
 		this.container.select("svg").remove();
 		d3.selectAll(".d3-tip").remove();
-		d3.select(".legend-container").selectAll("*").remove();
+		d3.select(".legend").selectAll("*").remove();
 	}
 
 	redraw() {

@@ -9,6 +9,7 @@ import 'rxjs/add/operator/map';
 import { intChartModel } from '../../../../server/src/schemas/ChartSchema';
 import { intSchoolModel } from '../../../../server/src/schemas/SchoolSchema';
 import { intChartFormulaResult } from '../../../../server/src/modules/ChartFormula.module';
+import * as _ from 'lodash';
 
 
 @Injectable()
@@ -18,8 +19,13 @@ import { intChartFormulaResult } from '../../../../server/src/modules/ChartFormu
 export class ChartService {
 	constructor(private rest: RestService) { }
 
-	fetchChart(schoolSlug: string, chartSlug: string): Observable<intChartExport> {
-		return this.rest.get(`schools/${schoolSlug}/charts/${chartSlug}`);
+	fetchChart(schoolSlug: string, chartSlug: string, options: intChartExportOptions = {}): Observable<intChartExport> {
+		var queryString = "";
+		if(!_.isEmpty(options)){
+			let vars = _.toPairs(options);
+			queryString = "?" + vars.map( pair => pair[0] + "=" + pair[1]).join("&");
+		}
+		return this.rest.get(`schools/${schoolSlug}/charts/${chartSlug}${queryString}`);
 	}
 
 	fetchChartPreview(schoolModel: intSchoolModel, chartModel: intChartModel) {

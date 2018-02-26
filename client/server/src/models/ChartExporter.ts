@@ -5,13 +5,13 @@ import { SchoolSchema, intSchoolModel } from '../schemas/SchoolSchema';
 import { ChartSchema, intChartModel, intChartVariableModel } from '../schemas/ChartSchema'
 import { ChartFormula, intFormula, intChartFormulaResult } from '../modules/ChartFormula.module';
 import { VariableDefinitionSchema, intVariableDefinitionSchema } from '../schemas/VariableDefinitionSchema';
-
-
+import { InflationTableSchema } from '../schemas/InflationTableSchema';
 
 export interface intChartExport {
 	chart: intChartModel,
 	school: intSchoolModel,
-	data: intChartExportDataParentModel[]
+	data: intChartExportDataParentModel[],
+	options: intChartExportOptions
 }
 
 export interface intChartExportDataParentModel {
@@ -20,13 +20,14 @@ export interface intChartExportDataParentModel {
 }
 
 export interface intChartExportOptions {
-	cut: string;
+	cut?: string;
+	infationAdjusted?: string;
 }
 
 export class ChartExport {
 
-	constructor(public school: intSchoolModel, public chart: intChartModel, private options: intChartExportOptions) { 
-		if(this.options.cut){
+	constructor(public school: intSchoolModel, public chart: intChartModel, private options: intChartExportOptions = {}) {
+		if (this.options.cut) {
 			this.chart.variables.forEach(vari => {
 				vari.formula = '(' + vari.formula + ')' + '/' + this.options.cut;
 			});
@@ -41,6 +42,12 @@ export class ChartExport {
 		});
 		return Q.all(promises)
 			.then(values => {
+				let promises = values.map((result, i) => {
+					return this.options.infationAdjusted === 'true' ? this._adjustForInflation(result) : Q.when(result);
+				});
+				return Q.all(promises);
+			})
+			.then(values => {
 				return values.map((result, i) => {
 					return {
 						legendName: this.chart.variables[i].legendName,
@@ -53,8 +60,12 @@ export class ChartExport {
 					chart: this.chart,
 					school: this.school,
 					data: data,
+					options: this.options
 				}
 			})
 			.catch(err => err);
+	}
+	_adjustForInflation(res: intChartFormulaResult[]): intChartFormulaResult[] {
+		return InflationTableSchema.schema.statics.calculate(res);
 	}
 }

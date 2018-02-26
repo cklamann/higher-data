@@ -4,9 +4,15 @@ svg {
 path {
     fill: none;
 }
+
+text {
+    font-family: 'Roboto';
+}
+
 li {
     list-style: none;
 }
+
 .d3-tip {
     position: absolute;
     text-align: left;

@@ -27,7 +27,7 @@ export class TrendChartComponent implements OnInit {
 	}
 
 	ngOnInit() {
-		//responsiveness -- have to change data so d3 realizes it needs to redraw
+		//change data so d3 knows it needs to redraw
 		(() => {
 			window.addEventListener("resize", resizeThrottler, false);
 			var resizeTimeout;
@@ -46,7 +46,7 @@ export class TrendChartComponent implements OnInit {
 				}
 			}
 
-		} ());
+		}) ();
 	}
 
 	ngOnChanges(changes: SimpleChanges) {

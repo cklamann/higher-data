@@ -66,7 +66,7 @@ export class AreaChart extends LineChart {
 
 		let legendData = _.sortBy(this.stackData, datum => datum.index).reverse(); // ensure descending order
 
-		const legend = d3.select(".legend-container").selectAll("li")
+		const legend = d3.select(".legend").selectAll("li")
 			.data(legendData);
 
 		legend.exit().remove();
@@ -84,7 +84,7 @@ export class AreaChart extends LineChart {
 						this.chartData.removeDatum(i);
 					}
 				});
-				d3.select('.legend-container').selectAll("*").remove();
+				d3.select('.legend').selectAll("*").remove();
 				this.draw();
 			});
 
@@ -135,11 +135,10 @@ export class AreaChart extends LineChart {
 		})
 
 		tips.sort((a, b) => b.index < a.index ? -1 : b.index > a.index ? 1 : b.index >= a.index ? 0 : NaN);
-
-		return "<div>" + datum.date.getFullYear() + ":<br>" +
-			tips.map(tip => {
-				return "<span style='color:" + this.zScale(tip.key) + "'><i class='fa fa-circle' aria-hidden='true'></i></span>&nbsp" + tip.legendName + ": " + this.formatNumber(datum[tip.key], this.displayOptions.valueType);
-			}).join("<br>");
+			let str = tips.map(tip => {
+				return "<li><span style='color:" + this.zScale(tip.key) + "'><i class='fa fa-circle' aria-hidden='true'></i></span>&nbsp" + tip.legendName + ": " + this.formatNumber(datum[tip.key], this.displayOptions.valueType) + "</li>";
+			}).join("");
+			return "<div>" + datum.date.getFullYear() + ":<br><ul class='mat-caption'>" + str + "</ul>";
 	}
 
 	private _getLegendLine(stackDatum) {
