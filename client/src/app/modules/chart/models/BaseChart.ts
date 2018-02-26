@@ -98,11 +98,9 @@ export class BaseChart {
 	}
 
 	redraw() {
-		//this.chartData.clearValues();
 		this.remove();
 		this.buildCanvas();
 		this.build();
-		//this.chartData.restoreValues();
 		setTimeout(() => {
 			this.draw();
 		},50)

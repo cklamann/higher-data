@@ -10,15 +10,6 @@ export class ChartData {
 		this.data = _baseTransform(data);
 	}
 
-	clearValues = () => {
-		this._cachedData = _.cloneDeep(this.data);
-		this.data.forEach(datum => datum.data.forEach(item => item.value = 0));
-	}
-
-	restoreValues = () => {
-		this.data = this._cachedData;
-	}
-
 	sortByVal = flag => {
 		this.data.forEach(datum => datum.data.sort(_numSort));
 		if (flag == 'desc') {

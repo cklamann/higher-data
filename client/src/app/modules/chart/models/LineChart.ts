@@ -78,12 +78,10 @@ export class LineChart extends BaseChart {
 		console.log(this.chartData.data);
 
 		const lines = this.canvas.selectAll(".line")
-			.data(this.chartData.data, d => d.d3Key); //this should work, bugs on my side are only reason it won't...
-		//seems to be a general problem with removal and merge...timing issue?
-		//wonder if it's drawing over itself...
-		//yeah, it seems like it might be bound up with angular...
-		//need to step through some more, test
+			.data(this.chartData.data, d => d.d3Key); 
 
+
+		//todo: fix pattern....
 
 		const updated = lines.enter().append("g")
 			.attr("class", "line");
@@ -92,7 +90,7 @@ export class LineChart extends BaseChart {
 
 		lines.exit().remove();
 
-		lines.append("path")
+		updated.append("path")
 			.attr("d", d => {
 				return line(d.data);
 			})
@@ -111,17 +109,21 @@ export class LineChart extends BaseChart {
 		lines.each(function(line) {
 			const circles = d3.select(this).selectAll("circle")
 				.data(line.data, d => d.d3Key);
-			circles.exit().remove();
+			
+			const updated = circles.enter();
 
-			const update = circles.enter()
-				.append("circle")
+			updated.merge(circles);
+
+			updated.append("circle")
 				.attr("r", 4)
 				.attr("cx", d => that.xScale(d.fiscal_year))
 				.attr("cy", d => that.yScale(d.value))
 				.style("stroke", that.zScale(line.key))
 				.style("fill", that.zScale(line.key))
 				.attr("class", "circle")
-				.merge(circles);
+				
+			circles.exit().remove();
+
 		});
 
 		this.canvas.selectAll('.circle').on("mouseover", d => {

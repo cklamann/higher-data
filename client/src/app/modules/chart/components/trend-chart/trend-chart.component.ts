@@ -27,7 +27,6 @@ export class TrendChartComponent implements OnInit {
 	}
 
 	ngOnInit() {
-		//change data so d3 knows it needs to redraw
 		(() => {
 			window.addEventListener("resize", resizeThrottler, false);
 			var resizeTimeout;
@@ -61,6 +60,7 @@ export class TrendChartComponent implements OnInit {
 			if (!chartDataChanges.previousValue ||
 				!_.isEqual(chartDataChanges.previousValue.chart, chartDataChanges.currentValue.chart) ||
 				!_.isEqual(chartDataChanges.previousValue.school, chartDataChanges.currentValue.school)) {
+				console.log("removing chart from component???");
 				if (this.chart) this.chart.remove();
 				this.chart = this.ChartService.resolveChart(chartDataChanges.currentValue, this.myRandomSelector, this.chartOverrides);
 				this.chart.draw();
@@ -69,7 +69,7 @@ export class TrendChartComponent implements OnInit {
 			else if (_.isEqual(chartDataChanges.previousValue.chart, chartDataChanges.currentValue.chart) &&
 				!_.isEqual(chartDataChanges.previousValue.data, chartDataChanges.currentValue.data)) {
 				this.chart.chartData = new ChartData(chartDataChanges.currentValue.data);
-				this.chart.draw();
+				this.chart.draw(); //this doesn't need a timeout...
 			}
 		}
 	}
