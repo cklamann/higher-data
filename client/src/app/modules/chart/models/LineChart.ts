@@ -81,6 +81,9 @@ export class LineChart extends BaseChart {
 			.data(this.chartData.data, d => d.d3Key); //this should work, bugs on my side are only reason it won't...
 		//seems to be a general problem with removal and merge...timing issue?
 		//wonder if it's drawing over itself...
+		//yeah, it seems like it might be bound up with angular...
+		//need to step through some more, test
+
 
 		const updated = lines.enter().append("g")
 			.attr("class", "line");
