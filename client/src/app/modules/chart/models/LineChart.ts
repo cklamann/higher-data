@@ -51,11 +51,6 @@ export class LineChart extends BaseChart {
 		let dateRange = this.chartData.getDateRange();
 		this.xScale.domain(d3.extent(dateRange));
 		let tickNumber = dateRange.length > 20 ? 20 : dateRange.length;
-		
-		let rotationDegrees = +this.width < 501 ? 45 : 30;
-		d3.selectAll("g.axis--x text")
-			.attr("transform", "rotate(" + rotationDegrees + ")")
-			.style("text-anchor", "start");
 
 		this.xAxis.ticks(tickNumber)
 
@@ -66,6 +61,11 @@ export class LineChart extends BaseChart {
 
 		this._addKeysToChartData(); //not doing its job
 
+		let rotationDegrees = +this.width < 501 ? 45 : 30;
+		d3.selectAll("g.axis--x text")
+			.attr("transform", "rotate(" + rotationDegrees + ")")
+			.style("text-anchor", "start");
+
 		this.canvas.select('.axis--x').transition().duration(500).call(this.xAxis);
 		this.canvas.select('.axis--y').transition().duration(500).call(this.yAxis);
 		this.canvas.select('.x-grid').transition().duration(500).call(this.xGrid);
@@ -75,14 +75,19 @@ export class LineChart extends BaseChart {
 			.x((d: any) => this.xScale(d.fiscal_year))
 			.y((d: any) => this.yScale(d.value));
 
+		console.log(this.chartData.data);
+
 		const lines = this.canvas.selectAll(".line")
-			.data(this.chartData.data, d => d.key); //for obscure reasons not working with d3keys, causing charts not redraw...
+			.data(this.chartData.data, d => d.d3Key); //this should work, bugs on my side are only reason it won't...
+		//seems to be a general problem with removal and merge...timing issue?
+		//wonder if it's drawing over itself...
+
+		const updated = lines.enter().append("g")
+			.attr("class", "line");
+
+		updated.merge(lines);
 
 		lines.exit().remove();
-
-		const update = lines.enter().append("g")
-			.attr("class", "line")
-			.merge(lines);
 
 		lines.append("path")
 			.attr("d", d => {
@@ -102,7 +107,7 @@ export class LineChart extends BaseChart {
 
 		lines.each(function(line) {
 			const circles = d3.select(this).selectAll("circle")
-				.data(line.data, d => d.key);
+				.data(line.data, d => d.d3Key);
 			circles.exit().remove();
 
 			const update = circles.enter()
@@ -133,7 +138,7 @@ export class LineChart extends BaseChart {
 			.attr("font-size", "12");
 
 		const legend = d3.select(".legend").selectAll("li")
-			.data(this.chartData.data); 
+			.data(this.chartData.data);
 
 		legend.exit().remove();
 
@@ -165,7 +170,8 @@ export class LineChart extends BaseChart {
 
 	private _addKeysToChartData() {
 		this.chartData.data.forEach(datum => {
-			datum.d3Key = Math.floor(this.yScale(10)) + Math.floor(this.xScale(10)) + datum.key;
+			const total = this.chartData.sum(datum.data);
+			datum.d3Key = Math.floor(this.yScale(10)) + Math.floor(this.xScale(10)) + Math.floor(total) + datum.key;
 		})
 	}
 
