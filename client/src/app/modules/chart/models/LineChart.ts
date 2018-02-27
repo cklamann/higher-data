@@ -4,7 +4,6 @@ import { intBaseChartDatum, intBaseChartData } from './ChartData';
 import * as d3 from 'd3';
 import * as _ from 'lodash';
 
-
 export class LineChart extends BaseChart {
 	xAxis: any;
 	yAxis: any;
@@ -59,7 +58,8 @@ export class LineChart extends BaseChart {
 			this.chartData.getMax()
 		]);
 
-		this._addKeysToChartData(); //not doing its job
+		//d3 binds by reference, so need a fresh dataset for each draw() call
+		let lineChartData = this._addKeysToChartData();
 
 		let rotationDegrees = +this.width < 501 ? 45 : 30;
 		d3.selectAll("g.axis--x text")
@@ -75,45 +75,54 @@ export class LineChart extends BaseChart {
 			.x((d: any) => this.xScale(d.fiscal_year))
 			.y((d: any) => this.yScale(d.value));
 
-
 		const lines = this.canvas.selectAll(".line");
-		const linesWithData = lines.data(this.chartData.data, (d: intBaseChartData) => d.d3Key);
+		const linesWithData = lines.data(lineChartData.data, (d: intBaseChartData) => d.d3Key);
 		const removedLines = linesWithData.exit().remove();
 		const enteredLines = linesWithData.enter()
 			.append("g")
 			.attr("class", "line");
 
-		const mergedLines = linesWithData.merge(enteredLines)
-			.append("path")
-			.attr("d", d => {
-				return line(d.data);
-			})
-			.style("stroke-width", 2)
-			.style("stroke", d => this.zScale(d.key))
-			.style("opacity", 0)
-			.transition(<any>250)
-			.style("opacity", 1);
+		const mergedLines = linesWithData.merge(enteredLines);
+
+		let that = this;
+
+		mergedLines.each(function(theLine) {
+			const path = d3.select(this).selectAll(".path");
+			const pathWithData = path.data([theLine.data]);
+			const removedPath = pathWithData.exit().remove();
+			const enteredPaths = pathWithData.enter()
+				.append("g")
+				.attr("class", "path")
+				.append("path")
+				.attr("d", d => line(d))
+				.style("stroke-width", 2)
+				.style("stroke", d => that.zScale(theLine.key))
+				.style("opacity", 0)
+				.transition(<any>250)
+				.style("opacity", 1);
+
+			const mergedPaths = pathWithData.merge(enteredPaths);
+
+		});
 
 		const tool = d3.select("body").append("div")
 			.attr("class", "d3-tip")
 			.style("opacity", 0);
 
-		let that = this;
-
 		mergedLines.each(function(theLine) {
 			const circles = d3.select(this).selectAll(".circle");
-			const circlesWithData = circles.data(theLine.data, (d: intBaseChartDatum) => d.fiscal_year + d.key);
+			const circlesWithData = circles.data(theLine.data);
 			const removedCircles = circlesWithData.exit().remove();
 			const enteredCircles = circlesWithData.enter().append("g")
-				.attr("class", "circle");
-
-			const mergedCircles = circlesWithData.merge(enteredCircles)
+				.attr("class", "circle")
 				.append("circle")
 				.attr("r", 4)
 				.attr("cx", d => that.xScale(d.fiscal_year))
 				.attr("cy", d => that.yScale(d.value))
-				.style("stroke", that.zScale(line.key))
-				.style("fill", that.zScale(line.key))
+				.style("stroke", that.zScale(theLine.key))
+				.style("fill", that.zScale(theLine.key));
+
+			const mergedCircles = circlesWithData.merge(enteredCircles)
 				.on("mouseover", d => {
 					tool.transition()
 						.duration(200)
@@ -133,7 +142,7 @@ export class LineChart extends BaseChart {
 			.attr("font-size", "12");
 
 		const legend = d3.select(".legend").selectAll("li")
-			.data(this.chartData.data);
+			.data(lineChartData.data);
 
 		legend.exit().remove();
 
@@ -164,10 +173,12 @@ export class LineChart extends BaseChart {
 	}
 
 	private _addKeysToChartData() {
-		this.chartData.data.forEach(datum => {
-			const total = this.chartData.sum(datum.data);
-			datum.d3Key = Math.floor(this.yScale(10)) + Math.floor(this.xScale(10)) + Math.floor(total) + datum.key;
-		})
+		let newData = _.cloneDeep(this.chartData);
+		newData.data.forEach(datum => {
+			const total = newData.sum(datum.data);
+			datum.d3Key = datum.key + Math.floor(this.yScale(10000)) + Math.floor(this.xScale(10000)) + Math.floor(total);
+		}) 
+		return newData;
 	}
 
 };
