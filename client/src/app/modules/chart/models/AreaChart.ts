@@ -10,7 +10,7 @@ export class AreaChart extends LineChart {
 	xGrid: any;
 	yGrid: any;
 	keys: string[];
-	stackData: any;
+	stackData: d3.Series<{ [key: string]: number }, string>[];
 	areaChartData: any;
 	constructor(data: intChartExport, selector: string, overrides: any) {
 		super(data, selector, overrides);
@@ -42,24 +42,25 @@ export class AreaChart extends LineChart {
 		this.canvas.select('.y-grid').transition().duration(500).call(this.yGrid);
 
 		const stack = d3.stack().order(d3.stackOrderDescending);
+
 		let area = d3.area()
 			.x((d: any) => this.xScale(d.data.date))
 			.y0(d => this.yScale(d[0]))
 			.y1(d => this.yScale(d[1]));
 
 		stack.keys(this.chartData.data.map(datum => datum.key));
+
 		this.stackData = stack(this.areaChartData);
-		console.log(this.stackData[0]);
+
 		const layers = this.canvas.selectAll(".layer"),
-			layersWithData = layers.data(this.stackData, d => this._getLayerKey(d)),
+			layersWithData = layers.data(this.stackData, (d: any) => d),
 			removedLayers = layersWithData.exit().transition().duration(100).remove(),
 			enteredLayers = layersWithData.enter().append("g")
 				.attr("class", "layer")
 				.append("path")
 				.attr("class", "area")
-				.transition(<any>1000)
 				.style("fill", (d, i) => this.zScale(d.key))
-				.attr("d", area);
+				.attr("d", <any>area);
 
 		const mergedLayers = layersWithData.merge(enteredLayers);
 
@@ -90,7 +91,8 @@ export class AreaChart extends LineChart {
 		let barScale = d3.scaleBand().rangeRound([0, this.width]).domain(this.areaChartData.map(datum => datum.date)).padding(0.0);
 
 		this.canvas.selectAll(".bar")
-			.data(this.areaChartData, d => Math.floor(Math.random() * 1000)) //redraw every time...
+			.remove()
+			.data(this.areaChartData) //redraw every time
 			.enter().append("rect")
 			.attr("class", "bar")
 			.attr("x", (d: any) => barScale(d.date))
@@ -116,14 +118,6 @@ export class AreaChart extends LineChart {
 					.duration(200)
 					.style("opacity", 0);
 			});
-	}
-
-	private _getLayerKey(datum: any) {
-		//doesn't work... hard to understand why....
-		let vals = _.flatten(datum.map(x => x.filter(y => y)));
-		console.log(vals);
-
-		return this.yScale(vals.reduce((a, b) => a + b));
 	}
 
 	private _getToolTip(datum): string {

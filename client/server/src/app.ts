@@ -25,7 +25,7 @@ const app = express();
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/favicon.ico', function(req,res,next) {
-  res.sendStatus(404); 
+  res.sendStatus(404);
 });
 
 app.use(logger('common', {
