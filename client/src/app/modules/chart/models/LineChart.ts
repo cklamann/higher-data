@@ -71,18 +71,29 @@ export class LineChart extends BaseChart {
 		this.canvas.select('.x-grid').transition().duration(500).call(this.xGrid);
 		this.canvas.select('.y-grid').transition().duration(500).call(this.yGrid);
 
-		const line: any = d3.line()
+		const line: d3.Line<any> = d3.line()
 			.x((d: any) => this.xScale(d.fiscal_year))
 			.y((d: any) => this.yScale(d.value));
 
 		const lines = this.canvas.selectAll(".line");
-		const linesWithData = lines.data(lineChartData.data, (d: intBaseChartData) => d.d3Key);
+		const linesWithData = lines.data(lineChartData.data, (d: intBaseChartData) => d.key); //making this d3key redraws when we remove, but doesn't help inflation
+
+		//so still not really working with inflation, etc
+
+		//todo: scrap this each bullshit, use this:
+
+		//https://github.com/d3/d3-selection#selection_data
+
+		linesWithData.style('stroke','black');
+
 		const removedLines = linesWithData.exit().remove();
 		const enteredLines = linesWithData.enter()
 			.append("g")
 			.attr("class", "line");
 
 		const mergedLines = linesWithData.merge(enteredLines);
+
+
 
 		let that = this;
 
@@ -92,7 +103,9 @@ export class LineChart extends BaseChart {
 			const removedPath = pathWithData.exit().remove();
 			const enteredPaths = pathWithData.enter()
 				.append("g")
-				.attr("class", "path")
+				.attr("class", "path");
+
+			const mergedPaths = pathWithData.merge(enteredPaths)	
 				.append("path")
 				.attr("d", d => line(d))
 				.style("stroke-width", 2)
@@ -100,7 +113,7 @@ export class LineChart extends BaseChart {
 				.style("opacity", 0)
 				.style("opacity", 1);
 
-			const mergedPaths = pathWithData.merge(enteredPaths);
+			
 
 		});
 
@@ -174,9 +187,8 @@ export class LineChart extends BaseChart {
 	private _addKeysToChartData() {
 		let newData = _.cloneDeep(this.chartData);
 		newData.data.forEach(datum => {
-			const total = newData.sum(datum.data),
-			fy = datum.data.filter(item => item.fiscal_year).pop();
-			datum.d3Key = datum.key + Math.floor(this.yScale(100)) + Math.floor(this.xScale(fy));
+			const total = newData.sum(datum.data);
+			datum.d3Key = datum.key + Math.floor(this.yScale(100) + this.xScale(1994)); //bleh don't work
 		}) 
 		return newData;
 	}

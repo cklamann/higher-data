@@ -90,9 +90,11 @@ export class AreaChart extends LineChart {
 
 		let barScale = d3.scaleBand().rangeRound([0, this.width]).domain(this.areaChartData.map(datum => datum.date)).padding(0.0);
 
+		this.canvas.selectAll(".bar") //redraw every time
+			.remove();
+
 		this.canvas.selectAll(".bar")
-			.remove()
-			.data(this.areaChartData) //redraw every time
+			.data(this.areaChartData)
 			.enter().append("rect")
 			.attr("class", "bar")
 			.attr("x", (d: any) => barScale(d.date))
