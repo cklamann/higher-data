@@ -17,6 +17,7 @@ export class AreaChart extends LineChart {
 	}
 
 	draw() {
+
 		this.areaChartData = this._transformData();
 		let dateRange = this.chartData.getDateRange();
 		this.xScale.domain(d3.extent(dateRange));
@@ -42,27 +43,25 @@ export class AreaChart extends LineChart {
 
 		const stack = d3.stack().order(d3.stackOrderDescending);
 		let area = d3.area()
-			.x( (d:any) => this.xScale(d.data.date))
+			.x((d: any) => this.xScale(d.data.date))
 			.y0(d => this.yScale(d[0]))
 			.y1(d => this.yScale(d[1]));
 
 		stack.keys(this.chartData.data.map(datum => datum.key));
 		this.stackData = stack(this.areaChartData);
+		console.log(this.stackData[0]);
+		const layers = this.canvas.selectAll(".layer"),
+			layersWithData = layers.data(this.stackData, d => this._getLayerKey(d)),
+			removedLayers = layersWithData.exit().transition().duration(100).remove(),
+			enteredLayers = layersWithData.enter().append("g")
+				.attr("class", "layer")
+				.append("path")
+				.attr("class", "area")
+				.transition(<any>1000)
+				.style("fill", (d, i) => this.zScale(d.key))
+				.attr("d", area);
 
-		const layers = this.canvas.selectAll(".layer")
-			.data(this.stackData, (d:any) => d.key);
-
-		layers.exit().transition().duration(100).remove();
-
-		const update = layers.enter().append("g")
-			.attr("class", "layer")
-			.merge(layers);
-
-		layers.append("path")
-			.attr("class", "area")
-			.transition(<any>1000)
-			.style("fill", (d, i) => this.zScale(d.key))
-			.attr("d", area);
+		const mergedLayers = layersWithData.merge(enteredLayers);
 
 		let legendData = _.sortBy(this.stackData, datum => datum.index).reverse(); // ensure descending order
 
@@ -91,10 +90,10 @@ export class AreaChart extends LineChart {
 		let barScale = d3.scaleBand().rangeRound([0, this.width]).domain(this.areaChartData.map(datum => datum.date)).padding(0.0);
 
 		this.canvas.selectAll(".bar")
-			.data(this.areaChartData)
+			.data(this.areaChartData, d => Math.floor(Math.random() * 1000)) //redraw every time...
 			.enter().append("rect")
 			.attr("class", "bar")
-			.attr("x", (d:any) => barScale(d.date))
+			.attr("x", (d: any) => barScale(d.date))
 			.style('opacity', '0.0')
 			.attr("y", 0)
 			.attr("width", barScale.bandwidth())
@@ -119,6 +118,14 @@ export class AreaChart extends LineChart {
 			});
 	}
 
+	private _getLayerKey(datum: any) {
+		//doesn't work... hard to understand why....
+		let vals = _.flatten(datum.map(x => x.filter(y => y)));
+		console.log(vals);
+
+		return this.yScale(vals.reduce((a, b) => a + b));
+	}
+
 	private _getToolTip(datum): string {
 		let legendKeyMap = this.chartData.data.map(datum => {
 			return { key: datum.key, legendName: datum.legendName };
@@ -135,10 +142,10 @@ export class AreaChart extends LineChart {
 		})
 
 		tips.sort((a, b) => b.index < a.index ? -1 : b.index > a.index ? 1 : b.index >= a.index ? 0 : NaN);
-			let str = tips.map(tip => {
-				return "<li><span style='color:" + this.zScale(tip.key) + "'><i class='fa fa-circle' aria-hidden='true'></i></span>&nbsp" + tip.legendName + ": " + this.formatNumber(datum[tip.key], this.displayOptions.valueType) + "</li>";
-			}).join("");
-			return "<div>" + datum.date.getFullYear() + ":<br><ul class='mat-caption'>" + str + "</ul>";
+		let str = tips.map(tip => {
+			return "<li><span style='color:" + this.zScale(tip.key) + "'><i class='fa fa-circle' aria-hidden='true'></i></span>&nbsp" + tip.legendName + ": " + this.formatNumber(datum[tip.key], this.displayOptions.valueType) + "</li>";
+		}).join("");
+		return "<div>" + datum.date.getFullYear() + ":<br><ul class='mat-caption'>" + str + "</ul>";
 	}
 
 	private _getLegendLine(stackDatum) {

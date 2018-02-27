@@ -175,8 +175,9 @@ export class LineChart extends BaseChart {
 	private _addKeysToChartData() {
 		let newData = _.cloneDeep(this.chartData);
 		newData.data.forEach(datum => {
-			const total = newData.sum(datum.data);
-			datum.d3Key = datum.key + Math.floor(this.yScale(10000)) + Math.floor(this.xScale(10000)) + Math.floor(total);
+			const total = newData.sum(datum.data),
+			fy = datum.data.filter(item => item.fiscal_year).pop();
+			datum.d3Key = datum.key + Math.floor(this.yScale(100)) + Math.floor(this.xScale(fy));
 		}) 
 		return newData;
 	}
