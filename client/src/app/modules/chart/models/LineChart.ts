@@ -77,6 +77,8 @@ export class LineChart extends BaseChart {
 
 		const lines = this.canvas.selectAll(".line");
 		const linesWithData = lines.data(lineChartData.data, (d: intBaseChartData) => d.d3Key);
+		//i don't understand why this should be d.d3Key --> that's just prompting d3 to redraw chart
+		//we want it to merge in new data, and datum.d3Key should signal it's new...
 		const removedLines = linesWithData.exit().remove();
 		const enteredLines = linesWithData.enter()
 			.append("g")
