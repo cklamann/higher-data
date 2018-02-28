@@ -82,12 +82,14 @@ export class ChartPageComponent implements OnInit {
 	}
 
 	onCutByChange($event) {
+		//these really should be changing the url...
 		this.chartData.options.cut = $event.value;
 		this.ChartService.fetchChart(this.chartData.chart.slug, this.chartData.school.slug, this.chartData.options)
 			.subscribe(res => this._setChartData(res));
 	}
 
 	onInflationChange($event) {
+		//these really should be changing the url...
 		this.chartData.options.infationAdjusted = $event.value;
 		this.ChartService.fetchChart(this.chartData.school.slug, this.chartData.chart.slug, this.chartData.options)
 			.subscribe(res => this._setChartData(res));
@@ -114,10 +116,12 @@ export class ChartPageComponent implements OnInit {
 	}
 
 	private _setChartData(res: intChartExport) {
+		//todo: wipe out and hide options form if chart/school is new
+		//todo: update form on this end, too much control on the template
 		this.chartData = res;
 	}
 
-	private _loadChart() {
+	private _loadChart(): void {
 		if ((this.selections.chartSlug && this.selections.schoolSlug) || (this.chartData)) {
 			this.router.navigate([`data/charts/${this.selections.schoolSlug}/${this.selections.chartSlug}`]);
 		}
