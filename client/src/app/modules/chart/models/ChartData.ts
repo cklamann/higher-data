@@ -5,7 +5,6 @@ import * as d3 from 'd3';
 
 export class ChartData {
 	data: intBaseChartData[];
-	_cachedData: intBaseChartData[];
 	constructor(data: intChartExportDataParentModel[]) {
 		this.data = _baseTransform(data);
 	}
@@ -21,10 +20,8 @@ export class ChartData {
 	getMin = (): number => d3.min(this.data, datum => d3.min(datum.data, item => item.value));
 	getTotal = (): number => d3.sum(this.data, varGroup => this.sum(varGroup.data));
 
-	sum = (variableObj) => variableObj.reduce((a, b) => {
-		a = _.isNumber(a) ? a : a.value;
-		b = _.isNumber(b) ? a : b.value;
-		return a + b;
+	sum = (variableObj:intChartDataYearDatum[]) => variableObj.reduce((a, b) => {
+		return a + b.value;
 	}, 0);
 
 	getDateRange = (): Array<Date> => {
@@ -55,46 +52,46 @@ export class ChartData {
 		this.data = this.data.filter((val, i) => i != index);
 	}
 
-	nestByYear = () => new ChartDataNestedByYear(this);
+	//nestByYear = () => new ChartDataNestedByYear(this);
 
 }
 
-export class ChartDataNestedByYear { // https://github.com/Microsoft/TypeScript/issues/16163
-	data: intChartDataYear[];
-	constructor(ChartData: ChartData) {
-		this.data = _nestChartDataByYear(ChartData.data);
-	}
-	getTotal = (): number => d3.sum(_.flatMap(<any>this.data, varGroup => varGroup.data.reduce((prev, acc) => prev.value + acc.value)));
+// export class ChartDataNestedByYear { // https://github.com/Microsoft/TypeScript/issues/16163
+// 	data: intChartDataYear[];
+// 	constructor(ChartData: ChartData) {
+// 		this.data = _nestChartDataByYear(ChartData.data);
+// 	}
+// 	getTotal = (): number => d3.sum(_.flatMap(<any>this.data, varGroup => varGroup.data.reduce((prev, acc) => prev.value + acc.value)));
 
-	sortByVal = flag => {
-		this.data.forEach(datum => datum.data.sort(_numSort));
-		if (flag == 'desc') {
-			this.data.forEach(datum => datum.data.reverse());
-		}
-	};
-	getMax = () => d3.max(this.data, datum => d3.max(datum.data, item => item.value));
-	getMin = () => d3.min(this.data, datum => d3.min(datum.data, item => item.value));
-	setNullsToZero = () => this.data.forEach(datum => datum.data.forEach(item => item.value === null ? item.value = 0 : item.value = item.value));
+// 	sortByVal = flag => {
+// 		this.data.forEach(datum => datum.data.sort(_numSort));
+// 		if (flag == 'desc') {
+// 			this.data.forEach(datum => datum.data.reverse());
+// 		}
+// 	};
+// 	getMax = () => d3.max(this.data, datum => d3.max(datum.data, item => item.value));
+// 	getMin = () => d3.min(this.data, datum => d3.min(datum.data, item => item.value));
+// 	setNullsToZero = () => this.data.forEach(datum => datum.data.forEach(item => item.value === null ? item.value = 0 : item.value = item.value));
 
-}
+// }
 
-function _nestChartDataByYear(data: intBaseChartData[]): intChartDataYear[] {
-	const fiscalYears: number[] = _.uniq(_.flatMap(data, datum => _.flatMap(datum.data, item => item.fiscal_year)));
-	return fiscalYears.map(year => {
-		let obj = {
-			fiscal_year: year,
-			data: []
-		};
-		data.forEach(datum => {
-			datum.data.forEach(item => {
-				if (item.fiscal_year == year) {
-					obj.data.push(item);
-				}
-			});
-		});
-		return obj;
-	});
-}
+// function _nestChartDataByYear(data: intBaseChartData[]): intChartDataYear[] {
+// 	const fiscalYears: number[] = _.uniq(_.flatMap(data, datum => _.flatMap(datum.data, item => item.fiscal_year)));
+// 	return fiscalYears.map(year => {
+// 		let obj = {
+// 			fiscal_year: year,
+// 			data: []
+// 		};
+// 		data.forEach(datum => {
+// 			datum.data.forEach(item => {
+// 				if (item.fiscal_year == year) {
+// 					obj.data.push(item);
+// 				}
+// 			});
+// 		});
+// 		return obj;
+// 	});
+// }
 
 interface intChartDataYear {
 	fiscal_year: number,

@@ -5,6 +5,7 @@ import * as d3 from 'd3';
 import * as _ from 'lodash';
 
 export class LineChart extends BaseChart {
+	//todo:fix typings
 	xAxis: any;
 	yAxis: any;
 	xGrid: any;
@@ -14,7 +15,8 @@ export class LineChart extends BaseChart {
 	}
 
 	build() {
-		this.xScale = d3.scaleTime().range([0, this.width]);
+		//1 px so axis line is visible
+		this.xScale = d3.scaleTime().range([1, this.width]); 
 		this.yScale = d3.scaleLinear().range([this.height, 0]);
 
 		this.xAxis = d3.axisBottom(this.xScale)
@@ -60,7 +62,12 @@ export class LineChart extends BaseChart {
 			this.chartData.getMax()
 		]);
 
-		//todo: get order of items correct in legend and tooltip by sorting
+		//ensure uniform order of tooltips, etc.
+		this.chartData.data.sort( (a,b) => {
+			let aSum = a.data.reduce( (a,b) => a + b.value, 0),
+			bSum = a.data.reduce( (a,b) => a + b.value, 0);
+			return aSum > bSum ? -1 : 1;
+		});
 
 		let rotationDegrees = +this.width < 501 ? 45 : 30;
 		d3.selectAll("g.axis--x text")
