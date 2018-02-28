@@ -43,6 +43,7 @@ export class ChartPageComponent implements OnInit {
 		this.createForm();
 		this.route.params.subscribe(params => {
 			if (params.chart && params.school) {
+				//todo: add third options argument here once _loadChart is passed it
 				this.ChartService.fetchChart(params.chart, params.school)
 					.subscribe(res => {
 						if (!this.chartData) {
@@ -63,7 +64,8 @@ export class ChartPageComponent implements OnInit {
 
 	createForm() {
 		this.chartFiltersForm = this.fb.group({
-			filters: ''
+			filters: '',
+			inflationAdjusted: '',
 		});
 	}
 
@@ -84,6 +86,7 @@ export class ChartPageComponent implements OnInit {
 	onCutByChange($event) {
 		//these really should be changing the url...
 		this.chartData.options.cut = $event.value;
+		//todo: call _loadChart instead
 		this.ChartService.fetchChart(this.chartData.chart.slug, this.chartData.school.slug, this.chartData.options)
 			.subscribe(res => this._setChartData(res));
 	}
@@ -91,6 +94,7 @@ export class ChartPageComponent implements OnInit {
 	onInflationChange($event) {
 		//these really should be changing the url...
 		this.chartData.options.infationAdjusted = $event.value;
+		//todo: call _loadChart instead
 		this.ChartService.fetchChart(this.chartData.school.slug, this.chartData.chart.slug, this.chartData.options)
 			.subscribe(res => this._setChartData(res));
 	}
@@ -116,12 +120,14 @@ export class ChartPageComponent implements OnInit {
 	}
 
 	private _setChartData(res: intChartExport) {
-		//todo: wipe out and hide options form if chart/school is new
-		//todo: update form on this end, too much control on the template
+		//todo: once _loadChart passes in options, slice those off here and display them into ui filter form
+		//so user knows what he's looking at
 		this.chartData = res;
 	}
 
 	private _loadChart(): void {
+		//todo: add options to query string
+		//by principle, all data changes flow through url...
 		if ((this.selections.chartSlug && this.selections.schoolSlug) || (this.chartData)) {
 			this.router.navigate([`data/charts/${this.selections.schoolSlug}/${this.selections.chartSlug}`]);
 		}
