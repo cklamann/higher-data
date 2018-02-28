@@ -60,8 +60,6 @@ export class LineChart extends BaseChart {
 			this.chartData.getMax()
 		]);
 
-		let lineChartData = this._addKeysToChartData(); //don't need this... todo: can
-
 		//todo: get order of items correct in legend and tooltip by sorting
 
 		let rotationDegrees = +this.width < 501 ? 45 : 30;
@@ -78,7 +76,7 @@ export class LineChart extends BaseChart {
 			.x((d: any) => this.xScale(d.fiscal_year))
 			.y((d: any) => this.yScale(d.value));
 
-		let paths = this.canvas.selectAll(".path").data(lineChartData.data, d => d.key);
+		let paths = this.canvas.selectAll(".path").data(this.chartData.data, d => d.key);
 		let removedPaths = paths.exit().remove();
 		let enteredPaths = paths.enter().append("path").attr("class", "path");
 		enteredPaths.merge(paths)
@@ -93,7 +91,7 @@ export class LineChart extends BaseChart {
 			.style("opacity", 0);
 
 		const circles = this.canvas.selectAll(".circle");
-		const circlesWithData = circles.data(lineChartData.data, d => d.key);
+		const circlesWithData = circles.data(this.chartData.data, d => d.key);
 		const removedCircles = circlesWithData.exit().remove();
 		const enteredCircles = circlesWithData.enter().append("g")
 			.attr("class", "circle");
@@ -128,7 +126,7 @@ export class LineChart extends BaseChart {
 			.attr("font-size", "12");
 
 		const legend = d3.select(".legend").selectAll("li")
-			.data(lineChartData.data);
+			.data(this.chartData.data);
 
 		legend.exit().remove();
 
@@ -156,15 +154,6 @@ export class LineChart extends BaseChart {
 		}),
 			list = items.join('');
 		return "<ul class='mat-caption'>" + list + "<ul>";
-	}
-
-	private _addKeysToChartData() {
-		let newData = _.cloneDeep(this.chartData);
-		newData.data.forEach(datum => {
-			const total = newData.sum(datum.data);
-			datum.d3Key = datum.key + Math.floor(this.yScale(100) + this.xScale(1994)); //bleh don't work
-		})
-		return newData;
 	}
 
 };

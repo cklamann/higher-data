@@ -54,15 +54,16 @@ export class AreaChart extends LineChart {
 
 		const layers = this.canvas.selectAll(".layer"),
 			layersWithData = layers.data(this.stackData, (d: any) => d),
-			removedLayers = layersWithData.exit().transition().duration(100).remove(),
-			enteredLayers = layersWithData.enter().append("g")
-				.attr("class", "layer")
+			removedLayers = layersWithData.exit().remove(),
+			enteredLayers = layersWithData.enter()
 				.append("path")
-				.attr("class", "area")
-				.style("fill", (d, i) => this.zScale(d.key))
-				.attr("d", <any>area);
+				.attr("class", "layer")
 
-		const mergedLayers = layersWithData.merge(enteredLayers);
+		const mergedLayers = layersWithData.merge(enteredLayers)
+			.style("fill", (d, i) => this.zScale(d.key))
+			.attr("d", <any>area);
+
+		//elements in _groups selection need to be drawn cuz they may have new data
 
 		let legendData = _.sortBy(this.stackData, datum => datum.index).reverse(); // ensure descending order
 
