@@ -47,6 +47,8 @@ export class LineChart extends BaseChart {
 
 	draw() {
 
+		let that = this;
+
 		let dateRange = this.chartData.getDateRange();
 		this.xScale.domain(d3.extent(dateRange));
 		let tickNumber = dateRange.length > 20 ? 20 : dateRange.length;
@@ -58,8 +60,9 @@ export class LineChart extends BaseChart {
 			this.chartData.getMax()
 		]);
 
-		//d3 binds by reference, so need a fresh dataset for each draw() call
-		let lineChartData = this._addKeysToChartData();
+		let lineChartData = this._addKeysToChartData(); //don't need this... todo: can
+
+		//todo: get order of items correct in legend and tooltip by sorting
 
 		let rotationDegrees = +this.width < 501 ? 45 : 30;
 		d3.selectAll("g.axis--x text")
@@ -75,80 +78,51 @@ export class LineChart extends BaseChart {
 			.x((d: any) => this.xScale(d.fiscal_year))
 			.y((d: any) => this.yScale(d.value));
 
-		const lines = this.canvas.selectAll(".line");
-		const linesWithData = lines.data(lineChartData.data, (d: intBaseChartData) => d.key); //making this d3key redraws when we remove, but doesn't help inflation
-
-		//so still not really working with inflation, etc
-
-		//todo: scrap this each bullshit, use this:
-
-		//https://github.com/d3/d3-selection#selection_data
-
-		linesWithData.style('stroke','black');
-
-		const removedLines = linesWithData.exit().remove();
-		const enteredLines = linesWithData.enter()
-			.append("g")
-			.attr("class", "line");
-
-		const mergedLines = linesWithData.merge(enteredLines);
-
-
-
-		let that = this;
-
-		mergedLines.each(function(theLine) {
-			const path = d3.select(this).selectAll(".path");
-			const pathWithData = path.data([theLine.data]);
-			const removedPath = pathWithData.exit().remove();
-			const enteredPaths = pathWithData.enter()
-				.append("g")
-				.attr("class", "path");
-
-			const mergedPaths = pathWithData.merge(enteredPaths)	
-				.append("path")
-				.attr("d", d => line(d))
-				.style("stroke-width", 2)
-				.style("stroke", d => that.zScale(theLine.key))
-				.style("opacity", 0)
-				.style("opacity", 1);
-
-			
-
-		});
+		let paths = this.canvas.selectAll(".path").data(lineChartData.data, d => d.key);
+		let removedPaths = paths.exit().remove();
+		let enteredPaths = paths.enter().append("path").attr("class", "path");
+		enteredPaths.merge(paths)
+			.attr("d", d => line(d.data))
+			.style("stroke-width", 2)
+			.style("stroke", d => that.zScale(d.key))
+			.style("opacity", 0)
+			.style("opacity", 1);
 
 		const tool = d3.select("body").append("div")
 			.attr("class", "d3-tip")
 			.style("opacity", 0);
 
-		mergedLines.each(function(theLine) {
-			const circles = d3.select(this).selectAll(".circle");
-			const circlesWithData = circles.data(theLine.data);
-			const removedCircles = circlesWithData.exit().remove();
-			const enteredCircles = circlesWithData.enter().append("g")
-				.attr("class", "circle")
-				.append("circle")
-				.attr("r", 4)
-				.attr("cx", d => that.xScale(d.fiscal_year))
-				.attr("cy", d => that.yScale(d.value))
-				.style("stroke", that.zScale(theLine.key))
-				.style("fill", that.zScale(theLine.key));
+		const circles = this.canvas.selectAll(".circle");
+		const circlesWithData = circles.data(lineChartData.data, d => d.key);
+		const removedCircles = circlesWithData.exit().remove();
+		const enteredCircles = circlesWithData.enter().append("g")
+			.attr("class", "circle");
 
-			const mergedCircles = circlesWithData.merge(enteredCircles)
-				.on("mouseover", d => {
-					tool.transition()
-						.duration(200)
-						.style("opacity", 1);
-					tool.html(that.getToolTip(d.fiscal_year))
-						.style("left", (d3.event.pageX) + "px")
-						.style("top", (d3.event.pageY - 10) + "px");
-				}).on("mouseout", function(d) {
-					tool.transition()
-						.duration(200)
-						.style("opacity", 0);
-				});
+		circlesWithData.merge(enteredCircles)
+			.each(function(item) {
+				let circles = d3.select(this).selectAll(".circle").data(item.data, d => d.key);
+				let exited = circles.exit().remove();
+				let circlesEntered = circles.enter().append("circle").attr("class", "circle");
+				circles.merge(circlesEntered)
+					.attr("r", 4)
+					.attr("cx", d => that.xScale(d.fiscal_year))
+					.attr("cy", d => that.yScale(d.value))
+					.style("stroke", d => that.zScale(d.key))
+					.style("fill", d => that.zScale(d.key))
+					.on("mouseover", d => {
+						tool.transition()
+							.duration(200)
+							.style("opacity", 1);
+						tool.html(that.getToolTip(d.fiscal_year))
+							.style("left", (d3.event.pageX) + "px")
+							.style("top", (d3.event.pageY - 10) + "px");
+					}).on("mouseout", function(d) {
+						tool.transition()
+							.duration(200)
+							.style("opacity", 0);
+					});
+			});
 
-		});
 
 		d3.selectAll("text")
 			.attr("font-size", "12");
@@ -189,7 +163,7 @@ export class LineChart extends BaseChart {
 		newData.data.forEach(datum => {
 			const total = newData.sum(datum.data);
 			datum.d3Key = datum.key + Math.floor(this.yScale(100) + this.xScale(1994)); //bleh don't work
-		}) 
+		})
 		return newData;
 	}
 
