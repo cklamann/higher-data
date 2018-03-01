@@ -53,6 +53,7 @@ export class ChartPageComponent implements OnInit {
 			//from the previous url encoding
 			//so anything that starts with %25 has been double encoded and will end up appended to the
 			//last param, so it needs to be stripped along with everything after it
+			//see https://stackoverflow.com/questions/41181723/avoid-url-encoding-with-navigate-in-angular-2
 			return queryVars.map(qv => {
 				return Object.assign({}, qv, param);
 			})
