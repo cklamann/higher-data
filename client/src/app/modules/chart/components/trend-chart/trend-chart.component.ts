@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, OnInit, AfterViewInit, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { ChartService } from '../../ChartService.service';
 import { Charts } from '../../../../models/Charts';
 import { RestService } from '../../../../services/rest/rest.service';
@@ -28,26 +28,26 @@ export class TrendChartComponent implements OnInit {
 
 	}
 
-	ngOnInit() {
-		(() => {
-			window.addEventListener("resize", resizeThrottler, false);
-			var resizeTimeout;
-			function resizeThrottler() {
-				if (!resizeTimeout) {
-					resizeTimeout = setTimeout( () => {
-						resizeTimeout = null;
-						actualResizeHandler();
-					}, 150);
-				}
-			}
+	ngOnInit() { //commented out to keep it from interfering
+		// (() => {
+		// 	window.addEventListener("resize", resizeThrottler, false);
+		// 	var resizeTimeout;
+		// 	function resizeThrottler() {
+		// 		if (!resizeTimeout) {
+		// 			resizeTimeout = setTimeout( () => {
+		// 				resizeTimeout = null;
+		// 				actualResizeHandler();
+		// 			}, 150);
+		// 		}
+		// 	}
 
-			let actualResizeHandler = () => {
-				if(this.chart){
-					this.chart.redraw();
-				}
-			}
+		// 	let actualResizeHandler = () => {
+		// 		if(this.chart){
+		// 			this.chart.redraw();
+		// 		}
+		// 	}
 
-		}) ();
+		// }) ();
 	}
 
 	ngOnChanges(changes: SimpleChanges) {
@@ -56,29 +56,39 @@ export class TrendChartComponent implements OnInit {
 		}
 	}
 
+	ngAfterViewInit() {
+		//subscribe to changes here? I think so 
+		//first, create a cold observable on the init hook
+		//then onChartDataChanges will update it as fit
+		//then the view hook will subscribe...
+		//but first, a one-off solution
+		console.log("view is ready", $("." + this.myRandomSelector));
+		if(this.chart){ 
+			this.chart.buildCanvas();
+			this.chart.build();
+		}
+	}
+
 	onChartDataChanges(chartDataChanges) {
-		if (chartDataChanges) {
-			console.log(chartDataChanges.currentValue.data); //doesn't work because you have to check and see that every datum is empty
-			if (chartDataChanges.currentValue.data.length === 0){
-				if(this.chart){
-					this.chart.remove();
-				}
-				console.log("no datter!");
+		console.log("view not ready?", $("." + this.myRandomSelector));
+		if (chartDataChanges.currentValue.data.length === 0) {
+			if (this.chart) {
+				this.chart.remove();
 			}
-			//if chart or school is new, fetch new chart
-			else if (!chartDataChanges.previousValue ||
-				!_.isEqual(chartDataChanges.previousValue.chart, chartDataChanges.currentValue.chart) ||
-				!_.isEqual(chartDataChanges.previousValue.school, chartDataChanges.currentValue.school)) {
-				if (this.chart) this.chart.remove();
-				this.chart = this.ChartService.resolveChart(chartDataChanges.currentValue, this.myRandomSelector, this.chartOverrides);
-				this.chart.draw();
-			}
-			//if only the data changed, redraw current chart
-			else if (_.isEqual(chartDataChanges.previousValue.chart, chartDataChanges.currentValue.chart) &&
-				!_.isEqual(chartDataChanges.previousValue.data, chartDataChanges.currentValue.data)) {
-				this.chart.chartData = new ChartData(chartDataChanges.currentValue.data);
-				this.chart.draw(); //this doesn't need a timeout...
-			}
+			console.log("no datter!");
+		}
+		//if chart or school is new, fetch new chart
+		else if (!chartDataChanges.previousValue ||
+			!_.isEqual(chartDataChanges.previousValue.chart, chartDataChanges.currentValue.chart) ||
+			!_.isEqual(chartDataChanges.previousValue.school, chartDataChanges.currentValue.school)) {
+			if (this.chart) this.chart.remove();
+			this.chart = this.ChartService.resolveChart(chartDataChanges.currentValue, this.myRandomSelector, this.chartOverrides);
+		}
+		//if only the data changed, redraw current chart
+		else if (_.isEqual(chartDataChanges.previousValue.chart, chartDataChanges.currentValue.chart) &&
+			!_.isEqual(chartDataChanges.previousValue.data, chartDataChanges.currentValue.data)) {
+			this.chart.chartData = new ChartData(chartDataChanges.currentValue.data);
+			this.chart.draw(); //this doesn't need a timeout...
 		}
 	}
 

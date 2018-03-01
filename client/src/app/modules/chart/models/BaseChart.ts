@@ -103,7 +103,7 @@ export class BaseChart {
 		this.build();
 		setTimeout(() => {
 			this.draw();
-		},50)
+		}, 50)
 	}
 
 	formatAY(dateString) {
