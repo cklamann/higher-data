@@ -48,10 +48,16 @@ export class ChartPageComponent implements OnInit {
 		let params = this.route.params;
 		let queryVars = this.route.queryParams;
 		params.flatMap(param => {
+			//todo: strip url encoding off...
+			//actually, what it's doing is url encoding the percentage signs (%25 is pct)
+			//from the previous url encoding
+			//so anything that starts with %25 has been double encoded and will end up appended to the
+			//last param, so it needs to be stripped along with everything after it
 			return queryVars.map(qv => {
 				return Object.assign({}, qv, param);
 			})
 		}).subscribe(params => {
+			console.log(params);
 			if (params.chart && params.school) {
 				let options = _.fromPairs(Object.entries(params).filter(pair => pair[0] != "chart" && pair[0] != "school"));
 				this.ChartService.fetchChart(params.chart, params.school, options)
@@ -131,7 +137,9 @@ export class ChartPageComponent implements OnInit {
 	private _setOptions(options: intChartExportOptions) {
 		options = Object.assign({ inflationAdjusted: null, cut: null }, options);
 		//not sure this is working really, seems to work on second pass, need to update radios	
+		//problem is the values are strings and need to be boolean....
 		this.chartOptionsForm.setValue(options);
+		console.log(this.chartOptionsForm.value);
 	}
 
 	//todo: don't pipe in empty values on options, strip those out...
