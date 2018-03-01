@@ -9,9 +9,9 @@
 	<div class = "inner-container" fxFlex="95" fxLayoutWrap fxFlex.gt-sm="90" fxLayout="row" fxLayoutAlign="center center">
 		<div fxLayout="row" fxLayoutWrap fxLayoutAlign="center center" fxFlex = "100" fxFlex.gt-sm="80" class = "chart-content">
 			<div fxLayout = "row" fxLayoutWrap fxLayoutAlign="space-around center" fxFlex = "100">
-		    	<!--neither of these is currently sticky, really we should listen to chartData, right? hmmm not working-->
-		    	<app-school-search [defaultModel] = "(chartData$.school | async)" (onSchoolSelect)="onSchoolSelect($event)" fxFlex = "90" fxFlex.gt-sm="45"></app-school-search>
-				<app-chart-search [defaultChart]= "(chartData$.chart | async)" (onChartSelect)="onChartSelect($event)" fxFlex = "90" fxFlex.gt-sm="45"></app-chart-search>
+		    	<!--these are passing the expected values back, but view not updating!-->
+		    	<app-school-search [defaultModel] = "(chartData$ | async)?.school.instnm" (onSchoolSelect)="onSchoolSelect($event)" fxFlex = "90" fxFlex.gt-sm="45"></app-school-search>
+				<app-chart-search [defaultChart]= "(chartData$ | async)?.chart.name" (onChartSelect)="onChartSelect($event)" fxFlex = "90" fxFlex.gt-sm="45"></app-chart-search>
 			</div>
 			<div fxFlex = "100" *ngIf= "(chartData$ | async) as chartData" [formGroup]="chartOptionsForm">
 				<div class = "options-container" fxFlex = "100">

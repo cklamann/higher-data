@@ -70,7 +70,6 @@ export class TrendChartComponent implements OnInit {
 	}
 
 	onChartDataChanges(chartDataChanges) {
-		console.log("view not ready?", $("." + this.myRandomSelector));
 		if (chartDataChanges.currentValue.data.length === 0) {
 			if (this.chart) {
 				this.chart.remove();
