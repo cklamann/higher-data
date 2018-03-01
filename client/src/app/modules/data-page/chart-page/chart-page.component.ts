@@ -4,12 +4,16 @@ import { MatToolbar, MatToolbarRow } from '@angular/material/toolbar';
 import { intSchoolModel } from '../../../../../server/src/schemas/SchoolSchema';
 import { intChartModel } from '../../../../../server/src/schemas/ChartSchema';
 import { ChartService } from '../../../modules/chart/ChartService.service';
-import { intChartExport } from '../../../../../server/src/models/ChartExporter';
+import { intChartExport, intChartExportOptions } from '../../../../../server/src/models/ChartExporter';
 import { TrendChartComponent } from '../../chart/components/trend-chart/trend-chart.component'
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { intBaseChartDatum } from '../../chart/models/ChartData';
 import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import * as _ from 'lodash';
+import 'rxjs/add/operator/mergeMap';
+import 'rxjs/add/operator/take';
+import 'rxjs/add/operator/concat';
+import 'rxjs/add/operator/switchMap';
 
 @Component({
 	selector: 'chart-page',
@@ -24,7 +28,7 @@ export class ChartPageComponent implements OnInit {
 	schoolSlug: string = '';
 	chartSlug: string = '';
 	chartData: intChartExport;
-	chartFiltersForm: FormGroup;
+	chartOptionsForm: FormGroup;
 	defaultModel: intSchoolModel;
 	defaultChart: intChartModel;
 	chartOptionsVisible: boolean = false;
@@ -41,11 +45,17 @@ export class ChartPageComponent implements OnInit {
 
 	ngOnInit(): void {
 		this.createForm();
-		this.route.params.subscribe(params => {
+		let params = this.route.params;
+		let queryVars = this.route.queryParams;
+		params.flatMap(param => {
+			return queryVars.map(qv => {
+				return Object.assign({}, qv, param);
+			})
+		}).subscribe(params => {
 			if (params.chart && params.school) {
-				//todo: add third options argument here once _loadChart is passed it
-				this.ChartService.fetchChart(params.chart, params.school)
-					.subscribe(res => {
+				let options = _.fromPairs(Object.entries(params).filter(pair => pair[0] != "chart" && pair[0] != "school"));
+				this.ChartService.fetchChart(params.chart, params.school, options)
+					.subscribe(res => { //in case we're loading from a link
 						if (!this.chartData) {
 							this.defaultModel = res.school;
 							this.defaultChart = res.chart;
@@ -63,8 +73,8 @@ export class ChartPageComponent implements OnInit {
 	}
 
 	createForm() {
-		this.chartFiltersForm = this.fb.group({
-			filters: '',
+		this.chartOptionsForm = this.fb.group({
+			cut: '',
 			inflationAdjusted: '',
 		});
 	}
@@ -72,31 +82,25 @@ export class ChartPageComponent implements OnInit {
 	onSchoolSelect(school: intSchoolModel | null) {
 		if (school) {
 			this.selections.schoolSlug = school.slug;
-			this._loadChart();
+			this._loadChart(this.selections.schoolSlug, this.selections.chartSlug);
 		}
 	}
 
 	onChartSelect(chart: intChartModel) {
 		if (chart) {
 			this.selections.chartSlug = chart.slug;
-			this._loadChart();
+			this._loadChart(this.selections.schoolSlug, this.selections.chartSlug);
 		}
 	}
 
 	onCutByChange($event) {
-		//these really should be changing the url...
-		this.chartData.options.cut = $event.value;
-		//todo: call _loadChart instead
-		this.ChartService.fetchChart(this.chartData.chart.slug, this.chartData.school.slug, this.chartData.options)
-			.subscribe(res => this._setChartData(res));
+		this.chartData.options.cut = $event.value; //why bother? just check the form on the caller
+		this._loadChart(this.chartData.school.slug, this.chartData.chart.slug);
 	}
 
 	onInflationChange($event) {
-		//these really should be changing the url...
-		this.chartData.options.infationAdjusted = $event.value;
-		//todo: call _loadChart instead
-		this.ChartService.fetchChart(this.chartData.school.slug, this.chartData.chart.slug, this.chartData.options)
-			.subscribe(res => this._setChartData(res));
+		this.chartData.options.inflationAdjusted = $event.value;//todo:remove these
+		this._loadChart(this.chartData.school.slug, this.chartData.chart.slug)
 	}
 
 	getChartTitle(): string {
@@ -120,16 +124,23 @@ export class ChartPageComponent implements OnInit {
 	}
 
 	private _setChartData(res: intChartExport) {
-		//todo: once _loadChart passes in options, slice those off here and display them into ui filter form
-		//so user knows what he's looking at
+		this._setOptions(res.options);
 		this.chartData = res;
 	}
 
-	private _loadChart(): void {
-		//todo: add options to query string
-		//by principle, all data changes flow through url...
-		if ((this.selections.chartSlug && this.selections.schoolSlug) || (this.chartData)) {
-			this.router.navigate([`data/charts/${this.selections.schoolSlug}/${this.selections.chartSlug}`]);
+	private _setOptions(options: intChartExportOptions) {
+		options = Object.assign({ inflationAdjusted: null, cut: null }, options);
+		//not sure this is working really, seems to work on second pass, need to update radios	
+		this.chartOptionsForm.setValue(options);
+	}
+
+	//todo: don't pipe in empty values on options, strip those out...
+	private _loadChart(schoolSlug: string, chartSlug: string): void {
+		console.log(this.chartOptionsForm.value);
+		if (schoolSlug && chartSlug) {
+			let optionString = this.chartOptionsForm.value ?
+				"?" + Object.entries(this.chartOptionsForm.value).map(pair => pair.join("=")).join("&") : "";
+			this.router.navigate([`data/charts/${schoolSlug}/${chartSlug}${optionString}`])
 		}
 	}
 }

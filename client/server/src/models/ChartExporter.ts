@@ -21,7 +21,7 @@ export interface intChartExportDataParentModel {
 
 export interface intChartExportOptions {
 	cut?: string;
-	infationAdjusted?: string;
+	inflationAdjusted?: string;
 }
 
 export class ChartExport {
@@ -43,7 +43,7 @@ export class ChartExport {
 		return Q.all(promises)
 			.then(values => {
 				let promises = values.map((result, i) => {
-					return this.options.infationAdjusted === 'true' ? this._adjustForInflation(result) : Q.when(result);
+					return this.options.inflationAdjusted === 'true' ? this._adjustForInflation(result) : Q.when(result);
 				});
 				return Q.all(promises);
 			})

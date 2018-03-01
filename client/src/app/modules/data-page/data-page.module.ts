@@ -15,10 +15,11 @@ import { AppRoutingModule } from '../app-routing/app-routing.module';
 import { ChartModule } from '../chart/chart.module';
 import { DataPageComponent } from './data-page.component';
 import { TablePageComponent } from './table-page/table-page.component';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
 	//imports will be available to all components in module 
-	imports: [BrowserModule, HttpClientModule, MatTabsModule, BrowserAnimationsModule, FlexLayoutModule, AppRoutingModule, MatToolbarModule, SharedModule, ChartModule, MatRadioModule],
+	imports: [BrowserModule, HttpClientModule, ReactiveFormsModule, MatTabsModule, BrowserAnimationsModule, FlexLayoutModule, AppRoutingModule, MatToolbarModule, SharedModule, ChartModule, MatRadioModule],
 	declarations: [ChartPageComponent, DataPageComponent, TablePageComponent,DocsPageComponent], //list all components in the module
 	providers: [RestService, Schools] // module-wide providers, still need to be imported in each component
 })

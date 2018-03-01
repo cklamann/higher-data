@@ -12,7 +12,7 @@
 		    	<app-school-search [defaultModel] = "defaultModel" (onSchoolSelect)="onSchoolSelect($event)" fxFlex = "90" fxFlex.gt-sm="45"></app-school-search>
 				<app-chart-search [defaultChart]="defaultChart" (onChartSelect)="onChartSelect($event)" fxFlex = "90" fxFlex.gt-sm="45"></app-chart-search>
 			</div>
-			<div fxFlex = "100" *ngIf="hasOptions()">
+			<div fxFlex = "100" *ngIf="hasOptions()" [formGroup]="chartOptionsForm">
 				<i class="material-icons mat-icon-button" (click)="toggleChartOptionsVisible()" *ngIf="!getChartOptionsVisible()">build</i>
 				<i class="material-icons mat-icon-button" (click)="toggleChartOptionsVisible()"  *ngIf="getChartOptionsVisible()">close</i>
 				<div fxLayout="row" fxFlex = "100" fxFlex.gt-sm="80" fxLayoutAlign="start center" *ngIf="getChartOptionsVisible()">
@@ -23,7 +23,7 @@
 									<span class="mat-body-1">View by: </span>
 								</li>
 								<li>	
-									<mat-radio-group formControlName="filter" (change) = "onCutByChange($event)">
+									<mat-radio-group formControlName="cut" (change) = "onCutByChange($event)">
 										<mat-radio-button *ngFor="let cut of chartData.chart.cuts" [value] = cut.formula>
 											{{cut.name}}
 										</mat-radio-button>
