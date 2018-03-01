@@ -31,6 +31,7 @@ export class ChartData {
 
 	setNullsToZero = () => this.data.forEach(datum => datum.data.forEach(item => item.value === null ? item.value = 0 : item.value = item.value));
 
+	//loops through variables and any variable missing years gets gets zeroes
 	setMissingValsToZero = () => {
 		let dateRange = this.getDateRange();
 		this.data.forEach(datum => {
@@ -51,47 +52,7 @@ export class ChartData {
 	removeDatum = (index) => {
 		this.data = this.data.filter((val, i) => i != index);
 	}
-
-	//nestByYear = () => new ChartDataNestedByYear(this);
-
 }
-
-// export class ChartDataNestedByYear { // https://github.com/Microsoft/TypeScript/issues/16163
-// 	data: intChartDataYear[];
-// 	constructor(ChartData: ChartData) {
-// 		this.data = _nestChartDataByYear(ChartData.data);
-// 	}
-// 	getTotal = (): number => d3.sum(_.flatMap(<any>this.data, varGroup => varGroup.data.reduce((prev, acc) => prev.value + acc.value)));
-
-// 	sortByVal = flag => {
-// 		this.data.forEach(datum => datum.data.sort(_numSort));
-// 		if (flag == 'desc') {
-// 			this.data.forEach(datum => datum.data.reverse());
-// 		}
-// 	};
-// 	getMax = () => d3.max(this.data, datum => d3.max(datum.data, item => item.value));
-// 	getMin = () => d3.min(this.data, datum => d3.min(datum.data, item => item.value));
-// 	setNullsToZero = () => this.data.forEach(datum => datum.data.forEach(item => item.value === null ? item.value = 0 : item.value = item.value));
-
-// }
-
-// function _nestChartDataByYear(data: intBaseChartData[]): intChartDataYear[] {
-// 	const fiscalYears: number[] = _.uniq(_.flatMap(data, datum => _.flatMap(datum.data, item => item.fiscal_year)));
-// 	return fiscalYears.map(year => {
-// 		let obj = {
-// 			fiscal_year: year,
-// 			data: []
-// 		};
-// 		data.forEach(datum => {
-// 			datum.data.forEach(item => {
-// 				if (item.fiscal_year == year) {
-// 					obj.data.push(item);
-// 				}
-// 			});
-// 		});
-// 		return obj;
-// 	});
-// }
 
 interface intChartDataYear {
 	fiscal_year: number,

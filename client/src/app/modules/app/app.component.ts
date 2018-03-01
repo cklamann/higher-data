@@ -14,19 +14,6 @@ export class AppComponent implements OnInit {
 
 	constructor(private router: Router) { }
 
-	ngOnInit(): void {
-		let cookies = document.cookie.split(';');
-		const redir = cookies.find(c => {
-			c = c.trim();
-			return !!c.match(/^redirect=.+/);
-		});
-		document.cookie = "redirect" + '=; Max-Age=-99999999;';
-		if (redir) {
-			let target = decodeURIComponent(redir.slice(9));
-			let parts = target.split("?");
-			let queryParams = _.fromPairs(parts[1].split("&").map(pair => pair.split("=")));
-			this.router.navigate([parts[0]], { queryParams });
-		}
-	}
+	ngOnInit(): void { }
 
 }

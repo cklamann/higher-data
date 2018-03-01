@@ -43,8 +43,6 @@ export class ChartSearchComponent implements OnInit {
 				if (change.length) {
 					change.forEach(option => {
 						if (option.value && this.defaultChart && option.value.slug == this.defaultChart.slug) {
-							//avoid viewsetaftercheck error
-							//todo: replace with better solution once angular solves it
 							setTimeout(() => {
 								option['_selectViaInteraction']();
 							});

@@ -48,34 +48,21 @@ export class ChartPageComponent implements OnInit {
 		let params = this.route.params;
 		let queryVars = this.route.queryParams;
 		params.flatMap(param => {
-			//todo: strip url encoding off...
-			//actually, what it's doing is url encoding the percentage signs (%25 is pct)
-			//from the previous url encoding
-			//so anything that starts with %25 has been double encoded and will end up appended to the
-			//last param, so it needs to be stripped along with everything after it
-			//see https://stackoverflow.com/questions/41181723/avoid-url-encoding-with-navigate-in-angular-2
 			return queryVars.map(qv => {
 				return Object.assign({}, qv, param);
 			})
 		}).subscribe(params => {
-			console.log(params);
 			if (params.chart && params.school) {
 				let options = _.fromPairs(Object.entries(params).filter(pair => pair[0] != "chart" && pair[0] != "school"));
 				this.ChartService.fetchChart(params.chart, params.school, options)
-					.subscribe(res => { //in case we're loading from a link
+					.subscribe(res => {
 						if (!this.chartData) {
-							this.defaultModel = res.school;
-							this.defaultChart = res.chart;
-							this.selections.chartSlug = res.chart.slug;
-							this.selections.schoolSlug = res.school.slug;
+							//set ui and charts in case loading from link or refresh
+							this._setState(res);
 						}
 						this._setChartData(res);
 					});
 			}
-		});
-
-		this.route.queryParams.subscribe(params => {
-
 		});
 	}
 
@@ -101,12 +88,10 @@ export class ChartPageComponent implements OnInit {
 	}
 
 	onCutByChange($event) {
-		this.chartData.options.cut = $event.value; //why bother? just check the form on the caller
 		this._loadChart(this.chartData.school.slug, this.chartData.chart.slug);
 	}
 
 	onInflationChange($event) {
-		this.chartData.options.inflationAdjusted = $event.value;//todo:remove these
 		this._loadChart(this.chartData.school.slug, this.chartData.chart.slug)
 	}
 
@@ -123,11 +108,18 @@ export class ChartPageComponent implements OnInit {
 	hasOptions(): boolean {
 		return this.chartData &&
 			(this.chartData.chart.cuts.length > 0 ||
-				this.chartData.chart.valueType === "currency0");
+				!!this.chartData.chart.valueType.match(/currency.+/));
 	}
 
 	getChartOptionsVisible(): boolean {
 		return this.chartOptionsVisible;
+	}
+
+	private _setState(res: intChartExport) {
+		this.defaultModel = res.school;
+		this.defaultChart = res.chart;
+		this.selections.chartSlug = res.chart.slug;
+		this.selections.schoolSlug = res.school.slug;
 	}
 
 	private _setChartData(res: intChartExport) {
@@ -137,19 +129,37 @@ export class ChartPageComponent implements OnInit {
 
 	private _setOptions(options: intChartExportOptions) {
 		options = Object.assign({ inflationAdjusted: null, cut: null }, options);
-		//not sure this is working really, seems to work on second pass, need to update radios	
-		//problem is the values are strings and need to be boolean....
-		this.chartOptionsForm.setValue(options);
-		console.log(this.chartOptionsForm.value);
+		this.chartOptionsForm.patchValue({
+			cut: options.cut,
+			inflationAdjusted: !!options.inflationAdjusted
+		});
 	}
 
-	//todo: don't pipe in empty values on options, strip those out...
 	private _loadChart(schoolSlug: string, chartSlug: string): void {
-		console.log(this.chartOptionsForm.value);
 		if (schoolSlug && chartSlug) {
-			let optionString = this.chartOptionsForm.value ?
-				"?" + Object.entries(this.chartOptionsForm.value).map(pair => pair.join("=")).join("&") : "";
+			let optionString = "";
+			if (this._selectionsAreNotNew(schoolSlug, chartSlug)) {
+				optionString = this._formatQueryVars();
+			}
 			this.router.navigate([`data/charts/${schoolSlug}/${chartSlug}${optionString}`])
 		}
+	}
+
+	private _selectionsAreNotNew(schoolSlug, chartSlug) {
+		return schoolSlug === this.chartData.school.slug && chartSlug === this.chartData.chart.slug;
+	}
+
+	private _formatQueryVars(): string {
+		let args: { [key: string]: any } = {}, str = "";
+		if (this.chartOptionsForm.controls['cut'].value) {
+			args.cut = this.chartOptionsForm.controls['cut'].value
+		}
+		if (this.chartOptionsForm.controls['inflationAdjusted'].value) {
+			args.inflationAdjusted = this.chartOptionsForm.controls['inflationAdjusted'].value;
+		}
+		if (!_.isEmpty(args)) {
+			str = "?" + Object.entries(args).map(pair => pair.join("=")).join("&");
+		}
+		return str;
 	}
 }

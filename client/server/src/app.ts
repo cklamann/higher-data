@@ -61,13 +61,9 @@ app.use(function(req, res, next) {
   if (req.path.match(/\/api\/.+/)) {
     res.sendStatus(404);
   } else {
-    let queryVars = [];
-    _.forEach(req.query, (v, k) => queryVars.push(`${k}=${v}`));
-    queryVars.join("&");
-
-    let path = (queryVars) ? req.path + ("?" + queryVars) : req.path 
-    res.cookie("redirect", path);
-    res.redirect('/index.html');
+    res.sendFile(path.join(__dirname,"public/index.html"), () => {
+      return;
+    });
   }
 });
 
