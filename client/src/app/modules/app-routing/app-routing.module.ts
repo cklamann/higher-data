@@ -20,7 +20,7 @@ const routes: Routes = [
 		children: [
 			{ path: '', redirectTo: 'charts', pathMatch: 'full' },
 			{ path: 'charts', component: ChartPageComponent },
-			{ path: 'charts/:chart/:school', component: ChartPageComponent },
+			{ path: 'charts/:school/:chart', component: ChartPageComponent },
 			{ path: 'tables', component: TablePageComponent },
 			{ path: 'sources', component: DocsPageComponent }
 		]

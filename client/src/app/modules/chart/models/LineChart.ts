@@ -1,6 +1,5 @@
 import { BaseChart } from './BaseChart';
 import { intChartExport, intChartExportDataParentModel } from '../../../../../server/src/models/ChartExporter';
-import { intBaseChartDatum, intBaseChartData } from './ChartData';
 import * as d3 from 'd3';
 import * as _ from 'lodash';
 
@@ -83,7 +82,7 @@ export class LineChart extends BaseChart {
 			.x((d: any) => this.xScale(d.fiscal_year))
 			.y((d: any) => this.yScale(d.value));
 
-		let paths = this.canvas.selectAll(".path").data(this.chartData.data, d => d.key);
+		let paths = this.canvas.selectAll(".path").data(this.chartData.data, (d:any) => d.key);
 		let removedPaths = paths.exit().remove();
 		let enteredPaths = paths.enter().append("path").attr("class", "path");
 		enteredPaths.merge(paths)
@@ -98,14 +97,14 @@ export class LineChart extends BaseChart {
 			.style("opacity", 0);
 
 		const circles = this.canvas.selectAll(".circle");
-		const circlesWithData = circles.data(this.chartData.data, d => d.key);
+		const circlesWithData = circles.data(this.chartData.data, (d:any) => d.key);
 		const removedCircles = circlesWithData.exit().remove();
 		const enteredCircles = circlesWithData.enter().append("g")
 			.attr("class", "circle");
 
 		circlesWithData.merge(enteredCircles)
 			.each(function(item) {
-				let circles = d3.select(this).selectAll(".circle").data(item.data, d => d.key);
+				let circles = d3.select(this).selectAll(".circle").data(item.data, (d:any) => d.key);
 				let exited = circles.exit().remove();
 				let circlesEntered = circles.enter().append("circle").attr("class", "circle");
 				circles.merge(circlesEntered)

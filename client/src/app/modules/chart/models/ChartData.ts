@@ -20,7 +20,7 @@ export class ChartData {
 	getMin = (): number => d3.min(this.data, datum => d3.min(datum.data, item => item.value));
 	getTotal = (): number => d3.sum(this.data, varGroup => this.sum(varGroup.data));
 
-	sum = (variableObj:intChartDataYearDatum[]) => variableObj.reduce((a, b) => {
+	sum = (variableObj: intBaseChartDatum[]) => variableObj.reduce((a, b) => {
 		return a + b.value;
 	}, 0);
 
@@ -28,7 +28,7 @@ export class ChartData {
 		let range = _.flatMap(this.data, c => _.flatMap(c.data, d => d.fiscal_year));
 		return _.uniqBy(range, item => item.getFullYear());
 	}
-
+	
 	setNullsToZero = () => this.data.forEach(datum => datum.data.forEach(item => item.value === null ? item.value = 0 : item.value = item.value));
 
 	//loops through variables and any variable missing years gets gets zeroes
@@ -69,7 +69,7 @@ interface intChartDataYearDatum {
 export interface intBaseChartData extends intChartExportDataParentModel {
 	legendName: string;
 	key: string;
-	d3Key?:string;
+	d3Key?: string;
 	data: intBaseChartDatum[];
 }
 

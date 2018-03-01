@@ -9,65 +9,66 @@
 	<div class = "inner-container" fxFlex="95" fxLayoutWrap fxFlex.gt-sm="90" fxLayout="row" fxLayoutAlign="center center">
 		<div fxLayout="row" fxLayoutWrap fxLayoutAlign="center center" fxFlex = "100" fxFlex.gt-sm="80" class = "chart-content">
 			<div fxLayout = "row" fxLayoutWrap fxLayoutAlign="space-around center" fxFlex = "100">
-		    	<app-school-search [defaultModel] = "defaultModel" (onSchoolSelect)="onSchoolSelect($event)" fxFlex = "90" fxFlex.gt-sm="45"></app-school-search>
-				<app-chart-search [defaultChart]="defaultChart" (onChartSelect)="onChartSelect($event)" fxFlex = "90" fxFlex.gt-sm="45"></app-chart-search>
+		    	<app-school-search [defaultModel] = "(route.params | async)?.school" (onSchoolSelect)="onSchoolSelect($event)" fxFlex = "90" fxFlex.gt-sm="45"></app-school-search>
+				<app-chart-search [defaultChart]= "(route.params | async)?.chart" (onChartSelect)="onChartSelect($event)" fxFlex = "90" fxFlex.gt-sm="45"></app-chart-search>
 			</div>
-			<div fxFlex = "100" *ngIf="hasOptions()" [formGroup]="chartOptionsForm">
-				<i class="material-icons mat-icon-button" (click)="toggleChartOptionsVisible()" *ngIf="!getChartOptionsVisible()">build</i>
-				<i class="material-icons mat-icon-button" (click)="toggleChartOptionsVisible()"  *ngIf="getChartOptionsVisible()">close</i>
-				<!--todo: style this panel-->
-				<div class = "chart-options" fxLayout="column" fxFlex = "100" fxFlex.gt-sm="80" fxLayoutAlign="start start" *ngIf="getChartOptionsVisible()">
-					<ul class = "mat-body-1" fxLayout="column">
-						<li *ngIf="chartData.chart.valueType=='currency0' || chartData.chart.valueType=='currency1'" fxLayoutAlign="start center" fxFlex = "100">
-							<ul fxLayout = "column">
-								<li>
-									<span class="mat-body-1">Inflation Adjusted:&nbsp;</span>
-								</li>
-								<li>
-									<mat-radio-group formControlName="inflationAdjusted" (change) = "onInflationChange($event)">
-										<mat-radio-button [value] = true>
-											Adjusted
-										</mat-radio-button>
-										<mat-radio-button [value] = false>
-											Original
-										</mat-radio-button>
-									</mat-radio-group>
-								</li>
-							</ul>
-						</li>
-						<li *ngIf="chartData.chart.cuts.length>0" fxLayoutAlign="start center">
-							<ul fxLayout="column">
-								<li>
-									<span class="mat-body-1">Divide Values by:&nbsp;</span>
-								</li>
-								<li>	
-									<mat-radio-group formControlName="cut" (change) = "onCutByChange($event)">
-										<mat-radio-button *ngFor="let cut of chartData.chart.cuts" [value] = cut.formula>
-											{{cut.name}}
-										</mat-radio-button>
-										<mat-radio-button >
-											None
-										</mat-radio-button>
-									
-									</mat-radio-group>
-								</li>
-							</ul>
-						</li>
-					</ul>
+			<div fxFlex = "100" *ngIf= "(chartData$ | async) as chartData" [formGroup]="chartOptionsForm">
+				<div class = "options-container" fxFlex = "100">
+					<i class="material-icons mat-icon-button" (click)="toggleChartOptionsVisible()" *ngIf="!getChartOptionsVisible()">build</i>
+					<i class="material-icons mat-icon-button" (click)="toggleChartOptionsVisible()"  *ngIf="getChartOptionsVisible()">close</i>
+					<!--todo: style this panel-->
+					<div class = "chart-options" fxLayout="column" fxFlex = "100" fxFlex.gt-sm="80" fxLayoutAlign="start start">
+						<ul class = "mat-body-1" fxLayout="column">
+							<li *ngIf="chartData.chart.valueType=='currency0'" fxLayoutAlign="start center" fxFlex = "100">
+								<ul fxLayout = "column">
+									<li>
+										<span class="mat-body-1">Inflation Adjusted:&nbsp;</span>
+									</li>
+									<li>
+										<mat-radio-group formControlName="inflationAdjusted" (change) = "onInflationChange($event)">
+											<mat-radio-button [value] = true>
+												Adjusted
+											</mat-radio-button>
+											<mat-radio-button [value] = false>
+												Original
+											</mat-radio-button>
+										</mat-radio-group>
+									</li>
+								</ul>
+							</li>
+							<li *ngIf="chartData.chart.cuts.length>0" fxLayoutAlign="start center">
+								<ul fxLayout="column">
+									<li>
+										<span class="mat-body-1">Divide Values by:&nbsp;</span>
+									</li>
+									<li>	
+										<mat-radio-group formControlName="cut" (change) = "onCutByChange($event)">
+											<mat-radio-button *ngFor="let cut of chartData.chart.cuts" [value] = cut.formula>
+												{{cut.name}}
+											</mat-radio-button>
+											<mat-radio-button >
+												None
+											</mat-radio-button>
+										
+										</mat-radio-group>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
 				</div>	
-			</div>
-			<div class = "chart-title mat-title" *ngIf="getChartTitle()">
-				{{getChartTitle()}}
-			</div>
-			<!--todo: if it's a currency chart, indicate whether or not values are inflation adjusted
-				will probably need mat-subtitle class
-			-->
-			<div fxLayoutWrap="row" fxFlex="100" class="chart-container-outer">
-				<!--todo: put data not available message here-->
-				<!--todo: put waiting on your selection message here-->
-				<app-trend-chart [chartData]="chartData" fxFlex = "100" fxFlex.gt-sm="75" ></app-trend-chart>
-				<div class = "legend-container" fxFlex = "100" fxFlex.gt-sm="25" fxLayoutAlign="start start">
-					<ul class = "legend mat-body-1" fxFlex fxLayout="row" fxLayoutWrap fxLayoutAlign = "space-evenly center" fxLayoutAlign.gt-sm="start" fxLayout.gt-sm="column"></ul>
+				<div class = "chart-title mat-title" *ngIf="chartData">
+					{{chartData.chart.title}}
+				</div>
+					<!--todo: if it's a currency chart, indicate whether or not values are inflation adjusted
+						will probably need mat-subtitle class
+					-->
+				<div fxLayoutWrap="row" fxFlex="100" class="chart-container-outer">
+					<!--todo: put waiting on your selection message here-->
+					<app-trend-chart [chartData]="chartData" fxFlex = "100" fxFlex.gt-sm="75" ></app-trend-chart>
+					<div class = "legend-container" fxFlex = "100" fxFlex.gt-sm="25" fxLayoutAlign="start start">
+						<ul class = "legend mat-body-1" fxFlex fxLayout="row" fxLayoutWrap fxLayoutAlign = "space-evenly center" fxLayoutAlign.gt-sm="start" fxLayout.gt-sm="column"></ul>
+					</div>
 				</div>
 			</div>
 		</div>

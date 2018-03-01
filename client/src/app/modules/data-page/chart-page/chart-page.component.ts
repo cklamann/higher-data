@@ -10,6 +10,7 @@ import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { intBaseChartDatum } from '../../chart/models/ChartData';
 import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import * as _ from 'lodash';
+import { Observable } from 'rxjs';
 import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/operator/take';
 import 'rxjs/add/operator/concat';
@@ -27,7 +28,7 @@ export class ChartPageComponent implements OnInit {
 	searchResults: School[];
 	schoolSlug: string = '';
 	chartSlug: string = '';
-	chartData: intChartExport;
+	chartData$: Observable<intChartExport>;
 	chartOptionsForm: FormGroup;
 	defaultModel: intSchoolModel;
 	defaultChart: intChartModel;
@@ -54,14 +55,7 @@ export class ChartPageComponent implements OnInit {
 		}).subscribe(params => {
 			if (params.chart && params.school) {
 				let options = _.fromPairs(Object.entries(params).filter(pair => pair[0] != "chart" && pair[0] != "school"));
-				this.ChartService.fetchChart(params.chart, params.school, options)
-					.subscribe(res => {
-						if (!this.chartData) {
-							//set ui and charts in case loading from link or refresh
-							this._setState(res);
-						}
-						this._setChartData(res);
-					});
+				this.chartData$ = this.ChartService.fetchChart(params.school,params.chart, options)
 			}
 		});
 	}
@@ -76,55 +70,38 @@ export class ChartPageComponent implements OnInit {
 	onSchoolSelect(school: intSchoolModel | null) {
 		if (school) {
 			this.selections.schoolSlug = school.slug;
-			this._loadChart(this.selections.schoolSlug, this.selections.chartSlug);
+			this._loadChart();
 		}
 	}
 
 	onChartSelect(chart: intChartModel) {
 		if (chart) {
 			this.selections.chartSlug = chart.slug;
-			this._loadChart(this.selections.schoolSlug, this.selections.chartSlug);
+			this._loadChart();
 		}
 	}
 
 	onCutByChange($event) {
-		this._loadChart(this.chartData.school.slug, this.chartData.chart.slug);
+		this._loadChart();
 	}
 
 	onInflationChange($event) {
-		this._loadChart(this.chartData.school.slug, this.chartData.chart.slug)
-	}
-
-	getChartTitle(): string {
-		if (this.chartData) {
-			return `${this.chartData.school.instnm} (${this.chartData.school.state}): ${this.chartData.chart.name}`;
-		} else return "";
+		this._loadChart()
 	}
 
 	toggleChartOptionsVisible(): void {
 		this.chartOptionsVisible = !this.chartOptionsVisible;
 	}
 
-	hasOptions(): boolean {
-		return this.chartData &&
-			(this.chartData.chart.cuts.length > 0 ||
-				!!this.chartData.chart.valueType.match(/currency.+/));
-	}
-
 	getChartOptionsVisible(): boolean {
 		return this.chartOptionsVisible;
 	}
 
-	private _setState(res: intChartExport) {
+	private _setUi(res: intChartExport) {
 		this.defaultModel = res.school;
 		this.defaultChart = res.chart;
 		this.selections.chartSlug = res.chart.slug;
 		this.selections.schoolSlug = res.school.slug;
-	}
-
-	private _setChartData(res: intChartExport) {
-		this._setOptions(res.options);
-		this.chartData = res;
 	}
 
 	private _setOptions(options: intChartExportOptions) {
@@ -135,19 +112,14 @@ export class ChartPageComponent implements OnInit {
 		});
 	}
 
-	private _loadChart(schoolSlug: string, chartSlug: string): void {
-		if (schoolSlug && chartSlug) {
+	private _loadChart(): void {
+		if (this.selections.schoolSlug && this.selections.chartSlug) {
 			let optionString = "";
-			if (this._selectionsAreNotNew(schoolSlug, chartSlug)) {
-				optionString = this._formatQueryVars();
-			}
-			this.router.navigate([`data/charts/${schoolSlug}/${chartSlug}${optionString}`])
+			optionString = this._formatQueryVars();
+			this.router.navigate([`data/charts/${this.selections.schoolSlug}/${this.selections.chartSlug}${optionString}`])
 		}
 	}
 
-	private _selectionsAreNotNew(schoolSlug, chartSlug) {
-		return schoolSlug === this.chartData.school.slug && chartSlug === this.chartData.chart.slug;
-	}
 
 	private _formatQueryVars(): string {
 		let args: { [key: string]: any } = {}, str = "";

@@ -19,6 +19,8 @@ export class TrendChartComponent implements OnInit {
 
 	@Input() chartData: intChartExport;
 	@Input() chartOverrides: object = {};
+
+	//should emit a message when the data is empty... and not display anything
 	chart: BaseChart;
 	myRandomSelector: string = "selector" + Math.floor(Math.random() * 10000)
 
@@ -56,8 +58,15 @@ export class TrendChartComponent implements OnInit {
 
 	onChartDataChanges(chartDataChanges) {
 		if (chartDataChanges) {
+			console.log(chartDataChanges.currentValue.data); //doesn't work because you have to check and see that every datum is empty
+			if (chartDataChanges.currentValue.data.length === 0){
+				if(this.chart){
+					this.chart.remove();
+				}
+				console.log("no datter!");
+			}
 			//if chart or school is new, fetch new chart
-			if (!chartDataChanges.previousValue ||
+			else if (!chartDataChanges.previousValue ||
 				!_.isEqual(chartDataChanges.previousValue.chart, chartDataChanges.currentValue.chart) ||
 				!_.isEqual(chartDataChanges.previousValue.school, chartDataChanges.currentValue.school)) {
 				if (this.chart) this.chart.remove();
