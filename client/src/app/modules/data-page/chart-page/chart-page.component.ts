@@ -24,14 +24,8 @@ import 'rxjs/add/operator/switchMap';
 })
 
 export class ChartPageComponent implements OnInit {
-	title: string = 'Schools';
-	searchResults: School[];
-	schoolSlug: string = '';
-	chartSlug: string = '';
-	chartData$: Observable<intChartExport>;
+	chartData: intChartExport;
 	chartOptionsForm: FormGroup;
-	defaultModel: intSchoolModel;
-	defaultChart: intChartModel;
 	chartOptionsVisible: boolean = false;
 	selections: {
 		chartSlug: string,
@@ -55,7 +49,8 @@ export class ChartPageComponent implements OnInit {
 		}).subscribe(params => {
 			if (params.chart && params.school) {
 				let options = _.fromPairs(Object.entries(params).filter(pair => pair[0] != "chart" && pair[0] != "school"));
-				this.chartData$ = this.ChartService.fetchChart(params.school,params.chart, options)
+				this.ChartService.fetchChart(params.school, params.chart, options).subscribe(data => this.chartData = data);
+				this._setUi(params.school, params.chart);
 			}
 		});
 	}
@@ -65,6 +60,14 @@ export class ChartPageComponent implements OnInit {
 			cut: '',
 			inflationAdjusted: '',
 		});
+	}
+
+	getDefaultModel() {
+		return this.chartData ? this.chartData.school : null;
+	}
+
+	getDefaultChart() {
+		return this.chartData ? this.chartData.chart : null;
 	}
 
 	onSchoolSelect(school: intSchoolModel | null) {
@@ -97,11 +100,9 @@ export class ChartPageComponent implements OnInit {
 		return this.chartOptionsVisible;
 	}
 
-	private _setUi(res: intChartExport) {
-		this.defaultModel = res.school;
-		this.defaultChart = res.chart;
-		this.selections.chartSlug = res.chart.slug;
-		this.selections.schoolSlug = res.school.slug;
+	private _setUi(schoolSlug: string, chartSlug: string) {
+		this.selections.chartSlug = chartSlug;
+		this.selections.schoolSlug = schoolSlug;
 	}
 
 	private _setOptions(options: intChartExportOptions) {
@@ -114,24 +115,8 @@ export class ChartPageComponent implements OnInit {
 
 	private _loadChart(): void {
 		if (this.selections.schoolSlug && this.selections.chartSlug) {
-			let optionString = "";
-			optionString = this._formatQueryVars();
-			this.router.navigate([`data/charts/${this.selections.schoolSlug}/${this.selections.chartSlug}${optionString}`])
+			let options = _.pickBy(this.chartOptionsForm.value, (v, k) => !_.isNil(v) && v != "");
+			this.router.navigate([`data/charts/${this.selections.schoolSlug}/${this.selections.chartSlug}`, options]);
 		}
-	}
-
-
-	private _formatQueryVars(): string {
-		let args: { [key: string]: any } = {}, str = "";
-		if (this.chartOptionsForm.controls['cut'].value) {
-			args.cut = this.chartOptionsForm.controls['cut'].value
-		}
-		if (this.chartOptionsForm.controls['inflationAdjusted'].value) {
-			args.inflationAdjusted = this.chartOptionsForm.controls['inflationAdjusted'].value;
-		}
-		if (!_.isEmpty(args)) {
-			str = "?" + Object.entries(args).map(pair => pair.join("=")).join("&");
-		}
-		return str;
 	}
 }

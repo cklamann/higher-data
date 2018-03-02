@@ -36,13 +36,15 @@ export class ChartSearchComponent implements OnInit {
 		this.Charts.fetchAll()
 			.switchMap(res => {
 				this.charts = res;
-				return this.options.changes;
+				return this.options.changes; //charts are options...
 			})
 			.first()//we are only interested in the initial values
 			.subscribe(change => {
 				if (change.length) {
 					change.forEach(option => {
 						if (option.value && this.defaultChart && option.value.slug == this.defaultChart.slug) {
+							//avoid viewsetaftercheck error
+							//todo: replace with better solution once angular solves it
 							setTimeout(() => {
 								option['_selectViaInteraction']();
 							});

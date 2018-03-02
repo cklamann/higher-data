@@ -31,7 +31,6 @@ export class SchoolSearchComponent implements OnInit {
 	}
 
 	ngOnChanges(changes: SimpleChanges) {
-		console.log(changes.defaultModel.currentValue);
 		if (changes.defaultModel.currentValue) {
 			this.searchForm.patchValue({
 				searchText: changes.defaultModel.currentValue

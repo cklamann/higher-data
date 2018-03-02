@@ -62,7 +62,6 @@ export class TrendChartComponent implements OnInit {
 		//then onChartDataChanges will update it as fit
 		//then the view hook will subscribe...
 		//but first, a one-off solution
-		console.log("view is ready", $("." + this.myRandomSelector));
 		if(this.chart){ 
 			this.chart.buildCanvas();
 			this.chart.build();
