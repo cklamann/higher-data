@@ -1,0 +1,35 @@
+<mat-card *ngIf="variable">
+	<mat-card-header>
+		<span class = "mat-body-strong">Local variable name: </span>
+		<span class = "mat-body-1">{{variable.variable}}</span>
+	</mat-card-header>
+	<div>
+		<span class = "mat-body-strong">Sources:</span>
+	</div>
+	<ul>
+		<li *ngFor = "let source of variable.sources; let i = index">
+			<div><span class = "mat-body-strong">Source {{i+1}}:</span> 
+				<span class = "mat-body-1">{{source.source}}</span>
+			</div>
+			<div><span class = "mat-body-strong">Source Table:</span> 
+				<span class = "mat-body-1">{{source.table}}</span>
+			</div>
+			<div><span class = "mat-body-strong">Source Variable Name:</span> 
+				<span class = "mat-body-1">{{source.formula}}</span>
+				</div>
+			<div><span class = "mat-body-strong">Source Definition:</span> 
+				<span class = "mat-body-1">{{source.definition}}</span>
+			</div>	
+			<div><span class = "mat-body-strong">Start Year:</span> 
+				<span class = "mat-body-1">{{source.startYear}}</span>
+			</div>
+			<div><span class = "mat-body-strong">End Year:</span> 
+				<span class = "mat-body-1">{{source.endYear}}</span>
+			</div>
+			<div><span class = "mat-body-strong">Notes:</span> 
+				<span class = "mat-body-1">{{source.notes}}</span>
+			</div>
+		</li>
+	</ul>
+</mat-card>
+

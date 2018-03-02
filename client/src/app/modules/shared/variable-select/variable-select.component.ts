@@ -2,7 +2,7 @@ import { Component, OnInit, Output, Input, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSelect } from '@angular/material';
 import { VariableDefinitions } from '../../../models/VariableDefinitions';
-import { intVariableDefinitionModel } from '../../../../../server/dist/schemas/VariableDefinitionSchema';
+import { intVariableDefinitionModel } from '../../../../../server/src/schemas/VariableDefinitionSchema';
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/map';
 

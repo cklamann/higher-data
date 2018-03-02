@@ -7,8 +7,19 @@ path {
 text {
     font-family: 'Roboto';
 }
+
+form {
+    width: 100%;
+}
+
 li {
     list-style: none;
+}
+
+app-variable-sources {
+    display: flex;
+    justify-content: center;
+    flex: 1 1 100%;
 }
 .center-text {
     text-align: center;

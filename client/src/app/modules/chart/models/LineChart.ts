@@ -69,7 +69,7 @@ export class LineChart extends BaseChart {
 		});
 
 		this.formatAxes();
-		
+
 		const line: d3.Line<any> = d3.line()
 			.x((d: any) => this.xScale(d.fiscal_year))
 			.y((d: any) => this.yScale(d.value));
@@ -145,13 +145,17 @@ export class LineChart extends BaseChart {
 			});
 	}
 
+	//todo: make this total work for tooltip
 	getToolTip(fiscal_year: Date): string {
 		let items = _.flatMap(this.chartData.data, datum => {
 			let item = datum.data.find(item => item.fiscal_year.getFullYear() === fiscal_year.getFullYear());
-			return item ? `<li><span style='color: ${this.zScale(item.key)}'><i class='fa fa-circle' aria-hidden='true'></i></span> ${item.legendName} : ${this.formatNumber(item.value, this.displayOptions.valueType)}</li>` : '';
+			if (!_.isEmpty(item)) {
+				return item;
+			}
 		}),
-			list = items.join('');
-		return "<ul class='mat-caption'>" + list + "<ul>";
+			total = items.reduce((a, b) => a + (b ? b.value : 0), 0),
+			list = items.map(item => `<li><span style='color: ${this.zScale(item.key)}'><i class='fa fa-circle' aria-hidden='true'></i></span> ${item.legendName} : ${this.formatNumber(item.value, this.displayOptions.valueType)}</li>`).join('');
+		return "<ul class='mat-caption'>" + list + `<li>Total: ${this.formatNumber(total, this.displayOptions.valueType)}</li>` + "<ul>";
 	}
 
 };
