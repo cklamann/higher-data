@@ -26,7 +26,7 @@ export class ChartData {
 
 	getDateRange = (): Array<Date> => {
 		let range = _.flatMap(this.data, c => _.flatMap(c.data, d => d.fiscal_year));
-		return _.uniqBy(range, item => item.getFullYear());
+		return _.uniqBy(range, item => item.getFullYear()).sort( (a,b) => a - b);
 	}
 	
 	setNullsToZero = () => this.data.forEach(datum => datum.data.forEach(item => item.value === null ? item.value = 0 : item.value = item.value));

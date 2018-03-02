@@ -15,7 +15,7 @@ export class LineChart extends BaseChart {
 
 	build() {
 		//1 px so axis line is visible
-		this.xScale = d3.scaleTime().range([1, this.width]); 
+		this.xScale = d3.scaleTime().range([1, this.width]);
 		this.yScale = d3.scaleLinear().range([this.height, 0]);
 
 		this.xAxis = d3.axisBottom(this.xScale)
@@ -62,27 +62,19 @@ export class LineChart extends BaseChart {
 		]);
 
 		//ensure uniform order of tooltips, etc.
-		this.chartData.data.sort( (a,b) => {
-			let aSum = a.data.reduce( (a,b) => a + b.value, 0),
-			bSum = a.data.reduce( (a,b) => a + b.value, 0);
+		this.chartData.data.sort((a, b) => {
+			let aSum = a.data.reduce((a, b) => a + b.value, 0),
+				bSum = a.data.reduce((a, b) => a + b.value, 0);
 			return aSum > bSum ? -1 : 1;
 		});
 
-		let rotationDegrees = +this.width < 501 ? 45 : 30;
-		d3.selectAll("g.axis--x text")
-			.attr("transform", "rotate(" + rotationDegrees + ")")
-			.style("text-anchor", "start");
-
-		this.canvas.select('.axis--x').transition().duration(500).call(this.xAxis);
-		this.canvas.select('.axis--y').transition().duration(500).call(this.yAxis);
-		this.canvas.select('.x-grid').transition().duration(500).call(this.xGrid);
-		this.canvas.select('.y-grid').transition().duration(500).call(this.yGrid);
-
+		this.formatAxes();
+		
 		const line: d3.Line<any> = d3.line()
 			.x((d: any) => this.xScale(d.fiscal_year))
 			.y((d: any) => this.yScale(d.value));
 
-		let paths = this.canvas.selectAll(".path").data(this.chartData.data, (d:any) => d.key);
+		let paths = this.canvas.selectAll(".path").data(this.chartData.data, (d: any) => d.key);
 		let removedPaths = paths.exit().remove();
 		let enteredPaths = paths.enter().append("path").attr("class", "path");
 		enteredPaths.merge(paths)
@@ -97,14 +89,14 @@ export class LineChart extends BaseChart {
 			.style("opacity", 0);
 
 		const circles = this.canvas.selectAll(".circle");
-		const circlesWithData = circles.data(this.chartData.data, (d:any) => d.key);
+		const circlesWithData = circles.data(this.chartData.data, (d: any) => d.key);
 		const removedCircles = circlesWithData.exit().remove();
 		const enteredCircles = circlesWithData.enter().append("g")
 			.attr("class", "circle");
 
 		circlesWithData.merge(enteredCircles)
 			.each(function(item) {
-				let circles = d3.select(this).selectAll(".circle").data(item.data, (d:any) => d.key);
+				let circles = d3.select(this).selectAll(".circle").data(item.data, (d: any) => d.key);
 				let exited = circles.exit().remove();
 				let circlesEntered = circles.enter().append("circle").attr("class", "circle");
 				circles.merge(circlesEntered)

@@ -17,7 +17,7 @@
 					<i class="material-icons mat-icon-button" (click)="toggleChartOptionsVisible()" *ngIf="!getChartOptionsVisible()">build</i>
 					<i class="material-icons mat-icon-button" (click)="toggleChartOptionsVisible()"  *ngIf="getChartOptionsVisible()">close</i>
 					<!--todo: style this panel-->
-					<div class = "chart-options" fxLayout="column" fxFlex = "100" fxFlex.gt-sm="80" fxLayoutAlign="start start">
+					<div class = "chart-options" *ngIf="chartOptionsVisible" fxLayout="column" fxFlex = "100" fxFlex.gt-sm="80" fxLayoutAlign="start start">
 						<ul class = "mat-body-1" fxLayout="column">
 							<li *ngIf="chartData.chart.valueType=='currency0'" fxLayoutAlign="start center" fxFlex = "100">
 								<ul fxLayout = "column">
@@ -57,15 +57,22 @@
 						</ul>
 					</div>
 				</div>	
-				<div class = "chart-title mat-title">
-					{{chartData.chart.title}}
+			</div>
+			<div fxFlex="100" fxLayoutWrap>
+				<div fxFlex="100" class = "chart-title mat-title">
+					{{getChartTitle()}}
 				</div>
 					<!--todo: if it's a currency chart, indicate whether or not values are inflation adjusted
 						will probably need mat-subtitle class
 					-->
+				<div *ngIf="getChartEmpty()" fxFlex="100" fxAlign="center center">
+					<p class = "mat-body-2 mat-error center-text">
+					  No data available for this school and chart
+					</p>
+				</div>
 				<div fxLayoutWrap="row" fxFlex="100" class="chart-container-outer">
 					<!--todo: put waiting on your selection message here, just don't if out the chart-->
-					<app-trend-chart [chartData]="chartData" fxFlex = "100" fxFlex.gt-sm="75" ></app-trend-chart>
+					<app-trend-chart [chartData]="chartData" (onChartEmpty) = setChartEmpty($event) fxFlex = "100" fxFlex.gt-sm="75" ></app-trend-chart>
 					<div class = "legend-container" fxFlex = "100" fxFlex.gt-sm="25" fxLayoutAlign="start start">
 						<ul class = "legend mat-body-1" fxFlex fxLayout="row" fxLayoutWrap fxLayoutAlign = "space-evenly center" fxLayoutAlign.gt-sm="start" fxLayout.gt-sm="column"></ul>
 					</div>

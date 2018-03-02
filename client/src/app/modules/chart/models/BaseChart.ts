@@ -27,6 +27,10 @@ export class BaseChart {
 	displayOptions: intChartDisplayOptions;
 	xScale: any;
 	yScale: any;
+	xAxis: any;
+	yAxis: any;
+	xGrid: any;
+	yGrid: any;
 	width: number;
 	height: number;
 	formatNumber: any;
@@ -111,5 +115,24 @@ export class BaseChart {
 		let fallYear = year - 1;
 		return fallYear + "-" + String(year).substring(2);
 	};
+
+	formatAxes() {
+
+		this.yAxis.ticks(10);
+		this.xAxis.ticks(d3.timeYear.every(1));
+		if (this.width < 401) {
+			this.yAxis.ticks(4);
+			this.xAxis.ticks(d3.timeYear.every(2));
+		}
+		this.canvas.select('.axis--x').transition().duration(500).call(this.xAxis);
+		this.canvas.select('.axis--y').transition().duration(500).call(this.yAxis);
+		this.canvas.select('.x-grid').transition().duration(500).call(this.xGrid);
+		this.canvas.select('.y-grid').transition().duration(500).call(this.yGrid);
+
+		let rotationDegrees = +this.width < 501 ? 45 : 30;
+		d3.selectAll("g.axis--x text")
+			.attr("transform", "rotate(" + rotationDegrees + ")")
+			.style("text-anchor", "start");
+	}
 
 }

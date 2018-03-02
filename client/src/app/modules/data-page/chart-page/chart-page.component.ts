@@ -27,6 +27,7 @@ export class ChartPageComponent implements OnInit {
 	chartData: intChartExport;
 	chartOptionsForm: FormGroup;
 	chartOptionsVisible: boolean = false;
+	private _chartEmpty: boolean = false;
 	selections: {
 		chartSlug: string,
 		schoolSlug: string
@@ -62,6 +63,14 @@ export class ChartPageComponent implements OnInit {
 		});
 	}
 
+	getChartEmpty() {
+		return this._chartEmpty;
+	}
+
+	getChartTitle(){
+		return this.chartData ? `${this.chartData.school.instnm} ${this.chartData.chart.name} (${this.chartData.school.state})` : "";
+	}
+
 	getDefaultModel() {
 		return this.chartData ? this.chartData.school : null;
 	}
@@ -90,6 +99,12 @@ export class ChartPageComponent implements OnInit {
 
 	onInflationChange($event) {
 		this._loadChart()
+	}
+
+	setChartEmpty($event){
+		setTimeout(() => {
+			this._chartEmpty = $event;
+		})
 	}
 
 	toggleChartOptionsVisible(): void {
