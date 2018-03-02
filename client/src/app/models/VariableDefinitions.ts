@@ -14,11 +14,12 @@ export class VariableDefinitions {
 	}
 
 	fetchByName(name: string): Observable<intVariableDefinitionSchema> {
-		return this.rest.get(`variables/fetch_by_name?name=${name}`);
+		return this.rest.get(`variable/fetch_by_name?name=${name}`);
 	}
 
-	fetchAll(): Observable<intVariableDefinitionModel[]> {
-		return this.rest.get('variables');
+	fetchAll(defined:boolean): Observable<intVariableDefinitionModel[]> {
+		let query = defined ? "?defined=true" : "";
+		return this.rest.get('variables' + query);
 	}
 
 	save(model: intVariableDefinitionModel): any {

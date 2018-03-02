@@ -28,6 +28,8 @@ export class ChartPageComponent implements OnInit {
 	chartOptionsForm: FormGroup;
 	chartOptionsVisible: boolean = false;
 	private _chartEmpty: boolean = false;
+	private _inflationAdjusted: boolean = false;
+	private _cut: string = '';
 	selections: {
 		chartSlug: string,
 		schoolSlug: string
@@ -61,14 +63,30 @@ export class ChartPageComponent implements OnInit {
 			cut: '',
 			inflationAdjusted: '',
 		});
+		this.chartOptionsForm.get('inflationAdjusted').valueChanges.subscribe(change =>{
+			this._inflationAdjusted = change;
+		})
+
+		this.chartOptionsForm.get('cut').valueChanges.subscribe(change =>{
+			this._cut = change;
+		})
 	}
 
 	getChartEmpty() {
 		return this._chartEmpty;
 	}
 
+	getChartIsCurrency() {
+		return this.chartData && !!this.chartData.chart.valueType.match(/currency.+/);
+	}
+
 	getChartTitle(){
-		return this.chartData ? `${this.chartData.school.instnm} ${this.chartData.chart.name} (${this.chartData.school.state})` : "";
+		let cutName = this._cut ? "Per " + this.chartData.chart.cuts.find(item => item.formula == this._cut).name : ""
+		return this.chartData ? `${this.chartData.school.instnm} (${this.chartData.school.state}) ${this.chartData.chart.name} ${cutName}` : "";
+	}
+
+	getIsInflationAdjusted(){
+		return !!this._inflationAdjusted;
 	}
 
 	getDefaultModel() {
@@ -82,6 +100,7 @@ export class ChartPageComponent implements OnInit {
 	onSchoolSelect(school: intSchoolModel | null) {
 		if (school) {
 			this.selections.schoolSlug = school.slug;
+			this.chartOptionsForm.reset();
 			this._loadChart();
 		}
 	}
@@ -89,6 +108,7 @@ export class ChartPageComponent implements OnInit {
 	onChartSelect(chart: intChartModel) {
 		if (chart) {
 			this.selections.chartSlug = chart.slug;
+			this.chartOptionsForm.reset()
 			this._loadChart();
 		}
 	}

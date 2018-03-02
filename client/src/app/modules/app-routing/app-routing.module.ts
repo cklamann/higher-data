@@ -9,8 +9,9 @@ import { BlogPageComponent } from '../blog/blog-page/blog-page.component';
 import { EditPageComponent } from '../blog/edit-page/edit-page.component';
 import { ChartCreatorComponent } from '../admin/admin-page//chart-creator/chart-creator.component';
 import { VariableDefinerComponent } from '../admin/admin-page/variable-definer/variable-definer.component'
-import { DocsPageComponent } from '../data-page/docs-page/docs-page.component';
-
+import { ChartSourcesComponent } from '../data-page/sources-page/chart-sources/chart-sources.component';
+import { VariableSourcesComponent } from '../data-page/sources-page/variable-sources/variable-sources.component';
+import { SourcesPageComponent } from '../data-page/sources-page/sources-page.component';
 //todo: build 404 page
 
 const routes: Routes = [
@@ -22,8 +23,11 @@ const routes: Routes = [
 			{ path: 'charts', component: ChartPageComponent },
 			{ path: 'charts/:school/:chart', component: ChartPageComponent },
 			{ path: 'tables', component: TablePageComponent },
-			{ path: 'sources', component: DocsPageComponent }
-		]
+			{path: 'sources', component: SourcesPageComponent, children: [
+					{ path: 'charts', component: ChartSourcesComponent },
+					{ path: 'variables', component: VariableSourcesComponent }
+				],
+			}]
 	},
 	{
 		path: 'login',

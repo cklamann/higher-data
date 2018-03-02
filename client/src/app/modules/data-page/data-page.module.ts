@@ -5,7 +5,6 @@ import { AppComponent } from '../app/app.component';
 import { HttpClientModule } from '@angular/common/http';
 import { Schools } from '../../models/Schools';
 import { ChartPageComponent } from './chart-page/chart-page.component';
-import { DocsPageComponent } from './docs-page/docs-page.component';
 import { SharedModule } from '../shared/shared.module';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -16,11 +15,14 @@ import { ChartModule } from '../chart/chart.module';
 import { DataPageComponent } from './data-page.component';
 import { TablePageComponent } from './table-page/table-page.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { SourcesPageComponent } from './sources-page/sources-page.component';
+import { ChartSourcesComponent } from './sources-page/chart-sources/chart-sources.component';
+import { VariableSourcesComponent } from './sources-page/variable-sources/variable-sources.component';
 
 @NgModule({
 	//imports will be available to all components in module 
 	imports: [BrowserModule, HttpClientModule, ReactiveFormsModule, MatTabsModule, BrowserAnimationsModule, FlexLayoutModule, AppRoutingModule, MatToolbarModule, SharedModule, ChartModule, MatRadioModule],
-	declarations: [ChartPageComponent, DataPageComponent, TablePageComponent,DocsPageComponent], //list all components in the module
+	declarations: [ChartPageComponent, DataPageComponent, TablePageComponent, SourcesPageComponent, ChartSourcesComponent, VariableSourcesComponent], //list all components in the module
 	providers: [RestService, Schools] // module-wide providers, still need to be imported in each component
 })
 

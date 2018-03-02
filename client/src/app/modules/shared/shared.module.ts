@@ -7,7 +7,6 @@ import { ChartSearchComponent } from './chart-search/chart-search.component';
 import { VariableSelectComponent } from './variable-select/variable-select.component';
 import { Charts } from '../../models/Charts';
 
-
 @NgModule({
 	imports: [
 		CommonModule, ReactiveFormsModule, MatAutocompleteModule, MatFormFieldModule, MatOptionModule, MatInputModule, MatSelectModule

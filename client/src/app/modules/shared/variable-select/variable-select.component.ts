@@ -1,7 +1,8 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, Input, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSelect } from '@angular/material';
-import { VariableDefinitions } from '../../../models/VariableDefinitions'
+import { VariableDefinitions } from '../../../models/VariableDefinitions';
+import { intVariableDefinitionModel } from '../../../../../server/dist/schemas/VariableDefinitionSchema';
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/map';
 
@@ -15,14 +16,17 @@ export class VariableSelectComponent implements OnInit {
 	variableSelectForm: FormGroup;
 	@Output()
 	onVariableSelect: EventEmitter<string> = new EventEmitter<string>();
-	variables: string[] = [];
+	@Input()
+	defined: boolean = false;
+
+	variables: intVariableDefinitionModel[] = [];
 
 	constructor(private fb: FormBuilder, private VariableDefinitions: VariableDefinitions) {
 		this.createForm();
 	}
 
 	ngOnInit() {
-		this.VariableDefinitions.fetchNames()
+		this.VariableDefinitions.fetchAll(this.defined)
 			.subscribe(variables => {
 				this.variables = variables;
 			});

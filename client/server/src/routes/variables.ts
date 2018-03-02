@@ -26,7 +26,9 @@ router.get('/fetch_by_name', function(req, res, next) {
 });
 
 router.get('/', function(req, res, next) {
-	VariableDefinitionSchema.find()
+	let filter = req.query.defined ? {'sources.0':{$exists: true}} : {};
+	console.log(filter);
+	VariableDefinitionSchema.find(filter)
 		.then(resp => {
 			return res.json(resp);
 		})

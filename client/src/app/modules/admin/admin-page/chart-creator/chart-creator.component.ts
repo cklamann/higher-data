@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { intChartModel, intChartSchema } from '../../../../../../server/src/schemas/ChartSchema';
+import { intVariableDefinitionModel } from '../../../../../../server/src/schemas/VariableDefinitionSchema';
 import { Charts } from '../../../../models/Charts';
 import { VariableSelectComponent } from '../../../shared/variable-select/variable-select.component';
 import { intSchoolModel } from '../../../../../../server/src/schemas/SchoolSchema';
@@ -134,14 +135,14 @@ export class ChartCreatorComponent implements OnInit {
 		this.chartBuilderForm.setValue(chart);
 	}
 
-	onVariableSelect(variable: string, i: number): void {
+	onVariableSelect(variable: intVariableDefinitionModel, i: number): void {
 		let control = <FormArray>this.chartBuilderForm.controls['variables'];
-		control.at(i).patchValue({ formula: control.at(i).value.formula + " " + variable });
+		control.at(i).patchValue({ formula: control.at(i).value.formula + " " + variable.variable });
 	}
 
-	onCutVariableSelect(variable: string, i: number): void {
+	onCutVariableSelect(variable: intVariableDefinitionModel, i: number): void {
 		let control = <FormArray>this.chartBuilderForm.controls['cuts'];
-		control.at(i).patchValue({ formula: control.at(i).value.formula + " " + variable });
+		control.at(i).patchValue({ formula: control.at(i).value.formula + " " + variable.variable });
 	}
 
 	getPreview() {
