@@ -145,17 +145,12 @@ export class LineChart extends BaseChart {
 			});
 	}
 
-	//todo: make this total work for tooltip
 	getToolTip(fiscal_year: Date): string {
-		let items = _.flatMap(this.chartData.data, datum => {
-			let item = datum.data.find(item => item.fiscal_year.getFullYear() === fiscal_year.getFullYear());
-			if (!_.isEmpty(item)) {
-				return item;
-			}
-		}),
-			total = items.reduce((a, b) => a + (b ? b.value : 0), 0),
-			list = items.map(item => `<li><span style='color: ${this.zScale(item.key)}'><i class='fa fa-circle' aria-hidden='true'></i></span> ${item.legendName} : ${this.formatNumber(item.value, this.displayOptions.valueType)}</li>`).join('');
-		return "<ul class='mat-caption'>" + list + `<li>Total: ${this.formatNumber(total, this.displayOptions.valueType)}</li>` + "<ul>";
+		let everything = _.flatMap(this.chartData.data, datum => datum.data),
+			forYear = everything.filter(item => item.fiscal_year.getFullYear() === fiscal_year.getFullYear()),
+			sum = forYear.reduce((a, b) => a + b.value, 0),
+			str = forYear.map(item => `<li><span style='color: ${this.zScale(item.key)}'><i class='fa fa-circle' aria-hidden='true'></i></span> ${item.legendName} : ${this.formatNumber(item.value, this.displayOptions.valueType)}</li>`).join('');
+		return "<ul class='mat-caption'>" + str + `<li>Total: ${this.formatNumber(sum, this.displayOptions.valueType)}</li>` + "<ul>";
 	}
 
 };

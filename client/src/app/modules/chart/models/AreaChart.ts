@@ -128,13 +128,14 @@ export class AreaChart extends LineChart {
 				legendName: legendName,
 				index: this.stackData.find(datum => datum.key === k).index
 			}
-		})
-
+		});
+		let sum = this.chartData.getSumForYear(datum.date);
+		let sumString = `<li>Total:${this.formatNumber(sum, this.displayOptions.valueType)}</li>`;
 		tips.sort((a, b) => b.index < a.index ? -1 : b.index > a.index ? 1 : b.index >= a.index ? 0 : NaN);
 		let str = tips.map(tip => {
 			return "<li><span style='color:" + this.zScale(tip.key) + "'><i class='fa fa-circle' aria-hidden='true'></i></span>&nbsp" + tip.legendName + ": " + this.formatNumber(datum[tip.key], this.displayOptions.valueType) + "</li>";
 		}).join("");
-		return "<div>" + datum.date.getFullYear() + ":<br><ul class='mat-caption'>" + str + "</ul>";
+		return "<div>" + datum.date.getFullYear() + ":<br><ul class='mat-caption'>" + str + sumString + "</ul>";
 	}
 
 	private _getLegendLine(stackDatum) {

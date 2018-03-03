@@ -26,10 +26,17 @@ export class ChartData {
 
 	getDateRange = (): Array<Date> => {
 		let range = _.flatMap(this.data, c => _.flatMap(c.data, d => d.fiscal_year));
-		return _.uniqBy(range, item => item.getFullYear()).sort( (a,b) => a - b);
+		return _.uniqBy(range, item => item.getFullYear()).sort((a, b) => a - b);
 	}
-	
-	setNullsToZero = () => this.data.forEach(datum => datum.data.forEach(item => item.value === null ? item.value = 0 : item.value = item.value));
+
+	getSumForYear = (year: Date): number => {
+		let everything = _.flatMap(this.data, datum => datum.data);
+		let	forYear = everything.filter(item => item.fiscal_year.getFullYear() === year.getFullYear()),
+			sum = forYear.reduce((a, b) => a + b.value, 0)
+		return sum;
+	}
+
+	setNullsToZero = (): void => this.data.forEach(datum => datum.data.forEach(item => item.value === null ? item.value = 0 : item.value = item.value));
 
 	//loops through variables and any variable missing years gets gets zeroes
 	setMissingValsToZero = () => {
