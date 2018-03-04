@@ -17,7 +17,8 @@ router.get('/fetch_names', passport.authenticate('basic', { session: false }), f
 });
 
 router.get('/fetch_by_name', function(req, res, next) {
-	VariableDefinitionSchema.findOne({ variable: req.query.name }).select("-__v")
+	const names = req.query.name.split(",");
+	VariableDefinitionSchema.find({ variable: { "$in": names } }).select("-__v")
 		.then(resp => {
 			res.json(resp);
 			return;
@@ -26,8 +27,7 @@ router.get('/fetch_by_name', function(req, res, next) {
 });
 
 router.get('/', function(req, res, next) {
-	let filter = req.query.defined ? {'sources.0':{$exists: true}} : {};
-	console.log(filter);
+	let filter = req.query.defined ? { 'sources.0': { $exists: true } } : {};
 	VariableDefinitionSchema.find(filter)
 		.then(resp => {
 			return res.json(resp);
@@ -49,12 +49,12 @@ router.get('/:variable/chart/:school', passport.authenticate('basic', { session:
 			notes: "test",
 			legendName: req.params.variable
 		}],
-		cuts:[]
+		cuts: []
 	}
 
 	SchoolSchema.schema.statics.fetch(req.params.school)
 		.then((school: intSchoolSchema) => {
-			const chart = new ChartExport(school, chartModel,{cut:''});
+			const chart = new ChartExport(school, chartModel, { cut: '' });
 			chart.export().then(chart => {
 				res.json(chart);
 				return;
@@ -64,7 +64,7 @@ router.get('/:variable/chart/:school', passport.authenticate('basic', { session:
 
 router.post('/', passport.authenticate('basic', { session: false }), function(req, res, next) {
 	let promise: Promise<any>;
-	if (req.body._id){
+	if (req.body._id) {
 		promise = VariableDefinitionSchema.schema.statics.fetchAndUpdate(req.body);
 	} else {
 		promise = VariableDefinitionSchema.create(req.body);

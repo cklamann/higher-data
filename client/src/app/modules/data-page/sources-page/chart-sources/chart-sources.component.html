@@ -1,3 +1,18 @@
-<p>
-  chart-sources works!
-</p>
+<div fxFlex = 100 fxLayoutAlign = "center center" fxLayoutWrap>	
+	<app-chart-search fxFlex = 75 fxFlex.gt-sm = 33 fxLayoutAlign="center center" [defaultChart] = "urlChart" (onChartSelect) = setChart($event)></app-chart-search>
+
+	<div *ngIf="definitions"> 
+		<div *ngFor = "let definition of definitions">
+			<div>
+				Legend Name: {{definition.legendName}}
+			</div>
+			<div>
+				Calculation: {{definition.formula}}
+			</div>
+			<div *ngFor="let def of definition.variableDefinitions">
+				<app-source-display  fxFlex = 100 fxFlex.gt-sm = 68 fxLayoutWrap fxLayoutAlign = "	center center" [variable]="def"></app-source-display>
+			</div>
+		</div>
+	</div>
+
+</div>

@@ -92,8 +92,8 @@ export class VariableDefinerComponent implements OnInit {
 		this.variableDefinitions.fetchByName(variable)
 			.subscribe(varDef => {
 				if (varDef) {
-					varDef.sources.forEach(variable => this.addSource()); 
-					this.variableDefinitionForm.setValue(varDef); 
+					varDef[0].sources.forEach(variable => this.addSource()); 
+					this.variableDefinitionForm.setValue(varDef[0]); 
 				}
 			})
 		this._loadChart();

@@ -51,6 +51,7 @@
     "karma-jasmine-html-reporter": "^0.2.2",
     "lodash": "^4.17.4",
     "material-design-icons": "^3.0.1",
+    "mathjs": "^4.0.0",
     "path": "^0.12.7",
     "protractor": "~5.1.2",
     "q": "^1.5.1",

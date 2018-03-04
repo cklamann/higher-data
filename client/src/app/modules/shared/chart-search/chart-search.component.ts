@@ -19,7 +19,7 @@ export class ChartSearchComponent implements OnInit {
 	chartSelectForm: FormGroup;
 
 	@Input()
-	defaultChart: intChartModel;
+	defaultChart: string;
 
 	@Output()
 	onChartSelect: EventEmitter<intChartModel> = new EventEmitter<intChartModel>();
@@ -38,11 +38,11 @@ export class ChartSearchComponent implements OnInit {
 				this.charts = res;
 				return this.options.changes; //charts are options...
 			})
-			.first()//we are only interested in the initial values
-			.subscribe(change => {
+			.first()//we are only interested in the initial values 
+			.subscribe(change => { //coming back as undefined.... why? 
 				if (change.length) {
 					change.forEach(option => {
-						if (option.value && this.defaultChart && option.value.slug == this.defaultChart.slug) {
+						if (option.value && this.defaultChart && option.value.slug == this.defaultChart) {
 							//avoid viewsetaftercheck error
 							//todo: replace with better solution once angular solves it
 							setTimeout(() => {

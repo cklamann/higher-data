@@ -1,6 +1,5 @@
-<mat-card *ngIf="variable">
-	<mat-card-header>
-		<span class = "mat-body-strong">Local variable name: </span>
+<mat-card *ngIf="variable" fxFlex = 100 fxFlex.gt-sm = 75 fxLayoutWrap>
+	<mat-card-header fxFlex=100 fxLayoutAlign = "center center">
 		<span class = "mat-body-1">{{variable.variable}}</span>
 	</mat-card-header>
 	<div>

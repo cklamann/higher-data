@@ -17,9 +17,9 @@ export class VariableSourcesComponent implements OnInit {
 	constructor(private router: Router, private route: ActivatedRoute) { }
 
 	ngOnInit() {
-		//update via url
+		//intialize via url
 		this.route.params.subscribe(params => {
-			if (params && params.variable && (!this.variable || this.variable.variable != params.variable)) {
+			if (params.variable && !this.variable) {
 				this._updateChildSelectControl(params.variable);
 			}
 		});
@@ -27,11 +27,8 @@ export class VariableSourcesComponent implements OnInit {
 
 	//update via dropxown
 	setVariable($event) {
-		const variable = this.variable ? this.variable : null;
-		if ($event && $event != variable) {
-			this.variable = $event;
-			this.router.navigate([`data/sources/variables/${this.variable.variable}`]);
-		}
+		this.variable = $event;
+		this.router.navigate([`data/sources/variables/${this.variable.variable}`]);
 	}
 
 	private _updateChildSelectControl(variable: string) {
