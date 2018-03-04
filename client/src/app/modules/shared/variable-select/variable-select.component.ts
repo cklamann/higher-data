@@ -1,6 +1,6 @@
-import { Component, OnInit, Output, Input, EventEmitter } from '@angular/core';
+import { Component, OnInit, QueryList, Output, Input, EventEmitter, OnChanges, SimpleChanges, ViewChildren } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatSelect } from '@angular/material';
+import { MatSelect, MatOption } from '@angular/material';
 import { VariableDefinitions } from '../../../models/VariableDefinitions';
 import { intVariableDefinitionModel } from '../../../../../server/src/schemas/VariableDefinitionSchema';
 import 'rxjs/add/operator/debounceTime';
@@ -18,6 +18,9 @@ export class VariableSelectComponent implements OnInit {
 	onVariableSelect: EventEmitter<string> = new EventEmitter<string>();
 	@Input()
 	defined: boolean = false;
+	@Input()
+	urlVariable: string = "";
+	@ViewChildren(MatOption) options: QueryList<MatOption>;
 
 	variables: intVariableDefinitionModel[] = [];
 
@@ -27,9 +30,26 @@ export class VariableSelectComponent implements OnInit {
 
 	ngOnInit() {
 		this.VariableDefinitions.fetchAll(this.defined)
-			.subscribe(variables => {
-				this.variables = variables;
+			.switchMap(res => {
+				this.variables = res;
+				return this.options.changes;
+			})
+			.first()//we are only interested in the initial values
+			.subscribe(change => {
+				if (change.length) {
+					change.forEach(option => {
+						if (option.value && this.urlVariable && option.value.variable == this.urlVariable) {
+							//avoid viewsetaftercheck error
+							//todo: replace with better solution once angular solves it
+							setTimeout(() => {
+								option['_selectViaInteraction']();
+							});
+
+						}
+					});
+				}
 			});
+
 		this.listenForSelectChanges();
 	}
 

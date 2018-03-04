@@ -1,4 +1,4 @@
 <div fxFlex = 100 fxLayoutAlign = "center center" fxLayoutWrap>	
-	<app-variable-select [defined]="true" fxFlex = 75 fxFlex.gt-sm = 33 fxLayoutAlign="center center" (onVariableSelect) = setVariable($event)></app-variable-select>
+	<app-variable-select [defined]="true" fxFlex = 75 fxFlex.gt-sm = 33 fxLayoutAlign="center center" [urlVariable] = "urlVariable" (onVariableSelect) = setVariable($event)></app-variable-select>
 	<app-source-display fxFlex = 100 fxFlex.gt-sm = 68 fxLayoutWrap [variable]="variable"></app-source-display>
 </div>

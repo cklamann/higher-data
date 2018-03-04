@@ -23,9 +23,12 @@ const routes: Routes = [
 			{ path: 'charts', component: ChartPageComponent },
 			{ path: 'charts/:school/:chart', component: ChartPageComponent },
 			{ path: 'tables', component: TablePageComponent },
-			{path: 'sources', component: SourcesPageComponent, children: [
+			{
+				path: 'sources', component: SourcesPageComponent, children: [
+					{ path: '', redirectTo: 'charts', pathMatch: 'full' },
 					{ path: 'charts', component: ChartSourcesComponent },
-					{ path: 'variables', component: VariableSourcesComponent }
+					{ path: 'variables', component: VariableSourcesComponent },
+					{ path: 'variables/:variable', component: VariableSourcesComponent }
 				],
 			}]
 	},
