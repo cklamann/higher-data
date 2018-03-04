@@ -1,18 +1,35 @@
 <div fxFlex = 100 fxLayoutAlign = "center center" fxLayoutWrap>	
-	<app-chart-search fxFlex = 75 fxFlex.gt-sm = 33 fxLayoutAlign="center center" [defaultChart] = "urlChart" (onChartSelect) = setChart($event)></app-chart-search>
-
-	<div *ngIf="definitions"> 
-		<div *ngFor = "let definition of definitions">
-			<div>
-				Legend Name: {{definition.legendName}}
-			</div>
-			<div>
-				Calculation: {{definition.formula}}
-			</div>
-			<div *ngFor="let def of definition.variableDefinitions">
-				<app-source-display  fxFlex = 100 fxFlex.gt-sm = 68 fxLayoutWrap fxLayoutAlign = "	center center" [variable]="def"></app-source-display>
-			</div>
-		</div>
+	<app-chart-search fxLayoutAlign="center center" [defaultChart] = "urlChart" (onChartSelect) = setChart($event)></app-chart-search>
+	<div *ngIf="chart" fxFlex=100 fxLayoutAlign = "center center">
+		<mat-card fxFlex=100 fxFlex.gt-xs = 75 fxLayoutAlign = "center center" fxLayoutWrap>
+			<mat-card-title fxFlex=100 class = "center-text"> 
+				{{chart.name}} Chart
+			</mat-card-title>
+			<mat-card-content fxFlex=100 class = "center-text" fxLayoutWrap>
+				<mat-card-subtitle fxFlex=100 class ="center-text">
+					Chart Variables:
+				</mat-card-subtitle>
+				<div *ngIf="definitions" fxFlex = 100 fxLayoutAlign = "center center" fxLayoutWrap>
+					<div *ngFor = "let definition of definitions; let i = index;" fxFlex = 100 fxLayoutAlign = "center center" fxLayoutWrap>
+						<div class = "component-holder left-text" fxFlex=100 fxFlex.gt-xs=50 fxLayoutAlign= "start start" fxLayoutWrap>
+							<div fxFlex = 100  class = "mat-body-1">
+								<span class = "mat-body-strong">Variable {{i+1}} Legend Name:</span> 
+								<span class = "mat-body-1">{{definition.legendName}}</span>
+							</div>
+							<div fxFlex = 100 class = "mat-body-1">
+								<span class = "mat-body-strong">Variable {{i+1}} Calculation:</span> 
+								<span class = "mat-body-1">{{definition.formula}}</span>
+							</div>
+							<div fxFlex = 100 class = "mat-body-1">
+								<span class = "mat-body-strong">Variable {{i+1}} Sources:</span> 
+							</div>
+						</div>
+						<div *ngFor="let def of definition.variableDefinitions" fxFlex = 100 fxLayoutWrap fxLayoutAlign = "center center">
+							<app-source-display  fxFlex = 100 fxLayoutWrap fxLayoutAlign = "center center" [variable]="def"></app-source-display>
+						</div>
+					</div>
+				</div>
+			</mat-card-content>
+		</mat-card>
 	</div>
-
 </div>

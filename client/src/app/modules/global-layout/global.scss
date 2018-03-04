@@ -7,15 +7,18 @@ path {
 text {
     font-family: 'Roboto';
 }
-
 form {
     width: 100%;
 }
-
 li {
     list-style: none;
 }
-
+.spacer-10 {
+    margin: 10 0;
+}
+.spacer-20 {
+    marin: 20 0;
+}
 app-variable-sources {
     display: flex;
     justify-content: center;
@@ -24,6 +27,10 @@ app-variable-sources {
 .center-text {
     text-align: center;
 }
+.left-text {
+    text-align: left;
+}
+
 .d3-tip {
     position: absolute;
     text-align: left;
