@@ -1,6 +1,6 @@
-<form [formGroup]="chartSelectForm" novalidate fxFlex = "100" fxFlex.gt-sm="100">
-    <mat-form-field class = "chart-search" fxFlex = "100" fxFlex.gt-sm="100">
-        <mat-select class="form-control" formControlName="chart" placeholder = "Chart">
+<form [formGroup]="chartSelectForm" novalidate fxFlex = "100">
+    <mat-form-field class = "chart-search" fxFlex = "100">
+        <mat-select class="form-control" formControlName="chart" placeholder = "Select a Chart">
             <mat-option *ngFor="let chart of charts" [value]="chart">{{chart.name}}</mat-option>
         </mat-select>
     </mat-form-field>

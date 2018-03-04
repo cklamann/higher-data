@@ -14,23 +14,21 @@ li {
     list-style: none;
 }
 .spacer-10 {
-    margin: 10 0;
+    margin: 10px 0px;
 }
 .spacer-20 {
-    marin: 20 0;
+    margin: 20px 0px;
 }
-app-variable-sources {
-    display: flex;
-    justify-content: center;
-    flex: 1 1 100%;
+.margin-top-15 {
+    margin: 15px 0px 0px 0px;
 }
+
 .center-text {
     text-align: center;
 }
 .left-text {
     text-align: left;
 }
-
 .d3-tip {
     position: absolute;
     text-align: left;
