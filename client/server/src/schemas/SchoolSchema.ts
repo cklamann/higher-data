@@ -19,7 +19,7 @@ export interface intSchoolModel {
 export interface intSchoolDataModel {
   fiscal_year: string,
   variable: string,
-  value: string,
+  value: number,
 };
 
 
@@ -39,11 +39,11 @@ const schoolDataSchema = new Schema({
     required: true
   },
   value: {
-    type: String,
+    type: Number,
     required: true,
     trim: true
   }
-},{ _id : false });
+}, { _id: false });
 
 let schema: Schema = new Schema({
   id: ObjectId,
@@ -74,41 +74,48 @@ SchoolSchema.schema.static('getVariableList', (cb: any) => {
   return SchoolSchema.distinct("data.variable", cb);
 });
 
-SchoolSchema.schema.static('fetchVariable', (variable: string, filters: Array<any> = [], limit: number): intSchoolSchema => {
-  if (typeof filters === 'number') {
-    limit = filters;
-    filters = [];
-  }
-  let fils = [{ "data.variable": variable }];
-  if (_.isArray(filters) && !_.isEmpty(filters)) {
-    filters.forEach(filt => {
-      let res: any = {};
-      res[filt.name] = {
-        "$eq": filt.value
-      };
-      fils.push(res);
-    });
-  }
-  return SchoolSchema.aggregate([
+//db.schools.aggregate([{"$project":{"sector":1,"state":1,data":{"$filter":{input:"$data",as: "var",cond:{ "$in": ["$$var.variable", ["room_and_board","in_state_tuition"]]}}}}}, {"$unwind":{"path":"$data"}},{"$group":{"_id":{"sector":"$sector","fiscal_year":"$data.fiscal_year","variable":"$data.variable"},"median":{"$avg":"$data.value"}}}])
+//the above will bring back agg data
+//the below aggregation query will limit it for the passed school, maybe.
+
+//todo: need pagination info...
+
+SchoolSchema.schema.static('fetchVariables', (variables: string[], queryFilters: { [key: string]: string }[] = [], aggArgs: { [key: string]: string }[] = []): intSchoolSchema => {
+  let qf = queryFilters.schoolSlug != "aggregate" ? {
+    "$match":
+      { "slug": schoolSlug }
+  } : {};
+
+  let unwind = queryFilters.groupBy ? { "$unwind": { "path": "$data" } } : {};
+
+  let groupBy = queryFilters.groupBy ? {
+    "$group": { "_id": { [queryFilters.groupBy.variable]: "$" + queryFilters.groupBy.variable, "fiscal_year": "$data.fiscal_year", "variable": "$data.variable" }, [queryFilters.groupBy.aggName]: { ["$" + queryFilters.groupBy.aggFunc]: "$data.value" } }
+  } : {};
+
+  SchoolSchema.aggregate([
+    qf,
     {
-      "$match": {
-        "$and": fils
-      }
-    },
-    {
-      "$project": {
-        unitid: 1,
-        data: {
-          "$filter": {
-            input: "$data",
-            as: "data",
-            cond: { "$eq": ["$$data.variable", variable] }
-          }
+      "$project":
+        {
+          "sector": 1,
+          "state": 1,
+          "data":
+            {
+              "$filter":
+                {
+                  input: "$data",
+                  as: "var",
+                  cond:
+                    { "$in": ["$$var.variable", variables] }
+                }
+            }
         }
-      }
-    }
+    },
+    unwind,
+    groupBy
   ]).limit(limit ? limit : 1000000).exec();
 });
+
 
 SchoolSchema.schema.static('fetchSchoolWithVariables', (unitid: number, variables: string[]): intSchoolModel => {
   return SchoolSchema.aggregate([

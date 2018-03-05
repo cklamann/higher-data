@@ -3,18 +3,14 @@ import * as _ from 'lodash';
 import { SchoolSchema, intSchoolModel, intSchoolDataModel } from '../schemas/SchoolSchema';
 import { VariableDefinitionSchema, intVariableDefinitionSchema } from '../schemas/VariableDefinitionSchema';
 
-export interface intFormula {
-	validate(): Promise<boolean>;
-}
-
-export interface intChartFormulaResult {
+export interface intFormulaParserResult {
 	fiscal_year: string,
 	value: any
 }
 
 // [ { '2003': [{ in_state_tuition: 27108, room_and_board: 8446 }] } ]
 
-export class ChartFormula implements intFormula {
+export class FormulaParser {
 	formula: string;
 	cleanFormula: string;
 	symbolNodes: string[];
@@ -50,7 +46,7 @@ export class ChartFormula implements intFormula {
 	}
 
 	//any is the intermediate data model
-	private _evaluate(chartData: any[]):intChartFormulaResult[] {
+	private _evaluate(chartData: any[]):intFormulaParserResult[] {
 		return chartData.map(datum => {
 			return {
 				fiscal_year: _.keys(datum)[0],
@@ -59,7 +55,7 @@ export class ChartFormula implements intFormula {
 		});
 	}
 
-	public execute(unitid: string): Q.Promise<intChartFormulaResult[]> {
+	public execute(unitid: string): Q.Promise<intFormulaParserResult[]> {
 		return SchoolSchema.schema.statics.fetchSchoolWithVariables(unitid, this.symbolNodes)
 			.then((school: intSchoolModel) => {
 				const fullData = this._fillMissingOptionalData(school.data),

@@ -8,7 +8,7 @@ import { AreaChart } from './models/AreaChart';
 import 'rxjs/add/operator/map';
 import { intChartModel } from '../../../../server/src/schemas/ChartSchema';
 import { intSchoolModel } from '../../../../server/src/schemas/SchoolSchema';
-import { intChartFormulaResult } from '../../../../server/src/modules/ChartFormula.module';
+import { intFormulaParserResult } from '../../../../server/src/modules/FormulaParser.module';
 import * as _ from 'lodash';
 
 
@@ -36,7 +36,7 @@ export class ChartService {
 		return this.rest.get(`variables/${variable}/chart/${schoolSlug}`);
 	}
 
-	fetchExport(formula: string, schoolSlug: string, options: intChartExportOptions): Observable<intChartFormulaResult[]> {
+	fetchExport(formula: string, schoolSlug: string): Observable<intFormulaParserResult[]> {
 		return this.rest.post(`schools/export/${schoolSlug}`, { formula: formula })
 	}
 

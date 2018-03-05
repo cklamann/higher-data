@@ -3,7 +3,7 @@ import * as _ from 'lodash';
 import * as Q from 'q';
 import { SchoolSchema, intSchoolModel } from '../schemas/SchoolSchema';
 import { ChartSchema, intChartModel, intChartVariableModel } from '../schemas/ChartSchema'
-import { ChartFormula, intFormula, intChartFormulaResult } from '../modules/ChartFormula.module';
+import { FormulaParser, intFormulaParserResult } from '../modules/FormulaParser.module';
 import { VariableDefinitionSchema, intVariableDefinitionSchema } from '../schemas/VariableDefinitionSchema';
 import { InflationTableSchema } from '../schemas/InflationTableSchema';
 
@@ -16,7 +16,7 @@ export interface intChartExport {
 
 export interface intChartExportDataParentModel {
 	legendName: string,
-	data: intChartFormulaResult[]
+	data: intFormulaParserResult[]
 }
 
 export interface intChartExportOptions {
@@ -35,9 +35,9 @@ export class ChartExport {
 	}
 
 	public export(): Q.Promise<intChartExport> {
-		let promises: Q.Promise<intChartFormulaResult[]>[] = [];
+		let promises: Q.Promise<intFormulaParserResult[]>[] = [];
 		this.chart.variables.forEach((variable: intChartVariableModel) => {
-			let varVal = new ChartFormula(variable.formula);
+			let varVal = new FormulaParser(variable.formula);
 			promises.push(varVal.execute(this.school.unitid));
 		});
 		return Q.all(promises)
@@ -65,7 +65,7 @@ export class ChartExport {
 			})
 			.catch(err => err);
 	}
-	_adjustForInflation(res: intChartFormulaResult[]): intChartFormulaResult[] {
+	_adjustForInflation(res: intFormulaParserResult[]): intFormulaParserResult[] {
 		return InflationTableSchema.schema.statics.calculate(res);
 	}
 }

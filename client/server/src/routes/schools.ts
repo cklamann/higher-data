@@ -2,7 +2,8 @@ import { SchoolSchema, intSchoolSchema } from '../schemas/SchoolSchema';
 import { Router, Response, Request, NextFunction } from "express";
 import { ChartExport, intChartExport } from '../models/ChartExporter';
 import { ChartSchema } from '../schemas/ChartSchema';
-import { ChartFormula, intChartFormulaResult } from '../modules/ChartFormula.module';
+import { FormulaParser, intFormulaParserResult } from '../modules/FormulaParser.module';
+import { VariableExport } from '../models/VariableExporter';
 import * as Q from 'q';
 
 let mongoose = require("mongoose");
@@ -42,18 +43,30 @@ router.get('/:school/charts/:chart', function(req, res, next) {
 
 });
 
-router.post('/export/:school', function(req, res, next): void {
+//todo: not in use, but could be handy in the future for ad-hoc chart formula parsing
+router.post('/chart/:school', function(req, res, next): void {
 	SchoolSchema.schema.statics.fetch(req.params.school)
-		.then(school => {
-			let formula = new ChartFormula(req.body.formula);
+		.then((school: intSchoolSchema) => {
+			let formula = new FormulaParser(req.body.formula);
 			if (!formula.validate()) next(new Error("formula invalid"));
 			return formula.execute(school.unitid);
 		})
-		.then(resp => {
+		.then((resp: intFormulaParserResult) => {
 			res.json(resp);
 			return;
 		})
-		.catch(err => next(err));
+		.catch((err: Error) => next(err));
+})
+
+
+//this takes options
+router.get('/variable-export/:school', function(req, res, next): void {
+		const variables = new VariableExport(req.params.school, req.query.variables, req.query.options);
+		variables.export().then(vars => {
+				res.json(vars);
+				return;
+			}).catch(err => next(err));
+		})
 })
 
 module.exports = router;

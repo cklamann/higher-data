@@ -1,5 +1,5 @@
 import { intChartExport, intChartExportDataParentModel } from '../../../../../server/src/models/ChartExporter';
-import { intChartFormulaResult } from '../../../../../server/src/modules/ChartFormula.module';
+import { intFormulaParserResult } from '../../../../../server/src/modules/FormulaParser.module';
 import * as _ from 'lodash';
 import * as d3 from 'd3';
 
@@ -80,7 +80,7 @@ export interface intBaseChartData extends intChartExportDataParentModel {
 	data: intBaseChartDatum[];
 }
 
-export interface intBaseChartDatum extends intChartFormulaResult {
+export interface intBaseChartDatum extends intFormulaParserResult {
 	legendName: string;
 	value: number;
 	fiscal_year: any;

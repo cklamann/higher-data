@@ -1,4 +1,4 @@
-import { ChartFormula } from '../../modules/ChartFormula.module';
+import { FormulaParser } from '../../modules/FormulaParser.module';
 import { VariableDefinitionSchema, intVariableDefinitionSchema, intVariableDefinitionModel } from '../../schemas/VariableDefinitionSchema';
 import { SchoolSchema, intSchoolDataModel, SchoolDataSchema, intSchoolDataSchema, intSchoolModel } from '../../schemas/SchoolSchema';
 import assert = require('assert');
@@ -43,10 +43,10 @@ describe('FORMULA MODEL', function() {
 		.map(item => parseFloat(item.value)),
 		min_room_and_board = _.min(room_and_board);
 
-	const testChartFormula: string = '(test_var - 5) / 5',
-		testChartFormulaBad: string = '(fake_var - 5) / ( 5 * other_fake_var)',
-		nwChartFormula: string = 'in_state_tuition + room_and_board',
-		optionalChartFormula: string = 'in_state_tuition + __opt_room_and_board';
+	const testFormulaParser: string = '(test_var - 5) / 5',
+		testFormulaParserBad: string = '(fake_var - 5) / ( 5 * other_fake_var)',
+		nwFormulaParser: string = 'in_state_tuition + room_and_board',
+		optionalFormulaParser: string = 'in_state_tuition + __opt_room_and_board';
 
 	before('create test school with incomplete variable', function(done) {
 		SchoolSchema.create(schoolWithIncompleteYears)
@@ -74,7 +74,7 @@ describe('FORMULA MODEL', function() {
 
 	describe('get the symbol nodes', function() {
 		it('should return an array of symbol nodes in the formula', function(done) {
-			let form1 = new ChartFormula(testChartFormulaBad);
+			let form1 = new FormulaParser(testFormulaParserBad);
 			expect(form1.symbolNodes).to.be.an('array');
 			expect(form1.symbolNodes).to.contain('fake_var');
 			assert(form1.symbolNodes.length == 2);
@@ -84,7 +84,7 @@ describe('FORMULA MODEL', function() {
 
 	describe('validate the good formula', function() {
 		it('should return true', function(done) {
-			let form1 = new ChartFormula(testChartFormula);
+			let form1 = new FormulaParser(testFormulaParser);
 			let validated = form1.validate()
 				.then(res => {
 					expect(res).to.equal(true);
@@ -96,7 +96,7 @@ describe('FORMULA MODEL', function() {
 
 	describe('validate the bad formula', function() {
 		it('should return false', function(done) {
-			let form1 = new ChartFormula(testChartFormulaBad);
+			let form1 = new FormulaParser(testFormulaParserBad);
 			let validated = form1.validate()
 				.then(res => {
 					expect(res).to.equal(false);
@@ -108,7 +108,7 @@ describe('FORMULA MODEL', function() {
 
 	describe('test clean formula', function() {
 		it('should return a cleaned formula from one with optional arguments', function(done) {
-			let form1 = new ChartFormula('__opt_room_and_board + hat');
+			let form1 = new FormulaParser('__opt_room_and_board + hat');
 			assert(form1.cleanFormula == "room_and_board + hat");
 			done();
 		})
@@ -116,7 +116,7 @@ describe('FORMULA MODEL', function() {
 
 	describe('test optional symbol nodes', function() {
 		it('should return optional symbol nodes as clean variables', function(done) {
-			let form1 = new ChartFormula('__opt_room_and_board + cow');
+			let form1 = new FormulaParser('__opt_room_and_board + cow');
 			assert(form1.optionalSymbolNodes[0] == "room_and_board");
 			done();
 		})
@@ -125,7 +125,7 @@ describe('FORMULA MODEL', function() {
 	describe('return a variable with no math involved', function() {
 		it('should return room and board', function(done) {
 
-			let form1 = new ChartFormula('room_and_board');
+			let form1 = new FormulaParser('room_and_board');
 			form1.execute(nwData.unitid)
 				.then(res => {
 					expect(res).to.be.an('array');
@@ -147,7 +147,7 @@ describe('FORMULA MODEL', function() {
 
 	describe('transform the data with some simple arithmetic', function() {
 		it('should return tuition plus room and board', function(done) {
-			let form1 = new ChartFormula(nwChartFormula);
+			let form1 = new FormulaParser(nwFormulaParser);
 			form1.execute(nwData.unitid)
 				.then(res => {
 					expect(res).to.be.an('array');
@@ -169,7 +169,7 @@ describe('FORMULA MODEL', function() {
 
 	describe('test optional variable', function() {
 		it('should return data with missing optional data filled in as zeroes', function(done) {
-			let formula = new ChartFormula(nwChartFormula);
+			let formula = new FormulaParser(nwFormulaParser);
 			formula.execute(nwData.unitid)
 				.then(res => {
 					expect(res).to.be.an('array');
@@ -190,7 +190,7 @@ describe('FORMULA MODEL', function() {
 
 	describe('test missing variables', function() {
 		it('should return an empty array', function(done) {
-			let formula = new ChartFormula('room_and_board + nonexistant');
+			let formula = new FormulaParser('room_and_board + nonexistant');
 			formula.execute(nwData.unitid)
 				.then(res => {
 					expect(res).to.be.an('array');
@@ -202,7 +202,7 @@ describe('FORMULA MODEL', function() {
 
 	describe('test missing year', function() {
 		it('should return 2 years worth of data because one was filtered out', function(done) {
-			let formula = new ChartFormula('room_and_board + in_state_tuition');
+			let formula = new FormulaParser('room_and_board + in_state_tuition');
 			formula.execute(schoolWithIncompleteYears.unitid)
 				.then(res => {
 					expect(res).to.be.an('array');

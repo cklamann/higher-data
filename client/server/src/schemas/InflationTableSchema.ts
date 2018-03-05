@@ -1,5 +1,5 @@
 import { model, Schema, Document, Model } from 'mongoose';
-import { intChartFormulaResult } from '../modules/ChartFormula.module';
+import { intFormulaParserResult } from '../modules/FormulaParser.module';
 
 export interface intInflationTableModel {
 	year: string;
@@ -21,7 +21,7 @@ export let InflationTableSchema = model<intInflationTableSchema>('inflation_tabl
 
 InflationTableSchema.schema.statics = {
 	//https://data.oecd.org/price/inflation-cpi.htm
-	calculate: (data: intChartFormulaResult[]): Promise<intChartFormulaResult[]> => {
+	calculate: (data: intFormulaParserResult[]): Promise<intFormulaParserResult[]> => {
 		return InflationTableSchema.find().sort({'year':-1})
 			.then(table => {
 				let latest = table[0];

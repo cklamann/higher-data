@@ -1,5 +1,5 @@
 import { model, Schema, Document, Model } from 'mongoose';
-import { ChartFormula, intFormula } from '../modules/ChartFormula.module';
+import { FormulaParser } from '../modules/FormulaParser.module';
 import * as _ from 'lodash';
 
 export interface intChartVariableModel {
@@ -98,7 +98,7 @@ const schema: Schema = new Schema({
 chartVariableSchema.path('formula').validate({
   isAsync: true,
   validator: function(value: any, respond: any) {
-    let formula = new ChartFormula(value);
+    let formula = new FormulaParser(value);
     formula.validate()
       .then(res => {
         respond(res);
@@ -112,7 +112,7 @@ cutBySchema.path('formula').validate({
   isAsync: true,
   validator: function(value: any, respond: any) {
     if(!value || _.isEmpty(value)) return true;
-    let formula = new ChartFormula(value);
+    let formula = new FormulaParser(value);
     formula.validate()
       .then(res => {
         respond(res);
