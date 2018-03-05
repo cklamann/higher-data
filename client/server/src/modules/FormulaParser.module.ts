@@ -33,7 +33,7 @@ export class FormulaParser {
 			return {
 				[k]: v.map(item => {
 					return {
-						[item.variable] : parseFloat(item.value.trim()) 
+						[item.variable] : item.value 
 					}
 				}).reduce((acc, curr) => {
 					return _.assign(acc, curr);

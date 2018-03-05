@@ -141,15 +141,7 @@ SchoolSchema.schema.static('fetchSchoolWithVariables', (unitid: number, variable
       }
     }
   ]).exec().then((res: intSchoolModel[]) => {
-    let result = res[0];
-    _.forEach(result.data, (v, k) => {
-      _.forEach(v, val => {
-        if (_.isString(val)) {
-          val = val.trim();
-        }
-      });
-    });
-    return result;
+    return res[0];
   })
 });
 
