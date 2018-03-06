@@ -66,7 +66,6 @@ router.get('/variable-export/:school', function(req, res, next): void {
 				res.json(vars);
 				return;
 			}).catch(err => next(err));
-		})
 })
 
 module.exports = router;
