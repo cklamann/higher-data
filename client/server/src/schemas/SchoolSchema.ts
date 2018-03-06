@@ -28,6 +28,31 @@ export interface intSchoolSchema extends Document, intSchoolModel {
 
 export interface intSchoolDataSchema extends Document, intSchoolDataModel { };
 
+export interface intVariableQueryFilter {
+  schoolSlug: string;
+  groupBy?: intGroupByArgs
+}
+
+export interface intGroupByArgs {
+  aggFunc: string;
+  aggFuncName: string;
+  variable: string;
+}
+
+export interface intAggReturn {
+  aggFuncName: string;
+  _id: {
+    fiscal_year: string;
+    variable: string;
+    [key: string]: string;
+  };
+  value: number;
+}
+
+export interface intMatchArgs {
+  [key: string]: ?string;
+}
+
 const schoolDataSchema = new Schema({
   fiscal_year: {
     type: String,
@@ -64,6 +89,8 @@ let schema: Schema = new Schema({
 export let SchoolDataSchema = model<intSchoolDataSchema>('schoolData', schema);
 export let SchoolSchema = model<intSchoolSchema>('school', schema);
 
+//todo: move these in to statics object, remove callbacks:
+
 SchoolSchema.schema.static('search', (name: string, cb: any) => {
   return SchoolSchema.find({ instnm: { $regex: `${name}+.`, $options: 'is' } }, cb).limit(25).select('-data');
 });
@@ -74,30 +101,20 @@ SchoolSchema.schema.static('getVariableList', (cb: any) => {
 });
 
 
-export interface intVariableQueryFilter {
-  schoolSlug: string;
-  groupBy?: intGroupByArgs
-}
-
-export interface intGroupByArgs {
-  aggFunc: string;
-  aggFuncName: string;
-  variable: string;
-}
-
-export interface intAggReturn {
-  aggFuncName: string;
-  _id: {
-    fiscal_year: string;
-    variable: string;
-    [key: string]: string;
-  };
-  value: number;
-}
-
 SchoolSchema.schema.statics = {
 
-  fetchAggregate: (variables: string[], queryFilters: intVariableQueryFilter): intAggReturn[] => {
+  //todo: abstract this logic into query builder as it becomes necessary
+  fetchAggregate: (variables: string[], queryFilters: intVariableQueryFilter, matchArgs: intMatchArgs): intAggReturn[] => {
+
+    if (!_.isEmpty(matchArgs)) {
+      //convert to {k:v} array, build match shell, push into aggArgs
+
+      let matchShell: any = {
+        "$match": {
+          "$and": []
+        }
+      }
+    }
 
     let aggArgs: any[] = [];
 
