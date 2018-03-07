@@ -1,5 +1,6 @@
 import { model, Schema, Document, Model } from 'mongoose';
 import * as _ from 'lodash';
+import * as Q from 'q';
 
 export let ObjectId = Schema.Types.ObjectId;
 
@@ -28,9 +29,19 @@ export interface intSchoolSchema extends Document, intSchoolModel {
 
 export interface intSchoolDataSchema extends Document, intSchoolDataModel { };
 
-export interface intVariableQueryFilter {
-  schoolSlug: string;
-  groupBy?: intGroupByArgs
+export interface intVariableQueryConfig {
+  matches?: {
+    [key: string]: string;
+  }
+  groupBy?: intGroupByArgs;
+  sort?: string;
+  pagination: intPaginationArgs;
+}
+
+export interface intPaginationArgs {
+  total?: number;
+  page: number;
+  perPage: number;
 }
 
 export interface intGroupByArgs {
@@ -39,18 +50,18 @@ export interface intGroupByArgs {
   variable: string;
 }
 
-export interface intAggReturn {
-  aggFuncName: string;
+export interface intVarAggExport {
+  query: intVariableQueryConfig;
+  data: intVarAgg[];
+}
+
+export interface intVarAgg {
   _id: {
     fiscal_year: string;
     variable: string;
     [key: string]: string;
   };
   value: number;
-}
-
-export interface intMatchArgs {
-  [key: string]: ?string;
 }
 
 const schoolDataSchema = new Schema({
@@ -104,19 +115,25 @@ SchoolSchema.schema.static('getVariableList', (cb: any) => {
 SchoolSchema.schema.statics = {
 
   //todo: abstract this logic into query builder as it becomes necessary
-  fetchAggregate: (variables: string[], queryFilters: intVariableQueryFilter, matchArgs: intMatchArgs): intAggReturn[] => {
+  fetchAggregate: (variables: string[], queryConfig: intVariableQueryConfig): Q.Promise<intVarAggExport> => {
 
-    if (!_.isEmpty(matchArgs)) {
-      //convert to {k:v} array, build match shell, push into aggArgs
+    const start = queryConfig.pagination.total ? queryConfig.pagination.page * queryConfig.pagination.perPage : 0,
+      stop = start ? start + (queryConfig.pagination.perPage * queryConfig.pagination.page) : queryConfig.pagination.perPage;
 
-      let matchShell: any = {
-        "$match": {
-          "$and": []
-        }
-      }
-    }
-
+    //todo: use chaining syntax for this
     let aggArgs: any[] = [];
+    queryConfig.matches = queryConfig.matches ? queryConfig.matches : {};
+    let matches = Object.entries(queryConfig.matches).map((pair: any) => {
+      return { [pair[0]]: pair[1] }
+    });
+
+    if (!_.isEmpty(matches)) {
+      aggArgs.push({
+        "$match": {
+          "$and": matches
+        }
+      });
+    }
 
     aggArgs.push({
       "$project": {
@@ -132,13 +149,28 @@ SchoolSchema.schema.statics = {
         }
       }
     });
-    aggArgs.push({ "$unwind": { "path": "$data" } })
-    aggArgs.push({ "$group": { "_id": { [queryFilters.groupBy.variable]: "$" + queryFilters.groupBy.variable, "fiscal_year": "$data.fiscal_year", "variable": "$data.variable" }, value: { ["$" + queryFilters.groupBy.aggFunc]: "$data.value" } } });
 
-    return SchoolSchema.aggregate(aggArgs).exec().then((res: any) => res.map((item: any) => {
-      item.aggFuncName = queryFilters.groupBy.aggFuncName;
-      return item;
-    }));
+    aggArgs.push({ "$unwind": { "path": "$data" } })
+    aggArgs.push({ "$group": { "_id": { [queryConfig.groupBy.variable]: "$" + queryConfig.groupBy.variable, "fiscal_year": "$data.fiscal_year", "variable": "$data.variable" }, value: { ["$" + queryConfig.groupBy.aggFunc]: "$data.value" } } });
+
+    let mainQuery = SchoolSchema.aggregate(aggArgs)
+    let countQuery = _.cloneDeep(mainQuery).append([{ "$count": "total" }]);
+
+    mainQuery
+      .skip(start)
+      .limit(stop)
+      .sort(queryConfig.sort); //todo: this should point to _id.some-field, not some-field, right?
+
+    return Q.all([mainQuery.exec(), countQuery.exec()])
+      .then((res: any) => {
+        let ret: intVarAggExport;
+        let tmp: any = {};
+        tmp.data = res[0];
+        tmp.query = queryConfig;
+        tmp.query.pagination.total = res[1][0].total;
+        ret = tmp;
+        return ret;
+      });
   },
 
   fetchSchoolWithVariables: (unitid: number, variables: string[]): intSchoolModel => {
