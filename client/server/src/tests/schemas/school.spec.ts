@@ -58,6 +58,7 @@ describe('School Schema', function() {
           perPage: 25,
           page: 1
         },
+        inflationAdjusted:false,
         groupBy: {
           aggFunc: "sum",
           aggFuncName: "sector_total",
@@ -67,11 +68,10 @@ describe('School Schema', function() {
       let variables = ["hispanic_p", "asian_p"];
       SchoolSchema.schema.statics.fetchAggregate(variables, queryFilters)
         .then((res: intVarAggExport) => {
-          //console.log(res);
           expect(res).to.be.an('object');
           expect(res.data.length === 25);
-          expect(res.data[0]._id['fiscal_year']).to.equal('2008');
-          expect(res.data.find(obj => (obj._id['fiscal_year'] === '2008' && obj._id['sector'] === '40') && obj._id['variable'] === 'asian_p').value).to.equal(100);
+          expect(res.data[0].fiscal_year).to.equal('2008');
+          expect(res.data.find(obj => (obj.fiscal_year === '2008' && obj.sector === '40') && obj.variable === 'asian_p').value).to.equal(100);
           done();
         })
         .catch((err: Error) => done(err));
@@ -86,6 +86,7 @@ describe('School Schema', function() {
           aggFuncName: "sector_total",
           variable: "sector"
         },
+        inflationAdjusted: "true",
         sort: 'fiscal_year',
         pagination: {
           perPage: 50,

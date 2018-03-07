@@ -3,7 +3,6 @@ import { Router, Response, Request, NextFunction } from "express";
 import { ChartExport, intChartExport } from '../models/ChartExporter';
 import { ChartSchema } from '../schemas/ChartSchema';
 import { FormulaParser, intFormulaParserResult } from '../modules/FormulaParser.module';
-import { VariableExport } from '../models/VariableExporter';
 import * as Q from 'q';
 
 let mongoose = require("mongoose");
@@ -56,16 +55,6 @@ router.post('/chart/:school', function(req, res, next): void {
 			return;
 		})
 		.catch((err: Error) => next(err));
-})
-
-
-//this takes options
-router.get('/variable-export/:school', function(req, res, next): void {
-		const variables = new VariableExport(req.params.school, req.query.variables, req.query.options);
-		variables.export().then(vars => {
-				res.json(vars);
-				return;
-			}).catch(err => next(err));
 })
 
 module.exports = router;

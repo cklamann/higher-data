@@ -1,4 +1,5 @@
 import { model, Schema, Document, Model } from 'mongoose';
+import { getInflationAdjuster } from '../modules/InflationAdjuster.service';
 import * as _ from 'lodash';
 import * as Q from 'q';
 
@@ -36,6 +37,7 @@ export interface intVariableQueryConfig {
   groupBy?: intGroupByArgs;
   sort?: string;
   pagination: intPaginationArgs;
+  inflationAdjusted: string;
 }
 
 export interface intPaginationArgs {
@@ -52,15 +54,12 @@ export interface intGroupByArgs {
 
 export interface intVarAggExport {
   query: intVariableQueryConfig;
-  data: intVarAgg[];
+  data: intVarAggItem[];
 }
 
-export interface intVarAgg {
-  _id: {
-    fiscal_year: string;
-    variable: string;
-    [key: string]: string;
-  };
+export interface intVarAggItem {
+  fiscal_year: string;
+  variable: string;
   value: number;
 }
 
@@ -152,7 +151,6 @@ SchoolSchema.schema.statics = {
 
     aggArgs.push({ "$unwind": { "path": "$data" } })
     aggArgs.push({ "$group": { "_id": { [queryConfig.groupBy.variable]: "$" + queryConfig.groupBy.variable, "fiscal_year": "$data.fiscal_year", "variable": "$data.variable" }, value: { ["$" + queryConfig.groupBy.aggFunc]: "$data.value" } } });
-
     let mainQuery = SchoolSchema.aggregate(aggArgs)
     let countQuery = _.cloneDeep(mainQuery).append([{ "$count": "total" }]);
 
@@ -163,14 +161,28 @@ SchoolSchema.schema.statics = {
 
     return Q.all([mainQuery.exec(), countQuery.exec()])
       .then((res: any) => {
-        let ret: intVarAggExport;
         let tmp: any = {};
         tmp.data = res[0];
         tmp.query = queryConfig;
         tmp.query.pagination.total = res[1][0].total;
-        ret = tmp;
-        return ret;
+        return tmp;
+      }).then(res => {
+        res.data = res.data.map((item: any) => {
+          return Object.assign({}, { value: item.value }, item._id); // unnest by _id field
+        });
+        return res;
+      }).then(res => {
+        if (queryConfig.inflationAdjusted == "true") {
+          return _adjustForInflation(res);
+        } else return res;
+      })
+
+    function _adjustForInflation(resp: intVarAggExport) {
+      return getInflationAdjuster().then(adjuster => {
+        resp.data.forEach(datum => datum.value = adjuster(datum.fiscal_year, datum.value));
+        return resp;
       });
+    }
   },
 
   fetchSchoolWithVariables: (unitid: number, variables: string[]): intSchoolModel => {

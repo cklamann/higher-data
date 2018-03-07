@@ -5,7 +5,7 @@ import { SchoolSchema, intSchoolModel } from '../schemas/SchoolSchema';
 import { ChartSchema, intChartModel, intChartVariableModel } from '../schemas/ChartSchema'
 import { FormulaParser, intFormulaParserResult } from '../modules/FormulaParser.module';
 import { VariableDefinitionSchema, intVariableDefinitionSchema } from '../schemas/VariableDefinitionSchema';
-import { InflationTableSchema } from '../schemas/InflationTableSchema';
+import { getInflationAdjuster } from '../modules/InflationAdjuster.service';
 
 export interface intChartExport {
 	chart: intChartModel,
@@ -34,18 +34,19 @@ export class ChartExport {
 		}
 	}
 
-	public export(): Q.Promise<intChartExport> {
-		let promises: Q.Promise<intFormulaParserResult[]>[] = [];
+	public export(): Promise<intChartExport> {
+		let promises: Promise<intFormulaParserResult[]>[] = [];
 		this.chart.variables.forEach((variable: intChartVariableModel) => {
 			let varVal = new FormulaParser(variable.formula);
 			promises.push(varVal.execute(this.school.unitid));
 		});
-		return Q.all(promises)
+		return Promise.all(promises)
 			.then(values => {
-				let promises = values.map((result, i) => {
-					return this.options.inflationAdjusted === 'true' ? this._adjustForInflation(result) : Q.when(result);
-				});
-				return Q.all(promises);
+				if (this.options.inflationAdjusted == 'true') {
+					let promises: Promise<intFormulaParserResult[]>[] = [];
+					values.forEach(value => promises.push(this._adjustForInflation(value)));
+					return Promise.all(promises);
+				} else return values;
 			})
 			.then(values => {
 				return values.map((result, i) => {
@@ -65,7 +66,10 @@ export class ChartExport {
 			})
 			.catch(err => err);
 	}
-	_adjustForInflation(res: intFormulaParserResult[]): intFormulaParserResult[] {
-		return InflationTableSchema.schema.statics.calculate(res);
+	_adjustForInflation(res: intFormulaParserResult[]): Promise<intFormulaParserResult[]> {
+		return getInflationAdjuster().then(adjuster => {
+			res.forEach(item => item.value = adjuster(item.fiscal_year, item.value));
+			return res;
+		});
 	}
 }

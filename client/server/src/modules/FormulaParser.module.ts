@@ -55,7 +55,7 @@ export class FormulaParser {
 		});
 	}
 
-	public execute(unitid: string): Q.Promise<intFormulaParserResult[]> {
+	public execute(unitid: string): Promise<intFormulaParserResult[]> {
 		return SchoolSchema.schema.statics.fetchSchoolWithVariables(unitid, this.symbolNodes)
 			.then((school: intSchoolModel) => {
 				const fullData = this._fillMissingOptionalData(school.data),
@@ -75,7 +75,7 @@ export class FormulaParser {
 					schoolData.push({
 						"fiscal_year": fiscal_year,
 						"variable": item,
-						"value": "0"
+						"value": 0
 					});
 				}
 			});
