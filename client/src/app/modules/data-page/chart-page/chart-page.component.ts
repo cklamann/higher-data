@@ -54,6 +54,7 @@ export class ChartPageComponent implements OnInit {
 				let options = _.fromPairs(Object.entries(params).filter(pair => pair[0] != "chart" && pair[0] != "school"));
 				this.ChartService.fetchChart(params.school, params.chart, options).subscribe(data => this.chartData = data);
 				this._setUi(params.school, params.chart);
+				this._setOptions(options);
 			}
 		});
 	}
@@ -63,11 +64,11 @@ export class ChartPageComponent implements OnInit {
 			cut: '',
 			inflationAdjusted: '',
 		});
-		this.chartOptionsForm.get('inflationAdjusted').valueChanges.subscribe(change =>{
+		this.chartOptionsForm.get('inflationAdjusted').valueChanges.subscribe(change => {
 			this._inflationAdjusted = change;
 		})
 
-		this.chartOptionsForm.get('cut').valueChanges.subscribe(change =>{
+		this.chartOptionsForm.get('cut').valueChanges.subscribe(change => {
 			this._cut = change;
 		})
 	}
@@ -80,12 +81,12 @@ export class ChartPageComponent implements OnInit {
 		return this.chartData && !!this.chartData.chart.valueType.match(/currency.+/);
 	}
 
-	getChartTitle(){
+	getChartTitle() {
 		let cutName = this._cut ? "Per " + this.chartData.chart.cuts.find(item => item.formula == this._cut).name : ""
 		return this.chartData ? `${this.chartData.school.instnm} (${this.chartData.school.state}) ${this.chartData.chart.name} ${cutName}` : "";
 	}
 
-	getIsInflationAdjusted(){
+	getIsInflationAdjusted() {
 		return !!this._inflationAdjusted;
 	}
 
@@ -121,7 +122,7 @@ export class ChartPageComponent implements OnInit {
 		this._loadChart()
 	}
 
-	setChartEmpty($event){
+	setChartEmpty($event) {
 		setTimeout(() => {
 			this._chartEmpty = $event;
 		})
