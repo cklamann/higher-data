@@ -5,7 +5,7 @@ export function getInflationAdjuster(): Promise<Function> {
 		.then(table => {
 			return (fiscalYear: string, value: number) => {
 				const latest = table[0],
-					multiplier = table.filter(item => item.year === fiscalYear)[0];
+					multiplier = table.find(item => item.year === fiscalYear);
 				return (+latest.value / +multiplier.value) * value;
 			}
 		});
