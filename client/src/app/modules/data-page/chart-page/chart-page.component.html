@@ -73,7 +73,7 @@
 						<ul fxFlex="100" class = "legend mat-body-1" fxLayout="row" fxLayoutWrap fxLayoutAlign = "space-evenly center" fxLayoutAlign.gt-sm="start" fxLayout.gt-sm="column" fxLayoutWrap.gt-sm="false">
 						</ul>
 						
-						<div *ngIf="getChartIsCurrency()" fxFlex="100">
+						<div *ngIf="getChartIsCurrency() && !getChartEmpty()" fxFlex="100">
 							<p class = "mat-body-1" *ngIf="!getIsInflationAdjusted()">
 				  				*Values are not inflation-adjusted
 							</p>

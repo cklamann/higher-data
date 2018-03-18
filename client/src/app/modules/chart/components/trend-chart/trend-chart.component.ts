@@ -25,11 +25,7 @@ export class TrendChartComponent implements OnInit {
 	chart: BaseChart;
 	myRandomSelector: string = "selector" + Math.floor(Math.random() * 10000)
 
-
-	//function of this component is to render charts with chartData object as input
-	constructor(private ChartService: ChartService) {
-
-	}
+	constructor(private ChartService: ChartService) {}
 
 	ngOnInit() { 
 		(() => {
@@ -50,7 +46,7 @@ export class TrendChartComponent implements OnInit {
 				}
 			}
 
-		}) ();
+		})();
 	}
 
 	ngOnChanges(changes: SimpleChanges) {
@@ -71,6 +67,7 @@ export class TrendChartComponent implements OnInit {
 		let chartEmpty = false;
 		if (!chartDataChanges.currentValue.data.some(datum => datum.data.length > 0)) {
 			if (this.chart) {
+				this.chart.chartData = new ChartData(chartDataChanges.currentValue.data);
 				this.chart.remove();
 			}
 			chartEmpty = true;

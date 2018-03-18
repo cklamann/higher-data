@@ -52,7 +52,8 @@ export class ChartPageComponent implements OnInit {
 		}).subscribe(params => {
 			if (params.chart && params.school) {
 				let options = _.fromPairs(Object.entries(params).filter(pair => pair[0] != "chart" && pair[0] != "school"));
-				this.ChartService.fetchChart(params.school, params.chart, options).subscribe(data => this.chartData = data);
+				this.ChartService.fetchChart(params.school, params.chart, options)
+					.subscribe(data => this.chartData = data);
 				this._setUi(params.school, params.chart);
 				this._setOptions(options);
 			}
@@ -64,6 +65,7 @@ export class ChartPageComponent implements OnInit {
 			cut: '',
 			inflationAdjusted: '',
 		});
+
 		this.chartOptionsForm.get('inflationAdjusted').valueChanges.subscribe(change => {
 			this._inflationAdjusted = change;
 		})
@@ -82,8 +84,10 @@ export class ChartPageComponent implements OnInit {
 	}
 
 	getChartTitle() {
-		let cutName = this._cut ? "Per " + this.chartData.chart.cuts.find(item => item.formula == this._cut).name : ""
-		return this.chartData ? `${this.chartData.school.instnm} (${this.chartData.school.state}) ${this.chartData.chart.name} ${cutName}` : "";
+		if (this.chartData) {
+			let cutName = this._cut ? "Per " + this.chartData.chart.cuts.find(item => item.formula == this._cut).name : ""
+			return this.chartData ? `${this.chartData.school.instnm} (${this.chartData.school.state}) ${this.chartData.chart.name} ${cutName}` : "";
+		}
 	}
 
 	getIsInflationAdjusted() {
@@ -95,7 +99,7 @@ export class ChartPageComponent implements OnInit {
 	}
 
 	getDefaultChart() {
-		return this.chartData ? this.chartData.chart : null;
+		return this.selections.chartSlug ? this.selections.chartSlug : null;
 	}
 
 	onSchoolSelect(school: intSchoolModel | null) {
