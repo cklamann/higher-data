@@ -185,7 +185,7 @@ describe('ChartExporter', function() {
           assert.equal(chart.data.length, testChartValidAddition.variables.length);
           chart.data.forEach(group => assert(group.data.length > 0));
           //value should be less than 1 for each b/c we're dividing 3 digit # by 4-digit #
-          chart.data.forEach(group => group.data.forEach(datum => assert(parseFloat(datum.value) < 1)));
+          chart.data.forEach(group => group.data.forEach(datum => assert(datum.value < 1)));
           done();
         }).catch(err => done(err));
 

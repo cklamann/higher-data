@@ -61,6 +61,7 @@ export interface intVarAggItem {
   fiscal_year: string;
   variable: string;
   value: number;
+  sector?: string;
 }
 
 const schoolDataSchema = new Schema({
@@ -99,20 +100,10 @@ let schema: Schema = new Schema({
 export let SchoolDataSchema = model<intSchoolDataSchema>('schoolData', schema);
 export let SchoolSchema = model<intSchoolSchema>('school', schema);
 
-//todo: move these in to statics object, remove callbacks:
-
-SchoolSchema.schema.static('search', (name: string, cb: any) => {
-  return SchoolSchema.find({ instnm: { $regex: `${name}+.`, $options: 'is' } }, cb).limit(25).select('-data');
-});
-
-
-SchoolSchema.schema.static('getVariableList', (cb: any) => {
-  return SchoolSchema.distinct("data.variable", cb);
-});
-
-
 SchoolSchema.schema.statics = {
 
+  getVariableList : (): Promise<string[]> => SchoolSchema.distinct("data.variable").exec(),
+  search : (name:string): Promise<intSchoolSchema[]> => SchoolSchema.find({ instnm: { $regex: `${name}+.`, $options: 'is' } }).limit(25).select('-data').exec(),
   //todo: abstract this logic into query builder as it becomes necessary
   fetchAggregate: (variables: string[], queryConfig: intVariableQueryConfig): Q.Promise<intVarAggExport> => {
 

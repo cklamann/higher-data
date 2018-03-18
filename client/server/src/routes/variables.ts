@@ -10,10 +10,11 @@ let router = Router();
 let School = SchoolSchema;
 
 router.get('/fetch_names', passport.authenticate('basic', { session: false }), function(req, res, next) {
-	School.schema.statics.getVariableList((err: any, resp: string[]): Response => {
-		if (err) next(err);
-		return res.json(resp);
-	});
+	School.schema.statics.getVariableList()
+		.then((resp: string[]) => {
+			return res.json(resp);
+		})
+		.catch((err: Error) => next(err))
 });
 
 router.get('/fetch_by_name', function(req, res, next) {

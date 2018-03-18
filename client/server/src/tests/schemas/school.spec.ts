@@ -34,11 +34,23 @@ describe('School Schema', function() {
       .catch(err => done(err));
   });
 
+  before('create a test school', function(done) {
+    SchoolSchema.create(nwData.zzSchool1)
+      .then(() => done())
+      .catch(err => done(err));
+  });
+
+  before('create a test school', function(done) {
+    SchoolSchema.create(nwData.zzSchool2)
+      .then(() => done())
+      .catch(err => done(err));
+  });
+
   describe('fetch a school with specified variables', function() {
     it('should return school with variables', function(done) {
       let variables = ["hispanic_p", "asian_p"];
       SchoolSchema.schema.statics.fetchSchoolWithVariables(nwData.nwData.unitid, variables)
-        .then(res => {
+        .then((res: intVarAggExport) => {
           expect(res).to.be.an('object');
           expect(res.data.filter((datum: any) => datum.variable === "hispanic_p").length).to.be.greaterThan(0);
           expect(res.data.filter((datum: any) => datum.variable === "asian_p").length).to.be.greaterThan(0);
@@ -58,7 +70,7 @@ describe('School Schema', function() {
           perPage: 25,
           page: 1
         },
-        inflationAdjusted:false,
+        inflationAdjusted: "false",
         groupBy: {
           aggFunc: "sum",
           aggFuncName: "sector_total",
@@ -69,8 +81,11 @@ describe('School Schema', function() {
       SchoolSchema.schema.statics.fetchAggregate(variables, queryFilters)
         .then((res: intVarAggExport) => {
           expect(res).to.be.an('object');
+          //test pagination
           expect(res.data.length === 25);
+          //test sort
           expect(res.data[0].fiscal_year).to.equal('2008');
+          //test a value...
           expect(res.data.find(obj => (obj.fiscal_year === '2008' && obj.sector === '40') && obj.variable === 'asian_p').value).to.equal(100);
           done();
         })
@@ -79,29 +94,60 @@ describe('School Schema', function() {
   });
 
   describe('fetch aggregate', function() {
-    it('should return sums by sector for missouri schools', function(done) {
+    it('should return sums by state for ZZ schools', function(done) {
       let queryFilters: intVariableQueryConfig = {
-        matches: { "state": "MO" }, groupBy: {
+        matches: { "state": "ZZ" }, groupBy: {
           aggFunc: "sum",
-          aggFuncName: "sector_total",
-          variable: "sector"
+          aggFuncName: "state_total",
+          variable: "state"
         },
-        inflationAdjusted: "true",
+        inflationAdjusted: "false",
         sort: 'fiscal_year',
         pagination: {
           perPage: 50,
           page: 1
         }
       }
-      let variables = ["hispanic_p", "asian_p"];
+      let variables = ["in_state_tuition"];
       SchoolSchema.schema.statics.fetchAggregate(variables, queryFilters)
         .then((res: intVarAggExport) => {
-          console.log(res);
           expect(res.query).to.equal(queryFilters);
           expect(res).to.be.an('object');
-          expect(res.data.length > 30); //~15 years, 2 variables...
-          //todo: use school in fake state with only 2 years of data, make sure we only have 4 responses...
-          //sum will be known in advance
+          expect(res.data[0].fiscal_year).to.equal('2009');
+          expect(res.data.length == 2); //1 variable, 2 fiscal years 
+          expect(res.data.find(item => item.fiscal_year == "2008").value == 2);
+          expect(res.data.find(item => item.fiscal_year == "2009").value == 2);
+          done();
+        })
+        .catch((err: Error) => done(err));
+    });
+  });
+
+  describe('fetch aggregate', function() {
+    it('should return averages by state for ZZ schools', function(done) {
+      let queryFilters: intVariableQueryConfig = {
+        matches: { "state": "ZZ" },
+        groupBy: {
+          aggFunc: "avg",
+          aggFuncName: "state_total",
+          variable: "state"
+        },
+        inflationAdjusted: "false",
+        sort: 'fiscal_year',
+        pagination: {
+          perPage: 50,
+          page: 1
+        }
+      }
+      let variables = ["in_state_tuition"];
+      SchoolSchema.schema.statics.fetchAggregate(variables, queryFilters)
+        .then((res: intVarAggExport) => {
+          expect(res.query).to.equal(queryFilters);
+          expect(res).to.be.an('object');
+          expect(res.data[0].fiscal_year).to.equal('2009');
+          expect(res.data.length == 2); //1 variable, 2 fiscal years 
+          expect(res.data.find(item => item.fiscal_year == "2008").value == .5);
+          expect(res.data.find(item => item.fiscal_year == "2009").value == .5);
           done();
         })
         .catch((err: Error) => done(err));
@@ -128,6 +174,18 @@ describe('School Schema', function() {
 
   after('destroy test school', function(done) {
     SchoolSchema.find({ unitid: nwData.nwDataSector40_all_zeroes.unitid }).remove().exec()
+      .then(() => done())
+      .catch(err => done(err));
+  });
+
+  after('destroy test school', function(done) {
+    SchoolSchema.find({ unitid: nwData.zzSchool1.unitid }).remove().exec()
+      .then(() => done())
+      .catch(err => done(err));
+  });
+
+  after('destroy test school', function(done) {
+    SchoolSchema.find({ unitid: nwData.zzSchool2.unitid }).remove().exec()
       .then(() => done())
       .catch(err => done(err));
   });

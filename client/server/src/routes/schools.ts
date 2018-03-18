@@ -10,11 +10,12 @@ let router = Router();
 let School = SchoolSchema;
 
 router.get('/search', function(req, res, next) {
-	School.schema.statics.search(req.query.name, (err: any, resp: intSchoolSchema[]): Response => {
-		if (err) next(err);
-		res.json(resp);
-		return;
-	});
+	School.schema.statics.search(req.query.name)
+		.then((resp: intSchoolSchema[]) => {
+			res.json(resp);
+			return;
+		})
+		.catch((err: Error) => next(err));
 });
 
 router.get('/:id', function(req, res, next) {
