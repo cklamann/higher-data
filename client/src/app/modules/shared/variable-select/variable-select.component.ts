@@ -1,4 +1,4 @@
-import { Component, OnInit, QueryList, Output, Input, EventEmitter, OnChanges, SimpleChanges, ViewChildren } from '@angular/core';
+import { Component, OnInit, QueryList, Output, Input, EventEmitter, OnChanges, SimpleChanges, ViewChildren} from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSelect, MatOption } from '@angular/material';
 import { VariableDefinitions } from '../../../models/VariableDefinitions';
@@ -20,6 +20,10 @@ export class VariableSelectComponent implements OnInit {
 	defined: boolean = false;
 	@Input()
 	urlVariable: string = "";
+	@Input()
+	multi: boolean = false;
+	@Input()
+	selectMax: number;
 	@ViewChildren(MatOption) options: QueryList<MatOption>;
 
 	variables: intVariableDefinitionModel[] = [];
@@ -49,7 +53,6 @@ export class VariableSelectComponent implements OnInit {
 					});
 				}
 			});
-
 		this.listenForSelectChanges();
 	}
 
@@ -60,6 +63,17 @@ export class VariableSelectComponent implements OnInit {
 	}
 
 	listenForSelectChanges(): void {
+		this.variableSelectForm.valueChanges
+			.subscribe(change => {
+				if (this.multi && this.selectMax && change.variable.length >= this.selectMax) {
+					this.options.forEach(option => {
+						if(!option.selected){
+							option.disabled = true;
+						}
+					})
+				} else this.options.forEach(option => option.disabled = false);
+			})
+
 		this.variableSelectForm.valueChanges.debounceTime(500).subscribe(input => {
 			this.onVariableSelect.emit(input.variable);
 		});

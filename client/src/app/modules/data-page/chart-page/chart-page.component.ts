@@ -44,7 +44,7 @@ export class ChartPageComponent implements OnInit {
 	ngOnInit(): void {
 		this.createForm();
 		let params = this.route.params;
-		let queryVars = this.route.queryParams;
+		let queryVars = this.route.queryParams; 
 		params.flatMap(param => {
 			return queryVars.map(qv => {
 				return Object.assign({}, qv, param);
@@ -67,7 +67,7 @@ export class ChartPageComponent implements OnInit {
 		});
 
 		this.chartOptionsForm.get('inflationAdjusted').valueChanges.subscribe(change => {
-			this._inflationAdjusted = change;
+			this._inflationAdjusted = change; //todo: why is this hear? Can't we just access the value when needed?
 		})
 
 		this.chartOptionsForm.get('cut').valueChanges.subscribe(change => {

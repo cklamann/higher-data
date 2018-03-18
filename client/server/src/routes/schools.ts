@@ -1,4 +1,4 @@
-import { SchoolSchema, intSchoolSchema } from '../schemas/SchoolSchema';
+import { SchoolSchema, intSchoolSchema, intVariableQueryConfig, intSchoolVarExport } from '../schemas/SchoolSchema';
 import { Router, Response, Request, NextFunction } from "express";
 import { ChartExport, intChartExport } from '../models/ChartExporter';
 import { ChartSchema } from '../schemas/ChartSchema';
@@ -9,6 +9,7 @@ let mongoose = require("mongoose");
 let router = Router();
 let School = SchoolSchema;
 
+//todo: this should be an index route with a ?q= param
 router.get('/search', function(req, res, next) {
 	School.schema.statics.search(req.query.name)
 		.then((resp: intSchoolSchema[]) => {
@@ -39,8 +40,7 @@ router.get('/:school/charts/:chart', function(req, res, next) {
 				res.json(chart);
 				return;
 			}).catch(err => next(err));
-		})
-
+		});
 });
 
 //todo: not in use, but could be handy in the future for ad-hoc chart formula parsing
@@ -57,5 +57,27 @@ router.post('/chart/:school', function(req, res, next): void {
 		})
 		.catch((err: Error) => next(err));
 })
+
+//todo: this should use an include on show route rather than have its own route (convert to get request)
+router.post('/aggregateQuery', function(req, res, next): void {
+	let params: intVariableQueryConfig = req.body;
+	SchoolSchema.schema.statics.fetchAggregate(params)
+		.then((resp: intSchoolVarExport) => {
+			res.json(resp);
+			return;
+		})
+		.catch((err: Error) => next(err));
+});
+
+//todo: this should use an include on show route rather than have its own route (convert to get request)
+router.post('/fetchWithVariables', function(req, res, next): void {
+	let params: intVariableQueryConfig = req.body;
+	SchoolSchema.schema.statics.fetchWithVariables(params)
+		.then((resp: intSchoolVarExport) => {
+			res.json(resp);
+			return;
+		})
+		.catch((err: Error) => next(err));
+});
 
 module.exports = router;

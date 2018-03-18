@@ -1,3 +1,54 @@
-<p>
-  table-page works!
-</p>
+<mat-toolbar>
+	<mat-toolbar-row fxFlex="100" fxLayoutAlign="center center">
+		<h3>
+	    	Use the controls below to select a school and up to five variables
+		</h3>
+	</mat-toolbar-row>
+</mat-toolbar>
+<div class = "outer-container" fxLayout="row" fxLayoutWrap fxLayoutAlign="center center">
+	<div class = "inner-container" fxFlex="95" fxLayoutWrap fxFlex.gt-sm="90" fxLayout="row" fxLayoutAlign="center center">
+		<div fxLayout="row" fxLayoutWrap fxLayoutAlign="center center" fxFlex = "100" fxFlex.gt-sm="80" class = "chart-content">
+			<div fxLayout = "row" fxLayoutWrap fxLayoutAlign="space-around center" fxFlex = "100">
+		    	<app-school-search (onSchoolSelect)="onSchoolSelect($event)" fxFlex = "90" fxFlex.gt-sm="45"></app-school-search>
+				<app-variable-select [multi]="true" [defined]="true" fxFlex = "90" fxFlex.gt-sm="45" [urlVariable] = "urlVariable" (onVariableSelect) = "setVariables($event)" [selectMax]="5"></app-variable-select>
+			</div>
+			<div fxFlex = "100" [formGroup]="tableOptionsForm" *ngIf="chartData">
+				<div class = "options-container" fxFlex = "100">
+					<i class="material-icons mat-icon-button" (click)="toggleTableOptionsVisible()" *ngIf="!getChartOptionsVisible()">settings</i>
+					<i class="material-icons mat-icon-button" (click)="toggleTableOptionsVisible()"  *ngIf="getChartOptionsVisible()">close</i>
+					<div class = "table-options" *ngIf="getTableOptionsVisible" fxLayout="column" fxFlex = "100" fxFlex.gt-sm="80" fxLayoutAlign="start start">
+						<ul class = "mat-body-1" fxLayout="column">
+							<!--todo: deal with fact that only some values will be currency-->
+							<li *ngIf="getTableIsCurrency()" fxLayoutAlign="start center" fxFlex = "100">
+								<ul fxLayout = "column">
+									<li>
+										<span class="mat-body-1">Inflation Adjusted:&nbsp;</span>
+									</li>
+									<li>
+										<mat-radio-group formControlName="inflationAdjusted" (change) = "onInflationChange($event)">
+											<mat-radio-button [value] = true>
+												Adjusted
+											</mat-radio-button>
+											<mat-radio-button [value] = false>
+												Original
+											</mat-radio-button>
+										</mat-radio-group>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</div>	
+			</div>
+			<div fxFlex="100" fxLayoutWrap>
+				<div fxFlex="100" class = "chart-title mat-title">
+					title goes here i suppse
+				</div>
+				<!-- <mat-table fxFlex = 100 fxFlex.gt-sm = 68 fxLayoutWrap fxLayoutAlign = "center center" [dataSource]="matTableDataSource"></mat-table> -->
+			</div>
+		</div>
+	</div>
+</div>
+
+
+

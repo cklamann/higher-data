@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { intSchoolModel } from '../../../server/src/schemas/SchoolSchema';
+import { intSchoolModel, intSchoolVarExport, intVariableAggQueryConfig, intVariableQueryConfig } from '../../../server/src/schemas/SchoolSchema';
 import { RestService } from '../services/rest/rest.service';
 import { Observable } from 'rxjs';
 import 'rxjs/add/operator/map';
@@ -18,6 +18,14 @@ export class Schools {
 				return new School(school);
 			});
 		});
+	}
+
+	aggregateQuery(params: intVariableAggQueryConfig): Observable<intSchoolVarExport> {
+		return this.rest.post(`schools/aggregateQuery`, params);
+	}
+
+	fetchWithVariables(params: intVariableQueryConfig): Observable<intSchoolVarExport> {
+		return this.rest.post(`schools/fetchWithVariables`, params);
 	}
 
 }

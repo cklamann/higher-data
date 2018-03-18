@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import {MatTableModule} from '@angular/material/table';
 import { RestService } from '../../services/rest/rest.service';
 import { AppComponent } from '../app/app.component';
 import { HttpClientModule } from '@angular/common/http';
@@ -23,7 +24,7 @@ import { SourceDisplayComponent } from './sources-page/source-display/source-dis
 
 @NgModule({
 	//imports will be available to all components in module 
-	imports: [BrowserModule, HttpClientModule, ReactiveFormsModule, MatTabsModule, BrowserAnimationsModule, FlexLayoutModule, AppRoutingModule, MatToolbarModule, SharedModule, ChartModule, MatRadioModule, MatCardModule],
+	imports: [BrowserModule, HttpClientModule, ReactiveFormsModule, MatTabsModule, BrowserAnimationsModule, FlexLayoutModule, AppRoutingModule, MatToolbarModule, SharedModule, ChartModule, MatRadioModule, MatCardModule, MatTableModule],
 	declarations: [ChartPageComponent, DataPageComponent, TablePageComponent, SourcesPageComponent, ChartSourcesComponent, VariableSourcesComponent, SourceDisplayComponent], //list all components in the module
 	providers: [RestService, Schools] // module-wide providers, still need to be imported in each component
 })

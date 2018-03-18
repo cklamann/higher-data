@@ -31,13 +31,24 @@ export interface intSchoolSchema extends Document, intSchoolModel {
 export interface intSchoolDataSchema extends Document, intSchoolDataModel { };
 
 export interface intVariableQueryConfig {
+  matches: {
+    [key: string]: string;
+  }
+  sort: string;
+  pagination: intPaginationArgs;
+  inflationAdjusted: string;
+  variables: string[];
+}
+
+export interface intVariableAggQueryConfig{
   matches?: {
     [key: string]: string;
   }
-  groupBy?: intGroupByArgs;
-  sort?: string;
+  groupBy: intGroupByArgs;
+  sort: string;
   pagination: intPaginationArgs;
   inflationAdjusted: string;
+  variables: string[];
 }
 
 export interface intPaginationArgs {
@@ -52,7 +63,7 @@ export interface intGroupByArgs {
   variable: string;
 }
 
-export interface intVarAggExport {
+export interface intSchoolVarExport {
   query: intVariableQueryConfig;
   data: intVarAggItem[];
 }
@@ -62,6 +73,7 @@ export interface intVarAggItem {
   variable: string;
   value: number;
   sector?: string;
+  state?: string;
 }
 
 const schoolDataSchema = new Schema({
@@ -102,10 +114,10 @@ export let SchoolSchema = model<intSchoolSchema>('school', schema);
 
 SchoolSchema.schema.statics = {
 
-  getVariableList : (): Promise<string[]> => SchoolSchema.distinct("data.variable").exec(),
-  search : (name:string): Promise<intSchoolSchema[]> => SchoolSchema.find({ instnm: { $regex: `${name}+.`, $options: 'is' } }).limit(25).select('-data').exec(),
+  getVariableList: (): Promise<string[]> => SchoolSchema.distinct("data.variable").exec(),
+  search: (name: string): Promise<intSchoolSchema[]> => SchoolSchema.find({ instnm: { $regex: `${name}+.`, $options: 'is' } }).limit(25).select('-data').exec(),
   //todo: abstract this logic into query builder as it becomes necessary
-  fetchAggregate: (variables: string[], queryConfig: intVariableQueryConfig): Q.Promise<intVarAggExport> => {
+  fetchAggregate: (queryConfig: intVariableAggQueryConfig): Q.Promise<intSchoolVarExport> => {
 
     const start = queryConfig.pagination.total ? queryConfig.pagination.page * queryConfig.pagination.perPage : 0,
       stop = start ? start + (queryConfig.pagination.perPage * queryConfig.pagination.page) : queryConfig.pagination.perPage;
@@ -134,7 +146,7 @@ SchoolSchema.schema.statics = {
               input: "$data",
               as: "var",
               cond:
-                { "$in": ["$$var.variable", variables] }
+                { "$in": ["$$var.variable", queryConfig.variables] }
             }
         }
       }
@@ -168,7 +180,7 @@ SchoolSchema.schema.statics = {
         } else return res;
       })
 
-    function _adjustForInflation(resp: intVarAggExport) {
+    function _adjustForInflation(resp: intSchoolVarExport) {
       return getInflationAdjuster().then(adjuster => {
         resp.data.forEach(datum => datum.value = adjuster(datum.fiscal_year, datum.value));
         return resp;
@@ -176,11 +188,17 @@ SchoolSchema.schema.statics = {
     }
   },
 
-  fetchSchoolWithVariables: (unitid: number, variables: string[]): intSchoolModel => {
+  fetchWithVariables: (queryConfig: intVariableQueryConfig): intSchoolVarExport => {
+    if (!queryConfig.matches || !queryConfig.matches.unitid) {
+      throw new Error("method requires a unitid to match on!")
+    }
+    const start = queryConfig.pagination.total ? queryConfig.pagination.page * queryConfig.pagination.perPage : 0,
+      stop = start ? start + (queryConfig.pagination.perPage * queryConfig.pagination.page) : queryConfig.pagination.perPage;
+
     return SchoolSchema.aggregate([
       {
         "$match": {
-          "unitid": unitid
+          "unitid": queryConfig.matches.unitid
         }
       },
       {
@@ -194,14 +212,19 @@ SchoolSchema.schema.statics = {
             "$filter": {
               input: "$data",
               as: "data",
-              cond: { "$in": ["$$data.variable", variables] }
+              cond: { "$in": ["$$data.variable", queryConfig.variables] }
             }
           }
         }
       }
-    ]).exec().then((res: intSchoolModel[]) => {
-      return res[0];
-    })
+    ])
+      .skip(start)
+      .limit(stop)
+      .sort(queryConfig.sort)
+      .exec()
+      .then((res: intSchoolModel[]) => {
+        return { query: queryConfig, data: res[0].data };
+      })
   },
   fetch: (arg: string): Promise<intSchoolSchema> => {
     let promise;
