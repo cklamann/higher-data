@@ -31,19 +31,15 @@ export interface intSchoolSchema extends Document, intSchoolModel {
 export interface intSchoolDataSchema extends Document, intSchoolDataModel { };
 
 export interface intVariableQueryConfig {
-  matches: {
-    [key: string]: string;
-  }
+  matches: any[];
   sort: string;
   pagination: intPaginationArgs;
   inflationAdjusted: string;
   variables: string[];
 }
 
-export interface intVariableAggQueryConfig{
-  matches?: {
-    [key: string]: string;
-  }
+export interface intVariableAggQueryConfig {
+  matches?: any[];
   groupBy: intGroupByArgs;
   sort: string;
   pagination: intPaginationArgs;
@@ -124,12 +120,9 @@ SchoolSchema.schema.statics = {
 
     //todo: use chaining syntax for this
     let aggArgs: any[] = [];
-    queryConfig.matches = queryConfig.matches ? queryConfig.matches : {};
-    let matches = Object.entries(queryConfig.matches).map((pair: any) => {
-      return { [pair[0]]: pair[1] }
-    });
+    let matches = queryConfig.matches ? queryConfig.matches : [{}];
 
-    if (!_.isEmpty(matches)) {
+    if (!_.isEmpty(matches[0])) {
       aggArgs.push({
         "$match": {
           "$and": matches
@@ -160,7 +153,7 @@ SchoolSchema.schema.statics = {
     mainQuery
       .skip(start)
       .limit(stop)
-      .sort(queryConfig.sort); //todo: this should point to _id.some-field, not some-field, right?
+      .sort(queryConfig.sort);
 
     return Q.all([mainQuery.exec(), countQuery.exec()])
       .then((res: any) => {
@@ -188,8 +181,9 @@ SchoolSchema.schema.statics = {
     }
   },
 
+  //todo: fix this method and failing test
   fetchWithVariables: (queryConfig: intVariableQueryConfig): intSchoolVarExport => {
-    if (!queryConfig.matches || !queryConfig.matches.unitid) {
+    if (!queryConfig.matches.includes( (item:any) => Object.keys(item)[0] === "unitid")) {
       throw new Error("method requires a unitid to match on!")
     }
     const start = queryConfig.pagination.total ? queryConfig.pagination.page * queryConfig.pagination.perPage : 0,
@@ -198,7 +192,7 @@ SchoolSchema.schema.statics = {
     return SchoolSchema.aggregate([
       {
         "$match": {
-          "unitid": queryConfig.matches.unitid
+          "unitid": queryConfig.matches.find(item => Object.keys(item)[0] == "unitid").unitid
         }
       },
       {

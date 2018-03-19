@@ -1,5 +1,5 @@
 import { UserSchema } from '../../schemas/UserSchema';
-import { SchoolSchema, intSchoolSchema, intVariableQueryConfig, intSchoolVarExport } from '../../schemas/SchoolSchema';
+import { SchoolSchema, intSchoolSchema, intVariableQueryConfig, intSchoolVarExport, intVariableAggQueryConfig } from '../../schemas/SchoolSchema';
 import * as assert from 'assert';
 import * as chai from 'chai';
 import { expect } from 'chai';
@@ -49,9 +49,9 @@ describe('School Schema', function() {
   describe('fetch a school with specified variables', function() {
     it('should return school with variables', function(done) {
       let queryFilters: intVariableQueryConfig = {
-        matches: {
+        matches: [{
           unitid: nwData.nwData.unitid
-        },
+        }],
         sort: '-fiscal_year',
         pagination: {
           perPage: 25,
@@ -60,7 +60,7 @@ describe('School Schema', function() {
         inflationAdjusted: "false",
         variables: ["hispanic_p", "asian_p"]
       }
-      SchoolSchema.schema.statics.fetchSchoolWithVariables(queryFilters)
+      SchoolSchema.schema.statics.fetchWithVariables(queryFilters)
         .then((res: intSchoolVarExport) => {
           expect(res).to.be.an('object');
           expect(res.data.filter((datum: any) => datum.variable === "hispanic_p").length).to.be.greaterThan(0);
@@ -74,8 +74,8 @@ describe('School Schema', function() {
 
   describe('fetch aggregate', function() {
     it('should return sums by sector', function(done) {
-      let queryFilters: intVariableQueryConfig = {
-        matches: {},
+      let queryFilters: intVariableAggQueryConfig = {
+        matches: [{}],
         sort: '-fiscal_year',
         pagination: {
           perPage: 25,
@@ -106,8 +106,8 @@ describe('School Schema', function() {
 
   describe('fetch aggregate', function() {
     it('should return sums by state for ZZ schools', function(done) {
-      let queryFilters: intVariableQueryConfig = {
-        matches: { "state": "ZZ" }, groupBy: {
+      let queryFilters: intVariableAggQueryConfig = {
+        matches: [{ "state": "ZZ" }], groupBy: {
           aggFunc: "sum",
           aggFuncName: "state_total",
           variable: "state"
@@ -136,8 +136,8 @@ describe('School Schema', function() {
 
   describe('fetch aggregate', function() {
     it('should return averages by state for ZZ schools', function(done) {
-      let queryFilters: intVariableQueryConfig = {
-        matches: { "state": "ZZ" },
+      let queryFilters: intVariableAggQueryConfig = {
+        matches: [{ "state": "ZZ" }],
         groupBy: {
           aggFunc: "avg",
           aggFuncName: "state_total",
