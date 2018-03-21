@@ -1,12 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { MatPaginator, MatSort, MatTableDataSource, PageEvent } from '@angular/material';
-import { intSchoolVarExport, intVariableQueryConfig, intVariableAggQueryConfig, intVarAggItem } from '../../../../../server/src/schemas/SchoolSchema';
+import { MatPaginator, MatSort, MatTableDataSource, PageEvent} from '@angular/material';
+import { intSchoolVarExport, intVariableQueryConfig, intVarExport, intVariableAggQueryConfig, intVarAggItem } from '../../../../../server/src/schemas/SchoolSchema';
 import { RestService } from '../../../services/rest/rest.service';
 import { Schools } from '../../../models/Schools';
 import { Observable } from 'rxjs';
 import { MatToolbar, MatToolbarRow } from '@angular/material/toolbar';
 import { FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
-import * as _ from 'lodash';
+import { UtilService } from '../../../services/util/util';
+import { VariableDataSource, intOutputData } from '../../../services/variableDataSource/variableDataSource'
+	; import * as _ from 'lodash';
 
 import 'rxjs/add/operator/map';
 
@@ -15,34 +17,25 @@ import 'rxjs/add/operator/map';
 	templateUrl: './table-page.component.html',
 	styleUrls: ['./table-page.component.scss']
 })
+
 export class TablePageComponent implements OnInit {
 
-	/*
-
-	Plan:
-
-	Table has years as columns with arrows
-
-	Two table view types:
-
-	1) One variable, many schools (fetchWithVariables) -- in future compose with others -- "build your own formula")
-	2) one variable, many schools (fetchAggregate) 
-
-	then they decide if they want aggergate or not 
-
-	no more multiselect
-
-	*/
-
-	matTableDataSource: any = new MatTableDataSource<intVarAggItem[]>(); //todo: transform pagination, etc and type
+	matTableDataSource = new MatTableDataSource<intOutputData>(); //todo: transform pagination, etc and type
 	queryParams: intVariableQueryConfig | intVariableAggQueryConfig;
-	displayedColumns: string[] = [];
 	tableOptionsForm: FormGroup;
-	_tableOptionsVisible: boolean = false;
-	constructor(private schools: Schools, private fb: FormBuilder) {
+	visibleColumns: string[] = [];
+	showTable = false;
+	private _columns: string[] = [];
+	private _columnIndex: number = 0;
+	private _tableOptionsVisible: boolean = false;
+	constructor(private schools: Schools, private fb: FormBuilder, private util: UtilService) {
 		//todo: configure datasource accessors here
 		//https://github.com/angular/material2/blob/master/src/demo-app/table/table-demo.ts#L71
 	}
+
+	//todo: for the time being, get rid of the school select altogether, allow for just one variable
+	//selected, that way we know how to format it (stored in ui) -- then if they want to limit it, they can filter by schools
+	//in the future, we will allow composition through custom formulas
 
 	ngOnInit() {
 		this._createOptionsForm();
@@ -64,11 +57,6 @@ export class TablePageComponent implements OnInit {
 			inflationAdjusted: "false",
 			variables: this.fb.array([])
 		})
-
-		console.log(this.tableOptionsForm);
-		console.log(this.tableOptionsForm.value);
-		console.log(this.tableOptionsForm.controls['groupBy'].value);
-		console.log(this.tableOptionsForm.controls['groupBy'].value.aggFunc);
 	}
 
 	getTableOptionsVisible() {
@@ -90,7 +78,8 @@ export class TablePageComponent implements OnInit {
 				this.tableOptionsForm.controls['matches'].value[index].unitid = $event.unitid;
 			} else {
 				this.tableOptionsForm.controls['matches'].reset();
-				this.tableOptionsForm.controls['matches'].value.push({ unitid: $event.unitid });
+				let matches = this.tableOptionsForm.controls['matches'].value;
+				matches = this.util.replace(matches, { unitid: $event.unitid });
 			}
 
 			this.query();
@@ -103,7 +92,7 @@ export class TablePageComponent implements OnInit {
 
 	setVariables($event) {
 		this.tableOptionsForm.controls['variables'].reset();
-		this.tableOptionsForm.controls['variables'].value.push($event.variable); 
+		this.tableOptionsForm.controls['variables'].value.push($event.variable);
 		this.query();
 	}
 
@@ -111,17 +100,53 @@ export class TablePageComponent implements OnInit {
 		return false;
 	}
 
-	query() {
-		if (this.tableOptionsForm.controls['matches'].value.length > 0 && this.tableOptionsForm.controls['variables'].value.length > 0) {
-			let query = this.getIsAggQuery() ? this.schools.aggregateQuery(this.tableOptionsForm.value) : this.schools.fetchWithVariables(this.tableOptionsForm.value);
-			query
-				.map(res => res) //todo: transform so pagination, etc fits what MatTableDataSource expects?
-				.debounceTime(500)
-				.subscribe(resp => {
-					this.matTableDataSource.data(resp.data); //method expects an array of data to show in table -- but where does pagination stuff get set? Separate directive....
-				})
-		}
-
+	getLeftArrowVisible() {
+		return this.visibleColumns[1] !== this._columns[1];
 	}
 
+	getRightArrowVisible() {
+		return this.visibleColumns[this.visibleColumns.length - 1] !== this._columns[this._columns.length - 1];
+	}
+
+	shiftVisibleColumnsRight() {
+		this._columnIndex++;
+		this.setVisibleColumns();
+	}
+
+	shiftVisibleColumnsLeft() {
+		this._columnIndex--;
+		this.setVisibleColumns();
+	}
+
+	query() {
+		if (this.tableOptionsForm.controls['matches'].value.length > 0 && this.tableOptionsForm.controls['variables'].value.length > 0) {
+			const query = this.getIsAggQuery() ? this.schools.aggregateQuery(this.tableOptionsForm.value) : this.schools.fetchWithVariables(this.tableOptionsForm.value);
+			query
+				.map((res: intVarExport) => {
+					return new VariableDataSource(res);
+				})
+				.debounceTime(500)
+				.subscribe(resp => {
+					//don't set paginator on table source, use template instead, since query controls it
+					if (!_.isEmpty(resp.export().data)) {
+						this.matTableDataSource.data = resp.export().data; //method expects an array of data to show in table -- but where does pagination stuff get set? Separate directive....
+						this._columns = resp.getColumns();
+						this.setVisibleColumns();
+						this.showTable = true;
+					}
+				});
+		}
+	}
+
+	setVisibleColumns() {
+		let numCols = 5;
+		this.visibleColumns = [];
+		if (this._columnIndex > 0) {
+			this.visibleColumns.push(this._columns[0]);
+			numCols--;
+		}
+		for (let i = this._columnIndex; i <= numCols + this._columnIndex; i++) {
+			this.visibleColumns.push(this._columns[i]);
+		}
+	}
 }

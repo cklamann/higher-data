@@ -59,12 +59,17 @@ export interface intGroupByArgs {
   variable: string;
 }
 
-export interface intSchoolVarAggExport {
+export interface intVarExport {
+  query: intVariableQueryConfig;
+  data: any;
+}
+
+export interface intSchoolVarAggExport extends intVarExport {
   query: intVariableQueryConfig;
   data: intVarAggItem[];
 }
 
-export interface intSchoolVarExport {
+export interface intSchoolVarExport extends intVarExport {
   query: intVariableQueryConfig;
   data: intSchoolSchema[];
 }
