@@ -1,5 +1,5 @@
 import { UserSchema } from '../../schemas/UserSchema';
-import { SchoolSchema, intSchoolSchema, intVariableQueryConfig, intSchoolVarExport, intVariableAggQueryConfig } from '../../schemas/SchoolSchema';
+import { SchoolSchema, intSchoolSchema, intVariableQueryConfig, intSchoolVarExport, intSchoolVarAggExport, intVariableAggQueryConfig } from '../../schemas/SchoolSchema';
 import * as assert from 'assert';
 import * as chai from 'chai';
 import { expect } from 'chai';
@@ -46,6 +46,29 @@ describe('School Schema', function() {
       .catch(err => done(err));
   });
 
+  describe('fetch all schools with specified variables', function() {
+    it('should return schools with variables', function(done) {
+      let queryFilters: intVariableQueryConfig = {
+        sort: '-fiscal_year',
+        pagination: {
+          perPage: 500,
+          page: 1
+        },
+        inflationAdjusted: "false",
+        variables: ["hispanic_p", "asian_p"]
+      }
+      SchoolSchema.schema.statics.fetchWithVariables(queryFilters)
+        .then((res: intSchoolVarExport) => {
+          expect(res).to.be.an('object');
+          expect(res.data[0].data.filter((datum: any) => datum.variable === "hispanic_p").length).to.be.greaterThan(0);
+          expect(res.data[0].data.filter((datum: any) => datum.variable === "asian_p").length).to.be.greaterThan(0);
+          expect(res.data[0].data.filter((datum: any) => datum.variable === "white_p").length).to.equal(0);
+          done()
+        })
+        .catch((err: Error) => done(err));
+    });
+  });
+
   describe('fetch a school with specified variables', function() {
     it('should return school with variables', function(done) {
       let queryFilters: intVariableQueryConfig = {
@@ -63,9 +86,9 @@ describe('School Schema', function() {
       SchoolSchema.schema.statics.fetchWithVariables(queryFilters)
         .then((res: intSchoolVarExport) => {
           expect(res).to.be.an('object');
-          expect(res.data.filter((datum: any) => datum.variable === "hispanic_p").length).to.be.greaterThan(0);
-          expect(res.data.filter((datum: any) => datum.variable === "asian_p").length).to.be.greaterThan(0);
-          expect(res.data.filter((datum: any) => datum.variable === "white_p").length).to.equal(0);
+          expect(res.data[0].data.filter((datum: any) => datum.variable === "hispanic_p").length).to.be.greaterThan(0);
+          expect(res.data[0].data.filter((datum: any) => datum.variable === "asian_p").length).to.be.greaterThan(0);
+          expect(res.data[0].data.filter((datum: any) => datum.variable === "white_p").length).to.equal(0);
           done()
         })
         .catch((err: Error) => done(err));
@@ -90,7 +113,7 @@ describe('School Schema', function() {
         variables: ["hispanic_p", "asian_p"]
       }
       SchoolSchema.schema.statics.fetchAggregate(queryFilters)
-        .then((res: intSchoolVarExport) => {
+        .then((res: intSchoolVarAggExport) => {
           expect(res).to.be.an('object');
           //test pagination
           expect(res.data.length === 25);
@@ -121,7 +144,7 @@ describe('School Schema', function() {
         variables: ["in_state_tuition"]
       }
       SchoolSchema.schema.statics.fetchAggregate(queryFilters)
-        .then((res: intSchoolVarExport) => {
+        .then((res: intSchoolVarAggExport) => {
           expect(res.query).to.equal(queryFilters);
           expect(res).to.be.an('object');
           expect(res.data[0].fiscal_year).to.equal('2009');
@@ -152,7 +175,7 @@ describe('School Schema', function() {
         variables: ["in_state_tuition"]
       }
       SchoolSchema.schema.statics.fetchAggregate(queryFilters)
-        .then((res: intSchoolVarExport) => {
+        .then((res: intSchoolVarAggExport) => {
           expect(res.query).to.equal(queryFilters);
           expect(res).to.be.an('object');
           expect(res.data[0].fiscal_year).to.equal('2009');

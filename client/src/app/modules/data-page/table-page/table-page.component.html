@@ -10,7 +10,7 @@
 		<div fxLayout="row" fxLayoutWrap fxLayoutAlign="center center" fxFlex = "100" fxFlex.gt-sm="80" class = "chart-content">
 			<div fxLayout = "row" fxLayoutWrap fxLayoutAlign="space-around center" fxFlex = "100">
 		    	<app-school-search (onSchoolSelect)="onSchoolSelect($event)" fxFlex = "90" fxFlex.gt-sm="45"></app-school-search>
-				<app-variable-select [multi]="true" [defined]="true" fxFlex = "90" fxFlex.gt-sm="45" [urlVariable] = "urlVariable" (onVariableSelect) = "setVariables($event)" [selectMax]="5"></app-variable-select>
+				<app-variable-select [multi]="false" [defined]="true" fxFlex = "90" fxFlex.gt-sm="45" [urlVariable] = "urlVariable" (onVariableSelect) = "setVariables($event)"></app-variable-select>
 			</div>
 			<div fxFlex = "100" [formGroup]="tableOptionsForm" *ngIf="chartData">
 				<div class = "options-container" fxFlex = "100">

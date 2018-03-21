@@ -31,7 +31,7 @@ export interface intSchoolSchema extends Document, intSchoolModel {
 export interface intSchoolDataSchema extends Document, intSchoolDataModel { };
 
 export interface intVariableQueryConfig {
-  matches: any[];
+  matches?: any[];
   sort: string;
   pagination: intPaginationArgs;
   inflationAdjusted: string;
@@ -59,9 +59,14 @@ export interface intGroupByArgs {
   variable: string;
 }
 
-export interface intSchoolVarExport {
+export interface intSchoolVarAggExport {
   query: intVariableQueryConfig;
   data: intVarAggItem[];
+}
+
+export interface intSchoolVarExport {
+  query: intVariableQueryConfig;
+  data: intSchoolSchema[];
 }
 
 export interface intVarAggItem {
@@ -113,7 +118,7 @@ SchoolSchema.schema.statics = {
   getVariableList: (): Promise<string[]> => SchoolSchema.distinct("data.variable").exec(),
   search: (name: string): Promise<intSchoolSchema[]> => SchoolSchema.find({ instnm: { $regex: `${name}+.`, $options: 'is' } }).limit(25).select('-data').exec(),
   //todo: abstract this logic into query builder as it becomes necessary
-  fetchAggregate: (queryConfig: intVariableAggQueryConfig): Q.Promise<intSchoolVarExport> => {
+  fetchAggregate: (queryConfig: intVariableAggQueryConfig): Q.Promise<intSchoolVarAggExport> => {
 
     const start = queryConfig.pagination.total ? queryConfig.pagination.page * queryConfig.pagination.perPage : 0,
       stop = start ? start + (queryConfig.pagination.perPage * queryConfig.pagination.page) : queryConfig.pagination.perPage;
@@ -169,55 +174,55 @@ SchoolSchema.schema.statics = {
         return res;
       }).then(res => {
         if (queryConfig.inflationAdjusted == "true") {
-          return _adjustForInflation(res);
-        } else return res;
+          res.data = _adjustForInflation(res.data);
+        }
+        return res;
       })
+  },
+  fetchWithVariables: (queryConfig: intVariableQueryConfig): intSchoolVarExport => {
+    const start = queryConfig.pagination.total ? queryConfig.pagination.page * queryConfig.pagination.perPage : 0,
+      stop = start ? start + (queryConfig.pagination.perPage * queryConfig.pagination.page) : queryConfig.pagination.perPage,
+      matches = queryConfig.matches ? queryConfig.matches : [{}],
+      aggArgs = [];
 
-    function _adjustForInflation(resp: intSchoolVarExport) {
-      return getInflationAdjuster().then(adjuster => {
-        resp.data.forEach(datum => datum.value = adjuster(datum.fiscal_year, datum.value));
-        return resp;
+    if (!_.isEmpty(matches[0])) {
+      aggArgs.push({
+        "$match": {
+          "$and": matches
+        }
       });
     }
-  },
 
-  //todo: fix this method and failing test
-  fetchWithVariables: (queryConfig: intVariableQueryConfig): intSchoolVarExport => {
-    if (!queryConfig.matches.includes( (item:any) => Object.keys(item)[0] === "unitid")) {
-      throw new Error("method requires a unitid to match on!")
-    }
-    const start = queryConfig.pagination.total ? queryConfig.pagination.page * queryConfig.pagination.perPage : 0,
-      stop = start ? start + (queryConfig.pagination.perPage * queryConfig.pagination.page) : queryConfig.pagination.perPage;
-
-    return SchoolSchema.aggregate([
-      {
-        "$match": {
-          "unitid": queryConfig.matches.find(item => Object.keys(item)[0] == "unitid").unitid
-        }
-      },
-      {
-        "$project": {
-          unitid: 1,
-          sector: 1,
-          instnm: 1,
-          city: 1,
-          state: 1,
-          data: {
-            "$filter": {
-              input: "$data",
-              as: "data",
-              cond: { "$in": ["$$data.variable", queryConfig.variables] }
-            }
+    aggArgs.push({
+      "$project": {
+        unitid: 1,
+        instnm: 1,
+        city: 1,
+        state: 1,
+        sector: 1,
+        ein: 1,
+        locale: 1,
+        hbcu: 1,
+        data: {
+          "$filter": {
+            input: "$data",
+            as: "data",
+            cond: { "$in": ["$$data.variable", queryConfig.variables] }
           }
         }
       }
-    ])
+    });
+
+    return SchoolSchema.aggregate(aggArgs)
       .skip(start)
       .limit(stop)
       .sort(queryConfig.sort)
       .exec()
       .then((res: intSchoolModel[]) => {
-        return { query: queryConfig, data: res[0].data };
+        if (queryConfig.inflationAdjusted == "true") {
+          res.forEach(datum => _adjustForInflation(datum.data));
+        }
+        return { query: queryConfig, data: res };
       })
   },
   fetch: (arg: string): Promise<intSchoolSchema> => {
@@ -228,3 +233,10 @@ SchoolSchema.schema.statics = {
     return promise;
   }
 };
+
+function _adjustForInflation(data: intSchoolDataModel[]) {
+  return getInflationAdjuster().then(adjuster => {
+    data.forEach(datum => datum.value = adjuster(datum.fiscal_year, datum.value));
+    return data;
+  });
+}

@@ -1,6 +1,6 @@
 import * as M from 'mathjs';
 import * as _ from 'lodash';
-import { SchoolSchema, intSchoolModel, intSchoolDataModel } from '../schemas/SchoolSchema';
+import { SchoolSchema, intSchoolModel, intSchoolDataModel, intVariableQueryConfig, intSchoolVarExport } from '../schemas/SchoolSchema';
 import { VariableDefinitionSchema, intVariableDefinitionSchema } from '../schemas/VariableDefinitionSchema';
 
 export interface intFormulaParserResult {
@@ -15,6 +15,17 @@ export class FormulaParser {
 	cleanFormula: string;
 	symbolNodes: string[];
 	optionalSymbolNodes: string[];
+	//todo: make default args its own class...
+	queryConfig: intVariableQueryConfig = {
+  		matches: [],
+  		sort: 'fiscal_year',
+  		pagination: {
+  			page: 1,
+  			perPage: 10000
+  		},
+  		inflationAdjusted: "false",
+  		variables: [],
+	}
 
 	constructor(formula: string) {
 		this.formula = formula;
@@ -56,9 +67,11 @@ export class FormulaParser {
 	}
 
 	public execute(unitid: string): Promise<intFormulaParserResult[]> {
-		return SchoolSchema.schema.statics.fetchSchoolWithVariables(unitid, this.symbolNodes)
-			.then((school: intSchoolModel) => {
-				const fullData = this._fillMissingOptionalData(school.data),
+		this.queryConfig.variables = this.symbolNodes;
+		this.queryConfig.matches.push({unitid})
+		return SchoolSchema.schema.statics.fetchWithVariables(this.queryConfig)
+			.then((school: intSchoolVarExport) => {
+				const fullData = this._fillMissingOptionalData(school.data[0].data),
 					transformedData = this._transformModelForFormula(fullData);
 				return this._evaluate(transformedData);
 			});

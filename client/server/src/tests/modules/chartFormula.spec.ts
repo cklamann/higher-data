@@ -16,8 +16,8 @@ describe('FORMULA MODEL', function() {
 		variable: "test_var",
 		type: "currency",
 		sources: [{
-			startYear: 2015,
-			endYear: 2017,
+			startYear: "2015",
+			endYear: "2017",
 			source: "IPEDS",
 			table: "test_ipeds_table",
 			formula: "1+1=2",
@@ -40,7 +40,7 @@ describe('FORMULA MODEL', function() {
 
 	//helpful to have minimum value on hand for proving value is there / addition got done
 	const room_and_board = nwData.data.filter(datum => datum.variable === "room_and_board")
-		.map(item => parseFloat(item.value)),
+		.map(item => item.value),
 		min_room_and_board = _.min(room_and_board);
 
 	const testFormulaParser: string = '(test_var - 5) / 5',

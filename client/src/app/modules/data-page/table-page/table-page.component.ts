@@ -17,6 +17,23 @@ import 'rxjs/add/operator/map';
 })
 export class TablePageComponent implements OnInit {
 
+	/*
+
+	Plan:
+
+	Table has years as columns with arrows
+
+	Two table view types:
+
+	1) One variable, many schools (fetchWithVariables) -- in future compose with others -- "build your own formula")
+	2) one variable, many schools (fetchAggregate) 
+
+	then they decide if they want aggergate or not 
+
+	no more multiselect
+
+	*/
+
 	matTableDataSource: any = new MatTableDataSource<intVarAggItem[]>(); //todo: transform pagination, etc and type
 	queryParams: intVariableQueryConfig | intVariableAggQueryConfig;
 	displayedColumns: string[] = [];
@@ -34,7 +51,7 @@ export class TablePageComponent implements OnInit {
 	_createOptionsForm() {
 		this.tableOptionsForm = this.fb.group({
 			matches: this.fb.array([]),
-			sort: '',
+			sort: 'fiscal_year',
 			pagination: this.fb.group({
 				page: 1,
 				perPage: 25
@@ -71,7 +88,10 @@ export class TablePageComponent implements OnInit {
 			let index = _.findIndex(this.tableOptionsForm.controls['matches'].value, (obj: any) => obj.key === "unitid");
 			if (index > -1) {
 				this.tableOptionsForm.controls['matches'].value[index].unitid = $event.unitid;
-			} else this.tableOptionsForm.controls['matches'].value.push({ unitid: $event.unitid })
+			} else {
+				this.tableOptionsForm.controls['matches'].reset();
+				this.tableOptionsForm.controls['matches'].value.push({ unitid: $event.unitid });
+			}
 
 			this.query();
 		}
@@ -82,7 +102,8 @@ export class TablePageComponent implements OnInit {
 	}
 
 	setVariables($event) {
-		$event.forEach(item => this.tableOptionsForm.controls['variables'].value.push(item.variable)); //these are the displayColumns
+		this.tableOptionsForm.controls['variables'].reset();
+		this.tableOptionsForm.controls['variables'].value.push($event.variable); 
 		this.query();
 	}
 
