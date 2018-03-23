@@ -1,6 +1,6 @@
-<div class = "card-holder" fxLayoutWrap fxLayout="row">
-	<mat-card fxLayout="row" fxLayoutWrap fxFlex = "100" fxFlex.gt-sm="50">
-		<mat-card-header fxFlex = "90" fxLayoutWrap fxLayout="row" fxLayoutAlign.gt-sm="space-between center">
+<div class = "card-holder" fxLayout="row wrap">
+	<mat-card fxLayout="row wrap" fxFlex = "100" fxFlex.gt-sm="50">
+		<mat-card-header fxFlex = "90" fxLayout="row wrap" fxLayoutAlign.gt-sm="space-between center">
 	    	<div class = "card-info" fxFlex ="35">
 		    	<mat-card-title><h2>Variable Definitions</h2></mat-card-title>
 	    	</div>
@@ -10,8 +10,8 @@
 	  	</mat-card-header>
 	  	<mat-card-content fxFlex ="90">	
 			<div>
-			    <form [formGroup]="variableDefinitionForm" (ngSubmit)="onSubmit()" fxLayout="row" fxLayoutWrap fxFlex = "100">
-			    	<div fxLayout="row" fxFlex = "100" fxLayoutWrap fxLayoutAlign="space-around center">
+			    <form [formGroup]="variableDefinitionForm" (ngSubmit)="onSubmit()" fxLayout="row wrap" fxFlex = "100">
+			    	<div fxLayout="row wrap" fxFlex = "100" fxLayoutAlign="space-around center">
 				        <mat-form-field fxFlex = "100" fxFlex.gt-sm="40">
 				            <input matInput formControlName="variable" type="text" placeholder = "Variable"/>
 				        </mat-form-field>
@@ -19,9 +19,9 @@
 				            <input matInput formControlName="type" type="text" placeholder="Variable Type">
 				        </mat-form-field>
 				    </div>  
-				    <div fxLayout="row" formArrayName="sources" fxFlex="100" fxLayoutWrap>
+				    <div fxLayout="row wrap" formArrayName="sources" fxFlex="100">
 		        		<div fxFlex = "100" *ngFor="let source of variableDefinitionForm.controls.sources.controls; let i=index"
-		        		[formGroupName]="i" fxLayout="row" fxLayoutAlign="space-around center" fxLayoutWrap>
+		        		[formGroupName]="i" fxLayout="row wrap" fxLayoutAlign="space-around center">
 							<i class="material-icons mat-icon-button" (click)="removeVariable()">indeterminate_check_box</i>
 		        			<span fxFlex = "90">Source {{i + 1}}</span>
 		                	<mat-form-field fxFlex = "90" fxFlex.gt-sm="40">
@@ -55,7 +55,7 @@
 			</div>
 		</mat-card-content>
 	</mat-card>
-	<mat-card fxLayout="row" fxLayoutWrap fxFlex = "100" fxFlex.gt-sm="50" fxLayoutAlign = "center start">
+	<mat-card fxLayout="row wrap" fxFlex = "100" fxFlex.gt-sm="50" fxLayoutAlign = "center start">
 		<mat-card-header fxFlex = "90" fxLayoutAlign="center">
 	    	<app-school-search (onSchoolSelect)="onSchoolSelect($event)" fxFlex = "80" fxFlex.gt-sm="45"></app-school-search>
 	  	</mat-card-header>

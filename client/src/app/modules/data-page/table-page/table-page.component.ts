@@ -28,7 +28,7 @@ export class TablePageComponent implements OnInit {
 	private _columns: string[] = [];
 	private _columnIndex: number = 0;
 	private _tableOptionsVisible: boolean = false;
-	constructor(private schools: Schools, private fb: FormBuilder, private util: UtilService) {
+	constructor(private schools:Schools, private fb: FormBuilder, private util: UtilService) {
 		//todo: configure datasource accessors here
 		//https://github.com/angular/material2/blob/master/src/demo-app/table/table-demo.ts#L71
 	}
@@ -64,26 +64,11 @@ export class TablePageComponent implements OnInit {
 	}
 
 	getTableIsCurrency() {
-		return true; //todo: figure out
+		return true; //todo: figure out -- snag from variable
 	}
 
 	toggleTableOptionsVisible() {
 		this._tableOptionsVisible = !this._tableOptionsVisible;
-	}
-
-	onSchoolSelect($event) {
-		if ($event) {
-			let index = _.findIndex(this.tableOptionsForm.controls['matches'].value, (obj: any) => obj.key === "unitid");
-			if (index > -1) {
-				this.tableOptionsForm.controls['matches'].value[index].unitid = $event.unitid;
-			} else {
-				this.tableOptionsForm.controls['matches'].reset();
-				let matches = this.tableOptionsForm.controls['matches'].value;
-				matches = this.util.replace(matches, { unitid: $event.unitid });
-			}
-
-			this.query();
-		}
 	}
 
 	onInflationChange($event) {
@@ -119,7 +104,7 @@ export class TablePageComponent implements OnInit {
 	}
 
 	query() {
-		if (this.tableOptionsForm.controls['matches'].value.length > 0 && this.tableOptionsForm.controls['variables'].value.length > 0) {
+		if (this.tableOptionsForm.controls['variables'].value.length > 0) {
 			const query = this.getIsAggQuery() ? this.schools.aggregateQuery(this.tableOptionsForm.value) : this.schools.fetchWithVariables(this.tableOptionsForm.value);
 			query
 				.map((res: intVarExport) => {
@@ -129,7 +114,7 @@ export class TablePageComponent implements OnInit {
 				.subscribe(resp => {
 					//don't set paginator on table source, use template instead, since query controls it
 					if (!_.isEmpty(resp.export().data)) {
-						this.matTableDataSource.data = resp.export().data; //method expects an array of data to show in table -- but where does pagination stuff get set? Separate directive....
+						this.matTableDataSource.data = resp.export().data; 
 						this._columns = resp.getColumns();
 						this.setVisibleColumns();
 						this.showTable = true;

@@ -1,7 +1,7 @@
-<div fxFlex = 100 fxLayoutAlign = "center center" fxLayoutWrap>	
+<div fxFlex = 100 fxLayoutAlign = "center center" fxLayout="row wrap" >	
 	<div fxFlex = 100 class = "mat-body-strong" class="center-text margin-top-15">
 		Select a variable to view its sources
 	</div>
-	<app-variable-select [defined]="true" fxFlex="75" fxFlex.gt-xs="33" fxLayoutAlign="center center" [urlVariable] = "urlVariable" (onVariableSelect) = "setVariable($event)" class="margin-top-15"></app-variable-select>
-	<app-source-display fxFlex = 100 fxFlex.gt-sm = 68 fxLayoutWrap fxLayoutAlign = "center center" [variable]="variable"></app-source-display>
+	<app-variable-select [defined]="true" fxLayout="row wrap" fxFlex="75" fxFlex.gt-xs="33" fxLayoutAlign="center center" [urlVariable] = "urlVariable" (onVariableSelect) = "setVariable($event)" class="margin-top-15"></app-variable-select>
+	<app-source-display fxLayout="row wrap" fxFlex = 100 fxFlex.gt-sm = 68  fxLayoutAlign = "center center" [variable]="variable"></app-source-display>
 </div>
