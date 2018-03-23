@@ -5,10 +5,10 @@
 		</h3>
 	</mat-toolbar-row>
 </mat-toolbar>
-<div class = "outer-container" fxLayout="row" fxLayoutWrap fxLayoutAlign="center center">
-	<div class = "inner-container" fxFlex="95" fxLayoutWrap fxFlex.gt-sm="90" fxLayout="row" fxLayoutAlign="center center">
-		<div fxLayout="row" fxLayoutWrap fxLayoutAlign="center center" fxFlex = "100" fxFlex.gt-sm="80" class = "chart-content">
-			<div fxLayout = "row" fxLayoutWrap fxLayoutAlign="space-around center" fxFlex = "100">
+<div class = "outer-container" fxLayout="row wrap" fxLayoutAlign="center center">
+	<div class = "inner-container" fxFlex="95" fxFlex.gt-sm="90" fxLayout="row wrap" fxLayoutAlign="center center">
+		<div fxLayout="row wrap" fxLayoutAlign="center center" fxFlex = "100" fxFlex.gt-sm="80" class = "chart-content">
+			<div fxLayout = "row wrap" fxLayoutAlign="space-around center" fxFlex = "100">
 		    	<app-school-search [defaultModel] = "getDefaultModel()" (onSchoolSelect)="onSchoolSelect($event)" fxFlex = "90" fxFlex.gt-sm="45"></app-school-search>
 				<app-chart-search [defaultChart]= "getDefaultChart()" (onChartSelect)="onChartSelect($event)" fxFlex = "90" fxFlex.gt-sm="45"></app-chart-search>
 			</div>
@@ -58,7 +58,7 @@
 					</div>
 				</div>	
 			</div>
-			<div fxFlex="100" fxLayoutWrap>
+			<div fxFlex="100" fxLayout="row wrap">
 				<div fxFlex="100" class = "chart-title mat-title">
 					{{getChartTitle()}}
 				</div>
@@ -67,10 +67,10 @@
 					  No data available for this school and chart
 					</p>
 				</div>
-				<div fxLayoutWrap="row" fxFlex="100" class="chart-container-outer">
+				<div fxLayout="row wrap" fxFlex="100" class="chart-container-outer">
 					<app-trend-chart [chartData]="chartData" (onChartEmpty) = setChartEmpty($event) fxFlex = "100" fxFlex.gt-sm="75" ></app-trend-chart>
-					<div class = "legend-container" fxFlex = "100" fxFlex.gt-sm="25" fxLayoutAlign="start start" fxLayout="row" fxLayoutWrap>
-						<ul fxFlex="100" class = "legend mat-body-1" fxLayout="row" fxLayoutWrap fxLayoutAlign = "space-evenly center" fxLayoutAlign.gt-sm="start" fxLayout.gt-sm="column" fxLayoutWrap.gt-sm="false">
+					<div class = "legend-container" fxFlex = "100" fxFlex.gt-sm="25" fxLayoutAlign="start start" fxLayout="row wrap">
+						<ul fxFlex="100" class = "legend mat-body-1" fxLayout="row wrap" fxLayoutAlign = "space-evenly center" fxLayoutAlign.gt-sm="start" fxLayout.gt-sm="row wrap" fxLayout.gt-sm="row">
 						</ul>
 						
 						<div *ngIf="getChartIsCurrency() && !getChartEmpty()" fxFlex="100">

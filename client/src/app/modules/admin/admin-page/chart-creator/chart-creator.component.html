@@ -1,21 +1,21 @@
-<div class = "card-holder" fxLayoutWrap fxLayour="row">
-	<mat-card fxLayout="row" fxLayoutWrap fxFlex = "100" fxFlex.gt-sm="50">
-		<mat-card-header fxFlex = "90" fxLayoutWrap fxLayout="row" fxLayoutAlign.gt-sm="space-between center">
+<div class = "card-holder"  fxLayout="row wrap">
+	<mat-card fxLayout="row wrap"  fxFlex = "100" fxFlex.gt-sm="50">
+		<mat-card-header fxFlex = "90"  fxLayout="row wrap" fxLayoutAlign.gt-sm="space-between center">
 	    	<div class = "card-info" fxFlex ="35">
 		    	<mat-card-title><h2>Chart Management</h2></mat-card-title>
 	    	</div>
-	    	<div class = "chart-search" fxFlex="90" fxFlex.gt-sm="60" fxLayout="row" fxLayoutAlign="start center" *ngIf="!showChartSearch">
+	    	<div class = "chart-search" fxFlex="90" fxFlex.gt-sm="60" fxLayout="row wrap" fxLayoutAlign="start center" *ngIf="!showChartSearch">
 				<i class="material-icons mat-icon-button" (click)="toggleChartSearch()">search</i>		    	
 			</div>
-	    	<div class = "chart-search" fxFlex="90" fxFlex.gt-sm="60" fxLayout="row" fxLayoutAlign="none center" *ngIf="showChartSearch">
+	    	<div class = "chart-search" fxFlex="90" fxFlex.gt-sm="60" fxLayout="row wrap" fxLayoutAlign="none center" *ngIf="showChartSearch">
 		    	<app-chart-search (onChartSelect)="onChartSelect($event)" fxFlex="100" fxFlex.gt-sm="100"></app-chart-search>
 				<i class="material-icons mat-icon-button" (click)="toggleChartSearch()">close</i>   	
 			</div>
 	  	</mat-card-header>
 	  	<mat-card-content fxFlex ="90">	
 			<div>
-			    <form [formGroup]="chartBuilderForm" (ngSubmit)="onSubmit()" fxLayout="row" fxLayoutWrap fxFlex = "100">
-			    	<div fxLayout="row" fxFlex = "100" fxLayoutWrap fxLayoutAlign="space-around center">
+			    <form [formGroup]="chartBuilderForm" (ngSubmit)="onSubmit()" fxLayout="row wrap"  fxFlex = "100">
+			    	<div fxLayout="row wrap" fxFlex = "100"  fxLayoutAlign="space-around center">
 				        <mat-form-field fxFlex = "100" fxFlex.gt-sm="40">
 				            <input matInput formControlName="name" type="text" placeholder = "Chart Name"/>
 				        </mat-form-field>
@@ -54,9 +54,9 @@
       						</mat-select>
 				        </mat-form-field>
 				    </div>
-				    <div fxLayout="row" formArrayName="cuts" fxFlex="100" fxLayoutWrap>
+				    <div fxLayout="row wrap" formArrayName="cuts" fxFlex="100" >
 		        		<div fxFlex = "100" *ngFor="let cut of chartBuilderForm.controls.cuts.controls; let i=index"
-		        		[formGroupName]="i" fxLayout="row" fxLayoutAlign="space-around center" fxLayoutWrap>
+		        		[formGroupName]="i" fxLayout="row wrap" fxLayoutAlign="space-around center" >
 							<i class="material-icons mat-icon-button" (click)="removeCut()">indeterminate_check_box</i>
 		        			<span fxFlex = "90">Cut {{i + 1}}</span>
 		                	<mat-form-field fxFlex = "90" fxFlex.gt-sm="40">
@@ -67,13 +67,13 @@
 							</mat-form-field>		                
 					    	<app-variable-select (onVariableSelect)="onCutVariableSelect($event,i)" fxFlex="100" fxFlex.gt-sm="90"></app-variable-select>
 		        		</div>
-		        		<div fxLayout="row" fxFlex = "100" fxLayoutAlign = "start center">
+		        		<div fxLayout="row wrap" fxFlex = "100" fxLayoutAlign = "start center">
 	                      	<i fxFlex="nogrow" class = "material-icons mat-icon-button"(click)="addCut()">add_box</i> Cut
 		        		</div>
 				    </div>
-				    <div fxLayout="row" formArrayName="variables" fxFlex="100" fxLayoutWrap>
+				    <div fxLayout="row wrap" formArrayName="variables" fxFlex="100" >
 		        		<div fxFlex = "100" *ngFor="let variable of chartBuilderForm.controls.variables.controls; let i=index"
-		        		[formGroupName]="i" fxLayout="row" fxLayoutAlign="space-around center" fxLayoutWrap>
+		        		[formGroupName]="i" fxLayout="row wrap" fxLayoutAlign="space-around center" >
 							<i class="material-icons mat-icon-button" (click)="removeVariable()">indeterminate_check_box</i>
 		        			<span fxFlex = "90">Variable {{i + 1}}</span>
 		                	<mat-form-field fxFlex = "90" fxFlex.gt-sm="40">
@@ -88,7 +88,7 @@
 		                	<!--todo: make this app-defined-variable-select-->
 					    	<app-variable-select (onVariableSelect)="onVariableSelect($event,i)" fxFlex="100" fxFlex.gt-sm="90"></app-variable-select>
 		        		</div>
-		        		<div fxLayout="row" fxFlex = "100" fxLayoutAlign = "space-around center">
+		        		<div fxLayout="row wrap" fxFlex = "100" fxLayoutAlign = "space-around center">
 	                      	<i fxFlex="nogrow" class = "material-icons mat-icon-button"(click)="addVariable()">add_box</i>
 	                      	<button fxFlex="nogrow" mat-button [disabled] = "chartBuilderForm.invalid">Save</button>
 	                      	<a fxFlex="nogrow" mat-button [disabled] = "chartBuilderForm.invalid" (click)="getPreview()">Preview</a>
@@ -98,8 +98,8 @@
 			</div>
 		</mat-card-content>
 	</mat-card>
-	<mat-card fxLayout="row" fxLayoutWrap fxFlex = "100" fxFlex.gt-sm="50" fxLayoutAlign = "center start">
-		<mat-card-header fxFlex = "90" fxLayoutAlign="center">
+	<mat-card fxLayout="row wrap"  fxFlex = "100" fxFlex.gt-sm="50" fxLayoutAlign = "center start">
+		<mat-card-header fxFlex = "90" fxLayoutAlign="center" fxLayout="row wrap">
 	    	<app-school-search (onSchoolSelect)="onSchoolSelect($event)" fxFlex = "80" fxFlex.gt-sm="45"></app-school-search>
 	  	</mat-card-header>
 	  	<mat-card-content fxFlex ="90">	
