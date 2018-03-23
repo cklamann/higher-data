@@ -70,7 +70,7 @@
 				<div fxLayout="row wrap" fxFlex="100" class="chart-container-outer">
 					<app-trend-chart [chartData]="chartData" (onChartEmpty) = setChartEmpty($event) fxFlex = "100" fxFlex.gt-sm="75" ></app-trend-chart>
 					<div class = "legend-container" fxFlex = "100" fxFlex.gt-sm="25" fxLayoutAlign="start start" fxLayout="row wrap">
-						<ul fxFlex="100" class = "legend mat-body-1" fxLayout="row wrap" fxLayoutAlign = "space-evenly center" fxLayoutAlign.gt-sm="start" fxLayout.gt-sm="row wrap" fxLayout.gt-sm="row">
+						<ul fxFlex="100" class = "legend mat-body-1" fxLayout="row wrap" fxLayoutAlign = "space-evenly center" fxLayoutAlign.gt-sm="start" fxLayout.gt-sm="column">
 						</ul>
 						
 						<div *ngIf="getChartIsCurrency() && !getChartEmpty()" fxFlex="100">
