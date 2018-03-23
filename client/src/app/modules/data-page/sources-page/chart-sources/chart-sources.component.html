@@ -1,40 +1,43 @@
 <div fxFlex = 100 fxLayoutAlign = "center center" fxLayoutWrap>	
+		<!--todo: the whole item should be a narrow card, only 10% wider than the dropdown
+	          it really should stand out more, and even unselected the card should run
+	      	  to the bottom of the page-->
 	<div class = "mat-body-strong" fxFlex="100" class="center-text margin-top-15">
 		Select a chart to view its sources
 	</div>
 	<app-chart-search fxFlex="75" fxFlex.gt-xs="33" fxLayoutAlign="center center" [defaultChart] = "urlChart" (onChartSelect) = setChart($event) class = "margin-top-15"></app-chart-search>
-</div>
-<div fxFlex = 100 fxLayoutAlign = "center center" fxLayoutWrap>	
-	<div *ngIf="chart" fxFlex=100 fxLayoutAlign = "center center">
-		<mat-card fxFlex=100 fxFlex.gt-xs = 75 fxLayoutAlign = "center center" fxLayoutWrap>
-			<mat-card-title fxFlex=100 class = "center-text"> 
-				{{chart.name}} Chart
-			</mat-card-title>
-			<mat-card-content fxFlex=100 class = "center-text" fxLayoutWrap>
-				<mat-card-subtitle fxFlex=100 class ="center-text">
-					Chart Variables:
-				</mat-card-subtitle>
-				<div *ngIf="definitions" fxFlex = 100 fxLayoutAlign = "center center" fxLayoutWrap>
-					<div *ngFor = "let definition of definitions; let i = index;" fxFlex = 100 fxLayoutAlign = "center center" fxLayoutWrap>
-						<div class = "margin-top-15 component-holder left-text" fxFlex=100 fxFlex.gt-xs=75 fxLayoutAlign= "start start" fxLayoutWrap>
-							<div fxFlex = 100  class = "mat-body-1">
-								<span class = "mat-body-strong">Variable {{i+1}} Legend Name:</span> 
-								<span class = "mat-body-1">{{definition.legendName}}</span>
+	<div fxFlex = 100 fxLayoutAlign = "center center" fxLayoutWrap>	
+		<div *ngIf="chart" fxFlex=100 fxLayoutAlign = "center center">
+			<mat-card fxFlex=100 fxFlex.gt-xs = 75 fxLayoutAlign = "center center" fxLayoutWrap>
+				<mat-card-title fxFlex=100 class = "center-text"> 
+					{{chart.name}} Chart
+				</mat-card-title>
+				<mat-card-content fxFlex=100 class = "center-text" fxLayoutWrap>
+					<mat-card-subtitle fxFlex=100 class ="center-text">
+						Chart Variables:
+					</mat-card-subtitle>
+					<div *ngIf="definitions" fxFlex = 100 fxLayoutAlign = "center center" fxLayoutWrap>
+						<div *ngFor = "let definition of definitions; let i = index;" fxFlex = 100 fxLayoutAlign = "center center" fxLayoutWrap>
+							<div class = "margin-top-15 component-holder left-text" fxFlex=100 fxFlex.gt-xs=75 fxLayoutAlign= "start start" fxLayoutWrap>
+								<div fxFlex = 100  class = "mat-body-1">
+									<span class = "mat-body-strong">Variable {{i+1}} Legend Name:</span> 
+									<span class = "mat-body-1">{{definition.legendName}}</span>
+								</div>
+								<div fxFlex = 100 class = "mat-body-1">
+									<span class = "mat-body-strong">Variable {{i+1}} Calculation:</span> 
+									<span class = "mat-body-1">{{definition.formula}}</span>
+								</div>
+								<div fxFlex = 100 class = "mat-body-1">
+									<span class = "mat-body-strong">Variable {{i+1}} Sources:</span> 
+								</div>
 							</div>
-							<div fxFlex = 100 class = "mat-body-1">
-								<span class = "mat-body-strong">Variable {{i+1}} Calculation:</span> 
-								<span class = "mat-body-1">{{definition.formula}}</span>
+							<div *ngFor="let def of definition.variableDefinitions" fxFlex = 100 fxLayoutWrap fxLayoutAlign = "center center">
+								<app-source-display  fxFlex = 100 fxLayoutWrap fxLayoutAlign = "center center" [variable]="def"></app-source-display>
 							</div>
-							<div fxFlex = 100 class = "mat-body-1">
-								<span class = "mat-body-strong">Variable {{i+1}} Sources:</span> 
-							</div>
-						</div>
-						<div *ngFor="let def of definition.variableDefinitions" fxFlex = 100 fxLayoutWrap fxLayoutAlign = "center center">
-							<app-source-display  fxFlex = 100 fxLayoutWrap fxLayoutAlign = "center center" [variable]="def"></app-source-display>
 						</div>
 					</div>
-				</div>
-			</mat-card-content>
-		</mat-card>
+				</mat-card-content>
+			</mat-card>
+		</div>
 	</div>
 </div>

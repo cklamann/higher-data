@@ -24,6 +24,9 @@ export class VariableDefinerComponent implements OnInit {
 		widthRatio: .75
 	}
 
+	//todo: add Friendly Name, Category, and better Type field (that corresponds to chartVariable type)	
+	//store Categories in db, select from dropdown
+
 	constructor(private fb: FormBuilder,
 		private variableDefinitions: VariableDefinitions,
 		private ChartService: ChartService) {
@@ -68,7 +71,6 @@ export class VariableDefinerComponent implements OnInit {
 	}
 
 	onSubmit() {
-		let formContent = _stripEmptyIds(this.variableDefinitionForm.value);
 		this.variableDefinitions.save(this.variableDefinitionForm.value)
 			.subscribe(res => {
 				this.variableDefinitionForm.patchValue({
@@ -77,8 +79,8 @@ export class VariableDefinerComponent implements OnInit {
 			})
 	}
 
-	onVariableSelect(variable: string): void {
-		this.variable = variable;
+	onVariableSelect(variable: intVariableDefinitionModel): void {
+		this.variable = variable.variable;
 		this.variableDefinitionForm.patchValue({
 			variable: variable,
 			_id: '',
@@ -89,7 +91,7 @@ export class VariableDefinerComponent implements OnInit {
 		for (let i = 0; i < limit; i++) {
 			control.removeAt(0);
 		}
-		this.variableDefinitions.fetchByName(variable)
+		this.variableDefinitions.fetchByName(variable.variable)
 			.subscribe(varDef => {
 				if (varDef) {
 					varDef[0].sources.forEach(variable => this.addSource()); 
@@ -112,17 +114,4 @@ export class VariableDefinerComponent implements OnInit {
 				this.chartData = res;
 			});
 	}
-}
-
-//private helpers --> todo: move to utility class
-let _stripEmptyIds = function(model: any): any {
-	_.forEach(model, (item, key, parent) => {
-		if (_.isArray(item)) {
-			item.forEach(val => _stripEmptyIds(val));
-		}
-		if (key === "_id" && item == "") {
-			delete parent[key];
-		}
-		return model;
-	});
 }
