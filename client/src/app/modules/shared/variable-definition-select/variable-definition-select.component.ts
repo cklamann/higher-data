@@ -8,14 +8,14 @@ import 'rxjs/add/operator/map';
 
 
 @Component({
-	selector: 'app-variable-select',
-	templateUrl: './variable-select.component.html',
-	styleUrls: ['./variable-select.component.scss']
+	selector: 'app-variable-definition-select',
+	templateUrl: './variable-definition-select.component.html',
+	styleUrls: ['./variable-definition-select.component.scss']
 })
-export class VariableSelectComponent implements OnInit {
-	variableSelectForm: FormGroup;
+export class VariableDefinitionSelectComponent implements OnInit {
+	VariableDefinitionSelectForm: FormGroup;
 	@Output()
-	onVariableSelect: EventEmitter<string> = new EventEmitter<string>();
+	onVariableDefinitionSelect: EventEmitter<string> = new EventEmitter<string>();
 	@Input()
 	defined: boolean = false;
 	@Input()
@@ -29,10 +29,11 @@ export class VariableSelectComponent implements OnInit {
 	variables: intVariableDefinitionModel[] = [];
 
 	constructor(private fb: FormBuilder, private VariableDefinitions: VariableDefinitions) {
-		this.createForm();
+		
 	}
 
 	ngOnInit() {
+		this.createForm();
 		this.VariableDefinitions.fetchAll(this.defined)
 			.switchMap(res => {
 				this.variables = res;
@@ -57,13 +58,13 @@ export class VariableSelectComponent implements OnInit {
 	}
 
 	createForm() {
-		this.variableSelectForm = this.fb.group({
+		this.VariableDefinitionSelectForm = this.fb.group({
 			variable: [''],
 		});
 	}
 
 	listenForSelectChanges(): void {
-		this.variableSelectForm.valueChanges
+		this.VariableDefinitionSelectForm.valueChanges
 			.subscribe(change => {
 				if (this.multi && this.selectMax && change.variable.length >= this.selectMax) {
 					this.options.forEach(option => {
@@ -74,8 +75,8 @@ export class VariableSelectComponent implements OnInit {
 				} else this.options.forEach(option => option.disabled = false);
 			})
 
-		this.variableSelectForm.valueChanges.debounceTime(500).subscribe(input => {
-			this.onVariableSelect.emit(input.variable);
+		this.VariableDefinitionSelectForm.valueChanges.debounceTime(500).subscribe(input => {
+			this.onVariableDefinitionSelect.emit(input.variable);
 		});
 	}
 
