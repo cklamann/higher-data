@@ -3,33 +3,6 @@ import { intVarExport, intPaginationArgs } from '../../../../server/src/schemas/
 import { UtilService } from '../util/util';
 import * as _ from 'lodash';
 
-/*
-
-idea here is to layout the table config, complete with transformers, should probably be a class
-
---to make my tables, we need:
-
-	column names -> composed of column1 and fiscal_years, where column1 is the key (either variable or school)
-	data -> array of objects with all the data
-
-	pagination -> not sure
-
-	this class can take new data and update, as long as the data is of the same type and structure
-	otherwise, if a new data shape comes in, it will rebuild
-
-
-const rows = [
-	{ "id": "1", "name": "Macaw, scarlet", "lat": "31.215291", "lng": "118.931012" },
-	{ "id": "2", "name": "Armadillo, nine-banded", "lat": "35.663752", "lng": "103.389346" },
-	{ "id": "3", "name": "Greater roadrunner", "lat": "13.17535", "lng": "44.27461" },
-	{ "id": "4", "name": "Goanna lizard", "lat": "22.671042", "lng": "113.823131" },
-	{ "id": "5", "name": "Cape starling", "lat": "16.0213558", "lng": "100.417181" }
-];
-const columns = Array<string>(Object.keys(rows[0]));
-const data = new MatTableDataSource<Object>(rows);
-
-*/
-
 interface inputData {
 	fiscal_year: string,
 	value: string,
@@ -77,6 +50,7 @@ export class VariableDataSource {
 	}
 
 	_transformExport(_export: intVarExport): intOutputData[] {
+		//todo: replace with transformer
 		let data: intermediateData[][],
 			keyCol: string;
 		if (_export.data[0].data) { //if it's varExport
@@ -84,8 +58,8 @@ export class VariableDataSource {
 			//many schools, one variable
 			if (keyCol === 'instnm') {
 				//array of data arrays with instnm on every item
-				const filledData = this._fillInMissingYears(_export.data);
-				data = filledData.map(datum => datum.data.forEach(item => Object.assign(item, datum['keyCol'])));
+				const filledData = this._fillInMissingYears(_export);
+				data = filledData.data.map(datum => datum.data.map(item => Object.assign(item, { [keyCol]: datum[keyCol] })));
 			} else {
 				//one school, one or more variables
 				data = _.values(_.groupBy(_export.data[0].data, 'variable'));
@@ -97,29 +71,31 @@ export class VariableDataSource {
 
 		let exportData: intOutputData[] = _.flatMap(data, datum => datum.reduce((a, b) => Object.assign(a, { [b.fiscal_year]: b.value }), {}));
 
-		exportData.forEach(datum => datum[keyCol] = data[0][0][keyCol]);
+		exportData.forEach((datum, i) => {
+			datum[keyCol] = data[i][0][keyCol];
+		});
 
 		return exportData;
 	}
 
-	_fillInMissingYears(exportData: any[]) {
-		const yearRange = _.flatMap(exportData, datum => _.flatMap(datum.data, item => item.fiscal_year)),
+	_fillInMissingYears(_export: intVarExport) {
+		const yearRange = _.flatMap(_export.data, datum => _.flatMap(datum.data, item => item.fiscal_year)),
 			uniqYears = _.uniq(yearRange);
 
-		exportData.forEach(datum => {
-			_getMissingYears(datum).forEach(fiscal_year => datum.push({
+		_export.data.forEach(datum => {
+			_getMissingYears(datum).forEach(fiscal_year => datum.data.push({
 				fiscal_year: fiscal_year,
-				variable: datum[0].variable,
+				variable: _export.query.variables[0],
 				value: 'NA'
 			}));
 		})
 
-		let _getMissingYears = datum => {
-			let years = _.flatMap(datum, item => item.fiscal_year);
+		function _getMissingYears(datum) {
+			let years = _.flatMap(datum.data, item => item.fiscal_year);
 			return _.difference(uniqYears, years);
 		}
 
-		return exportData;
+		return _export;
 	}
 
 }

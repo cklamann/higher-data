@@ -1,44 +1,84 @@
-<mat-toolbar>
-	<mat-toolbar-row fxFlex="100" fxLayoutAlign="center center">
-		<h3>
-	    	Use the controls below to select a variable
-		</h3>
-	</mat-toolbar-row>
-</mat-toolbar>
 <div class = "outer-container" fxLayout="row wrap"  fxLayoutAlign="center center">
-	<div class = "inner-container" fxFlex="95"  fxFlex.gt-sm="90" fxLayout="row wrap" fxLayoutAlign="center center">
-		<div fxLayout="row wrap"  fxLayoutAlign="center center" fxFlex = "100" fxFlex.gt-sm="80" class = "chart-content">
-			<div class = "variable-dropdown" fxFlex="90" fxFlex.gt-sm="60" fxLayout="row wrap" fxLayoutAlign="center">
-				<app-variable-select [multi]="false" [defined]="true" fxFlex = "90" fxFlex.gt-sm="45" [urlVariable] = "urlVariable" (onVariableSelect) = "setVariables($event)"></app-variable-select>
-			</div>
-			<div fxFlexLayout = "row wrap" fxFlex = "100" [formGroup]="tableOptionsForm" *ngIf="chartData">
-				<div class = "options-container" fxFlex = "100">
-					<i class="material-icons mat-icon-button" (click)="toggleTableOptionsVisible()" *ngIf="!getChartOptionsVisible()">settings</i>
-					<i class="material-icons mat-icon-button" (click)="toggleTableOptionsVisible()"  *ngIf="getChartOptionsVisible()">close</i>
-					<div class = "table-options" *ngIf="getTableOptionsVisible" fxLayout="column" fxFlex = "100" fxFlex.gt-sm="80" fxLayoutAlign="start start">
-						<ul class = "mat-body-1" fxLayout="column">
-							<!--todo: deal with fact that only some values will be currency-->
-							<li *ngIf="getTableIsCurrency()" fxLayoutAlign="start center" fxFlex = "100">
-								<ul fxLayout = "column">
-									<li>
-										<span class="mat-body-1">Inflation Adjusted:&nbsp;</span>
-									</li>
-									<li>
-										<mat-radio-group formControlName="inflationAdjusted" (change) = "onInflationChange($event)">
-											<mat-radio-button [value] = true>
-												Adjusted
-											</mat-radio-button>
-											<mat-radio-button [value] = false>
-												Original
-											</mat-radio-button>
-										</mat-radio-group>
-									</li>
-								</ul>
-							</li>
-						</ul>
+	<div class = "inner-container" fxFlex="95"  fxFlex.gt-sm="90" fxLayout="row wrap" fxLayoutAlign="center center" [formGroup]="tableOptionsForm">
+		<div fxFlex="100" fxLayoutAlign="center center" class="mat-h2">
+			Use the controls below to query data from the higher education database
+		</div>
+		<div class = "options-container" fxLayout="row wrap" fxFlex = "75" fxFlex.gt-sm="50" class = "mat-body-1" fxLayoutAlign="center center">
+			<div class = "agg-options" fxLayout="row wrap" fxFlex="100" fxLayoutAlign="space-between center">
+				<div class = "variable-dropdown-container" fxFlex="100" fxFlex.gt-xs="45" fxLayout="column">
+					<label *ngIf="!getVariableSelected()">Select a variable to query</label>
+					<app-variable-select [multi]="false" [defined]="true" (onVariableSelect) = "setVariable($event)" ></app-variable-select>
+				</div>
+				<div class = "is-agg-container" fxFlex="100" fxFlex.gt-xs="45" fxLayout="row wrap" fxLayout.gt-xs="row" [formGroup]="isAggregateForm">
+					<label fxFlex="50" class="p-r-5">Select query type</label>
+					<mat-radio-group fxFlex = "50" formControlName="isAggregate" fxLayout="column" fxLayout.gt-sm = "row" fxLayoutAlign = "start start">
+						<mat-radio-button [value] = false class="p-r-5">
+							All
+						</mat-radio-button>
+						<mat-radio-button [value] = true>
+							Aggregate
+						</mat-radio-button>
+					</mat-radio-group>
+				</div>
+				<div *ngIf="getIsAggregate()" [formGroup]="groupByForm" fxFlex="100" fxLayout="row wrap" class = "agg-opt-container" fxLayoutAlign="space-between">
+					<div fxFlex="100" fxFlex.gt-xs="45" fxLayout="row wrap" fxLayout.gt-xs="row">	
+						<label fxFlex="50" class="p-r-5">Select an aggregation group</label>
+						<mat-radio-group fxFlex="50" formControlName="variable" fxLayout="column" fxLayout.gt-sm="row" fxLayoutAlign="start start">
+							<mat-radio-button [value] = "'state'" class="p-r-5">
+								State
+							</mat-radio-button>
+							<mat-radio-button [value] = "'sector'">
+								Sector
+							</mat-radio-button>
+						</mat-radio-group>
+					</div>	
+					<div class = "agg-func-container" fxFlex = "100" fxFlex.gt-xs= "45" fxLayout="row wrap" fxLayoutAlign="space-between start">
+						<label fxFlex="100" *ngIf="!aggFunct.value">Select a Function</label>
+						<mat-form-field fxFlex="100">
+							<mat-select formControlName="aggFunc" #aggFunct placeholder = "Function" [@aggTypeSelected]="active">
+								<mat-option value="avg">Average</mat-option>
+								<mat-option value="sum">Sum</mat-option>
+							</mat-select>
+						</mat-form-field>
 					</div>
-				</div>	
+				</div>
+				<!--uh, this has nothing to do with aggs, it's matches, dumbass, and you don't need it-->
+				<!-- <div *ngIf="false" fxFlex = "100" *ngIf="getIsAggregate()" fxLayoutAlign="space-between center" class = "p-t-10" fxLayout="row wrap">
+					<div class = "agg-variable-container" fxFlex = "100" fxFlex.gt-xs= "45">	
+						<div *ngIf="getAggQueryIsState()" fxLayout="row wrap" fxFlex="100">
+							<label fxFlex="100">Select a State</label>
+							<mat-form-field fxFlex="100">
+								<mat-select placeholder = "State" [@aggTypeSelected]="active">
+									<mat-option *ngFor="let state of states" [value]="state.abbreviation">{{state.name}}
+									</mat-option>
+								</mat-select>
+							</mat-form-field>
+						</div>
+						<div *ngIf="getAggQueryIsSector()" fxLayout="row wrap" fxFlex="100">
+							<label fxFlex="100">Select a Sector</label>
+							<mat-form-field fxFlex="100">
+								<mat-select placeholder = "Sector" [@aggTypeSelected]="active">
+									<mat-option *ngFor="let sector of sectors" [value]="sector.number">{{sector.name}}
+									</mat-option>
+								</mat-select>
+							</mat-form-field>
+						</div>
+					</div>
+				</div> -->
+			</div><!--end agg options-->
+			<div *ngIf="getTableIsCurrency()" fxFlex="100" fxLayout = "row" fxLayoutAlign="start">
+				<label class="p-r-5">Inflation Adjusted</label>
+				<mat-radio-group formControlName="inflationAdjusted">
+					<mat-radio-button [value] = true class = "p-r-5">
+						Adjusted
+					</mat-radio-button>
+					<mat-radio-button [value] = false>
+						Original
+					</mat-radio-button>
+				</mat-radio-group>
 			</div>
+		</div><!--end options container-->
+		<div fxLayout="row wrap"  fxLayoutAlign="center center" fxFlex = "100" fxFlex.gt-sm="80" class = "table-content">
 			<div fxFlex="100"  fxLayoutAlign = "center center" fxLayout = "row wrap">
 				<div fxFlex="100" class = "chart-title mat-title">
 					title goes here i suppse
@@ -46,21 +86,20 @@
 				<div fxFlex="100" *ngIf = "!showTable" class="center-text">
 					No datter
 				</div>
-				<div *ngIf="showTable" class="table-container mat-elevation-z8" fxFlex = 100 fxFlex.gt-sm = 75 fxLayoutAlign = "space-around start">
-					<mat-table [dataSource]="matTableDataSource" fxFlex=85 >
+				<div *ngIf="showTable" class="table-container mat-elevation-z8 center-text" fxFlex = 100 fxFlex.gt-sm = 75 fxLayoutAlign = "space-around start">
+					<mat-table [dataSource]="matTableDataSource" fxFlex=85 fxLayout="row wrap">
 	  					<ng-container *ngFor="let column of visibleColumns" [matColumnDef]="column">
-	    					<mat-header-cell class= "center-text" *matHeaderCellDef>{{ column }}</mat-header-cell>
-	    					<mat-cell class= "center-text" *matCellDef="let row">{{ row[column] }}</mat-cell>
+	    					<mat-header-cell *matHeaderCellDef>{{ column }}</mat-header-cell>
+	    					<mat-cell *matCellDef="let row">{{ row[column] }}</mat-cell>
 	  					</ng-container>
-	  					<mat-header-row class= "center-text" *matHeaderRowDef="visibleColumns" fxFlex = 100></mat-header-row>
-					    <mat-row class= "center-text" *matRowDef="let row; columns: visibleColumns;" fxFlex = 100>
-					    </mat-row>
+	  					<mat-header-row *matHeaderRowDef="visibleColumns" fxFlex = 100></mat-header-row>
+					    <mat-row *matRowDef="let row; columns: visibleColumns;" fxFlex = 100></mat-row>
 					</mat-table>
 					<div fxFlex=15 fxFlexAlign="start">
-						<button mat-icon-button [disabled]="!getLeftArrowVisible()" (click) = "shiftVisibleColumnsLeft()" class="no-hover">
+						<button mat-icon-button [disabled]="!getLeftArrowVisible()" (click) = "shiftVisibleColumnsLeft()">
 							<i class="material-icons">chevron_left</i>
 						</button>
-						<button mat-icon-button [disabled]="!getRightArrowVisible()" (click) = "shiftVisibleColumnsRight()" class="no-hover">
+						<button mat-icon-button [disabled]="!getRightArrowVisible()" (click) = "shiftVisibleColumnsRight()">
 							<i class="material-icons">chevron_right</i>
 						</button>
 					</div>
@@ -69,6 +108,3 @@
 		</div>
 	</div>
 </div>
-
-
-

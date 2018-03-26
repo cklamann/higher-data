@@ -1,3 +1,22 @@
+//theme
+$primary: #673ab7;
+//margin/padding
+$spaceamounts: (5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 75, 100); 
+$sides: (top, bottom, left, right);
+@each $space in $spaceamounts {
+    @each $side in $sides {
+        .m-#{str-slice($side, 0, 1)}-#{$space} {
+            margin-#{$side}: #{$space}px !important;
+        }
+        .p-#{str-slice($side, 0, 1)}-#{$space} {
+            padding-#{$side}: #{$space}px !important;
+        }
+    }
+} 
+//material resets
+
+
+//global
 svg {
     shape-rendering: auto;
 }
@@ -19,16 +38,13 @@ li {
 .spacer-20 {
     margin: 20px 0px;
 }
-.margin-top-15 {
-    margin: 15px 0px 0px 0px;
-}
-
 .center-text {
     text-align: center;
 }
 .left-text {
     text-align: left;
 }
+
 .d3-tip {
     position: absolute;
     text-align: left;
