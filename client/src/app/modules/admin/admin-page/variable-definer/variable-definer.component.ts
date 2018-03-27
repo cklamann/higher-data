@@ -79,8 +79,8 @@ export class VariableDefinerComponent implements OnInit {
 			})
 	}
 
-	onVariableSelect(variable: intVariableDefinitionModel): void {
-		this.variable = variable.variable;
+	onVariableSelect(variable: string): void {
+		this.variable = variable;
 		this.variableDefinitionForm.patchValue({
 			variable: variable,
 			_id: '',
@@ -91,11 +91,11 @@ export class VariableDefinerComponent implements OnInit {
 		for (let i = 0; i < limit; i++) {
 			control.removeAt(0);
 		}
-		this.variableDefinitions.fetchByName(variable.variable)
+		this.variableDefinitions.fetchByName(variable)
 			.subscribe(varDef => {
-				if (varDef) {
-					varDef[0].sources.forEach(variable => this.addSource()); 
-					this.variableDefinitionForm.setValue(varDef[0]); 
+				if (varDef.length > 0) {
+					varDef[0].sources.forEach(variable => this.addSource());
+					this.variableDefinitionForm.setValue(varDef[0]);
 				}
 			})
 		this._loadChart();
