@@ -6,8 +6,8 @@
 		<div class = "options-container" fxLayout="row wrap" fxFlex = "75" fxFlex.gt-sm="50" class = "mat-body-1" fxLayoutAlign="center center">
 			<div class = "agg-options" fxLayout="row wrap" fxFlex="100" fxLayoutAlign="space-between center">
 				<div class = "variable-dropdown-container" fxFlex="100" fxFlex.gt-xs="45" fxLayout="column">
-					<label *ngIf="!getVariableSelected()">Select a variable to query</label>
-					<app-variable-select [multi]="false" [defined]="true" (onVariableSelect) = "setVariable($event)" ></app-variable-select>
+					<label *ngIf="!getVariableDefinitionSelected()">Select a variable to query</label>
+					<app-variable-definition-select [multi]="false" [defined]="true" (onVariableDefinitionSelect) = "setVariable($event)" ></app-variable-definition-select>
 				</div>
 				<div class = "is-agg-container" fxFlex="100" fxFlex.gt-xs="45" fxLayout="row wrap" fxLayout.gt-xs="row" [formGroup]="isAggregateForm">
 					<label fxFlex="50" class="p-r-5" fxFlexAlign="center">Select query type</label>
@@ -21,25 +21,34 @@
 					</mat-radio-group>
 				</div>
 				<div *ngIf="getIsAggregate()" [formGroup]="groupByForm" fxFlex="100" fxLayout="row wrap" class = "agg-opt-container" fxLayoutAlign="space-between">
-					<div fxFlex="100" fxFlex.gt-xs="45" fxLayout="row wrap" fxLayout.gt-xs="row">	
-						<label fxFlex="50" class="p-r-5" fxFlexAlign="center">Select an aggregation group</label>
-						<mat-radio-group fxFlex="50" formControlName="variable" fxLayout="column" fxLayout.gt-sm="row" fxLayoutAlign="start start" fxFlexAlign="center">
-							<mat-radio-button [value] = "'state'" class="p-r-5">
-								State
-							</mat-radio-button>
-							<mat-radio-button [value] = "'sector'">
-								Sector
-							</mat-radio-button>
-						</mat-radio-group>
+					<div fxFlex="100" fxFlex.gt-xs="45" fxLayout="row wrap">
+						<div fxFlex="100" fxLayout="row wrap" fxLayout.gt-xs="row">	
+							<label fxFlex="50" class="p-r-5" fxFlexAlign="center">Select an aggregation group</label>
+							<mat-radio-group fxFlex="50" formControlName="variable" fxLayout="column" fxLayout.gt-sm="row" fxLayoutAlign="start start" fxFlexAlign="center">
+								<mat-radio-button [value] = "'state'" class="p-r-5">
+									State
+								</mat-radio-button>
+								<mat-radio-button [value] = "'sector'">
+									Sector
+								</mat-radio-button>
+							</mat-radio-group>
+						</div>
+						<div>
+							<div fxFlex="100" *ngIf = "groupByForm.get('variable').errors" class="mat-error">
+								An aggregate group is required
+							</div>
+						</div>
 					</div>	
 					<div class = "agg-func-container" fxFlex = "100" fxFlex.gt-xs= "45" fxLayout="row wrap" fxLayoutAlign="space-between start">
-						<label fxFlex="100" *ngIf="!aggFunct.value">Select a Function</label>
 						<mat-form-field fxFlex="100">
-							<mat-select formControlName="aggFunc" #aggFunct placeholder = "Function" [@aggTypeSelected]="active">
+							<mat-select formControlName="aggFunc" placeholder = "Function" [@aggTypeSelected]="active">
 								<mat-option value="avg">Average</mat-option>
 								<mat-option value="sum">Sum</mat-option>
 							</mat-select>
 						</mat-form-field>
+						<div *ngIf = "groupByForm.get('aggFunc').errors" class="mat-error">
+							An aggregate function is required
+						</div> 
 					</div>
 				</div>
 				<!--uh, this has nothing to do with aggs, it's matches, dumbass, and you don't need it-->

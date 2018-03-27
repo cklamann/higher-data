@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { VariableDefinitions } from '../../../../models/VariableDefinitions'
 import { intVariableDefinitionModel, intVariableDefinitionSchema } from '../../../../../../server/src/schemas/VariableDefinitionSchema';
 import { Charts } from '../../../../models/Charts';
-import { VariableSelectComponent } from '../../../shared/variable-select/variable-select.component';
+import { VariableDefinitionSelectComponent } from '../../../shared/variable-definition-select/variable-definition-select.component';
 import { ChartService } from '../../../chart/ChartService.service';
 import { intSchoolModel } from '../../../../../../server/src/schemas/SchoolSchema';
 import { intChartExport } from '../../../../../../server/src/models/ChartExporter';
@@ -79,7 +79,7 @@ export class VariableDefinerComponent implements OnInit {
 			})
 	}
 
-	onVariableSelect(variable: intVariableDefinitionModel): void {
+	onVariableDefinitionSelect(variable: intVariableDefinitionModel): void {
 		this.variable = variable.variable;
 		this.variableDefinitionForm.patchValue({
 			variable: variable,

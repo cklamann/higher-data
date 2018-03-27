@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { intChartModel, intChartSchema } from '../../../../../../server/src/schemas/ChartSchema';
 import { intVariableDefinitionModel } from '../../../../../../server/src/schemas/VariableDefinitionSchema';
 import { Charts } from '../../../../models/Charts';
-import { VariableSelectComponent } from '../../../shared/variable-select/variable-select.component';
+import { VariableDefinitionSelectComponent } from '../../../shared/variable-definition-select/variable-definition-select.component';
 import { intSchoolModel } from '../../../../../../server/src/schemas/SchoolSchema';
 import { intChartExport } from '../../../../../../server/src/models/ChartExporter';
 import { ChartService } from '../../../chart/ChartService.service';
@@ -135,7 +135,7 @@ export class ChartCreatorComponent implements OnInit {
 		this.chartBuilderForm.setValue(chart);
 	}
 
-	onVariableSelect(variable: intVariableDefinitionModel, i: number): void {
+	onVariableDefinitionSelect(variable: intVariableDefinitionModel, i: number): void {
 		let control = <FormArray>this.chartBuilderForm.controls['variables'];
 		control.at(i).patchValue({ formula: control.at(i).value.formula + " " + variable.variable });
 	}

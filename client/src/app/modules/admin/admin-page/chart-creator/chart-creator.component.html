@@ -65,7 +65,7 @@
 		                    <mat-form-field fxFlex = "90" fxFlex.gt-sm="40">
 			                    <input matInput type="text" formControlName="formula" placeholder="Formula">
 							</mat-form-field>		                
-					    	<app-variable-select (onVariableSelect)="onCutVariableSelect($event,i)" fxFlex="100" fxFlex.gt-sm="90"></app-variable-select>
+					    	<app-variable-definition-select (onVariableDefinitionSelect)="onCutVariableSelect($event,i)" fxFlex="100" fxFlex.gt-sm="90"></app-variable-definition-select>
 		        		</div>
 		        		<div fxLayout="row wrap" fxFlex = "100" fxLayoutAlign = "start center">
 	                      	<i fxFlex="nogrow" class = "material-icons mat-icon-button"(click)="addCut()">add_box</i> Cut
@@ -85,8 +85,7 @@
 		                	<mat-form-field fxFlex = "90">
 		                   		<textarea matInput formControlName="formula" placeholder="Formula"></textarea>
 		                	</mat-form-field>
-		                	<!--todo: make this app-defined-variable-select-->
-					    	<app-variable-select (onVariableSelect)="onVariableSelect($event,i)" fxFlex="100" fxFlex.gt-sm="90"></app-variable-select>
+					    	<app-variable-definition-select (onVariableDefinitionSelect)="onVariableDefinitionSelect($event,i)" fxFlex="100" fxFlex.gt-sm="90"></app-variable-definition-select>
 		        		</div>
 		        		<div fxLayout="row wrap" fxFlex = "100" fxLayoutAlign = "space-around center">
 	                      	<i fxFlex="nogrow" class = "material-icons mat-icon-button"(click)="addVariable()">add_box</i>
