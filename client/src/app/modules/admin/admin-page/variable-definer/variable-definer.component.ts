@@ -19,7 +19,6 @@ export class VariableDefinerComponent implements OnInit {
 	variableDefinitionForm: FormGroup;
 	school: intSchoolModel;
 	chartData: intChartExport;
-	variable: string;
 	chartOverrides: object = {
 		widthRatio: .75
 	}
@@ -79,8 +78,7 @@ export class VariableDefinerComponent implements OnInit {
 			})
 	}
 
-	onVariableDefinitionSelect(variable: intVariableDefinitionModel): void {
-		this.variable = variable.variable;
+	onVariableSelect(variable: string): void {
 		this.variableDefinitionForm.patchValue({
 			variable: variable,
 			_id: '',
@@ -91,9 +89,9 @@ export class VariableDefinerComponent implements OnInit {
 		for (let i = 0; i < limit; i++) {
 			control.removeAt(0);
 		}
-		this.variableDefinitions.fetchByName(variable.variable)
+		this.variableDefinitions.fetchByName(variable)
 			.subscribe(varDef => {
-				if (varDef) {
+				if (varDef.length > 0) {
 					varDef[0].sources.forEach(variable => this.addSource()); 
 					this.variableDefinitionForm.setValue(varDef[0]); 
 				}
@@ -107,9 +105,9 @@ export class VariableDefinerComponent implements OnInit {
 	}
 
 	private _loadChart() {
-		if (!this.variable) return;
+		if (!this.variableDefinitionForm.value.variable) return;
 		const schoolSlug = this.school ? this.school.slug : 'northwestern-university-147767';
-		this.ChartService.fetchChartByVariable(this.variable, schoolSlug)
+		this.ChartService.fetchChartByVariable(this.variableDefinitionForm.value.variable, schoolSlug)
 			.subscribe(res => {
 				this.chartData = res;
 			});

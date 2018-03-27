@@ -97,7 +97,6 @@ export class TablePageComponent implements OnInit {
 		});
 		this.tableOptionsForm.valueChanges.subscribe(form => {
 			//have to double check with variables b/c custom validator not bubbling up working....
-			console.log(form.variables);
 			if (this.tableOptionsForm.valid && form.variables.length > 0) {
 				this.query();
 			}
@@ -123,10 +122,10 @@ export class TablePageComponent implements OnInit {
 	setVariable($event) {
 		this._variableType = $event.type;
 		let control = <FormArray>this.tableOptionsForm['controls'].variables;
+		control.removeAt(0);
 		control.push(this.fb.group({
-					variable: $event.variable
-				}))
-		console.log(this.tableOptionsForm.value);
+			variable: $event.variable
+		}));
 	}
 
 	getAggQueryIsSector() {
@@ -169,6 +168,7 @@ export class TablePageComponent implements OnInit {
 			})
 			.debounceTime(500)
 			.subscribe(resp => {
+				console.log(resp);
 				if (!_.isEmpty(resp.export().data)) {
 					this.matTableDataSource.data = resp.export().data;
 					this._columns = resp.getColumns();

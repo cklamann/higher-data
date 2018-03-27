@@ -1,0 +1,7 @@
+<form [formGroup]="VariableSelectForm" novalidate fxFlex = "100" fxFlex.gt-sm="100">
+    <mat-form-field class = "variable-select" fxFlex = "100" fxFlex.gt-sm="100">
+        <mat-select class="form-control" formControlName="variable" placeholder = "Variables" [multiple] = "multi">
+            <mat-option *ngFor="let variable of variables" [value]="variable">{{variable}}</mat-option>
+        </mat-select>
+    </mat-form-field>
+</form>

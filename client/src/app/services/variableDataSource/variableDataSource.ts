@@ -3,6 +3,8 @@ import { intVarExport, intPaginationArgs } from '../../../../server/src/schemas/
 import { UtilService } from '../util/util';
 import * as _ from 'lodash';
 
+//this is a fine candidate for unit testing, blya
+
 interface inputData {
 	fiscal_year: string,
 	value: string,
@@ -51,41 +53,50 @@ export class VariableDataSource {
 
 	_transformExport(_export: intVarExport): intOutputData[] {
 		//todo: replace with transformer
-		let data: intermediateData[][],
-			keyCol: string;
-		if (_export.data[0].data) { //if it's varExport
+		var data: intermediateData[][],
+			keyCol: string,
+			keyMap: string[] = []; // array of unique values
+		if (_export.data[0].data) { //if it's an intSchoolModel //todo:type check
 			keyCol = _export.data.length > 1 ? 'instnm' : 'variable';
 			//many schools, one variable
 			if (keyCol === 'instnm') {
-				//array of data arrays with instnm on every item
-				const filledData = this._fillInMissingYears(_export);
-				data = filledData.data.map(datum => datum.data.map(item => Object.assign(item, { [keyCol]: datum[keyCol] })));
+				data = _export.data.map(datum => datum.data);
+				data = this._fillInMissingYears(data, _export.query.variables[0]),
+					keyMap = _export.data.map(item => item.instnm);
 			} else {
 				//one school, one or more variables
 				data = _.values(_.groupBy(_export.data[0].data, 'variable'));
+				keyMap = Object.keys(_.groupBy(_export.data[0].data, 'variable'))
 			}
 		} else {
-			keyCol = _export.data[0].filter(item => ['fiscal_year', 'variable', 'value'].includes(this.util.getKey(item)));
-			data = _.values(_.groupBy(_export.data, keyCol));
+			//aggregate
+			keyCol = _export.data.filter(item => !['fiscal_year','variable','value'].includes(item))[0];
+			_.groupBy(_export.data,"sector");//
+			//this is all sorts of fucked up, 
+			//in reality, need to return aggregate data as sector.data, where data contains all the data for that sector,
+			//and each one of them will be a row. That's the only way to make this make sense, and that means rewriting
+			// the aggregate query, yay.
+			
 		}
 
 		let exportData: intOutputData[] = _.flatMap(data, datum => datum.reduce((a, b) => Object.assign(a, { [b.fiscal_year]: b.value }), {}));
 
 		exportData.forEach((datum, i) => {
-			datum[keyCol] = data[i][0][keyCol];
+			datum[keyCol] = keyMap[i];
 		});
 
 		return exportData;
 	}
 
-	_fillInMissingYears(_export: intVarExport) {
-		const yearRange = _.flatMap(_export.data, datum => _.flatMap(datum.data, item => item.fiscal_year)),
+	//no longer working....
+	_fillInMissingYears(data: intermediateData[][], variable: string) {
+		const yearRange = _.flatMap(_.flatMap(data, item => _.flatMap(item => item.fiscal_year))),
 			uniqYears = _.uniq(yearRange);
 
-		_export.data.forEach(datum => {
-			_getMissingYears(datum).forEach(fiscal_year => datum.data.push({
+		data.forEach(datum => {
+			_getMissingYears(datum).forEach(fiscal_year => datum.push({
 				fiscal_year: fiscal_year,
-				variable: _export.query.variables[0],
+				variable: variable,
 				value: 'NA'
 			}));
 		})
@@ -95,7 +106,7 @@ export class VariableDataSource {
 			return _.difference(uniqYears, years);
 		}
 
-		return _export;
+		return data;
 	}
 
 }
