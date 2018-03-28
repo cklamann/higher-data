@@ -156,7 +156,25 @@ SchoolSchema.schema.statics = {
 
     aggArgs.push({ "$unwind": { "path": "$data" } })
     aggArgs.push({ "$group": { "_id": { [queryConfig.groupBy.variable]: "$" + queryConfig.groupBy.variable, "fiscal_year": "$data.fiscal_year", "variable": "$data.variable" }, value: { ["$" + queryConfig.groupBy.aggFunc]: "$data.value" } } });
-    let mainQuery = SchoolSchema.aggregate(aggArgs)
+    aggArgs.push({ "$group": { "_id": "$" + "_id." + queryConfig.groupBy.variable, 
+                                "data": 
+                                  { "$push": 
+                                    { "fiscal_year": "$_id.fiscal_year", 
+                                      "value": "$value", 
+                                      "variable":"$_id.variable" 
+                                    }
+                                  } 
+                             }
+                  });
+    let mainQuery = SchoolSchema.aggregate(aggArgs);
+    //temp: can sort by _id, which will be state or (numeric!) sector,
+    //or must sort by value-year where year equals sort argument --> seems like not possible before returned....
+    //it's possible by adding a new field that will hold the sort key, but that seems like overkill with 
+    //the number of records returned --> just do the ordering and pagination client-side until the results get too big
+    mainQuery.exec()
+      .then((res: any) => res.forEach( (item:any) => console.log(item.data)))
+      .catch((err: Error) => console.log(err));
+
     let countQuery = _.cloneDeep(mainQuery).append([{ "$count": "total" }]);
 
     mainQuery
