@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { SourceDisplayComponent } from '../source-display/source-display.component';
-import { VariableSelectComponent } from '../../../shared/variable-select/variable-select.component';
+import { VariableDefinitionSelectComponent } from '../../../shared/variable-definition-select/variable-definition-select.component';
 import { intVariableDefinitionModel } from '../../../../../../server/src/schemas/VariableDefinitionSchema';
 import { Router, ActivatedRoute } from '@angular/router';
 

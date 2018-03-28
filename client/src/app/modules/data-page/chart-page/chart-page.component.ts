@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Schools, School } from '../../../models/Schools';
-import { MatToolbar, MatToolbarRow } from '@angular/material/toolbar';
+import { MatToolbar, MatToolbarRow } from '@angular/material/toolbar'
 import { intSchoolModel } from '../../../../../server/src/schemas/SchoolSchema';
 import { intChartModel } from '../../../../../server/src/schemas/ChartSchema';
 import { ChartService } from '../../../modules/chart/ChartService.service';
@@ -67,7 +67,7 @@ export class ChartPageComponent implements OnInit {
 		});
 
 		this.chartOptionsForm.get('inflationAdjusted').valueChanges.subscribe(change => {
-			this._inflationAdjusted = change; //todo: why is this hear? Can't we just access the value when needed?
+			this._inflationAdjusted = change; //todo: why is this here? Can't we just access the value when needed?
 		})
 
 		this.chartOptionsForm.get('cut').valueChanges.subscribe(change => {

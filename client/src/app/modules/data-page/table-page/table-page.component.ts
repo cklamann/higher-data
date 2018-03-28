@@ -40,7 +40,7 @@ export class TablePageComponent implements OnInit {
 
 	groupByForm: FormGroup;
 	isAggregateForm: FormGroup;
-	matTableDataSource = new MatTableDataSource<intOutputData>(); 
+	matTableDataSource = new MatTableDataSource<intOutputData>();
 	queryParams: intVariableQueryConfig | intVariableAggQueryConfig;
 	sectors = sectors;
 	showTable = false;
@@ -79,15 +79,15 @@ export class TablePageComponent implements OnInit {
 			inflationAdjusted: "false",
 			variables: this.fb.array([])
 		})
-		this.tableOptionsForm.controls['variables'].setValidators([Validators.minLength(1)])
+
 		this.isAggregateForm = this.fb.group({
 			isAggregate: false
 		})
 	}
 
 	_subscribeToForms() {
-		this.isAggregateForm.controls['isAggregate'].valueChanges.subscribe( (isAgg:boolean) => {
-			if(isAgg){
+		this.isAggregateForm.controls['isAggregate'].valueChanges.subscribe((isAgg: boolean) => {
+			if (isAgg) {
 				this.groupByForm.controls['aggFunc'].setValidators([Validators.required])
 				this.groupByForm.controls['variable'].setValidators([Validators.required])
 			} else {
@@ -95,11 +95,11 @@ export class TablePageComponent implements OnInit {
 				this.groupByForm.controls['variable'].setValidators([Validators.nullValidator])
 			}
 		});
-		this.tableOptionsForm.valueChanges.subscribe( form => {
-			//seems to be working
-			console.log(this.tableOptionsForm.valid);
-			console.log(this.tableOptionsForm.errors);
-			console.log(form); //can i validate here?
+		this.tableOptionsForm.valueChanges.subscribe(form => {
+			//have to double check with variables b/c custom validator not bubbling up working....
+			if (this.tableOptionsForm.valid && form.variables.length > 0) {
+				this.query();
+			}
 		})
 	}
 
@@ -107,30 +107,25 @@ export class TablePageComponent implements OnInit {
 		return this._tableOptionsVisible;
 	}
 
-	getVariableSelected(){
+	getVariableDefinitionSelected() {
 		return this.tableOptionsForm.controls['variables'].value.length > 0;
 	}
 
 	getTableIsCurrency() {
-		return true; //todo: figure out -- snag from variable
+		return this._variableType == "currency";
 	}
 
 	toggleTableOptionsVisible() {
 		this._tableOptionsVisible = !this._tableOptionsVisible;
 	}
 
-	onInflationChange($event) {
-		console.log($event);
-	}
-
-	onStateSelectionChange($event) {
-		console.log($event);
-	}
-
 	setVariable($event) {
 		this._variableType = $event.type;
-		this.tableOptionsForm.controls['variables'].reset();
-		this.tableOptionsForm.controls['variables'].value.push($event.variable);
+		let control = <FormArray>this.tableOptionsForm['controls'].variables;
+		control.removeAt(0);
+		control.push(this.fb.group({
+			variable: $event.variable
+		}));
 	}
 
 	getAggQueryIsSector() {
@@ -164,6 +159,8 @@ export class TablePageComponent implements OnInit {
 	}
 
 	query() {
+		let input = this.tableOptionsForm.value;
+		input.variables = input.variables.map(variable => variable.variable);
 		const query = this.getIsAggregate() ? this.schools.aggregateQuery(this.tableOptionsForm.value) : this.schools.fetchWithVariables(this.tableOptionsForm.value);
 		query
 			.map((res: intVarExport) => {
@@ -171,6 +168,7 @@ export class TablePageComponent implements OnInit {
 			})
 			.debounceTime(500)
 			.subscribe(resp => {
+				console.log(resp);
 				if (!_.isEmpty(resp.export().data)) {
 					this.matTableDataSource.data = resp.export().data;
 					this._columns = resp.getColumns();
@@ -191,4 +189,5 @@ export class TablePageComponent implements OnInit {
 			this.visibleColumns.push(this._columns[i]);
 		}
 	}
+
 }

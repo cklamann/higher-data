@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { VariableDefinitions } from '../../../../models/VariableDefinitions'
 import { intVariableDefinitionModel, intVariableDefinitionSchema } from '../../../../../../server/src/schemas/VariableDefinitionSchema';
 import { Charts } from '../../../../models/Charts';
-import { VariableSelectComponent } from '../../../shared/variable-select/variable-select.component';
+import { VariableDefinitionSelectComponent } from '../../../shared/variable-definition-select/variable-definition-select.component';
 import { ChartService } from '../../../chart/ChartService.service';
 import { intSchoolModel } from '../../../../../../server/src/schemas/SchoolSchema';
 import { intChartExport } from '../../../../../../server/src/models/ChartExporter';
@@ -19,7 +19,6 @@ export class VariableDefinerComponent implements OnInit {
 	variableDefinitionForm: FormGroup;
 	school: intSchoolModel;
 	chartData: intChartExport;
-	variable: string;
 	chartOverrides: object = {
 		widthRatio: .75
 	}
@@ -80,7 +79,10 @@ export class VariableDefinerComponent implements OnInit {
 	}
 
 	onVariableSelect(variable: string): void {
+<<<<<<< HEAD
 		this.variable = variable;
+=======
+>>>>>>> 9d9f60f46b19933fa25863dbca2b8e98893dbe6a
 		this.variableDefinitionForm.patchValue({
 			variable: variable,
 			_id: '',
@@ -94,8 +96,13 @@ export class VariableDefinerComponent implements OnInit {
 		this.variableDefinitions.fetchByName(variable)
 			.subscribe(varDef => {
 				if (varDef.length > 0) {
+<<<<<<< HEAD
 					varDef[0].sources.forEach(variable => this.addSource());
 					this.variableDefinitionForm.setValue(varDef[0]);
+=======
+					varDef[0].sources.forEach(variable => this.addSource()); 
+					this.variableDefinitionForm.setValue(varDef[0]); 
+>>>>>>> 9d9f60f46b19933fa25863dbca2b8e98893dbe6a
 				}
 			})
 		this._loadChart();
@@ -107,9 +114,9 @@ export class VariableDefinerComponent implements OnInit {
 	}
 
 	private _loadChart() {
-		if (!this.variable) return;
+		if (!this.variableDefinitionForm.value.variable) return;
 		const schoolSlug = this.school ? this.school.slug : 'northwestern-university-147767';
-		this.ChartService.fetchChartByVariable(this.variable, schoolSlug)
+		this.ChartService.fetchChartByVariable(this.variableDefinitionForm.value.variable, schoolSlug)
 			.subscribe(res => {
 				this.chartData = res;
 			});

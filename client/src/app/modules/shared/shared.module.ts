@@ -18,4 +18,5 @@ import { Charts } from '../../models/Charts';
 	],
 	providers: [Charts]
 })
+
 export class SharedModule { }

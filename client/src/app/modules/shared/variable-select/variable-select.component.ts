@@ -2,7 +2,6 @@ import { Component, OnInit, QueryList, Output, Input, EventEmitter, OnChanges, S
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSelect, MatOption } from '@angular/material';
 import { VariableDefinitions } from '../../../models/VariableDefinitions';
-import { intVariableDefinitionModel } from '../../../../../server/src/schemas/VariableDefinitionSchema';
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/map';
 
@@ -16,8 +15,6 @@ export class VariableSelectComponent implements OnInit {
 	VariableSelectForm: FormGroup;
 	@Output()
 	onVariableSelect: EventEmitter<string> = new EventEmitter<string>();
-	@Input()
-	defined: boolean = false;
 	@Input()
 	urlVariable: string = "";
 	@Input()

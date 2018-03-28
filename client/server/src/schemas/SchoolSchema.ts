@@ -128,7 +128,6 @@ SchoolSchema.schema.statics = {
     const start = queryConfig.pagination.total ? queryConfig.pagination.page * queryConfig.pagination.perPage : 0,
       stop = start ? start + (queryConfig.pagination.perPage * queryConfig.pagination.page) : queryConfig.pagination.perPage;
 
-    //todo: use chaining syntax for this
     let aggArgs: any[] = [];
     let matches = queryConfig.matches ? queryConfig.matches : [{}];
 

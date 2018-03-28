@@ -29,7 +29,7 @@ router.get('/fetch_by_name', function(req, res, next) {
 
 router.get('/', function(req, res, next) {
 	let filter = req.query.defined ? { 'sources.0': { $exists: true } } : {};
-	VariableDefinitionSchema.find(filter)
+	VariableDefinitionSchema.find({ 'sources.0': { $exists: true } })
 		.then(resp => {
 			return res.json(resp);
 		})
@@ -65,9 +65,11 @@ router.get('/:variable/chart/:school', passport.authenticate('basic', { session:
 
 router.post('/', passport.authenticate('basic', { session: false }), function(req, res, next) {
 	let promise: Promise<any>;
-	if (req.body._id) {
+	//todo: put this logic in app-wide transformer
+	if (req.body._id.length > 1) {
 		promise = VariableDefinitionSchema.schema.statics.fetchAndUpdate(req.body);
 	} else {
+		delete req.body._id;
 		promise = VariableDefinitionSchema.create(req.body);
 	}
 
