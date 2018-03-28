@@ -177,37 +177,42 @@ SchoolSchema.schema.statics = {
     //todo: test
     return Q.all([mainQuery.exec(), countQuery.exec()])
       .then((res: any) => {
-        const sortFunc = _getSortFunc(queryConfig.sort)
-        return res.sort(sortFunc);
-
-        //todo: move
-        function _getSortFunc(sortStr: string) {
-          const dir = sortStr.substr(0, 1) == "-" ? "desc" : "asc",
+        res[0] = res[0][0];//unnest
+        res[0] = _sort(res[0], queryConfig.sort);
+        
+        function _sort(data: any, sortStr: string) {
+          let dir = sortStr.substr(0, 1) == "-" ? "desc" : "asc",
             field = dir === "desc" ? sortStr.slice(1) : sortStr,
-            yearSort = _.toNumber(sortStr) ? true : false;
-          if (yearSort) {
-            return function(a, b) {
+            yearSort = _.toNumber(sortStr) ? true : false,
+            sortFunc: Function;
+          if (!yearSort) {
+            sortFunc = (a:any, b:any) => {
               if (dir === "desc") {
-                return a.data.find(item => item.year === field).value > b ? -1 : 1;
-              } else return a.data.find(item => item.year === field).value < b ? -1 : 1;
+                return a[sortStr] > b ? -1 : 1;
+              } else return a[sortStr] < b ? -1 : 1;
             }
-          } else return (a, b) => {
-            if (dir === "desc") {
-              return a[sortStr] > b ? -1 : 1;
-            } else return a[sortStr] < b ? -1 : 1;
+          } else {
+            sortFunc = (a:any, b:any) => {
+              if (dir === "desc") {
+                return a.data.find( (item:any) => item.year === field).value > b ? -1 : 1;
+              } else return a.data.find( (item:any) => item.year === field).value < b ? -1 : 1;
+            }
           }
+          return data.data.sort(sortFunc);
         }
+        return res;
       })
       .then(res => {
+        //testing
         let tmp: any = {};
-        tmp.data = res;
+        tmp.data = res[0];
         tmp.query = queryConfig;
         tmp.query.pagination.total = res[1][0].total;
         return tmp;
       })
       .then(res => {
         if (queryConfig.inflationAdjusted == "true") {
-          res.data = _adjustForInflation(res.data);
+          res.data = _adjustForInflation(res);
         }
         return res;
       })
