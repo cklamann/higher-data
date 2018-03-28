@@ -156,45 +156,56 @@ SchoolSchema.schema.statics = {
 
     aggArgs.push({ "$unwind": { "path": "$data" } })
     aggArgs.push({ "$group": { "_id": { [queryConfig.groupBy.variable]: "$" + queryConfig.groupBy.variable, "fiscal_year": "$data.fiscal_year", "variable": "$data.variable" }, value: { ["$" + queryConfig.groupBy.aggFunc]: "$data.value" } } });
-    aggArgs.push({ "$group": { "_id": "$" + "_id." + queryConfig.groupBy.variable, 
-                                "data": 
-                                  { "$push": 
-                                    { "fiscal_year": "$_id.fiscal_year", 
-                                      "value": "$value", 
-                                      "variable":"$_id.variable" 
-                                    }
-                                  } 
-                             }
-                  });
+    aggArgs.push({
+      "$group": {
+        "_id": "$" + "_id." + queryConfig.groupBy.variable,
+        "data":
+          {
+            "$push":
+              {
+                "fiscal_year": "$_id.fiscal_year",
+                "value": "$value",
+                "variable": "$_id.variable"
+              }
+          }
+      }
+    });
     let mainQuery = SchoolSchema.aggregate(aggArgs);
-    //temp: can sort by _id, which will be state or (numeric!) sector,
-    //or must sort by value-year where year equals sort argument --> seems like not possible before returned....
-    //it's possible by adding a new field that will hold the sort key, but that seems like overkill with 
-    //the number of records returned --> just do the ordering and pagination client-side until the results get too big
-    mainQuery.exec()
-      .then((res: any) => res.forEach( (item:any) => console.log(item.data)))
-      .catch((err: Error) => console.log(err));
 
     let countQuery = _.cloneDeep(mainQuery).append([{ "$count": "total" }]);
 
-    mainQuery
-      .skip(start)
-      .limit(stop)
-      .sort(queryConfig.sort);
-
+    //todo: test
     return Q.all([mainQuery.exec(), countQuery.exec()])
       .then((res: any) => {
+        const sortFunc = _getSortFunc(queryConfig.sort)
+        return res.sort(sortFunc);
+
+        //todo: move
+        function _getSortFunc(sortStr: string) {
+          const dir = sortStr.substr(0, 1) == "-" ? "desc" : "asc",
+            field = dir === "desc" ? sortStr.slice(1) : sortStr,
+            yearSort = _.toNumber(sortStr) ? true : false;
+          if (yearSort) {
+            return function(a, b) {
+              if (dir === "desc") {
+                return a.data.find(item => item.year === field).value > b ? -1 : 1;
+              } else return a.data.find(item => item.year === field).value < b ? -1 : 1;
+            }
+          } else return (a, b) => {
+            if (dir === "desc") {
+              return a[sortStr] > b ? -1 : 1;
+            } else return a[sortStr] < b ? -1 : 1;
+          }
+        }
+      })
+      .then(res => {
         let tmp: any = {};
-        tmp.data = res[0];
+        tmp.data = res;
         tmp.query = queryConfig;
         tmp.query.pagination.total = res[1][0].total;
         return tmp;
-      }).then(res => {
-        res.data = res.data.map((item: any) => {
-          return Object.assign({}, { value: item.value }, item._id); // unnest by _id field
-        });
-        return res;
-      }).then(res => {
+      })
+      .then(res => {
         if (queryConfig.inflationAdjusted == "true") {
           res.data = _adjustForInflation(res.data);
         }
