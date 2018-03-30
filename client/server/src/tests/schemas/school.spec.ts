@@ -175,15 +175,16 @@ describe('School Schema', function() {
         sort: '-2003',
         pagination: {
           perPage: 10,
-          page: 2
+          page: 2,
+          total: 61
         },
         variables: ["in_state_tuition"]
       }
       SchoolSchema.schema.statics.fetchAggregate(queryFilters)
         .then((res: any) => {
-          expect(res.query).to.equal(queryFilters);
+          expect(queryFilters.pagination.total).to.exist;
           expect(res).to.be.an('object');
-          expect(res.data.length == 10);
+          expect(res.data.length).to.equal(10);
           res.data.forEach((datum: any, i: number) => {
             if (i < res.data.length - 1) {
               expect(datum.data.find((item: any) => item.fiscal_year == "2003").value).to.be.greaterThan(res.data[i + 1].data.find((item: any) => item.fiscal_year === "2003").value);

@@ -127,9 +127,8 @@ SchoolSchema.schema.statics = {
   search: (name: string): Promise<intSchoolSchema[]> => SchoolSchema.find({ instnm: { $regex: `${name}+.`, $options: 'is' } }).limit(25).select('-data').exec(),
   //todo: abstract this logic into query builder as it becomes necessary
   fetchAggregate: (queryConfig: intVariableAggQueryConfig): Q.Promise<intSchoolVarAggExport> => {
-
-    const start = queryConfig.pagination.total ? queryConfig.pagination.page * queryConfig.pagination.perPage : 0,
-      stop = start ? start + (queryConfig.pagination.perPage * queryConfig.pagination.page) : queryConfig.pagination.perPage;
+    const start = (+queryConfig.pagination.page * +queryConfig.pagination.perPage) - +queryConfig.pagination.perPage,
+      stop = +queryConfig.pagination.perPage * +queryConfig.pagination.page;
 
     let aggArgs: any[] = [];
 
@@ -189,34 +188,23 @@ SchoolSchema.schema.statics = {
             yearSort = _.toNumber(sortStr) ? true : false,
             sortFunc: any;
           if (!yearSort) {
-            if (res[0] && _.toNumber(res[0]._id)) {
+            if (res[0].length > 0 && _.toNumber(res[0]._id)) {
               res[0].forEach((datum: any) => +datum._id);
             }
-            sortFunc = (a: intAggDataResult, b: intAggDataResult) => {
-              if (dir === "desc") {
-                return <any>a._id > b._id ? -1 : 1;
-              } else {
-                return <any>a._id < b._id ? -1 : 1;
-              }
-            }
+            sortFunc = (a: intAggDataResult) => a._id;
           } else {
-            sortFunc = (a: intAggDataResult, b: intAggDataResult) => {
-              if (dir === "desc") {
-                //todo: these are REALLY slow, and don't work
-                  //solution:use _.sortBy or d3 functions. Hmmm. Likely one of those two is best.
-                return (a.data.find((item: any) => item.fiscal_year === field) ? a.data.find((item: any) => item.fiscal_year === field).value : -1) > (b.data.find((item: any) => item.year === field) ? b.data.find((item: any) => item.fiscal_year === field).value : -1) ? -1 : 1;
-              } else return (a.data.find((item: any) => item.fiscal_year === field) ? a.data.find((item: any) => item.fiscal_year === field).value : -1) < (b.data.find((item: any) => item.year === field) ? b.data.find((item: any) => item.fiscal_year === field).value : -1) ? -1 : 1;
-            }
+            sortFunc = (a: intAggDataResult) => a.data.find((item: any) => item.fiscal_year == field) ? a.data.find((item: any) => item.fiscal_year == field).value : -1;
           }
-          data.sort(sortFunc);
+          data = _.sortBy(data, sortFunc);
+          if (dir === "desc") data.reverse();
           return data;
         }
+        res[0] = res[0].slice(start, stop);
         res[0] = res[0].map((datum: any) => {
           datum[queryConfig.groupBy.variable] = datum._id
           delete datum._id;
           return datum;
         });
-        res[0] = res[0].slice(start, stop);
         return res;
       })
       .then(res => {
