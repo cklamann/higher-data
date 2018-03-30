@@ -5,7 +5,12 @@ import * as Q from 'q';
 
 export let ObjectId = Schema.Types.ObjectId;
 
-export interface intSchoolModel {
+export interface intBaseSchoolModel {
+  data: intSchoolDataModel[];
+  [key: string]: any;
+}
+
+export interface intSchoolModel extends intBaseSchoolModel {
   unitid: string;
   instnm: string;
   state: string;
@@ -66,7 +71,7 @@ export interface intVarExport {
 
 export interface intSchoolVarAggExport extends intVarExport {
   query: intVariableQueryConfig;
-  data: intVarAggItem[];
+  data: intBaseSchoolModel[];
 }
 
 export interface intSchoolVarExport extends intVarExport {
@@ -74,13 +79,11 @@ export interface intSchoolVarExport extends intVarExport {
   data: intSchoolSchema[];
 }
 
-export interface intVarAggItem {
-  fiscal_year: string;
-  variable: string;
-  value: number;
-  sector?: string;
-  state?: string;
+interface intAggDataResult {
+  _id: string,
+  data: intSchoolDataModel[]
 }
+
 
 const schoolDataSchema = new Schema({
   fiscal_year: {
@@ -129,6 +132,8 @@ SchoolSchema.schema.statics = {
       stop = start ? start + (queryConfig.pagination.perPage * queryConfig.pagination.page) : queryConfig.pagination.perPage;
 
     let aggArgs: any[] = [];
+
+    // so empty matches[] are ok but not other empty args? why?
     let matches = queryConfig.matches ? queryConfig.matches : [{}];
 
     if (!_.isEmpty(matches[0])) {
@@ -177,33 +182,44 @@ SchoolSchema.schema.statics = {
     //todo: test
     return Q.all([mainQuery.exec(), countQuery.exec()])
       .then((res: any) => {
-        res[0] = res[0][0];//unnest
-        res[0] = _sort(res[0], queryConfig.sort);
-        
-        function _sort(data: any, sortStr: string) {
+        res[0] = _sort(res[0], queryConfig.sort, queryConfig.groupBy.variable);
+        function _sort(data: intAggDataResult[], sortStr: string, variable: string): intAggDataResult[] {
           let dir = sortStr.substr(0, 1) == "-" ? "desc" : "asc",
             field = dir === "desc" ? sortStr.slice(1) : sortStr,
             yearSort = _.toNumber(sortStr) ? true : false,
-            sortFunc: Function;
+            sortFunc: any;
           if (!yearSort) {
-            sortFunc = (a:any, b:any) => {
+            if (res[0] && _.toNumber(res[0]._id)) {
+              res[0].forEach((datum: any) => +datum._id);
+            }
+            sortFunc = (a: intAggDataResult, b: intAggDataResult) => {
               if (dir === "desc") {
-                return a[sortStr] > b ? -1 : 1;
-              } else return a[sortStr] < b ? -1 : 1;
+                return <any>a._id > b._id ? -1 : 1;
+              } else {
+                return <any>a._id < b._id ? -1 : 1;
+              }
             }
           } else {
-            sortFunc = (a:any, b:any) => {
+            sortFunc = (a: intAggDataResult, b: intAggDataResult) => {
               if (dir === "desc") {
-                return a.data.find( (item:any) => item.year === field).value > b ? -1 : 1;
-              } else return a.data.find( (item:any) => item.year === field).value < b ? -1 : 1;
+                //todo: these are REALLY slow, and don't work
+                  //solution:use _.sortBy or d3 functions. Hmmm. Likely one of those two is best.
+                return (a.data.find((item: any) => item.fiscal_year === field) ? a.data.find((item: any) => item.fiscal_year === field).value : -1) > (b.data.find((item: any) => item.year === field) ? b.data.find((item: any) => item.fiscal_year === field).value : -1) ? -1 : 1;
+              } else return (a.data.find((item: any) => item.fiscal_year === field) ? a.data.find((item: any) => item.fiscal_year === field).value : -1) < (b.data.find((item: any) => item.year === field) ? b.data.find((item: any) => item.fiscal_year === field).value : -1) ? -1 : 1;
             }
           }
-          return data.data.sort(sortFunc);
+          data.sort(sortFunc);
+          return data;
         }
+        res[0] = res[0].map((datum: any) => {
+          datum[queryConfig.groupBy.variable] = datum._id
+          delete datum._id;
+          return datum;
+        });
+        res[0] = res[0].slice(start, stop);
         return res;
       })
       .then(res => {
-        //testing
         let tmp: any = {};
         tmp.data = res[0];
         tmp.query = queryConfig;
@@ -215,7 +231,7 @@ SchoolSchema.schema.statics = {
           res.data = _adjustForInflation(res);
         }
         return res;
-      })
+      });
   },
   fetchWithVariables: (queryConfig: intVariableQueryConfig): intSchoolVarExport => {
     const start = queryConfig.pagination.total ? queryConfig.pagination.page * queryConfig.pagination.perPage : 0,

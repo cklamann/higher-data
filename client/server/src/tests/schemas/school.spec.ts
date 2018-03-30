@@ -59,7 +59,6 @@ describe('School Schema', function() {
       }
       SchoolSchema.schema.statics.fetchWithVariables(queryFilters)
         .then((res: intSchoolVarExport) => {
-          console.log(res.data[0]);
           //todo -- this test is bunk, need to find the specified school, not count on order, cuz it's bringing back a lot now...
           expect(res).to.be.an('object');
           expect(res.data[0].data.filter((datum: any) => datum.variable === "hispanic_p").length).to.be.greaterThan(0);
@@ -101,7 +100,7 @@ describe('School Schema', function() {
     it('should return sums by sector', function(done) {
       let queryFilters: intVariableAggQueryConfig = {
         matches: [{}],
-        sort: '-fiscal_year',
+        sort: 'sector',
         pagination: {
           perPage: 25,
           page: 1
@@ -112,17 +111,19 @@ describe('School Schema', function() {
           aggFuncName: "sector_total",
           variable: "sector"
         },
-        variables: ["hispanic_p", "asian_p"]
+        variables: ["federal_pell_grant_program_amt_disb", "in_state_tuition"]
       }
       SchoolSchema.schema.statics.fetchAggregate(queryFilters)
-        .then((res: any) => { //todo: update typing
+        .then((res: intSchoolVarAggExport) => {
           expect(res).to.be.an('object');
-          //test pagination
-          expect(res.data.length === 25);
+          expect(res.query).to.be.an('object');
+          expect(res.data).to.be.an('array');
+          expect(res.data[0].sector).to.be.a('string');
+          expect(res.data[0].data).to.be.an('array');
           //test sort
-          expect(res.data[0].fiscal_year).to.equal('2008');
-          //test a value...
-         // expect(res.data.find(obj => (obj.fiscal_year === '2008' && obj.sector === '40') && obj.variable === 'asian_p').value).to.equal(100);
+          expect(res.data[0].sector).to.equal('0');
+          expect(res.data[1].sector).to.equal('1');
+          // expect(res.data.find(obj => (obj.fiscal_year === '2008' && obj.sector === '40') && obj.variable === 'asian_p').value).to.equal(100);
           done();
         })
         .catch((err: Error) => done(err));
@@ -130,15 +131,16 @@ describe('School Schema', function() {
   });
 
   describe('fetch aggregate', function() {
-    it('should return sums by state for ZZ schools', function(done) {
+    it('should return correct sums by state for ZZ schools', function(done) {
       let queryFilters: intVariableAggQueryConfig = {
-        matches: [{ "state": "ZZ" }], groupBy: {
+        matches: [{ "state": "ZZ" }],
+        groupBy: {
           aggFunc: "sum",
           aggFuncName: "state_total",
           variable: "state"
         },
         inflationAdjusted: "false",
-        sort: 'fiscal_year',
+        sort: 'state',
         pagination: {
           perPage: 50,
           page: 1
@@ -147,12 +149,13 @@ describe('School Schema', function() {
       }
       SchoolSchema.schema.statics.fetchAggregate(queryFilters)
         .then((res: intSchoolVarAggExport) => {
+          //todo: rewrite tests to reflect new data types
           expect(res.query).to.equal(queryFilters);
           expect(res).to.be.an('object');
-          expect(res.data[0].fiscal_year).to.equal('2009');
-          expect(res.data.length == 2); //1 variable, 2 fiscal years 
-          expect(res.data.find(item => item.fiscal_year == "2008").value == 2);
-          expect(res.data.find(item => item.fiscal_year == "2009").value == 2);
+          expect(res.data.length == 1); //1 variable, 1 state 
+          //2 fiscal years
+          expect(res.data[0].data.find(item => item.fiscal_year == "2008").value == 2);
+          expect(res.data[0].data.find(item => item.fiscal_year == "2009").value == 2);
           done();
         })
         .catch((err: Error) => done(err));
@@ -160,30 +163,32 @@ describe('School Schema', function() {
   });
 
   describe('fetch aggregate', function() {
-    it('should return averages by state for ZZ schools', function(done) {
+    it('should return correct averages by state', function(done) {
       let queryFilters: intVariableAggQueryConfig = {
-        matches: [{ "state": "ZZ" }],
+        matches: [],
         groupBy: {
           aggFunc: "avg",
-          aggFuncName: "state_total",
+          aggFuncName: "state_average",
           variable: "state"
         },
         inflationAdjusted: "false",
-        sort: 'fiscal_year',
+        sort: '-2003',
         pagination: {
-          perPage: 50,
-          page: 1
+          perPage: 10,
+          page: 2
         },
         variables: ["in_state_tuition"]
       }
       SchoolSchema.schema.statics.fetchAggregate(queryFilters)
-        .then((res: intSchoolVarAggExport) => {
+        .then((res: any) => {
           expect(res.query).to.equal(queryFilters);
           expect(res).to.be.an('object');
-          expect(res.data[0].fiscal_year).to.equal('2009');
-          expect(res.data.length == 2); //1 variable, 2 fiscal years 
-          expect(res.data.find(item => item.fiscal_year == "2008").value == .5);
-          expect(res.data.find(item => item.fiscal_year == "2009").value == .5);
+          expect(res.data.length == 10);
+          res.data.forEach((datum: any, i: number) => {
+            if (i < res.data.length - 1) {
+              expect(datum.data.find((item: any) => item.fiscal_year == "2003").value).to.be.greaterThan(res.data[i + 1].data.find((item: any) => item.fiscal_year === "2003").value);
+            }
+          });
           done();
         })
         .catch((err: Error) => done(err));
