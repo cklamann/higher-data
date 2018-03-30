@@ -36,7 +36,7 @@ export interface intSchoolSchema extends Document, intSchoolModel {
 export interface intSchoolDataSchema extends Document, intSchoolDataModel { };
 
 export interface intVariableQueryConfig {
-  matches?: any[];
+  matches: object[];
   sort: string;
   pagination: intPaginationArgs;
   inflationAdjusted: string;
@@ -132,13 +132,10 @@ SchoolSchema.schema.statics = {
 
     let aggArgs: any[] = [];
 
-    // so empty matches[] are ok but not other empty args? why?
-    let matches = queryConfig.matches ? queryConfig.matches : [{}];
-
-    if (!_.isEmpty(matches[0])) {
+    if (!_.isEmpty(queryConfig.matches[0])) {
       aggArgs.push({
         "$match": {
-          "$and": matches
+          "$and": queryConfig.matches
         }
       });
     }
@@ -178,9 +175,8 @@ SchoolSchema.schema.statics = {
 
     let countQuery = _.cloneDeep(mainQuery).append([{ "$count": "total" }]);
 
-    //todo: test
     return Q.all([mainQuery.exec(), countQuery.exec()])
-      .then((res: any) => {
+      .then((res:any) => {
         res[0] = _sort(res[0], queryConfig.sort, queryConfig.groupBy.variable);
         function _sort(data: intAggDataResult[], sortStr: string, variable: string): intAggDataResult[] {
           let dir = sortStr.substr(0, 1) == "-" ? "desc" : "asc",
