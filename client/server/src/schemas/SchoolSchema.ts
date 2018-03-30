@@ -127,8 +127,8 @@ SchoolSchema.schema.statics = {
   search: (name: string): Promise<intSchoolSchema[]> => SchoolSchema.find({ instnm: { $regex: `${name}+.`, $options: 'is' } }).limit(25).select('-data').exec(),
   //todo: abstract this logic into query builder as it becomes necessary
   fetchAggregate: (queryConfig: intVariableAggQueryConfig): Q.Promise<intSchoolVarAggExport> => {
-    const start = (+queryConfig.pagination.page * +queryConfig.pagination.perPage) - +queryConfig.pagination.perPage,
-      stop = +queryConfig.pagination.perPage * +queryConfig.pagination.page;
+    const start = (queryConfig.pagination.page * queryConfig.pagination.perPage) - queryConfig.pagination.perPage,
+      stop = queryConfig.pagination.perPage * queryConfig.pagination.page;
 
     let aggArgs: any[] = [];
 
@@ -222,8 +222,8 @@ SchoolSchema.schema.statics = {
       });
   },
   fetchWithVariables: (queryConfig: intVariableQueryConfig): intSchoolVarExport => {
-    const start = queryConfig.pagination.total ? queryConfig.pagination.page * queryConfig.pagination.perPage : 0,
-      stop = start ? start + (queryConfig.pagination.perPage * queryConfig.pagination.page) : queryConfig.pagination.perPage,
+    const start = (queryConfig.pagination.page * queryConfig.pagination.perPage) - queryConfig.pagination.perPage,
+      stop = queryConfig.pagination.perPage * queryConfig.pagination.page, 
       matches = queryConfig.matches ? queryConfig.matches : [{}],
       aggArgs = [];
 

@@ -152,7 +152,7 @@ describe('School Schema', function() {
           //todo: rewrite tests to reflect new data types
           expect(res.query).to.equal(queryFilters);
           expect(res).to.be.an('object');
-          expect(res.data.length == 1); //1 variable, 1 state 
+          expect(res.data.length).to.equal(1); //1 variable, 1 state 
           //2 fiscal years
           expect(res.data[0].data.find(item => item.fiscal_year == "2008").value == 2);
           expect(res.data[0].data.find(item => item.fiscal_year == "2009").value == 2);
