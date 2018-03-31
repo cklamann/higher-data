@@ -1,17 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { trigger, state, style, animate, transition } from '@angular/animations';
 import { MatPaginator, MatSort, MatTableDataSource, PageEvent } from '@angular/material';
-import { intSchoolVarExport, intVariableQueryConfig, intVarExport, intVariableAggQueryConfig, intVarAggItem } from '../../../../../server/src/schemas/SchoolSchema';
+import { intSchoolVarExport, intVariableQueryConfig, intVarExport, intVariableAggQueryConfig } from '../../../../../server/src/schemas/SchoolSchema';
 import { RestService } from '../../../services/rest/rest.service';
 import { Schools } from '../../../models/Schools';
 import { Observable } from 'rxjs';
 import { MatToolbar, MatToolbarRow } from '@angular/material/toolbar';
 import { FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
 import { UtilService } from '../../../services/util/util';
-import { VariableDataSource, intOutputData } from '../../../services/variableDataSource/variableDataSource';
-import { states } from '../../../services/data/states';
-import { sectors } from '../../../services/data/sectors';
-
+import { VariableDataSource, intVarDataSourceExport } from '../../../services/variableDataSource/variableDataSource';
 import * as _ from 'lodash';
 import 'rxjs/add/operator/map';
 
@@ -40,11 +37,9 @@ export class TablePageComponent implements OnInit {
 
 	groupByForm: FormGroup;
 	isAggregateForm: FormGroup;
-	matTableDataSource = new MatTableDataSource<intOutputData>();
+	matTableDataSource = new MatTableDataSource<intVarDataSourceExport>();
 	queryParams: intVariableQueryConfig | intVariableAggQueryConfig;
-	sectors = sectors;
 	showTable = false;
-	states = states;
 	tableOptionsForm: FormGroup;
 	visibleColumns: string[] = [];
 	private _columns: string[] = [];
@@ -61,7 +56,7 @@ export class TablePageComponent implements OnInit {
 		this._subscribeToForms();
 	}
 
-	_intializeForms() {
+	private _intializeForms() {
 		this.groupByForm = this.fb.group({
 			aggFunc: '',
 			aggFuncName: '',
@@ -85,7 +80,7 @@ export class TablePageComponent implements OnInit {
 		})
 	}
 
-	_subscribeToForms() {
+	private _subscribeToForms() {
 		this.isAggregateForm.controls['isAggregate'].valueChanges.subscribe((isAgg: boolean) => {
 			if (isAgg) {
 				this.groupByForm.controls['aggFunc'].setValidators([Validators.required])
@@ -168,9 +163,10 @@ export class TablePageComponent implements OnInit {
 			})
 			.debounceTime(500)
 			.subscribe(resp => {
-				console.log(resp);
-				if (!_.isEmpty(resp.export().data)) {
-					this.matTableDataSource.data = resp.export().data;
+				if (!_.isEmpty(resp.export.data)) {
+					let data = resp.export.data, //remember, there's also pagination and query on export object
+						formattedData = this._formatVariables(data);
+					this.matTableDataSource.data = formattedData;
 					this._columns = resp.getColumns();
 					this.setVisibleColumns();
 					this.showTable = true;
@@ -188,6 +184,18 @@ export class TablePageComponent implements OnInit {
 		for (let i = this._columnIndex; i <= numCols + this._columnIndex; i++) {
 			this.visibleColumns.push(this._columns[i]);
 		}
+	}
+
+	private _formatVariables(data: intVarDataSourceExport[]): intVarDataSourceExport[] {
+		if (this._variableType == "currency") {
+			return data.map( (item:intVarDataSourceExport) => {
+				return _.forIn(item, (v,k,obj) => {
+					if(_.toNumber(k) && _.toNumber(v)){
+						obj[k] = this.util.numberFormatter().format(v,"currency0"); 
+					}
+				});	
+			});
+		} else return data;
 	}
 
 }

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { intVarExport, intPaginationArgs } from '../../../../server/src/schemas/SchoolSchema';
+import { intVarExport, intPaginationArgs, intBaseSchoolModel } from '../../../../server/src/schemas/SchoolSchema';
 import { UtilService } from '../util/util';
 import * as _ from 'lodash';
 
@@ -13,23 +13,23 @@ interface inputData {
 };
 
 interface intermediateData {
-	fiscal_year: string,
-	value: string,
-	variable?: string,
-	instnm?: string
+	fiscal_year: string;
+	value: string;
+	variable?: string;
+	instnm?: string;
 	sector?: string;
 	state?: string;
 }
 
-export interface intOutputData {
-	[key: string]: string;
-};
-
+export interface intVarDataSourceExport {
+	fiscal_year: string;
+	[key: string]: any
+}
 
 @Injectable()
 export class VariableDataSource {
 
-	data: intOutputData[]
+	data: intVarDataSourceExport[]
 	pagination: intPaginationArgs;
 	sort: string;
 	util: UtilService;
@@ -40,7 +40,7 @@ export class VariableDataSource {
 		this.sort = _export.query.sort;
 	}
 
-	export() {
+	get export() {
 		return { data: this.data, pagination: this.pagination, sort: this.sort };
 	}
 
@@ -51,7 +51,7 @@ export class VariableDataSource {
 		return keys;
 	}
 
-	_transformExport(_export: intVarExport): intOutputData[] {
+	_transformExport(_export: intVarExport): intVarDataSourceExport[] {
 		//todo: replace with transformer
 		var data: intermediateData[][],
 			keyCol: string,
@@ -73,7 +73,7 @@ export class VariableDataSource {
 			keyMap = Object.keys(_.groupBy(_export.data[0].data, 'variable'))
 		}
 
-		let exportData: intOutputData[] = _.flatMap(data, datum => datum.reduce((a, b) => Object.assign(a, { [b.fiscal_year]: b.value }), {}));
+		let exportData = <intVarDataSourceExport[]>_.flatMap(data, datum => datum.reduce((a, b) => Object.assign(a, { [b.fiscal_year]: b.value }), {}));
 
 		exportData.forEach((datum, i) => {
 			datum[keyCol] = keyMap[i];

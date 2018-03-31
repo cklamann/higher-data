@@ -23,7 +23,7 @@ export class VariableDefinerComponent implements OnInit {
 		widthRatio: .75
 	}
 
-	//todo: add Friendly Name, Category, and better Type field (that corresponds to chartVariable type)	
+	//todo: add Friendly Name, Category, and better Type field (that corresponds to formatters)	
 	//store Categories in db, select from dropdown
 
 	constructor(private fb: FormBuilder,
