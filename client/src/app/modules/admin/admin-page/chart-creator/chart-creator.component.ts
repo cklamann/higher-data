@@ -48,6 +48,7 @@ export class ChartCreatorComponent implements OnInit {
 	private mockCategories() {
 		return ['Enrollment', 'Finance', 'Teaching'];
 	}
+	
 	private getValueTypes() {
 		const formatters = this.util.numberFormatter().getFormats().map(formatter => formatter.name);
 		return _.values(formatters);

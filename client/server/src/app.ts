@@ -17,6 +17,7 @@ const users = require('./routes/users');
 const schools = require('./routes/schools');
 const variables = require('./routes/variables');
 const charts = require('./routes/charts');
+const categories = require('./routes/categories');
 
 mongoose.set('debug', true);
 
@@ -56,6 +57,7 @@ app.use('/api/users', users);
 app.use('/api/schools', schools);
 app.use('/api/variables', variables);
 app.use('/api/charts', charts);
+app.use('/api/categories', categories);
 
 app.use(function(req, res, next) {
   if (req.path.match(/\/api\/.+/)) {

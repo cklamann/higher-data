@@ -126,6 +126,7 @@ SchoolSchema.schema.statics = {
   getVariableList: (): Promise<string[]> => SchoolSchema.distinct("data.variable").exec(),
   search: (name: string): Promise<intSchoolSchema[]> => SchoolSchema.find({ instnm: { $regex: `${name}+.`, $options: 'is' } }).limit(25).select('-data').exec(),
   //todo: abstract this logic into query builder as it becomes necessary
+  //slow, might need to cache results, but test at work first...
   fetchAggregate: (queryConfig: intVariableAggQueryConfig): Q.Promise<intSchoolVarAggExport> => {
     const start = (queryConfig.pagination.page * queryConfig.pagination.perPage) - queryConfig.pagination.perPage,
       stop = queryConfig.pagination.perPage * queryConfig.pagination.page;
@@ -195,7 +196,7 @@ SchoolSchema.schema.statics = {
           if (dir === "desc") data.reverse();
           return data;
         }
-        res[0] = res[0].slice(start, stop);
+        res[0] = res[0].slice(start, stop); //paginate
         res[0] = res[0].map((datum: any) => {
           datum[queryConfig.groupBy.variable] = datum._id
           delete datum._id;

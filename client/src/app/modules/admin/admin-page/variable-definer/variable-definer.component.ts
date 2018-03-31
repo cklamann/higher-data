@@ -3,16 +3,18 @@ import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { VariableDefinitions } from '../../../../models/VariableDefinitions'
 import { intVariableDefinitionModel, intVariableDefinitionSchema } from '../../../../../../server/src/schemas/VariableDefinitionSchema';
 import { Charts } from '../../../../models/Charts';
+import { Categories } from '../../../../models/Categories';
 import { VariableDefinitionSelectComponent } from '../../../shared/variable-definition-select/variable-definition-select.component';
 import { ChartService } from '../../../chart/ChartService.service';
 import { intSchoolModel } from '../../../../../../server/src/schemas/SchoolSchema';
 import { intChartExport } from '../../../../../../server/src/models/ChartExporter';
+import { UtilService } from '../../../../services/util/util';
 import * as _ from 'lodash';
 
 @Component({
 	selector: 'app-variable-definer',
 	templateUrl: './variable-definer.component.html',
-	styleUrls: ['./variable-definer.component.scss']
+	styleUrls: ['./variable-definer.component.scss'],
 })
 export class VariableDefinerComponent implements OnInit {
 
@@ -22,14 +24,16 @@ export class VariableDefinerComponent implements OnInit {
 	chartOverrides: object = {
 		widthRatio: .75
 	}
-
-	//todo: add Friendly Name, Category, and better Type field (that corresponds to formatters)	
-	//store Categories in db, select from dropdown
+	valueTypes: string[] = this._getValueTypes();
+	categories: string[];
 
 	constructor(private fb: FormBuilder,
 		private variableDefinitions: VariableDefinitions,
-		private ChartService: ChartService) {
-
+		private ChartService: ChartService,
+		private util: UtilService,
+		private cats: Categories) {
+		this.cats.fetch('variable')
+			.subscribe(res => this.categories = res.categories);
 	}
 
 	ngOnInit() {
@@ -40,7 +44,9 @@ export class VariableDefinerComponent implements OnInit {
 		this.variableDefinitionForm = this.fb.group({
 			_id: '',
 			variable: ['', [Validators.minLength(3), Validators.required]],
-			type: ['', [Validators.minLength(3), Validators.required]],
+			valueType: ['', [Validators.minLength(3), Validators.required]],
+			friendlyName: ['', [Validators.minLength(3), Validators.required]],
+			category: ['', [Validators.minLength(3), Validators.required]],
 			sources: this.fb.array([
 				this.initSource()
 			])
@@ -74,15 +80,17 @@ export class VariableDefinerComponent implements OnInit {
 			.subscribe(res => {
 				this.variableDefinitionForm.patchValue({
 					_id: res._id
-				})
-			})
+				});
+			});
 	}
 
 	onVariableSelect(variable: string): void {
 		this.variableDefinitionForm.patchValue({
 			variable: variable,
 			_id: '',
-			type: ''
+			valueType: '',
+			friendlyName: '',
+			category: '',
 		});
 		const control = <FormArray>this.variableDefinitionForm.controls['sources'],
 			limit = _.clone(control.length);
@@ -92,8 +100,8 @@ export class VariableDefinerComponent implements OnInit {
 		this.variableDefinitions.fetchByName(variable)
 			.subscribe(varDef => {
 				if (varDef.length > 0) {
-					varDef[0].sources.forEach(variable => this.addSource()); 
-					this.variableDefinitionForm.setValue(varDef[0]); 
+					varDef[0].sources.forEach(variable => this.addSource());
+					this.variableDefinitionForm.setValue(varDef[0]);
 				}
 			})
 		this._loadChart();
@@ -111,5 +119,10 @@ export class VariableDefinerComponent implements OnInit {
 			.subscribe(res => {
 				this.chartData = res;
 			});
+	}
+
+	private _getValueTypes() {
+		const formatters = this.util.numberFormatter().getFormats().map(formatter => formatter.name);
+		return _.values(formatters);
 	}
 }

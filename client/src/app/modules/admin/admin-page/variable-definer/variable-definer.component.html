@@ -16,7 +16,19 @@
 				            <input matInput formControlName="variable" type="text" placeholder = "Variable"/>
 				        </mat-form-field>
 				        <mat-form-field fxFlex = "100" fxFlex.gt-sm="40">
-				            <input matInput formControlName="type" type="text" placeholder="Variable Type">
+				            <mat-select class="form-control" formControlName="valueType" placeholder = "Value Type">
+          						<mat-option *ngFor="let type of valueTypes" [value]="type">{{type}}
+          						</mat-option>
+      						</mat-select>
+				        </mat-form-field>
+				        <mat-form-field fxFlex = "100" fxFlex.gt-sm="40">
+				            <input matInput formControlName="friendlyName" type="text" placeholder = "Friendly Name"/>
+				        </mat-form-field>
+				        <mat-form-field fxFlex = "100" fxFlex.gt-sm="40">
+				            <mat-select class="form-control" formControlName="category" placeholder = "Category">
+          						<mat-option *ngFor="let category of categories" [value]="category">{{category}}
+          						</mat-option>
+      						</mat-select>
 				        </mat-form-field>
 				    </div>  
 				    <div fxLayout="row wrap" formArrayName="sources" fxFlex="100">

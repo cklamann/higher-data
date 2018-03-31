@@ -3,7 +3,9 @@ import { SchoolSchema } from './SchoolSchema';
 
 export interface intVariableDefinitionModel {
   variable: string;
-  type: string;
+  valueType: string;
+  friendlyName:string;
+  category:string;
   sources: Array<intVariableSourceModel>;
 };
 
@@ -35,7 +37,11 @@ const sourcesSchema = new Schema({
 }, { _id: false });
 
 const schema: Schema = new Schema({
-  type: String,
+  valueType: String,
+  friendlyName: {
+    type: String,
+    unique: true
+  },
   variable: {
     type: String,
     unique: true

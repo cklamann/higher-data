@@ -29,11 +29,15 @@ export class VariableDefinitions {
 
 export class VariableDefinition implements intVariableDefinitionModel {
 	variable: string;
-	type: string;
+	valueType: string;
+	category: string;
+	friendlyName: string;
 	sources: Array<intVariableSourceModel>;
 	constructor(obj: intVariableDefinitionModel) {
 		this.variable = obj.variable;
-		this.type = obj.type;
+		this.valueType = obj.valueType;
 		this.sources = obj.sources;
+		this.category = obj.category;
+		this.friendlyName = obj.friendlyName;
 	}
 }

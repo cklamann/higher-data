@@ -89,12 +89,10 @@ export class TablePageComponent implements OnInit {
 				this.groupByForm.controls['aggFunc'].setValidators([Validators.nullValidator])
 				this.groupByForm.controls['variable'].setValidators([Validators.nullValidator])
 			}
+			this.query();
 		});
 		this.tableOptionsForm.valueChanges.subscribe(form => {
-			//have to double check with variables b/c custom validator not bubbling up working....
-			if (this.tableOptionsForm.valid && form.variables.length > 0) {
-				this.query();
-			}
+			this.query();
 		})
 	}
 
@@ -107,7 +105,7 @@ export class TablePageComponent implements OnInit {
 	}
 
 	getTableIsCurrency() {
-		return this._variableType == "currency";
+		return /currency/.test(this._variableType);
 	}
 
 	toggleTableOptionsVisible() {
@@ -115,7 +113,7 @@ export class TablePageComponent implements OnInit {
 	}
 
 	setVariable($event) {
-		this._variableType = $event.type;
+		this._variableType = $event.valueType;
 		let control = <FormArray>this.tableOptionsForm['controls'].variables;
 		control.removeAt(0);
 		control.push(this.fb.group({
@@ -154,24 +152,26 @@ export class TablePageComponent implements OnInit {
 	}
 
 	query() {
-		let input = this.tableOptionsForm.value;
-		input.variables = input.variables.map(variable => variable.variable);
-		const query = this.getIsAggregate() ? this.schools.aggregateQuery(this.tableOptionsForm.value) : this.schools.fetchWithVariables(this.tableOptionsForm.value);
-		query
-			.map((res: intVarExport) => {
-				return new VariableDataSource(res);
-			})
-			.debounceTime(500)
-			.subscribe(resp => {
-				if (!_.isEmpty(resp.export.data)) {
-					let data = resp.export.data, //remember, there's also pagination and query on export object
-						formattedData = this._formatVariables(data);
-					this.matTableDataSource.data = formattedData;
-					this._columns = resp.getColumns();
-					this.setVisibleColumns();
-					this.showTable = true;
-				}
-			});
+		if (!this.tableOptionsForm.valid || this.tableOptionsForm['controls'].variables.value.length > 0) {
+			let input = this.tableOptionsForm.value;
+			input.variables = input.variables.map(variable => variable.variable);
+			const query = this.getIsAggregate() ? this.schools.aggregateQuery(this.tableOptionsForm.value) : this.schools.fetchWithVariables(this.tableOptionsForm.value);
+			query
+				.map((res: intVarExport) => {
+					return new VariableDataSource(res);
+				})
+				.debounceTime(500)
+				.subscribe(resp => {
+					if (!_.isEmpty(resp.export.data)) {
+						let data = resp.export.data, //remember, there's also pagination and query on export object
+							formattedData = this._formatVariables(data);
+						this.matTableDataSource.data = formattedData;
+						this._columns = resp.getColumns();
+						this.setVisibleColumns();
+						this.showTable = true;
+					}
+				});
+		}
 	}
 
 	setVisibleColumns() {
@@ -187,13 +187,13 @@ export class TablePageComponent implements OnInit {
 	}
 
 	private _formatVariables(data: intVarDataSourceExport[]): intVarDataSourceExport[] {
-		if (this._variableType == "currency") {
-			return data.map( (item:intVarDataSourceExport) => {
-				return _.forIn(item, (v,k,obj) => {
-					if(_.toNumber(k) && _.toNumber(v)){
-						obj[k] = this.util.numberFormatter().format(v,"currency0"); 
+		if (this._variableType) {
+			return data.map((item: intVarDataSourceExport) => {
+				return _.forIn(item, (v, k, obj) => {
+					if (_.toNumber(k) && _.toNumber(v)) {
+						obj[k] = this.util.numberFormatter().format(v, this._variableType);
 					}
-				});	
+				});
 			});
 		} else return data;
 	}
