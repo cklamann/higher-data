@@ -56,27 +56,21 @@ export class VariableDataSource {
 		var data: intermediateData[][],
 			keyCol: string,
 			keyMap: string[] = []; // array of unique values
-		if (_export.data[0].data) { //if it's an intSchoolModel //todo:type check
-			keyCol = _export.data.length > 1 ? 'instnm' : 'variable';
-			//many schools, one variable
-			if (keyCol === 'instnm') {
-				data = _export.data.map(datum => datum.data);
-				data = this._fillInMissingYears(data, _export.query.variables[0]),
-					keyMap = _export.data.map(item => item.instnm);
-			} else {
-				//one school, one or more variables
-				data = _.values(_.groupBy(_export.data[0].data, 'variable'));
-				keyMap = Object.keys(_.groupBy(_export.data[0].data, 'variable'))
-			}
+		keyCol = _.keys(_export.data[0]).length === 2 ?
+			_.keys(_export.data[0]).find(datum => datum != "data") :
+			_export.data.length > 1 ? 'instnm' :
+				'variable';
+
+		//many schools, one variable (agg included)
+		if (keyCol !== 'variable') {
+			data = _export.data.map(datum => datum.data);
+			//todo: always fill in all the years
+			data = this._fillInMissingYears(data, _export.query.variables[0]);
+			keyMap = _export.data.map(item => item[keyCol]);
 		} else {
-			//aggregate
-			keyCol = _export.data.filter(item => !['fiscal_year','variable','value'].includes(item))[0];
-			_.groupBy(_export.data,"sector");//
-			//this is all sorts of fucked up, 
-			//in reality, need to return aggregate data as sector.data, where data contains all the data for that sector,
-			//and each one of them will be a row. That's the only way to make this make sense, and that means rewriting
-			// the aggregate query, yay.
-			
+			//one school, one or more variables
+			data = _.values(_.groupBy(_export.data[0].data, 'variable'));
+			keyMap = Object.keys(_.groupBy(_export.data[0].data, 'variable'))
 		}
 
 		let exportData: intOutputData[] = _.flatMap(data, datum => datum.reduce((a, b) => Object.assign(a, { [b.fiscal_year]: b.value }), {}));
@@ -88,9 +82,8 @@ export class VariableDataSource {
 		return exportData;
 	}
 
-	//no longer working....
 	_fillInMissingYears(data: intermediateData[][], variable: string) {
-		const yearRange = _.flatMap(_.flatMap(data, item => _.flatMap(item => item.fiscal_year))),
+		const yearRange = _.flatMap(data, item => item).map(item => item.fiscal_year),
 			uniqYears = _.uniq(yearRange);
 
 		data.forEach(datum => {
@@ -102,7 +95,7 @@ export class VariableDataSource {
 		})
 
 		function _getMissingYears(datum) {
-			let years = _.flatMap(datum.data, item => item.fiscal_year);
+			let years = datum.map(item => item.fiscal_year);
 			return _.difference(uniqYears, years);
 		}
 
