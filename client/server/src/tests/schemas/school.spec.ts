@@ -49,6 +49,7 @@ describe('School Schema', function() {
   describe('fetch all schools with specified variables', function() {
     it('should return schools with variables', function(done) {
       let queryFilters: intVariableQueryConfig = {
+        matches: [{}],
         sort: 'unitid',
         pagination: {
           perPage: 500,

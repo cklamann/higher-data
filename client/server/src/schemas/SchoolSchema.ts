@@ -133,13 +133,11 @@ SchoolSchema.schema.statics = {
 
     let aggArgs: any[] = [];
 
-    if (!_.isEmpty(queryConfig.matches[0])) {
-      aggArgs.push({
-        "$match": {
-          "$and": queryConfig.matches
-        }
-      });
-    }
+    aggArgs.push({
+      "$match": {
+        "$and": queryConfig.matches.concat([{"data": {"$elemMatch": {"variable": {"$in": queryConfig.variables }} }}])
+      }
+    });
 
     aggArgs.push({
       "$project": {
@@ -177,7 +175,7 @@ SchoolSchema.schema.statics = {
     let countQuery = _.cloneDeep(mainQuery).append([{ "$count": "total" }]);
 
     return Q.all([mainQuery.exec(), countQuery.exec()])
-      .then((res:any) => {
+      .then((res: any) => {
         res[0] = _sort(res[0], queryConfig.sort, queryConfig.groupBy.variable);
         function _sort(data: intAggDataResult[], sortStr: string, variable: string): intAggDataResult[] {
           let dir = sortStr.substr(0, 1) == "-" ? "desc" : "asc",
@@ -220,7 +218,7 @@ SchoolSchema.schema.statics = {
   },
   fetchWithVariables: (queryConfig: intVariableQueryConfig): intSchoolVarExport => {
     const start = (queryConfig.pagination.page * queryConfig.pagination.perPage) - queryConfig.pagination.perPage,
-      stop = queryConfig.pagination.perPage * queryConfig.pagination.page, 
+      stop = queryConfig.pagination.perPage * queryConfig.pagination.page,
       matches = queryConfig.matches ? queryConfig.matches : [{}],
       aggArgs = [];
 

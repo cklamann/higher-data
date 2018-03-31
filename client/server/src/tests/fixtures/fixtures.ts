@@ -39,7 +39,9 @@ export const zzSchool2: intSchoolModel = {"unitid":"666612","instnm":"Norfostern
 
 export const testVar1Def: intVariableDefinitionModel = {
 	variable: "test_var_1",
-	type: "currency",
+	valueType: "currency",
+	friendlyName: "",
+	category: "",
 	sources: [{
 		startYear: "2015",
 		endYear: "2017",
@@ -53,8 +55,9 @@ export const testVar1Def: intVariableDefinitionModel = {
 
 export const testVar2Def: intVariableDefinitionModel = {
 	variable: "test_var_2",
-	type: "currency",
-	sources: [{
+valueType: "currency",
+	friendlyName: "",
+	category: "",	sources: [{
 		startYear: "2015",
 		endYear: "2017",
 		source: "IPEDS",
