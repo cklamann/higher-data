@@ -60,7 +60,6 @@ export interface intPaginationArgs {
 
 export interface intGroupByArgs {
   aggFunc: string;
-  aggFuncName: string;
   variable: string;
 }
 
@@ -135,7 +134,7 @@ SchoolSchema.schema.statics = {
 
     aggArgs.push({
       "$match": {
-        "$and": queryConfig.matches.concat([{"data": {"$elemMatch": {"variable": {"$in": queryConfig.variables }} }}])
+        "$and": queryConfig.matches.concat([{ "data": { "$elemMatch": { "variable": { "$in": queryConfig.variables } } } }])
       }
     });
 
@@ -211,9 +210,11 @@ SchoolSchema.schema.statics = {
       })
       .then(res => {
         if (queryConfig.inflationAdjusted == "true") {
-          res.data = _adjustForInflation(res);
-        }
-        return res;
+          return getInflationAdjuster().then(adjuster => {
+            res.data.forEach((datum: any) => datum.data.forEach((item: any) => item.value = adjuster(item.fiscal_year, item.value)))
+            return res
+          });
+        } else return res;
       });
   },
   fetchWithVariables: (queryConfig: intVariableQueryConfig): intSchoolVarExport => {
@@ -256,11 +257,14 @@ SchoolSchema.schema.statics = {
       .sort(queryConfig.sort)
       .exec()
       .then((res: intSchoolModel[]) => {
+        let ret = { query: queryConfig, data: res }
         if (queryConfig.inflationAdjusted == "true") {
-          res.forEach(datum => _adjustForInflation(datum.data));
-        }
-        return { query: queryConfig, data: res };
-      })
+          return getInflationAdjuster().then(adjuster => {
+            ret.data.forEach(datum => datum.data.forEach(item => item.value = adjuster(item.fiscal_year, item.value)))
+            return ret
+          });
+        } else return ret;
+      });
   },
   fetch: (arg: string): Promise<intSchoolSchema> => {
     let promise;
@@ -270,10 +274,3 @@ SchoolSchema.schema.statics = {
     return promise;
   }
 };
-
-function _adjustForInflation(data: intSchoolDataModel[]) {
-  return getInflationAdjuster().then(adjuster => {
-    data.forEach(datum => datum.value = adjuster(datum.fiscal_year, datum.value));
-    return data;
-  });
-}

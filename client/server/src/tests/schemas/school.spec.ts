@@ -140,7 +140,7 @@ describe('School Schema', function() {
           aggFuncName: "state_total",
           variable: "state"
         },
-        inflationAdjusted: "false",
+        inflationAdjusted: "true",
         sort: 'state',
         pagination: {
           perPage: 50,
@@ -155,8 +155,8 @@ describe('School Schema', function() {
           expect(res).to.be.an('object');
           expect(res.data.length).to.equal(1); //1 variable, 1 state 
           //2 fiscal years
-          expect(res.data[0].data.find(item => item.fiscal_year == "2008").value == 2);
-          expect(res.data[0].data.find(item => item.fiscal_year == "2009").value == 2);
+          expect(res.data[0].data.find(item => item.fiscal_year == "2008").value > 2); //2 without inflation
+          expect(res.data[0].data.find(item => item.fiscal_year == "2009").value > 2);
           done();
         })
         .catch((err: Error) => done(err));

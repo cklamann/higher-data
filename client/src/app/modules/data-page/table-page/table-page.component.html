@@ -78,10 +78,10 @@
 			<div *ngIf="getTableIsCurrency()" fxFlex="100" fxLayout = "row" fxLayoutAlign="start">
 				<label class="p-r-5">Inflation Adjusted</label>
 				<mat-radio-group formControlName="inflationAdjusted">
-					<mat-radio-button [value] = true class = "p-r-5">
+					<mat-radio-button [value] = "'true'" class = "p-r-5">
 						Adjusted
 					</mat-radio-button>
-					<mat-radio-button [value] = false>
+					<mat-radio-button [value] = "'false'">
 						Original
 					</mat-radio-button>
 				</mat-radio-group>

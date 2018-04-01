@@ -51,6 +51,8 @@ export class TablePageComponent implements OnInit {
 		//https://github.com/angular/material2/blob/master/src/demo-app/table/table-demo.ts#L71
 	}
 
+	//todo, add status bar, dim and lock screen while loading
+
 	ngOnInit() {
 		this._intializeForms();
 		this._subscribeToForms();
@@ -58,9 +60,8 @@ export class TablePageComponent implements OnInit {
 
 	private _intializeForms() {
 		this.groupByForm = this.fb.group({
-			aggFunc: '',
-			aggFuncName: '',
-			variable: '',
+			aggFunc: null,
+			variable: null,
 		});
 
 		this.tableOptionsForm = this.fb.group({
@@ -81,19 +82,23 @@ export class TablePageComponent implements OnInit {
 	}
 
 	private _subscribeToForms() {
-		this.isAggregateForm.controls['isAggregate'].valueChanges.subscribe((isAgg: boolean) => {
-			if (isAgg) {
-				this.groupByForm.controls['aggFunc'].setValidators([Validators.required])
-				this.groupByForm.controls['variable'].setValidators([Validators.required])
-			} else {
-				this.groupByForm.controls['aggFunc'].setValidators([Validators.nullValidator])
-				this.groupByForm.controls['variable'].setValidators([Validators.nullValidator])
-			}
+		this.tableOptionsForm.controls['variables'].setValidators([Validators.required]);
+
+		this.tableOptionsForm.valueChanges.subscribe(change => {
+
 			this.query();
 		});
-		this.tableOptionsForm.valueChanges.subscribe(form => {
-			this.query();
-		})
+
+		this.isAggregateForm.valueChanges.subscribe(change => {
+			if (change.isAggregate) {
+				this.tableOptionsForm.get('groupBy').get('aggFunc').setValidators(Validators.required);
+				this.tableOptionsForm.get('groupBy').get('variable').setValidators(Validators.required);
+				this.tableOptionsForm.get('groupBy').reset();
+			} else {
+				this.tableOptionsForm.get('groupBy').get('aggFunc').clearValidators();
+				this.tableOptionsForm.updateValueAndValidity();
+			}
+		});
 	}
 
 	getTableOptionsVisible() {
@@ -152,26 +157,25 @@ export class TablePageComponent implements OnInit {
 	}
 
 	query() {
-		if (!this.tableOptionsForm.valid || this.tableOptionsForm['controls'].variables.value.length > 0) {
-			let input = this.tableOptionsForm.value;
-			input.variables = input.variables.map(variable => variable.variable);
-			const query = this.getIsAggregate() ? this.schools.aggregateQuery(this.tableOptionsForm.value) : this.schools.fetchWithVariables(this.tableOptionsForm.value);
-			query
-				.map((res: intVarExport) => {
-					return new VariableDataSource(res);
-				})
-				.debounceTime(500)
-				.subscribe(resp => {
-					if (!_.isEmpty(resp.export.data)) {
-						let data = resp.export.data, //remember, there's also pagination and query on export object
-							formattedData = this._formatVariables(data);
-						this.matTableDataSource.data = formattedData;
-						this._columns = resp.getColumns();
-						this.setVisibleColumns();
-						this.showTable = true;
-					}
-				});
-		}
+		if (!this.tableOptionsForm.valid) return;
+		let input = this.tableOptionsForm.value;
+		input.variables = input.variables.map(variable => variable.variable);
+		const query = this.getIsAggregate() ? this.schools.aggregateQuery(this.tableOptionsForm.value) : this.schools.fetchWithVariables(this.tableOptionsForm.value);
+		query
+			.map((res: intVarExport) => {
+				return new VariableDataSource(res);
+			})
+			.debounceTime(500)
+			.subscribe(resp => {
+				if (!_.isEmpty(resp.export.data)) {
+					let data = resp.export.data, //remember, there's also pagination and query on export object
+						formattedData = this._formatVariables(data);
+					this.matTableDataSource.data = formattedData;
+					this._columns = resp.getColumns();
+					this.setVisibleColumns();
+					this.showTable = true;
+				}
+			}, err => console.log(err));
 	}
 
 	setVisibleColumns() {
