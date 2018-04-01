@@ -51,29 +51,6 @@
 						</div> 
 					</div>
 				</div>
-				<!--uh, this has nothing to do with aggs, it's matches, dumbass, and you don't need it-->
-				<!-- <div *ngIf="false" fxFlex = "100" *ngIf="getIsAggregate()" fxLayoutAlign="space-between center" class = "p-t-10" fxLayout="row wrap">
-					<div class = "agg-variable-container" fxFlex = "100" fxFlex.gt-xs= "45">	
-						<div *ngIf="getAggQueryIsState()" fxLayout="row wrap" fxFlex="100">
-							<label fxFlex="100">Select a State</label>
-							<mat-form-field fxFlex="100">
-								<mat-select placeholder = "State" [@aggTypeSelected]="active">
-									<mat-option *ngFor="let state of states" [value]="state.abbreviation">{{state.name}}
-									</mat-option>
-								</mat-select>
-							</mat-form-field>
-						</div>
-						<div *ngIf="getAggQueryIsSector()" fxLayout="row wrap" fxFlex="100">
-							<label fxFlex="100">Select a Sector</label>
-							<mat-form-field fxFlex="100">
-								<mat-select placeholder = "Sector" [@aggTypeSelected]="active">
-									<mat-option *ngFor="let sector of sectors" [value]="sector.number">{{sector.name}}
-									</mat-option>
-								</mat-select>
-							</mat-form-field>
-						</div>
-					</div>
-				</div> -->
 			</div><!--end agg options-->
 			<div *ngIf="getTableIsCurrency()" fxFlex="100" fxLayout = "row" fxLayoutAlign="start">
 				<label class="p-r-5">Inflation Adjusted</label>
@@ -95,10 +72,10 @@
 				<div fxFlex="100" *ngIf = "!showTable" class="center-text">
 					No datter
 				</div>
-				<div *ngIf="showTable" class="table-container mat-elevation-z8 center-text" fxFlex = 100 fxFlex.gt-sm = 75 fxLayoutAlign = "space-around start">
-					<mat-table [dataSource]="matTableDataSource" fxFlex=85 fxLayout="row wrap">
+				<div *ngIf="showTable" class="table-container mat-elevation-z8" fxFlex = 100 fxFlex.gt-sm = 75 fxLayoutAlign = "space-around start" fxLayout="row wrap">
+					<mat-table [dataSource]="matTableDataSource" fxFlex=85 fxLayout="row wrap" matSort matSortActive="false" matSortDirection="asc" #sortForDataSource="matSort">
 	  					<ng-container *ngFor="let column of visibleColumns" [matColumnDef]="column">
-	    					<mat-header-cell *matHeaderCellDef>{{ column }}</mat-header-cell>
+	    					<mat-header-cell mat-sort-header class = "center-text" *matHeaderCellDef>{{ column }}</mat-header-cell>
 	    					<mat-cell *matCellDef="let row">{{ row[column] }}</mat-cell>
 	  					</ng-container>
 	  					<mat-header-row *matHeaderRowDef="visibleColumns" fxFlex = 100></mat-header-row>
@@ -111,7 +88,10 @@
 						<button mat-icon-button [disabled]="!getRightArrowVisible()" (click) = "shiftVisibleColumnsRight()">
 							<i class="material-icons">chevron_right</i>
 						</button>
+						<span>More Years</span>
 					</div>
+					<mat-paginator fxFlex="100" #paginatorForDataSource [length]="getDataTotal()" [pageSizeOptions] = "[10, 25, 100]">
+  					</mat-paginator>
 				</div>
 			</div>
 		</div>

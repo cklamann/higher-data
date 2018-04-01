@@ -62,6 +62,7 @@ describe('School Schema', function() {
         .then((res: intSchoolVarExport) => {
           //todo -- this test is bunk, need to find the specified school, not count on order, cuz it's bringing back a lot now...
           expect(res).to.be.an('object');
+          expect(res.query.pagination.total).to.be.greaterThan(7000);
           expect(res.data[0].data.filter((datum: any) => datum.variable === "hispanic_p").length).to.be.greaterThan(0);
           expect(res.data[0].data.filter((datum: any) => datum.variable === "asian_p").length).to.be.greaterThan(0);
           expect(res.data[0].data.filter((datum: any) => datum.variable === "white_p").length).to.equal(0);
@@ -109,7 +110,6 @@ describe('School Schema', function() {
         inflationAdjusted: "false",
         groupBy: {
           aggFunc: "sum",
-          aggFuncName: "sector_total",
           variable: "sector"
         },
         variables: ["federal_pell_grant_program_amt_disb", "in_state_tuition"]
@@ -137,7 +137,6 @@ describe('School Schema', function() {
         matches: [{ "state": "ZZ" }],
         groupBy: {
           aggFunc: "sum",
-          aggFuncName: "state_total",
           variable: "state"
         },
         inflationAdjusted: "true",
@@ -150,8 +149,7 @@ describe('School Schema', function() {
       }
       SchoolSchema.schema.statics.fetchAggregate(queryFilters)
         .then((res: intSchoolVarAggExport) => {
-          //todo: rewrite tests to reflect new data types
-          expect(res.query).to.equal(queryFilters);
+          expect(res.query.pagination.total).to.equal(1);
           expect(res).to.be.an('object');
           expect(res.data.length).to.equal(1); //1 variable, 1 state 
           //2 fiscal years
@@ -169,7 +167,6 @@ describe('School Schema', function() {
         matches: [],
         groupBy: {
           aggFunc: "avg",
-          aggFuncName: "state_average",
           variable: "state"
         },
         inflationAdjusted: "false",

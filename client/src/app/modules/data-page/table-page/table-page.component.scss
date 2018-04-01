@@ -1,12 +1,11 @@
-.mat-column-instnm {
-    text-align: left;
-}
-.mat-column-variable {
-    text-align: left;
-}
-.mat-header-row {
-    position: sticky;
-    top: 75px;
-    background: white;
-    z-index: 9999;
+app-table-page { 
+    mat-header-cell:nth-child(1),mat-cell:nth-child(1){
+    	padding-right:20px; 
+    }
+    .mat-header-row {
+        position: sticky;
+        top: 75px;
+        background: white;
+        z-index: 9998;
+    }
 }

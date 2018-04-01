@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { trigger, state, style, animate, transition } from '@angular/animations';
 import { MatPaginator, MatSort, MatTableDataSource, PageEvent } from '@angular/material';
 import { intSchoolVarExport, intVariableQueryConfig, intVarExport, intVariableAggQueryConfig } from '../../../../../server/src/schemas/SchoolSchema';
@@ -35,6 +35,9 @@ import 'rxjs/add/operator/map';
 
 export class TablePageComponent implements OnInit {
 
+	@ViewChild('paginatorForDataSource') paginatorForDataSource: MatPaginator; //todo: observe these
+	@ViewChild('sortForDataSource') sortForDataSource: MatSort;
+
 	groupByForm: FormGroup;
 	isAggregateForm: FormGroup;
 	matTableDataSource = new MatTableDataSource<intVarDataSourceExport>();
@@ -44,11 +47,15 @@ export class TablePageComponent implements OnInit {
 	visibleColumns: string[] = [];
 	private _columns: string[] = [];
 	private _columnIndex: number = 0;
+	private _dataTotal: number = 0;
 	private _tableOptionsVisible: boolean = false;
 	private _variableType: string;
 	constructor(private schools: Schools, private fb: FormBuilder, private util: UtilService) {
-		//todo: configure datasource accessors here
-		//https://github.com/angular/material2/blob/master/src/demo-app/table/table-demo.ts#L71
+		this.matTableDataSource.sortingDataAccessor = (data: intVarDataSourceExport, property: string) => {
+			if (_.toNumber(property)) return property;
+			if (property === "instnm") return "instnm";
+			if (property === "variable") return "variable"; //todo replace with friendly names once there
+		};
 	}
 
 	//todo, add status bar, dim and lock screen while loading
@@ -96,9 +103,14 @@ export class TablePageComponent implements OnInit {
 				this.tableOptionsForm.get('groupBy').reset();
 			} else {
 				this.tableOptionsForm.get('groupBy').get('aggFunc').clearValidators();
+				this.tableOptionsForm.get('groupBy').get('variable').clearValidators();
 				this.tableOptionsForm.updateValueAndValidity();
 			}
 		});
+	}
+
+	getDataTotal() {
+		return this._dataTotal;
 	}
 
 	getTableOptionsVisible() {
@@ -171,6 +183,7 @@ export class TablePageComponent implements OnInit {
 					let data = resp.export.data, //remember, there's also pagination and query on export object
 						formattedData = this._formatVariables(data);
 					this.matTableDataSource.data = formattedData;
+					this._dataTotal = resp.export.pagination.total;
 					this._columns = resp.getColumns();
 					this.setVisibleColumns();
 					this.showTable = true;

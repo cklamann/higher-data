@@ -23,6 +23,10 @@ export interface intSchoolModel extends intBaseSchoolModel {
   data: intSchoolDataModel[];
 };
 
+export interface intSchoolDataExportModel extends intSchoolModel {
+  total?: number;
+}
+
 export interface intSchoolDataModel {
   fiscal_year: string,
   variable: string,
@@ -220,16 +224,12 @@ SchoolSchema.schema.statics = {
   fetchWithVariables: (queryConfig: intVariableQueryConfig): intSchoolVarExport => {
     const start = (queryConfig.pagination.page * queryConfig.pagination.perPage) - queryConfig.pagination.perPage,
       stop = queryConfig.pagination.perPage * queryConfig.pagination.page,
-      matches = queryConfig.matches ? queryConfig.matches : [{}],
-      aggArgs = [];
+      aggArgs = [],
+      matchArg = queryConfig.matches.length > 0 ? {
+        "$and": queryConfig.matches
+      } : {}
 
-    if (!_.isEmpty(matches[0])) {
-      aggArgs.push({
-        "$match": {
-          "$and": matches
-        }
-      });
-    }
+    aggArgs.push({ "$match": matchArg });
 
     aggArgs.push({
       "$project": {
@@ -256,7 +256,7 @@ SchoolSchema.schema.statics = {
       .limit(stop)
       .sort(queryConfig.sort)
       .exec()
-      .then((res: intSchoolModel[]) => {
+      .then((res: intSchoolDataExportModel[]) => {
         let ret = { query: queryConfig, data: res }
         if (queryConfig.inflationAdjusted == "true") {
           return getInflationAdjuster().then(adjuster => {
@@ -264,6 +264,13 @@ SchoolSchema.schema.statics = {
             return ret
           });
         } else return ret;
+      })
+      .then((ret: intVarExport) => {
+        return SchoolSchema.find(matchArg).count().exec()
+          .then((theCount: number) => {
+            ret.query.pagination.total = theCount;
+            return ret;
+          });
       });
   },
   fetch: (arg: string): Promise<intSchoolSchema> => {
