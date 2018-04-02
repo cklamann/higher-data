@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild} from '@angular/core';
 import { trigger, state, style, animate, transition } from '@angular/animations';
 import { MatPaginator, MatSort, MatTableDataSource, PageEvent } from '@angular/material';
 import { intSchoolVarExport, intVariableQueryConfig, intVarExport, intVariableAggQueryConfig } from '../../../../../server/src/schemas/SchoolSchema';
@@ -35,8 +35,8 @@ import 'rxjs/add/operator/map';
 
 export class TablePageComponent implements OnInit {
 
-	@ViewChild('paginatorForDataSource') paginatorForDataSource: MatPaginator; //todo: observe these
-	@ViewChild('sortForDataSource') sortForDataSource: MatSort;
+	@ViewChild('tablePaginator') tablePaginator: MatPaginator; //todo: observe these
+	@ViewChild('tableSort') tableSort: MatSort;
 
 	groupByForm: FormGroup;
 	isAggregateForm: FormGroup;
@@ -65,6 +65,7 @@ export class TablePageComponent implements OnInit {
 		this._subscribeToForms();
 	}
 
+
 	private _intializeForms() {
 		this.groupByForm = this.fb.group({
 			aggFunc: null,
@@ -73,10 +74,10 @@ export class TablePageComponent implements OnInit {
 
 		this.tableOptionsForm = this.fb.group({
 			matches: this.fb.array([]),
-			sort: 'fiscal_year',
+			sort: null,
 			pagination: this.fb.group({
 				page: 1,
-				perPage: 25
+				perPage: 10
 			}),
 			groupBy: this.groupByForm,
 			inflationAdjusted: "false",
@@ -91,11 +92,6 @@ export class TablePageComponent implements OnInit {
 	private _subscribeToForms() {
 		this.tableOptionsForm.controls['variables'].setValidators([Validators.required]);
 
-		this.tableOptionsForm.valueChanges.subscribe(change => {
-
-			this.query();
-		});
-
 		this.isAggregateForm.valueChanges.subscribe(change => {
 			if (change.isAggregate) {
 				this.tableOptionsForm.get('groupBy').get('aggFunc').setValidators(Validators.required);
@@ -106,6 +102,10 @@ export class TablePageComponent implements OnInit {
 				this.tableOptionsForm.get('groupBy').get('variable').clearValidators();
 				this.tableOptionsForm.updateValueAndValidity();
 			}
+		});
+
+		this.tableOptionsForm.valueChanges.subscribe(change => {
+			this.query();
 		});
 	}
 
@@ -123,19 +123,6 @@ export class TablePageComponent implements OnInit {
 
 	getTableIsCurrency() {
 		return /currency/.test(this._variableType);
-	}
-
-	toggleTableOptionsVisible() {
-		this._tableOptionsVisible = !this._tableOptionsVisible;
-	}
-
-	setVariable($event) {
-		this._variableType = $event.valueType;
-		let control = <FormArray>this.tableOptionsForm['controls'].variables;
-		control.removeAt(0);
-		control.push(this.fb.group({
-			variable: $event.variable
-		}));
 	}
 
 	getAggQueryIsSector() {
@@ -158,14 +145,19 @@ export class TablePageComponent implements OnInit {
 		return this.visibleColumns[this.visibleColumns.length - 1] !== this._columns[this._columns.length - 1];
 	}
 
-	shiftVisibleColumnsRight() {
-		this._columnIndex++;
-		this.setVisibleColumns();
+	onMatSortChange($event){
+		const prefix = $event.direction === "desc" ? "-" : "";
+		this.tableOptionsForm.patchValue({
+			sort: prefix + $event.active 
+		});
 	}
 
-	shiftVisibleColumnsLeft() {
-		this._columnIndex--;
-		this.setVisibleColumns();
+	onPageEvent($event){
+		this.tableOptionsForm.get('pagination').patchValue({
+			page: $event.pageIndex + 1,
+			perPage: $event.pageSize,
+			total: $event.length,
+		});
 	}
 
 	query() {
@@ -191,6 +183,15 @@ export class TablePageComponent implements OnInit {
 			}, err => console.log(err));
 	}
 
+	setVariable($event) {
+		this._variableType = $event.valueType;
+		let control = <FormArray>this.tableOptionsForm['controls'].variables;
+		control.removeAt(0);
+		control.push(this.fb.group({
+			variable: $event.variable
+		}));
+	}
+
 	setVisibleColumns() {
 		let numCols = 5;
 		this.visibleColumns = [];
@@ -201,6 +202,20 @@ export class TablePageComponent implements OnInit {
 		for (let i = this._columnIndex; i <= numCols + this._columnIndex; i++) {
 			this.visibleColumns.push(this._columns[i]);
 		}
+	}
+
+	shiftVisibleColumnsRight() {
+		this._columnIndex++;
+		this.setVisibleColumns();
+	}
+
+	shiftVisibleColumnsLeft() {
+		this._columnIndex--;
+		this.setVisibleColumns();
+	}
+
+	toggleTableOptionsVisible() {
+		this._tableOptionsVisible = !this._tableOptionsVisible;
 	}
 
 	private _formatVariables(data: intVarDataSourceExport[]): intVarDataSourceExport[] {

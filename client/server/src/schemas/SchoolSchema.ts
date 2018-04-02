@@ -227,9 +227,16 @@ SchoolSchema.schema.statics = {
       aggArgs = [],
       matchArg = queryConfig.matches.length > 0 ? {
         "$and": queryConfig.matches
-      } : {}
+      } : {},
+      sortField = queryConfig.sort ? queryConfig.sort : 'instnm';
+
+    //fuuuuuuuuuck this is going to be hard... sorting by year...
+    //i think gonna have to come up with an index or something, do 2 queries, first to give rank,
+    //then to fetch... will be slow...
 
     aggArgs.push({ "$match": matchArg });
+
+    aggArgs.push({ "$sort": {[sortField]: sortField.slice(1) === "-" ? -1 : 1} });
 
     aggArgs.push({
       "$project": {
@@ -254,7 +261,6 @@ SchoolSchema.schema.statics = {
     return SchoolSchema.aggregate(aggArgs)
       .skip(start)
       .limit(stop)
-      .sort(queryConfig.sort)
       .exec()
       .then((res: intSchoolDataExportModel[]) => {
         let ret = { query: queryConfig, data: res }
