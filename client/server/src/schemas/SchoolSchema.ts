@@ -230,13 +230,23 @@ SchoolSchema.schema.statics = {
       } : {},
       sortField = queryConfig.sort ? queryConfig.sort : 'instnm';
 
-    //fuuuuuuuuuck this is going to be hard... sorting by year...
-    //i think gonna have to come up with an index or something, do 2 queries, first to give rank,
-    //then to fetch... will be slow....
-
     aggArgs.push({ "$match": matchArg });
 
-    aggArgs.push({ "$sort": {[sortField]: sortField.slice(1) === "-" ? -1 : 1} });
+    //filter out nulls...
+
+    //create pagination index field
+    //see filter spec for how to format this right
+    //{$addtoSet -> 'sortVal': $filter : {'input': [
+  //      { "$data.variable": queryConfig.variables[0] },
+    //    { "$data.fiscal_year": queryConfig.sort },
+   //   ]} 
+    // }
+
+  //$sort
+  //$skip
+  //$limit
+
+    //aggArgs.push({ "$sort": {[sortField]: sortField.slice(1) === "-" ? -1 : 1} });
 
     aggArgs.push({
       "$project": {
