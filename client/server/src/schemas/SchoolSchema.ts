@@ -237,19 +237,54 @@ SchoolSchema.schema.statics = {
     //create pagination index field
     //see filter spec for how to format this right
     //{$addtoSet -> 'sortVal': $filter : {'input': [
-  //      { "$data.variable": queryConfig.variables[0] },
+    //      { "$data.variable": queryConfig.variables[0] },
     //    { "$data.fiscal_year": queryConfig.sort },
-   //   ]} 
+    //   ]} 
     // }
 
-  //$sort
-  //$skip
-  //$limit
+    //$sort
+    //$skip
+    //$limit
 
-    //aggArgs.push({ "$sort": {[sortField]: sortField.slice(1) === "-" ? -1 : 1} });
+    //only need these if sorting on a year
+    let idx = {
+      $addFields: {
+        'idx': {
+          '$filter': {
+            input: "$data",
+            as: "val",
+            cond: {
+              $and: [
+                { $eq: ["$$val.fiscal_year", queryConfig.sort] }, //if its a year sort only
+                { $eq: ["$$val.variable", queryConfig.variables[0]] }
+              ]
+            }
+          }
+        }
+      }
+    }
+
+    let red = {
+      $addFields: {
+        'red': {
+          '$reduce': {
+            input: "$idx",
+            initialValue: 0,
+            in: {"$sum":["$$value","$$this.value"]}
+          }
+        }
+      }
+    }
+
+    aggArgs.push(idx);
+    aggArgs.push(red);
+
+    //aggArgs.push({ "$sort": {[sortField]: sortField.slice(1) === "-" ? -1 : 1} }); //todo: $sort, $skip, $limit 
 
     aggArgs.push({
       "$project": {
+        idx: 1, //todo: can when no longer testing
+        red: 1,
         unitid: 1,
         instnm: 1,
         city: 1,
