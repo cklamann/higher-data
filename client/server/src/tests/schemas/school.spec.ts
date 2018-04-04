@@ -46,31 +46,32 @@ describe('School Schema', function() {
       .catch(err => done(err));
   });
 
-  // describe('fetch all schools with specified variables', function() {
-  //   it('should return schools with variables', function(done) {
-  //     let queryFilters: intVariableQueryConfig = {
-  //       matches: [{}],
-  //       sort: 'unitid',
-  //       pagination: {
-  //         perPage: 500,
-  //         page: 1
-  //       },
-  //       inflationAdjusted: "false",
-  //       variables: ["hispanic_p", "asian_p"]
-  //     }
-  //     SchoolSchema.schema.statics.fetchWithVariables(queryFilters)
-  //       .then((res: intSchoolVarExport) => {
-  //         //todo -- this test is bunk, need to find the specified school, not count on order, cuz it's bringing back a lot now...
-  //         expect(res).to.be.an('object');
-  //         expect(res.query.pagination.total).to.be.greaterThan(7000);
-  //         expect(res.data[0].data.filter((datum: any) => datum.variable === "hispanic_p").length).to.be.greaterThan(0);
-  //         expect(res.data[0].data.filter((datum: any) => datum.variable === "asian_p").length).to.be.greaterThan(0);
-  //         expect(res.data[0].data.filter((datum: any) => datum.variable === "white_p").length).to.equal(0);
-  //         done()
-  //       })
-  //       .catch((err: Error) => done(err));
-  //   });
-  // });
+  describe('fetch all schools with specified variables', function() {
+    it('should return schools with variables', function(done) {
+      let queryFilters: intVariableQueryConfig = {
+        matches: [{}],
+        sort: '2008',
+        pagination: {
+          perPage: 50,
+          page: 3
+        },
+        inflationAdjusted: "false",
+        variables: ["hispanic_p", "asian_p"]
+      }
+      SchoolSchema.schema.statics.fetchWithVariables(queryFilters)
+        .then((res: intSchoolVarExport) => {
+          expect(res).to.be.an('object');
+          expect(res.data.length).to.equal(50);
+          //todo: redo test to find test org and test value and test year sort (see agg tests)
+          expect(res.query.pagination.total).to.be.greaterThan(5000);
+          expect(res.data[0].data.filter((datum: any) => datum.variable === "hispanic_p").length).to.be.greaterThan(0);
+          expect(res.data[0].data.filter((datum: any) => datum.variable === "asian_p").length).to.be.greaterThan(0);
+          expect(res.data[0].data.filter((datum: any) => datum.variable === "white_p").length).to.equal(0);
+          done()
+        })
+        .catch((err: Error) => done(err));
+    });
+  });
 
   describe('fetch a school with specified variables', function() {
     it('should return school with variables', function(done) {
@@ -89,8 +90,6 @@ describe('School Schema', function() {
       SchoolSchema.schema.statics.fetchWithVariables(queryFilters)
         // .then((res: intSchoolVarExport) => {
           .then((res: any) => {
-          console.log(res.data[0].idx);
-          console.log(res.data[0].red);
           expect(res).to.be.an('object');
           expect(res.data[0].data.filter((datum: any) => datum.variable === "hispanic_p").length).to.be.greaterThan(0);
           expect(res.data[0].data.filter((datum: any) => datum.variable === "asian_p").length).to.be.greaterThan(0);

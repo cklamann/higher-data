@@ -223,7 +223,7 @@ SchoolSchema.schema.statics = {
   },
   fetchWithVariables: (queryConfig: intVariableQueryConfig): intSchoolVarExport => {
     const start = (queryConfig.pagination.page * queryConfig.pagination.perPage) - queryConfig.pagination.perPage,
-      stop = queryConfig.pagination.perPage * queryConfig.pagination.page,
+      stop = queryConfig.pagination.perPage,
       aggArgs = [],
       matchArg = queryConfig.matches.length > 0 ? {
         "$and": queryConfig.matches
@@ -231,20 +231,6 @@ SchoolSchema.schema.statics = {
       sortField = queryConfig.sort ? queryConfig.sort : 'instnm';
 
     aggArgs.push({ "$match": matchArg });
-
-    //filter out nulls...
-
-    //create pagination index field
-    //see filter spec for how to format this right
-    //{$addtoSet -> 'sortVal': $filter : {'input': [
-    //      { "$data.variable": queryConfig.variables[0] },
-    //    { "$data.fiscal_year": queryConfig.sort },
-    //   ]} 
-    // }
-
-    //$sort
-    //$skip
-    //$limit
 
     //only need these if sorting on a year
     let idx = {
@@ -275,11 +261,15 @@ SchoolSchema.schema.statics = {
         }
       }
     }
+    if(_.toNumber(queryConfig.sort)){
+          aggArgs.push(idx);
+          aggArgs.push(red);
+          let dir = queryConfig.sort.substr(0, 1) == "-" ? -1 : 1;
+          aggArgs.push({ "$sort": {"red": dir} });    
+    } else aggArgs.push({ "$sort": {[sortField]: sortField.slice(1) === "-" ? -1 : 1} }); 
 
-    aggArgs.push(idx);
-    aggArgs.push(red);
-
-    //aggArgs.push({ "$sort": {[sortField]: sortField.slice(1) === "-" ? -1 : 1} }); //todo: $sort, $skip, $limit 
+    aggArgs.push({"$skip":start});
+    aggArgs.push({"$limit":stop});
 
     aggArgs.push({
       "$project": {
@@ -303,10 +293,7 @@ SchoolSchema.schema.statics = {
       }
     });
 
-    return SchoolSchema.aggregate(aggArgs)
-      .skip(start)
-      .limit(stop)
-      .exec()
+    return SchoolSchema.aggregate(aggArgs).exec()
       .then((res: intSchoolDataExportModel[]) => {
         let ret = { query: queryConfig, data: res }
         if (queryConfig.inflationAdjusted == "true") {
