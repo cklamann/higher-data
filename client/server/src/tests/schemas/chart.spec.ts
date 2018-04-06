@@ -18,7 +18,7 @@ describe('Chart Schema', function() {
 
   const testVar1: intVariableDefinitionModel = {
     variable: "test_var_1",
-    type: "currency",
+    valueType: "currency",
     sources: [{
       startYear: "2015",
       endYear: "2017",
@@ -32,7 +32,7 @@ describe('Chart Schema', function() {
 
   const testVar2: intVariableDefinitionModel = {
     variable: "test_var_2",
-    type: "currency",
+    valueType: "currency0",
     sources: [{
       startYear: "2015",
       endYear: "2017",

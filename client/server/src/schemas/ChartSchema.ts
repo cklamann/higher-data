@@ -125,7 +125,6 @@ cutBySchema.path('formula').validate({
 export let ChartSchema = model<intChartSchema>('chart', schema);
 export let ChartVariableSchema = model<intChartVariableSchema>('chart_variable', chartVariableSchema);
 
-
 ChartSchema.schema.statics = {
   fetchAndUpdate: (model: intChartSchema): Promise<intChartSchema> => {
     const newSchema = new ChartSchema(model);
