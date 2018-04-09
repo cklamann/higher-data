@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild} from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { trigger, state, style, animate, transition } from '@angular/animations';
 import { MatPaginator, MatSort, MatTableDataSource, PageEvent } from '@angular/material';
 import { intSchoolVarExport, intVariableQueryConfig, intVarExport, intVariableAggQueryConfig } from '../../../../../server/src/schemas/SchoolSchema';
@@ -9,6 +9,9 @@ import { MatToolbar, MatToolbarRow } from '@angular/material/toolbar';
 import { FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
 import { UtilService } from '../../../services/util/util';
 import { VariableDataSource, intVarDataSourceExport } from '../../../services/variableDataSource/variableDataSource';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { ModalLoadingComponent } from '../../shared/modals/loading/loading.component';
+import { ModalErrorComponent } from '../../shared/modals/error/error.component';
 import * as _ from 'lodash';
 import 'rxjs/add/operator/map';
 
@@ -50,7 +53,8 @@ export class TablePageComponent implements OnInit {
 	private _dataTotal: number = 0;
 	private _tableOptionsVisible: boolean = false;
 	private _variableType: string;
-	constructor(private schools: Schools, private fb: FormBuilder, private util: UtilService) {
+	constructor(private schools: Schools, private fb: FormBuilder, private util: UtilService,
+		public dialog: MatDialog) {
 		this.matTableDataSource.sortingDataAccessor = (data: intVarDataSourceExport, property: string) => {
 			if (_.toNumber(property)) return property;
 			if (property === "instnm") return "instnm";
@@ -145,18 +149,30 @@ export class TablePageComponent implements OnInit {
 		return this.visibleColumns[this.visibleColumns.length - 1] !== this._columns[this._columns.length - 1];
 	}
 
-	onMatSortChange($event){
+	onMatSortChange($event) {
 		const prefix = $event.direction === "desc" ? "-" : "";
 		this.tableOptionsForm.patchValue({
-			sort: prefix + $event.active 
+			sort: prefix + $event.active
 		});
 	}
 
-	onPageEvent($event){
+	onPageEvent($event) {
 		this.tableOptionsForm.get('pagination').patchValue({
 			page: $event.pageIndex + 1,
 			perPage: $event.pageSize,
 			total: $event.length,
+		});
+	}
+
+	openErrorDialog(): void {
+		this.dialog.open(ModalErrorComponent, {
+			panelClass : 'error-panel',
+		});
+	}
+
+	openLoadingDialog(): void {
+		this.dialog.open(ModalLoadingComponent, {
+			disableClose: true
 		});
 	}
 
@@ -165,22 +181,28 @@ export class TablePageComponent implements OnInit {
 		let input = this.tableOptionsForm.value;
 		input.variables = input.variables.map(variable => variable.variable);
 		const query = this.getIsAggregate() ? this.schools.aggregateQuery(this.tableOptionsForm.value) : this.schools.fetchWithVariables(this.tableOptionsForm.value);
+		this.openLoadingDialog();
 		query
 			.map((res: intVarExport) => {
 				return new VariableDataSource(res);
 			})
 			.debounceTime(500)
 			.subscribe(resp => {
+				this.dialog.closeAll();
 				if (!_.isEmpty(resp.export.data)) {
-					let data = resp.export.data, 
-						formattedData = this._formatVariables(data);
+					let data = resp.export.data,
+						formattedData = this._formatValues(data);
 					this.matTableDataSource.data = formattedData;
 					this._dataTotal = resp.export.pagination.total;
 					this._columns = resp.getColumns();
 					this.setVisibleColumns();
 					this.showTable = true;
 				}
-			}, err => console.log(err));
+			}, err => {
+				this.dialog.closeAll();
+				this.openErrorDialog();
+				console.log(err)
+			});
 	}
 
 	setVariable($event) {
@@ -218,7 +240,7 @@ export class TablePageComponent implements OnInit {
 		this._tableOptionsVisible = !this._tableOptionsVisible;
 	}
 
-	private _formatVariables(data: intVarDataSourceExport[]): intVarDataSourceExport[] {
+	private _formatValues(data: intVarDataSourceExport[]): intVarDataSourceExport[] {
 		if (this._variableType) {
 			return data.map((item: intVarDataSourceExport) => {
 				return _.forIn(item, (v, k, obj) => {

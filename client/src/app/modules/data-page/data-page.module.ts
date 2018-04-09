@@ -10,7 +10,8 @@ import { SharedModule } from '../shared/shared.module';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FlexLayoutModule } from "@angular/flex-layout";
-import { MatRadioModule, MatTabsModule, MatCardModule, MatSelectModule, MatDividerModule, MatSortModule, MatPaginatorModule } from '@angular/material';
+import { MatRadioModule, MatTabsModule, MatCardModule, MatSelectModule, 
+	MatDividerModule, MatSortModule, MatPaginatorModule,MatDialogModule } from '@angular/material';
 import { MatButtonModule } from '@angular/material/button';
 import { AppRoutingModule } from '../app-routing/app-routing.module';
 import { ChartModule } from '../chart/chart.module';
@@ -24,8 +25,13 @@ import { SourceDisplayComponent } from './sources-page/source-display/source-dis
 
 @NgModule({
 	//imports will be available to all components in module 
-	imports: [BrowserModule, HttpClientModule, ReactiveFormsModule, MatTabsModule, BrowserAnimationsModule, FlexLayoutModule, AppRoutingModule, MatToolbarModule, SharedModule, ChartModule, MatRadioModule, MatCardModule, MatTableModule, MatButtonModule, MatSelectModule, MatDividerModule, MatPaginatorModule, MatSortModule],
-	declarations: [ChartPageComponent, DataPageComponent, TablePageComponent, SourcesPageComponent, ChartSourcesComponent, VariableSourcesComponent, SourceDisplayComponent], //list all components in the module
+	imports: [BrowserModule, HttpClientModule, ReactiveFormsModule, MatTabsModule, 
+				BrowserAnimationsModule, FlexLayoutModule, AppRoutingModule, MatToolbarModule, 
+				SharedModule, ChartModule, MatRadioModule, MatCardModule, MatTableModule, 
+				MatButtonModule, MatSelectModule, MatDividerModule, MatPaginatorModule, MatSortModule,
+				MatDialogModule],
+	declarations: [ChartPageComponent, DataPageComponent, TablePageComponent, SourcesPageComponent, 
+				ChartSourcesComponent, VariableSourcesComponent, SourceDisplayComponent], //list all components in the module
 	providers: [RestService, Schools] // module-wide providers, still need to be imported in each component
 })
 

@@ -181,7 +181,7 @@ SchoolSchema.schema.statics = {
       .then((res: any) => {
         res[0] = _sort(res[0], queryConfig.sort, queryConfig.groupBy.variable);
         function _sort(data: intAggDataResult[], sortStr: string, variable: string): intAggDataResult[] {
-          let dir = sortStr.substr(0, 1) == "-" ? "desc" : "asc",
+          let dir = sortStr ? sortStr.substr(0, 1) == "-" ? "desc" : "asc" : "asc",
             field = dir === "desc" ? sortStr.slice(1) : sortStr,
             yearSort = _.toNumber(sortStr) ? true : false,
             sortFunc: any;

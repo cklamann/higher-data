@@ -23,9 +23,8 @@ export class Schools {
 
 	aggregateQuery(params: intVariableAggQueryConfig): Observable<intSchoolVarExport> {
 		return this.rest.post(`schools/aggregateQuery`, params).map(res => {
-			return res.map(school => {
-				return new School(school);
-			});
+			res.data.forEach(school => school = new School(school));
+			return res;
 		});
 	}
 
@@ -38,8 +37,8 @@ export class Schools {
 }
 
 export class School {
-	private instnm: string;
-	private sector: string;
+	private instnm?: string;
+	private sector?: string;
 	constructor(obj: intSchoolModel) {
 		Object.assign(this, obj);
 		//then check for virtual major property? If it has it, new up major with methods

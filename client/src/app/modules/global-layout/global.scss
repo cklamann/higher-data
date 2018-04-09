@@ -1,5 +1,6 @@
 //theme
-$primary: #673ab7;
+$primary: #673ab7; //for extending
+
 //margin/padding
 $spaceamounts: (5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 75, 100); 
 $sides: (top, bottom, left, right);
@@ -13,7 +14,13 @@ $sides: (top, bottom, left, right);
         }
     }
 } 
+
 //material resets
+
+//so that injected panel class extends to children
+.mat-dialog-container {
+    background:inherit;
+}
 
 
 //global

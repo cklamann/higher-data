@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { intVarExport, intPaginationArgs, intBaseSchoolModel } from '../../../../server/src/schemas/SchoolSchema';
 import { UtilService } from '../util/util';
+import { sectors } from '../data/sectors';
 import * as _ from 'lodash';
 import * as d3 from 'd3';
 
@@ -54,16 +55,14 @@ export class VariableDataSource {
 		//todo: replace with transformer
 		var data: intermediateData[][],
 			keyCol: string,
-			keyMap: string[] = []; // array of unique values
-		keyCol = _.keys(_export.data[0]).length === 2 ?
+			keyMap: string[] = []; // array of unique values for label column
+		keyCol = _.keys(_export.data[0]).length === 2 ? // agg has 2 props per item -> shitty test, rethink
 			_.keys(_export.data[0]).find(datum => datum != "data") :
-			_export.data.length > 1 ? 'instnm' :
-				'variable';
+			_export.data.length > 1 ? 'instnm' : 'variable';
 
 		//many schools, one variable (agg included)
 		if (keyCol !== 'variable') {
 			data = _export.data.map(datum => datum.data);
-			//todo: always fill in all the years
 			data = this._fillInMissingYears(data, _export.query.variables[0]);
 			keyMap = _export.data.map(item => item[keyCol]);
 		} else {
@@ -73,6 +72,10 @@ export class VariableDataSource {
 		}
 
 		let exportData = <intVarDataSourceExport[]>_.flatMap(data, datum => datum.reduce((a, b) => Object.assign(a, { [b.fiscal_year]: b.value }), {}));
+
+		if (keyCol === "sector") {
+			keyMap = keyMap.map(key => sectors.find(sector => sector.number === key).name);
+		}
 
 		exportData.forEach((datum, i) => {
 			datum[keyCol] = keyMap[i];
