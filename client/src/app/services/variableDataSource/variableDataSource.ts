@@ -2,8 +2,7 @@ import { Injectable } from '@angular/core';
 import { intVarExport, intPaginationArgs, intBaseSchoolModel } from '../../../../server/src/schemas/SchoolSchema';
 import { UtilService } from '../util/util';
 import * as _ from 'lodash';
-
-//this is a fine candidate for unit testing, blya
+import * as d3 from 'd3';
 
 interface inputData {
 	fiscal_year: string,
@@ -83,8 +82,10 @@ export class VariableDataSource {
 	}
 
 	_fillInMissingYears(data: intermediateData[][], variable: string) {
-		const yearRange = _.flatMap(data, item => item).map(item => item.fiscal_year),
-			uniqYears = _.uniq(yearRange);
+		//use all years to ensure uniformity between views
+		const yearRange = d3.timeYears(new Date('2001'), new Date())
+			.map(year => year.getFullYear())
+			.map(year => String(year));
 
 		data.forEach(datum => {
 			_getMissingYears(datum).forEach(fiscal_year => datum.push({
@@ -96,7 +97,7 @@ export class VariableDataSource {
 
 		function _getMissingYears(datum) {
 			let years = datum.map(item => item.fiscal_year);
-			return _.difference(uniqYears, years);
+			return _.difference(yearRange, years);
 		}
 
 		return data;
