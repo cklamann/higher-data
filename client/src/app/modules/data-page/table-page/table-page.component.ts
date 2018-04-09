@@ -172,7 +172,7 @@ export class TablePageComponent implements OnInit {
 			.debounceTime(500)
 			.subscribe(resp => {
 				if (!_.isEmpty(resp.export.data)) {
-					let data = resp.export.data, //remember, there's also pagination and query on export object
+					let data = resp.export.data, 
 						formattedData = this._formatVariables(data);
 					this.matTableDataSource.data = formattedData;
 					this._dataTotal = resp.export.pagination.total;

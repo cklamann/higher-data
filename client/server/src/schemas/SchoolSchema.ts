@@ -225,10 +225,10 @@ SchoolSchema.schema.statics = {
     const start = (queryConfig.pagination.page * queryConfig.pagination.perPage) - queryConfig.pagination.perPage,
       stop = queryConfig.pagination.perPage,
       aggArgs = [],
-      matchArg = queryConfig.matches.length > 0 ? {
-        "$and": queryConfig.matches
-      } : {},
-      sortDir = queryConfig.sort.substr(0, 1) == "-" ? -1 : 1,
+      matchArg = {
+        "$and": queryConfig.matches.filter(match => _.isEmpty(match)).concat([{ "data": { "$elemMatch": { "variable": { "$in": queryConfig.variables } } } }])
+      },
+      sortDir = queryConfig.sort ? queryConfig.sort.substr(0, 1) == "-" ? -1 : 1 : 1,
       sortField = sortDir == -1 ? queryConfig.sort.slice(1) : queryConfig.sort ? queryConfig.sort : "instnm";
     
     aggArgs.push({ "$match": matchArg });
@@ -273,7 +273,6 @@ SchoolSchema.schema.statics = {
 
     aggArgs.push({
       "$project": {
-        red: 1, //todo: remove when done testing
         unitid: 1,
         instnm: 1,
         city: 1,

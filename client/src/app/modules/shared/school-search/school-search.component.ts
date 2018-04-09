@@ -61,6 +61,6 @@ export class SchoolSearchComponent implements OnInit {
 	}
 
 	showSchoolName(school: School): any {
-		return school ? school.instnm : school;
+		return school ? school.getName() : school;
 	}
 }

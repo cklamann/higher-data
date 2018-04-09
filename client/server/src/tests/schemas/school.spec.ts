@@ -88,7 +88,7 @@ describe('School Schema', function() {
         .then((res: intSchoolVarExport) => {
           expect(res).to.be.an('object');
           expect(res.data.length).to.equal(50);
-          expect(res.query.pagination.total).to.be.greaterThan(5000);
+          expect(res.query.pagination.total).to.be.greaterThan(2000); //about half have the vars
           res.data.forEach(datum => expect(datum.data.filter( (item:any) => item.variable === "white_p").length).to.equal(0));
           expect(res.data.some(datum => datum.data.filter( (item:any) => item.variable === "hispanic_p").length > 0)).to.equal(true);
           expect(res.data.some(datum => datum.data.filter( (item:any) => item.variable === "asian_p").length > 0)).to.equal(true);

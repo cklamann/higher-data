@@ -1,4 +1,4 @@
-import { CipMapSchema } from '../../schemas/cipMapSchema';
+import { CipMapSchema } from '../../schemas/CipMapSchema';
 import assert = require('assert');
 import chai = require('chai');
 import { expect } from 'chai';
