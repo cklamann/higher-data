@@ -63,6 +63,7 @@ describe('School Schema', function() {
       SchoolSchema.schema.statics.fetchWithVariables(queryFilters)
         .then((res: intSchoolVarExport) => {
           expect(res).to.be.an('object');
+          expect(res.data).to.have.lengthOf(1);
           expect(res.data[0].data.filter((datum: any) => datum.variable === "hispanic_p").length).to.be.greaterThan(0);
           expect(res.data[0].data.filter((datum: any) => datum.variable === "asian_p").length).to.be.greaterThan(0);
           expect(res.data[0].data.filter((datum: any) => datum.variable === "white_p").length).to.equal(0);
