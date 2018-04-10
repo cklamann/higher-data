@@ -18,22 +18,7 @@ import 'rxjs/add/operator/map';
 @Component({
 	selector: 'app-table-page',
 	templateUrl: './table-page.component.html',
-	styleUrls: ['./table-page.component.scss'],
-	animations: [
-		//since neither state is tied to a state(), both styles will vanish when animation has run
-		trigger('aggTypeSelected', [
-			transition('* => *', [
-				style({
-					outline: 'thin #673ab7 solid',
-					opacity: 1
-				}),
-				animate('250ms ease-in', style({
-					outline: 'thin #673ab7 solid',
-					opacity: 0
-				}))
-			])
-		])
-	]
+	styleUrls: ['./table-page.component.scss']
 })
 
 export class TablePageComponent implements OnInit {
@@ -55,14 +40,7 @@ export class TablePageComponent implements OnInit {
 	private _variableType: string;
 	constructor(private schools: Schools, private fb: FormBuilder, private util: UtilService,
 		public dialog: MatDialog) {
-		this.matTableDataSource.sortingDataAccessor = (data: intVarDataSourceExport, property: string) => {
-			if (_.toNumber(property)) return property;
-			if (property === "instnm") return "instnm";
-			if (property === "variable") return "variable"; //todo replace with friendly names once there
-		};
 	}
-
-	//todo, add status bar, dim and lock screen while loading
 
 	ngOnInit() {
 		this._intializeForms();
@@ -71,6 +49,9 @@ export class TablePageComponent implements OnInit {
 
 
 	private _intializeForms() {
+
+		//todo: add matchForm (for filter box)
+
 		this.groupByForm = this.fb.group({
 			aggFunc: null,
 			variable: null,
@@ -108,6 +89,10 @@ export class TablePageComponent implements OnInit {
 			}
 		});
 
+		// todo: subscribe to matches form. On change, find the obj that corresponds to school match and replace
+		// match should look like {"instnm" : { "$regex" : ".+" + form.value + ".+", $options: 'is' } }
+		// for now only allow filter on the many-school type 
+		//
 		this.tableOptionsForm.valueChanges.subscribe(change => {
 			this.query();
 		});
@@ -126,7 +111,7 @@ export class TablePageComponent implements OnInit {
 	}
 
 	getTableIsCurrency() {
-		return /currency/.test(this._variableType);
+		return /currency+./.test(this._variableType);
 	}
 
 	getAggQueryIsSector() {
@@ -150,9 +135,10 @@ export class TablePageComponent implements OnInit {
 	}
 
 	onMatSortChange($event) {
-		const prefix = $event.direction === "desc" ? "-" : "";
+		const prefix = $event.direction === "desc" ? "-" : "",
+		val = $event.active === "Name" ? "instnm" : $event.active;
 		this.tableOptionsForm.patchValue({
-			sort: prefix + $event.active
+			sort: prefix + val
 		});
 	}
 

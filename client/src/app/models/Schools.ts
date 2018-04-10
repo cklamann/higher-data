@@ -30,7 +30,7 @@ export class Schools {
 
 	fetchWithVariables(params: intVariableQueryConfig): Observable<intSchoolVarExport> {
 		return this.rest.post(`schools/fetchWithVariables`, params).map(res => {
-			res.data.forEach(school => school = new School(school));
+			res.data = res.data.map(school => new School(school));
 			return res;
 		});
 	}
@@ -41,14 +41,16 @@ export class School {
 	private sector?: string;
 	constructor(obj: intSchoolModel) {
 		Object.assign(this, obj);
-		//then check for virtual major property? If it has it, new up major with methods
+
 	}
 
-	public getName(): string {
+	//for table display
+	public get Name(){
 		return this.instnm;
 	}
 
-	public get sectorName(): string {
-		return sectors.find(sector => sector.number === this.sector).name;
+	//todo: can
+	public getName(): string {
+		return this.instnm;
 	}
 }
