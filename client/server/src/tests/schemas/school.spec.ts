@@ -82,7 +82,7 @@ describe('School Schema', function() {
           page: 3
         },
         inflationAdjusted: "false",
-        variables: ["hispanic_p", "asian_p"]
+        variables: ["room_and_board", "in_state_tuition"]
       }
       SchoolSchema.schema.statics.fetchWithVariables(queryFilters)
         .then((res: intSchoolVarExport) => {
@@ -90,8 +90,8 @@ describe('School Schema', function() {
           expect(res.data.length).to.equal(50);
           expect(res.query.pagination.total).to.be.greaterThan(2000); //about half have the vars
           res.data.forEach(datum => expect(datum.data.filter( (item:any) => item.variable === "white_p").length).to.equal(0));
-          expect(res.data.some(datum => datum.data.filter( (item:any) => item.variable === "hispanic_p").length > 0)).to.equal(true);
-          expect(res.data.some(datum => datum.data.filter( (item:any) => item.variable === "asian_p").length > 0)).to.equal(true);
+          expect(res.data.some(datum => datum.data.filter( (item:any) => item.variable === "room_and_board").length > 0)).to.equal(true);
+          expect(res.data.some(datum => datum.data.filter( (item:any) => item.variable === "in_state_tuition").length > 0)).to.equal(true);
           res.data.forEach((datum:intSchoolSchema, i: number) => {
             if (i < res.data.length - 1) {
               expect(datum.data.find( item => item.fiscal_year == "2008" && item.variable === queryFilters.variables[0]).value)

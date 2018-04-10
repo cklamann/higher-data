@@ -226,7 +226,7 @@ SchoolSchema.schema.statics = {
       stop = queryConfig.pagination.perPage,
       aggArgs = [],
       matchArg = {
-        "$and": queryConfig.matches.filter(match => _.isEmpty(match)).concat([{ "data": { "$elemMatch": { "variable": { "$in": queryConfig.variables } } } }])
+        "$and": queryConfig.matches.filter(match => !_.isEmpty(match)).concat([{ "data": { "$elemMatch": { "variable": { "$in": queryConfig.variables } } } }])
       },
       sortDir = queryConfig.sort ? queryConfig.sort.substr(0, 1) == "-" ? -1 : 1 : 1,
       sortField = sortDir == -1 ? queryConfig.sort.slice(1) : queryConfig.sort ? queryConfig.sort : "instnm";

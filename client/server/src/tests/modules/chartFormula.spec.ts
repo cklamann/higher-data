@@ -1,6 +1,6 @@
-import { FormulaParser } from '../../modules/FormulaParser.module';
+import { FormulaParser, intFormulaParserResult } from '../../modules/FormulaParser.module';
 import { VariableDefinitionSchema, intVariableDefinitionSchema, intVariableDefinitionModel } from '../../schemas/VariableDefinitionSchema';
-import { SchoolSchema, intSchoolDataModel, SchoolDataSchema, intSchoolDataSchema, intSchoolModel } from '../../schemas/SchoolSchema';
+import { SchoolSchema, intSchoolDataModel, intSchoolVarExport, SchoolDataSchema, intSchoolDataSchema, intSchoolModel } from '../../schemas/SchoolSchema';
 import assert = require('assert');
 import chai = require('chai');
 import { expect } from 'chai';
@@ -13,8 +13,10 @@ describe('FORMULA MODEL', function() {
 	//todo:test that incomplete years get filtered out
 
 	const testVar: intVariableDefinitionModel = {
+		category: '',
+		friendlyName: "",
 		variable: "test_var",
-		type: "currency",
+		valueType: "currency",
 		sources: [{
 			startYear: "2015",
 			endYear: "2017",
@@ -35,7 +37,7 @@ describe('FORMULA MODEL', function() {
 	]
 
 	const schoolWithIncompleteYears: intSchoolModel = _.cloneDeep(nwData);
-	schoolWithIncompleteYears.unitid = "666668";
+	schoolWithIncompleteYears.unitid = "000001";
 	schoolWithIncompleteYears.data = dataWithIncompleteYear;
 
 	//helpful to have minimum value on hand for proving value is there / addition got done
@@ -133,12 +135,12 @@ describe('FORMULA MODEL', function() {
 					expect(res.length).to.be.greaterThan(0);
 					//confirm it's an array of objects
 					res.forEach(resp => expect(resp).to.be.an('object'));
-					//confirm there's only one kv per array
+					//confirm there's only one two properties (value and fiscal year) per object
 					res.forEach(resp => expect(Object.keys(resp)).to.have.lengthOf(2));
 					//confirm that the value is numeric
-					res.forEach(resp => _.values(resp).forEach(val => expect(parseInt(val)).to.be.a('number')));
-					//confirm that each result is greater than the minimum tuition value (confirm addition happened)
-					res.forEach(resp => _.values(resp).forEach(val => parseInt(val) >= min_room_and_board));
+					res.forEach(resp => expect(resp.value).to.be.a('number'));
+					//confirm that each result is greater than or equal to the minimum tuition value 
+					res.forEach(resp => expect(resp.value >= min_room_and_board));
 					done();
 				})
 				.catch(err => done(err));
@@ -149,7 +151,7 @@ describe('FORMULA MODEL', function() {
 		it('should return tuition plus room and board', function(done) {
 			let form1 = new FormulaParser(nwFormulaParser);
 			form1.execute(nwData.unitid)
-				.then(res => {
+				.then( (res:intFormulaParserResult[]) => {
 					expect(res).to.be.an('array');
 					//confirm the array has data
 					expect(res.length).to.be.greaterThan(0);
@@ -158,9 +160,9 @@ describe('FORMULA MODEL', function() {
 					//confirm there's only one kv per array
 					res.forEach(resp => expect(Object.keys(resp)).to.have.lengthOf(2));
 					//confirm that the value is numeric
-					res.forEach(resp => _.values(resp).forEach(val => expect(parseInt(val)).to.be.a('number')));
+					res.forEach(resp => expect(resp.value).to.be.a('number'));
 					//confirm that each result is greater than the minimum tuition value (confirm addition happened)
-					res.forEach(resp => assert(parseFloat(resp.value) > min_room_and_board));
+					res.forEach(resp => expect(resp.value >= min_room_and_board));
 					done();
 				})
 				.catch(err => done(err));
@@ -180,9 +182,9 @@ describe('FORMULA MODEL', function() {
 					//confirm there's only one kv per array
 					res.forEach(resp => expect(Object.keys(resp)).to.have.lengthOf(2));
 					//confirm that the value is numeric
-					res.forEach(resp => _.values(resp).forEach(val => expect(parseInt(val)).to.be.a('number')));
-					//confirm that each result is greater than or equal to r&b
-					res.forEach(resp => assert(parseFloat(resp.value) >= min_room_and_board));
+					res.forEach(resp => expect(resp.value).to.be.a('number'));
+					//confirm that each result is greater than the minimum tuition value (confirm addition happened)
+					res.forEach(resp => expect(resp.value >= min_room_and_board));
 					done();
 				}).catch(err => done(err));
 		});
@@ -205,6 +207,7 @@ describe('FORMULA MODEL', function() {
 			let formula = new FormulaParser('room_and_board + in_state_tuition');
 			formula.execute(schoolWithIncompleteYears.unitid)
 				.then(res => {
+					console.log(res);
 					expect(res).to.be.an('array');
 					expect(res.length).to.equal(2);
 					done();
