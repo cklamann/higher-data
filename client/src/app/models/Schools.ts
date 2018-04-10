@@ -23,7 +23,7 @@ export class Schools {
 
 	aggregateQuery(params: intVariableAggQueryConfig): Observable<intSchoolVarExport> {
 		return this.rest.post(`schools/aggregateQuery`, params).map(res => {
-			res.data.forEach(school => school = new School(school));
+			res.data = res.data.map(school => new School(school));
 			return res;
 		});
 	}
