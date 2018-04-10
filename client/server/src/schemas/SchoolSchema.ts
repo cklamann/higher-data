@@ -128,8 +128,11 @@ SchoolSchema.schema.statics = {
 
   getVariableList: (): Promise<string[]> => SchoolSchema.distinct("data.variable").exec(),
   search: (name: string): Promise<intSchoolSchema[]> => SchoolSchema.find({ instnm: { $regex: `${name}+.`, $options: 'is' } }).limit(25).select('-data').exec(),
-  //todo: abstract this logic into query builder as it becomes necessary
-  //slow, might need to cache results, but test at work first...
+  //todo: abstract this logic into query builder
+
+  //todo: create query builder based on query config
+    //need to be assured that this object will tell us everything we need to know to build query
+    // so should find out what that is and then validate and then build agg pipeline from it
   fetchAggregate: (queryConfig: intVariableAggQueryConfig): Q.Promise<intSchoolVarAggExport> => {
     const start = (queryConfig.pagination.page * queryConfig.pagination.perPage) - queryConfig.pagination.perPage,
       stop = queryConfig.pagination.perPage * queryConfig.pagination.page;

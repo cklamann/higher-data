@@ -10,6 +10,8 @@ const app = require('../../app');
 
 describe('School Schema', function() {
 
+  //todo: seems like not using this test data so much anymore, might think about removing...
+
   before('create a test school', function(done) {
     SchoolSchema.create(nwData.nwData)
       .then(() => done())
@@ -63,7 +65,9 @@ describe('School Schema', function() {
       SchoolSchema.schema.statics.fetchWithVariables(queryFilters)
         .then((res: intSchoolVarExport) => {
           expect(res).to.be.an('object');
+          //make sure only one school was returned
           expect(res.data).to.have.lengthOf(1);
+          //make sure data was filtered correctly
           expect(res.data[0].data.filter((datum: any) => datum.variable === "hispanic_p").length).to.be.greaterThan(0);
           expect(res.data[0].data.filter((datum: any) => datum.variable === "asian_p").length).to.be.greaterThan(0);
           expect(res.data[0].data.filter((datum: any) => datum.variable === "white_p").length).to.equal(0);
@@ -89,7 +93,7 @@ describe('School Schema', function() {
         .then((res: intSchoolVarExport) => {
           expect(res).to.be.an('object');
           expect(res.data.length).to.equal(50);
-          expect(res.query.pagination.total).to.be.greaterThan(2000); //about half have the vars
+          expect(res.query.pagination.total).to.be.greaterThan(2000); //about half have the vars have these properties...
           res.data.forEach(datum => expect(datum.data.filter( (item:any) => item.variable === "white_p").length).to.equal(0));
           expect(res.data.some(datum => datum.data.filter( (item:any) => item.variable === "room_and_board").length > 0)).to.equal(true);
           expect(res.data.some(datum => datum.data.filter( (item:any) => item.variable === "in_state_tuition").length > 0)).to.equal(true);
