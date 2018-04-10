@@ -23,6 +23,7 @@ import 'rxjs/add/operator/switchMap';
 	providers: [ChartService]
 })
 
+//todo: this now failing due to memory overload, likely due to changes in fetchWithVariables.... run tests and see
 export class ChartPageComponent implements OnInit {
 	chartData: intChartExport;
 	chartOptionsForm: FormGroup;
@@ -80,11 +81,14 @@ export class ChartPageComponent implements OnInit {
 	}
 
 	getChartIsCurrency() {
-		return this.chartData && !!this.chartData.chart.valueType.match(/currency.+/);
+		return this.chartData 
+				&& this.chartData.chart 
+				&& !!this.chartData.chart.valueType.match(/currency.+/);
 	}
 
 	getChartTitle() {
 		if (this.chartData) {
+			console.log(this.chartData);
 			let cutName = this._cut ? "Per " + this.chartData.chart.cuts.find(item => item.formula == this._cut).name : ""
 			return this.chartData ? `${this.chartData.school.instnm} (${this.chartData.school.state}) ${this.chartData.chart.name} ${cutName}` : "";
 		}
