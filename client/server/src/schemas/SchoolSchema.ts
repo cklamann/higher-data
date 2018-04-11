@@ -69,7 +69,7 @@ export interface intGroupByArgs {
 
 export interface intVarExport {
   query: intVariableQueryConfig;
-  data: any;
+  data: any[];
 }
 
 export interface intSchoolVarAggExport extends intVarExport {
