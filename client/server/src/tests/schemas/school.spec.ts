@@ -177,7 +177,7 @@ describe('School Schema', function() {
           expect(res.query).to.be.an('object');
           expect(res.data).to.be.an('array');
           expect(res.data[0].sector).to.be.a('string');
-          expect(res.data[0].data).to.be.an('array');
+          expect(res.data[0].school_data).to.be.an('array');
           //test sort
           expect(res.data[0].sector).to.equal('0');
           expect(res.data[1].sector).to.equal('1');
@@ -209,8 +209,8 @@ describe('School Schema', function() {
           expect(res).to.be.an('object');
           expect(res.data.length).to.equal(1); //1 variable, 1 state 
           //2 fiscal years
-          expect(res.data[0].data.find(item => item.fiscal_year == "2008").value > 2); //2 without inflation
-          expect(res.data[0].data.find(item => item.fiscal_year == "2009").value > 2);
+          expect(res.data[0].school_data.find(item => item.fiscal_year == "2008").value > 2); //2 without inflation
+          expect(res.data[0].school_data.find(item => item.fiscal_year == "2009").value > 2);
           done();
         })
         .catch((err: Error) => done(err));
@@ -241,7 +241,7 @@ describe('School Schema', function() {
           expect(res.data.length).to.equal(10);
           res.data.forEach((datum: any, i: number) => {
             if (i < res.data.length - 1) {
-              expect(datum.data.find((item: any) => item.fiscal_year == "2003").value).to.be.greaterThan(res.data[i + 1].data.find((item: any) => item.fiscal_year === "2003").value);
+              expect(datum.school_data.find((item: any) => item.fiscal_year == "2003").value).to.be.greaterThan(res.data[i + 1].data.find((item: any) => item.fiscal_year === "2003").value);
             }
           });
           done();

@@ -70,7 +70,7 @@ export interface intSchoolVarExport extends intVarExport {
 
 interface intAggDataResult {
   _id: string,
-  data: intSchoolDataModel[]
+  school_data: intSchoolDataModel[]
 }
 
 let schoolSchema: Schema = new Schema({
@@ -176,7 +176,7 @@ SchoolSchema.schema.statics = {
             }
             sortFunc = (a: intAggDataResult) => a._id;
           } else {
-            sortFunc = (a: intAggDataResult) => a.data.find((item: any) => item.fiscal_year == field) ? a.data.find((item: any) => item.fiscal_year == field).value : -1;
+            sortFunc = (a: intAggDataResult) => a.school_data.find((item: any) => item.fiscal_year == field) ? a.school_data.find((item: any) => item.fiscal_year == field).value : -1;
           }
           data = _.sortBy(data, sortFunc);
           if (dir === "desc") data.reverse();
@@ -200,7 +200,7 @@ SchoolSchema.schema.statics = {
       .then(res => {
         if (queryConfig.inflationAdjusted == "true") {
           return getInflationAdjuster().then(adjuster => {
-            res.data.forEach((datum: any) => datum.data.forEach((item: any) => item.value = adjuster(item.fiscal_year, item.value)))
+            res.data.forEach((datum: any) => datum.school_data.forEach((item: any) => item.value = adjuster(item.fiscal_year, item.value)))
             return res
           });
         } else return res;
@@ -211,17 +211,11 @@ SchoolSchema.schema.statics = {
     const start = (queryConfig.pagination.page * queryConfig.pagination.perPage) - queryConfig.pagination.perPage,
       stop = queryConfig.pagination.perPage,
       aggArgs = [],
-      matchArg = queryConfig.matches.filter(match => !_.isEmpty(match)).length > 0 ? {
-        "$and": queryConfig.matches.filter(match => !_.isEmpty(match))
-      } : {},
+      matchArg = {
+        "$and": queryConfig.matches.filter(match => !_.isEmpty(match)).concat([{ "school_data": { "$elemMatch": { "variable": { "$in": queryConfig.variables } } } }])
+      },
       sortDir = queryConfig.sort ? queryConfig.sort.substr(0, 1) == "-" ? -1 : 1 : 1,
       sortField = sortDir == -1 ? queryConfig.sort.slice(1) : queryConfig.sort ? queryConfig.sort : "instnm";
-
-    if (_.isEmpty(matchArg)) {
-      aggArgs.push({ "$match": matchArg });
-    }
-
-    //hella slow, is current problem -- would be best to filter school_data first, then lookup school value, then reshape
 
     aggArgs.push({
       "$lookup": {
@@ -232,7 +226,9 @@ SchoolSchema.schema.statics = {
       }
     });
 
-    //only need these if sorting on a year
+    aggArgs.push({ "$match": matchArg });
+
+//    only need these if sorting on a year
     let idx = {
       $addFields: {
         'idx': {
@@ -280,7 +276,7 @@ SchoolSchema.schema.statics = {
         ein: 1,
         locale: 1,
         hbcu: 1,
-        school_data: {
+        school_data : {
           "$filter": {
             input: "$school_data",
             as: "school_data",
@@ -301,7 +297,7 @@ SchoolSchema.schema.statics = {
         } else return ret;
       })
       .then((ret: intVarExport) => {
-        return SchoolSchema.find(matchArg).count().exec()
+        return SchoolSchema.find(queryConfig.matches).count().exec()
           .then((theCount: number) => {
             ret.query.pagination.total = theCount;
             return ret;
