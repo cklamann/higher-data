@@ -20,7 +20,7 @@ router.get('/search', function(req, res, next) {
 });
 
 router.get('/:id', function(req, res, next) {
-	School.findOne({ unitid: req.params.id }).select('-data')
+	School.findOne({ unitid: req.params.id })
 		.then(school => {
 			res.json(school);
 			return;

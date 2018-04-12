@@ -1,10 +1,11 @@
 import { FormulaParser, intFormulaParserResult } from '../../modules/FormulaParser.module';
 import { VariableDefinitionSchema, intVariableDefinitionSchema, intVariableDefinitionModel } from '../../schemas/VariableDefinitionSchema';
-import { SchoolSchema, intSchoolDataModel, intSchoolVarExport, SchoolDataSchema, intSchoolDataSchema, intSchoolModel } from '../../schemas/SchoolSchema';
+import { SchoolSchema, intSchoolVarExport, intSchoolModel } from '../../schemas/SchoolSchema';
+import { intSchoolDataModel, intSchoolDataSchema } from '../../schemas/SchoolDataSchema';
 import assert = require('assert');
 import chai = require('chai');
 import { expect } from 'chai';
-import { nwData } from "../fixtures/fixtures";
+import { nwData, nwData_school_data } from "../fixtures/fixtures";
 import * as _ from 'lodash';
 const app = require('../../app');
 
@@ -29,19 +30,19 @@ describe('FORMULA MODEL', function() {
 	}
 
 	const dataWithIncompleteYear: any[] = [
-		{ variable: "in_state_tuition", fiscal_year: "2003", value: "50" },
-		{ variable: "in_state_tuition", fiscal_year: "2004", value: "60" },
-		{ variable: "room_and_board", fiscal_year: "2003", value: "70" },
-		{ variable: "room_and_board", fiscal_year: "2004", value: "80" },
-		{ variable: "room_and_board", fiscal_year: "2005", value: "90" },
+		{ variable: "in_state_tuition", fiscal_year: "2003", value: "50", unitid: "000001" },
+		{ variable: "in_state_tuition", fiscal_year: "2004", value: "60", unitid: "000001" },
+		{ variable: "room_and_board", fiscal_year: "2003", value: "70", unitid: "000001" },
+		{ variable: "room_and_board", fiscal_year: "2004", value: "80", unitid: "000001" },
+		{ variable: "room_and_board", fiscal_year: "2005", value: "90", unitid: "000001" },
 	]
 
 	const schoolWithIncompleteYears: intSchoolModel = _.cloneDeep(nwData);
 	schoolWithIncompleteYears.unitid = "000001";
-	schoolWithIncompleteYears.data = dataWithIncompleteYear;
+	const schoolWithIncompleteYears_school_data = dataWithIncompleteYear;
 
 	//helpful to have minimum value on hand for proving value is there / addition got done
-	const room_and_board = nwData.data.filter(datum => datum.variable === "room_and_board")
+	const room_and_board = nwData_school_data.filter(datum => datum.variable === "room_and_board")
 		.map(item => item.value),
 		min_room_and_board = _.min(room_and_board);
 
@@ -151,7 +152,7 @@ describe('FORMULA MODEL', function() {
 		it('should return tuition plus room and board', function(done) {
 			let form1 = new FormulaParser(nwFormulaParser);
 			form1.execute(nwData.unitid)
-				.then( (res:intFormulaParserResult[]) => {
+				.then((res: intFormulaParserResult[]) => {
 					expect(res).to.be.an('array');
 					//confirm the array has data
 					expect(res.length).to.be.greaterThan(0);
@@ -221,7 +222,7 @@ describe('FORMULA MODEL', function() {
 	})
 
 	after('remove test schools', function(done) {
-		SchoolSchema.find({ unitid: { "$in":  [nwData.unitid, schoolWithIncompleteYears.unitid, 12345] } } ).remove().exec().then(() => done());
+		SchoolSchema.find({ unitid: { "$in": [nwData.unitid, schoolWithIncompleteYears.unitid, 12345] } }).remove().exec().then(() => done());
 	});
 
 });

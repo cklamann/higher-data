@@ -2,7 +2,8 @@ import { ChartSchema, ChartVariableSchema, intChartSchema, intChartModel, intCha
 import { ChartExport, intChartExport } from '../../models/ChartExporter';
 import { intSchoolSchema, SchoolSchema } from '../../schemas/SchoolSchema';
 import { VariableDefinitionSchema, intVariableDefinitionSchema, intVariableDefinitionModel } from '../../schemas/VariableDefinitionSchema';
-import { nwData, nwDataSector6, dummyChartData, dummyChartData2 } from '../fixtures/fixtures';
+import { nwData, nwData_school_data, nwDataSector6, nwDataSector6_school_data, dummyChartData, dummyChartData2 } from '../fixtures/fixtures';
+import { SchoolDataSchema } from '../../schemas/SchoolDataSchema';
 import * as assert from 'assert';
 import * as chai from 'chai';
 import { expect } from 'chai';
@@ -35,7 +36,7 @@ describe('ChartExporter', function() {
     active: true,
     valueType: 'currency',
     description: 'sweet chart',
-    cuts:[{name:"fte_ug",formula: "fte_ug"}],
+    cuts: [{ name: "fte_ug", formula: "fte_ug" }],
     variables: [{
       formula: 'test_var_1 + test_var_2',
       notes: 'test notes',
@@ -45,7 +46,9 @@ describe('ChartExporter', function() {
 
   const testVar1: intVariableDefinitionModel = {
     variable: "test_var_1",
-    type: "currency",
+    valueType: "currency0",
+    friendlyName: '',
+    category: '',
     sources: [{
       startYear: "2015",
       endYear: "2017",
@@ -59,8 +62,9 @@ describe('ChartExporter', function() {
 
   const testVar2: intVariableDefinitionModel = {
     variable: "test_var_2",
-    type: "currency",
-    sources: [{
+    valueType: "currency0",
+    friendlyName: '',
+    category: '', sources: [{
       startYear: "2015",
       endYear: "2017",
       source: "IPEDS",
@@ -73,8 +77,9 @@ describe('ChartExporter', function() {
 
   const testVar3: intVariableDefinitionModel = {
     variable: "test_var_3",
-    type: "currency",
-    sources: [{
+    valueType: "currency0",
+    friendlyName: '',
+    category: '', sources: [{
       startYear: "2015",
       endYear: "2017",
       source: "IPEDS",
@@ -87,8 +92,9 @@ describe('ChartExporter', function() {
 
   const testVar4: intVariableDefinitionModel = {
     variable: "test_var_4",
-    type: "currency",
-    sources: [{
+    valueType: "currency0",
+    friendlyName: '',
+    category: '', sources: [{
       startYear: "2015",
       endYear: "2017",
       source: "IPEDS",
@@ -101,16 +107,23 @@ describe('ChartExporter', function() {
 
   //give newData test_var_1 and test_var_2
   before('seed first and create variables', function(done) {
-    nwData.data = nwData.data.concat(dummyChartData);
-    SchoolSchema.create(nwData)
-      .then(() => done()).catch((err) => done(err));
+    nwData_school_data = nwData_school_data.concat(dummyChartData);
+    SchoolDataSchema.create(nwData_school_data)
+      .then( () => SchoolSchema.create(nwData))  
+      .then( () => done()).catch((err) => done(err));
   });
 
   //give sector6 test_var_3 and test_var_4
   before('seed sector 6', function(done) {
-    nwDataSector6.data = nwDataSector6.data.concat(dummyChartData2);
-    SchoolSchema.create(nwDataSector6)
-      .then(() => done()).catch((err) => done(err));
+    let dummyChartData22 = dummyChartData2.slice().map(x => {
+      x.unitid = nwDataSector6.unitid;
+      return x;
+    });
+    nwDataSector6_school_data = nwDataSector6_school_data.concat(dummyChartData22);
+    SchoolDataSchema.create(nwDataSector6_school_data)
+      .then( () => SchoolSchema.create(nwDataSector6))  
+      .then( () => done()).catch((err) => done(err));
+
   });
 
   //save variables
@@ -213,6 +226,7 @@ describe('ChartExporter', function() {
   after('remove test org and variables', function(done) {
     VariableDefinitionSchema.find({ variable: { "$in": ["test_var_1", "test_var_2", "test_var_3", "test_var_4"] } }).remove().exec()
       .then(() => SchoolSchema.find({ unitid: { "$in": [nwData.unitid, nwDataSector6.unitid] } }).remove().exec())
+      .then(() => SchoolDataSchema.find({ unitid: { "$in": [nwData.unitid, nwDataSector6.unitid] } }).remove().exec())
       .then(() => done()).catch(err => done(err));
   })
 

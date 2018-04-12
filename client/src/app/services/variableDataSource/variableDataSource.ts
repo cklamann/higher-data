@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { intVarExport, intPaginationArgs, intBaseSchoolModel } from '../../../../server/src/schemas/SchoolSchema';
+import { intVarExport, intPaginationArgs } from '../../../../server/src/schemas/SchoolSchema';
 import { UtilService } from '../util/util';
 import { sectors } from '../data/sectors';
 import * as _ from 'lodash';

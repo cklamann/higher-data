@@ -1,6 +1,7 @@
 import * as M from 'mathjs';
 import * as _ from 'lodash';
-import { SchoolSchema, intSchoolModel, intSchoolDataModel, intVariableQueryConfig, intSchoolVarExport } from '../schemas/SchoolSchema';
+import { SchoolSchema, intSchoolModel, intVariableQueryConfig, intSchoolVarExport } from '../schemas/SchoolSchema';
+import { intSchoolDataModel } from '../schemas/SchoolDataSchema';
 import { VariableDefinitionSchema, intVariableDefinitionSchema } from '../schemas/VariableDefinitionSchema';
 
 export interface intFormulaParserResult {
@@ -17,14 +18,14 @@ export class FormulaParser {
 	optionalSymbolNodes: string[];
 	//todo: make default args its own class...
 	queryConfig: intVariableQueryConfig = {
-  		matches: [],
-  		sort: 'fiscal_year',
-  		pagination: {
-  			page: 1,
-  			perPage: 10000
-  		},
-  		inflationAdjusted: "false",
-  		variables: [],
+		matches: [],
+		sort: 'fiscal_year',
+		pagination: {
+			page: 1,
+			perPage: 10000
+		},
+		inflationAdjusted: "false",
+		variables: [],
 	}
 
 	constructor(formula: string) {
@@ -44,7 +45,7 @@ export class FormulaParser {
 			return {
 				[k]: v.map(item => {
 					return {
-						[item.variable] : item.value 
+						[item.variable]: item.value
 					}
 				}).reduce((acc, curr) => {
 					return _.assign(acc, curr);
@@ -57,7 +58,7 @@ export class FormulaParser {
 	}
 
 	//any is the intermediate data model
-	private _evaluate(chartData: any[]):intFormulaParserResult[] {
+	private _evaluate(chartData: any[]): intFormulaParserResult[] {
 		return chartData.map(datum => {
 			return {
 				fiscal_year: _.keys(datum)[0],
@@ -68,10 +69,10 @@ export class FormulaParser {
 
 	public execute(unitid: string): Promise<intFormulaParserResult[]> {
 		this.queryConfig.variables = this.symbolNodes;
-		this.queryConfig.matches.push({unitid})
+		this.queryConfig.matches.push({ unitid })
 		return SchoolSchema.schema.statics.fetchWithVariables(this.queryConfig)
 			.then((school: intSchoolVarExport) => {
-				const fullData = this._fillMissingOptionalData(school.data[0].data),
+				const fullData = this._fillMissingOptionalData(school.data[0].school_data),
 					transformedData = this._transformModelForFormula(fullData);
 				return this._evaluate(transformedData);
 			});
@@ -101,7 +102,7 @@ export class FormulaParser {
 		const range: any[] = yearsData.filter(obj => obj.fiscal_year);
 		const vals: number[] = _.values(range);
 		let res = _.uniq(vals).sort();
-		return res.map( year => String(year));
+		return res.map(year => String(year));
 	}
 
 	private _getUniqueVars(yearsData: intSchoolDataModel[]): Array<string> {

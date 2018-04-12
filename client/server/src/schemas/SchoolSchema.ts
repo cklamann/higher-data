@@ -1,16 +1,12 @@
 import { model, Schema, Document, Model } from 'mongoose';
 import { getInflationAdjuster } from '../modules/InflationAdjuster.service';
+import { intSchoolDataModel, intSchoolDataSchema, SchoolDataSchema } from './SchoolDataSchema';
 import * as _ from 'lodash';
 import * as Q from 'q';
 
 export let ObjectId = Schema.Types.ObjectId;
 
-export interface intBaseSchoolModel {
-  data: intSchoolDataModel[];
-  [key: string]: any;
-}
-
-export interface intSchoolModel extends intBaseSchoolModel {
+export interface intSchoolModel {
   unitid: string;
   instnm: string;
   state: string;
@@ -20,24 +16,14 @@ export interface intSchoolModel extends intBaseSchoolModel {
   locale: string;
   hbcu: string;
   slug: string;
-  data: intSchoolDataModel[];
+  school_data?: intSchoolDataModel[];
 };
 
 export interface intSchoolDataExportModel extends intSchoolModel {
   total?: number;
 }
 
-export interface intSchoolDataModel {
-  fiscal_year: string,
-  variable: string,
-  value: number,
-};
-
-export interface intSchoolSchema extends Document, intSchoolModel {
-  data: intSchoolDataSchema[];
-};
-
-export interface intSchoolDataSchema extends Document, intSchoolDataModel { };
+export interface intSchoolSchema extends Document, intSchoolModel { };
 
 export interface intVariableQueryConfig {
   matches: object[];
@@ -74,7 +60,7 @@ export interface intVarExport {
 
 export interface intSchoolVarAggExport extends intVarExport {
   query: intVariableQueryConfig;
-  data: intBaseSchoolModel[];
+  data: any[];
 }
 
 export interface intSchoolVarExport extends intVarExport {
@@ -87,24 +73,7 @@ interface intAggDataResult {
   data: intSchoolDataModel[]
 }
 
-
-const schoolDataSchema = new Schema({
-  fiscal_year: {
-    type: String,
-    requied: true,
-  },
-  variable: {
-    type: String,
-    required: true
-  },
-  value: {
-    type: Number,
-    required: true,
-    trim: true
-  }
-}, { _id: false });
-
-let schema: Schema = new Schema({
+let schoolSchema: Schema = new Schema({
   id: ObjectId,
   unitid: String,
   instnm: String,
@@ -118,21 +87,25 @@ let schema: Schema = new Schema({
   },
   hbcu: String,
   slug: String,
-  data: [schoolDataSchema]
+}, { toJSON: { virtuals: true } });
+
+schoolSchema.virtual('school_data', {
+  ref: 'school_data',
+  localField: 'unitid',
+  foreignField: 'unitid',
+  justOne: false
 });
 
-export let SchoolDataSchema = model<intSchoolDataSchema>('schoolData', schema);
-export let SchoolSchema = model<intSchoolSchema>('school', schema);
+export let SchoolSchema = model<intSchoolSchema>('school', schoolSchema);
 
 SchoolSchema.schema.statics = {
 
-  getVariableList: (): Promise<string[]> => SchoolSchema.distinct("data.variable").exec(),
-  search: (name: string): Promise<intSchoolSchema[]> => SchoolSchema.find({ instnm: { $regex: `${name}+.`, $options: 'is' } }).limit(25).select('-data').exec(),
+  search: (name: string): Promise<intSchoolSchema[]> => SchoolSchema.find({ instnm: { $regex: `${name}+.`, $options: 'is' } }).limit(25).exec(),
   //todo: abstract this logic into query builder
 
   //todo: create query builder based on query config
-    //need to be assured that this object will tell us everything we need to know to build query
-    // so should find out what that is and then validate and then build agg pipeline from it
+  //need to be assured that this object will tell us everything we need to know to build query
+  // so should find out what that is and then validate and then build agg pipeline from it
   fetchAggregate: (queryConfig: intVariableAggQueryConfig): Q.Promise<intSchoolVarAggExport> => {
     const start = (queryConfig.pagination.page * queryConfig.pagination.perPage) - queryConfig.pagination.perPage,
       stop = queryConfig.pagination.perPage * queryConfig.pagination.page;
@@ -140,18 +113,27 @@ SchoolSchema.schema.statics = {
     let aggArgs: any[] = [];
 
     aggArgs.push({
+      "$lookup": {
+        "from": "school_data",
+        "localField": "unitid",
+        "foreignField": "unitid",
+        "as": "school_data"
+      }
+    });
+
+    aggArgs.push({
       "$match": {
-        "$and": queryConfig.matches.concat([{ "data": { "$elemMatch": { "variable": { "$in": queryConfig.variables } } } }])
+        "$and": queryConfig.matches.concat([{ "school_data": { "$elemMatch": { "variable": { "$in": queryConfig.variables } } } }])
       }
     });
 
     aggArgs.push({
       "$project": {
         "sector": 1, "state": 1,
-        "data": {
+        "school_data": {
           "$filter":
             {
-              input: "$data",
+              input: "$school_data",
               as: "var",
               cond:
                 { "$in": ["$$var.variable", queryConfig.variables] }
@@ -160,12 +142,12 @@ SchoolSchema.schema.statics = {
       }
     });
 
-    aggArgs.push({ "$unwind": { "path": "$data" } })
-    aggArgs.push({ "$group": { "_id": { [queryConfig.groupBy.variable]: "$" + queryConfig.groupBy.variable, "fiscal_year": "$data.fiscal_year", "variable": "$data.variable" }, value: { ["$" + queryConfig.groupBy.aggFunc]: "$data.value" } } });
+    aggArgs.push({ "$unwind": { "path": "$school_data" } })
+    aggArgs.push({ "$group": { "_id": { [queryConfig.groupBy.variable]: "$" + queryConfig.groupBy.variable, "fiscal_year": "$data.fiscal_year", "variable": "$school_data.variable" }, value: { ["$" + queryConfig.groupBy.aggFunc]: "$school_data.value" } } });
     aggArgs.push({
       "$group": {
         "_id": "$" + "_id." + queryConfig.groupBy.variable,
-        "data":
+        "school_data":
           {
             "$push":
               {
@@ -224,17 +206,31 @@ SchoolSchema.schema.statics = {
         } else return res;
       });
   },
+
   fetchWithVariables: (queryConfig: intVariableQueryConfig): intSchoolVarExport => {
     const start = (queryConfig.pagination.page * queryConfig.pagination.perPage) - queryConfig.pagination.perPage,
       stop = queryConfig.pagination.perPage,
       aggArgs = [],
-      matchArg = {
-        "$and": queryConfig.matches.filter(match => !_.isEmpty(match)).concat([{ "data": { "$elemMatch": { "variable": { "$in": queryConfig.variables } } } }])
-      },
+      matchArg = queryConfig.matches.filter(match => !_.isEmpty(match)).length > 0 ? {
+        "$and": queryConfig.matches.filter(match => !_.isEmpty(match))
+      } : {},
       sortDir = queryConfig.sort ? queryConfig.sort.substr(0, 1) == "-" ? -1 : 1 : 1,
       sortField = sortDir == -1 ? queryConfig.sort.slice(1) : queryConfig.sort ? queryConfig.sort : "instnm";
-    
-    aggArgs.push({ "$match": matchArg });
+
+    if (_.isEmpty(matchArg)) {
+      aggArgs.push({ "$match": matchArg });
+    }
+
+    //hella slow, is current problem -- would be best to filter school_data first, then lookup school value, then reshape
+
+    aggArgs.push({
+      "$lookup": {
+        "from": "school_data",
+        "localField": "unitid",
+        "foreignField": "unitid",
+        "as": "school_data"
+      }
+    });
 
     //only need these if sorting on a year
     let idx = {
@@ -260,19 +256,19 @@ SchoolSchema.schema.statics = {
           '$reduce': {
             input: "$idx",
             initialValue: 0,
-            in: {"$sum":["$$value","$$this.value"]}
+            in: { "$sum": ["$$value", "$$this.value"] }
           }
         }
       }
     }
-    if(_.toNumber(sortField)){
-          aggArgs.push(idx);
-          aggArgs.push(red);
-          aggArgs.push({ "$sort": {"red": sortDir} });    
-    } else aggArgs.push({ "$sort": {[sortField]: sortDir} }); 
+    if (_.toNumber(sortField)) {
+      aggArgs.push(idx);
+      aggArgs.push(red);
+      aggArgs.push({ "$sort": { "red": sortDir } });
+    } else aggArgs.push({ "$sort": { [sortField]: sortDir } });
 
-    aggArgs.push({"$skip":start});
-    aggArgs.push({"$limit":stop});
+    aggArgs.push({ "$skip": start });
+    aggArgs.push({ "$limit": stop });
 
     aggArgs.push({
       "$project": {
@@ -284,11 +280,11 @@ SchoolSchema.schema.statics = {
         ein: 1,
         locale: 1,
         hbcu: 1,
-        data: {
+        school_data: {
           "$filter": {
-            input: "$data",
-            as: "data",
-            cond: { "$in": ["$$data.variable", queryConfig.variables] }
+            input: "$school_data",
+            as: "school_data",
+            cond: { "$in": ["$$school_data.variable", queryConfig.variables] }
           }
         }
       }
@@ -299,7 +295,7 @@ SchoolSchema.schema.statics = {
         let ret = { query: queryConfig, data: res }
         if (queryConfig.inflationAdjusted == "true") {
           return getInflationAdjuster().then(adjuster => {
-            ret.data.forEach(datum => datum.data.forEach(item => item.value = adjuster(item.fiscal_year, item.value)))
+            ret.data.forEach(datum => datum.school_data.forEach(item => item.value = adjuster(item.fiscal_year, item.value)))
             return ret
           });
         } else return ret;
@@ -315,8 +311,8 @@ SchoolSchema.schema.statics = {
   fetch: (arg: string): Promise<intSchoolSchema> => {
     let promise;
     if (!!_.toNumber(arg)) {
-      promise = SchoolSchema.findOne({ unitid: arg }).select('-data').exec();
-    } else promise = SchoolSchema.findOne({ slug: arg }).select('-data').exec();
+      promise = SchoolSchema.findOne({ unitid: arg }).exec();
+    } else promise = SchoolSchema.findOne({ slug: arg }).exec();
     return promise;
   }
 };

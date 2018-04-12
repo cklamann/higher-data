@@ -1,5 +1,6 @@
 import { UserSchema } from '../../schemas/UserSchema';
 import { SchoolSchema, intSchoolSchema, intVariableQueryConfig, intSchoolVarExport, intSchoolVarAggExport, intVariableAggQueryConfig } from '../../schemas/SchoolSchema';
+import { SchoolDataSchema } from '../../schemas/SchoolDataSchema';
 import * as assert from 'assert';
 import * as chai from 'chai';
 import { expect } from 'chai';
@@ -14,40 +15,84 @@ describe('School Schema', function() {
 
   before('create a test school', function(done) {
     SchoolSchema.create(nwData.nwData)
+      .then(() => SchoolDataSchema.create(nwData.nwData_school_data))
       .then(() => done())
       .catch(err => done(err));
   });
 
   before('create a test school', function(done) {
     SchoolSchema.create(nwData.nwDataSector40)
+      .then(() => SchoolDataSchema.create(nwData.nwDataSector40_school_data))
       .then(() => done())
       .catch(err => done(err));
   });
 
   before('create a test school', function(done) {
     SchoolSchema.create(nwData.nwDataSector40_all_zeroes)
+      .then(() => SchoolDataSchema.create(nwData.nwDataSector40_all_zeroes_school_data))
       .then(() => done())
       .catch(err => done(err));
   });
 
   before('create a test school', function(done) {
     SchoolSchema.create(nwData.nwDataSector40_all_ones)
+      .then(() => SchoolDataSchema.create(nwData.nwDataSector40_all_ones_school_data))
       .then(() => done())
       .catch(err => done(err));
   });
 
   before('create a test school', function(done) {
     SchoolSchema.create(nwData.zzSchool1)
+      .then(() => SchoolDataSchema.create(nwData.zzSchool1_school_data))
       .then(() => done())
       .catch(err => done(err));
   });
 
   before('create a test school', function(done) {
     SchoolSchema.create(nwData.zzSchool2)
+      .then(() => SchoolDataSchema.create(nwData.zzSchool2_school_data))
       .then(() => done())
       .catch(err => done(err));
   });
-  
+
+  describe('test that test school exists', function(){
+    it('should return test school with no virtual property',function(done){
+      SchoolSchema.find({unitid:nwData.nwData.unitid})
+        .then( res => {
+          expect(res).to.be.an('array');
+          expect(res).to.have.lengthOf(1);
+          expect(res).to.not.have.property('school_data');
+          done()
+        })
+       .catch(err => done(err));
+    });
+  });
+
+  describe('test that test school\'s school_data exists', function(){
+    it('should return the school_data that belongs to the test school',function(done){
+      SchoolDataSchema.find({unitid:nwData.nwData.unitid})
+        .then( res => {
+          expect(res).to.be.an('array');
+          expect(res).to.have.lengthOf(nwData.nwData_school_data.length);
+          done()
+        })
+       .catch(err => done(err));
+    });
+  });
+
+  describe('fetch a school with virtual school_data property', function(){
+    it('should return one school with its data',function(done){
+      SchoolSchema.findOne({unitid:nwData.nwData.unitid}).populate('school_data').exec()
+        .then( res => {
+          expect(res.school_data).to.exist;
+          expect(res.school_data).to.be.an('array');
+          expect(res.school_data).to.have.lengthOf(nwData.nwData_school_data.length);
+          done()
+        })
+       .catch(err => done(err));
+    });
+  });
+
   describe('fetch a school with specified variables', function() {
     it('should return school with variables', function(done) {
       let queryFilters: intVariableQueryConfig = {
@@ -68,9 +113,9 @@ describe('School Schema', function() {
           //make sure only one school was returned
           expect(res.data).to.have.lengthOf(1);
           //make sure data was filtered correctly
-          expect(res.data[0].data.filter((datum: any) => datum.variable === "hispanic_p").length).to.be.greaterThan(0);
-          expect(res.data[0].data.filter((datum: any) => datum.variable === "asian_p").length).to.be.greaterThan(0);
-          expect(res.data[0].data.filter((datum: any) => datum.variable === "white_p").length).to.equal(0);
+          expect(res.data[0].school_data.filter((datum: any) => datum.variable === "hispanic_p").length).to.be.greaterThan(0);
+          expect(res.data[0].school_data.filter((datum: any) => datum.variable === "asian_p").length).to.be.greaterThan(0);
+          expect(res.data[0].school_data.filter((datum: any) => datum.variable === "white_p").length).to.equal(0);
           done()
         })
         .catch((err: Error) => done(err));
@@ -94,13 +139,13 @@ describe('School Schema', function() {
           expect(res).to.be.an('object');
           expect(res.data.length).to.equal(50);
           expect(res.query.pagination.total).to.be.greaterThan(2000); //about half have the vars have these properties...
-          res.data.forEach(datum => expect(datum.data.filter( (item:any) => item.variable === "white_p").length).to.equal(0));
-          expect(res.data.some(datum => datum.data.filter( (item:any) => item.variable === "room_and_board").length > 0)).to.equal(true);
-          expect(res.data.some(datum => datum.data.filter( (item:any) => item.variable === "in_state_tuition").length > 0)).to.equal(true);
-          res.data.forEach((datum:intSchoolSchema, i: number) => {
+          res.data.forEach(datum => expect(datum.school_data.filter((item: any) => item.variable === "white_p").length).to.equal(0));
+          expect(res.data.some(datum => datum.school_data.filter((item: any) => item.variable === "room_and_board").length > 0)).to.equal(true);
+          expect(res.data.some(datum => datum.school_data.filter((item: any) => item.variable === "in_state_tuition").length > 0)).to.equal(true);
+          res.data.forEach((datum: intSchoolSchema, i: number) => {
             if (i < res.data.length - 1) {
-              expect(datum.data.find( item => item.fiscal_year == "2008" && item.variable === queryFilters.variables[0]).value)
-                .to.be.at.least(res.data[i + 1].data.find((item: any) => item.fiscal_year === "2008" && item.variable === queryFilters.variables[0]).value);
+              expect(datum.school_data.find(item => item.fiscal_year == "2008" && item.variable === queryFilters.variables[0]).value)
+                .to.be.at.least(res.data[i + 1].school_data.find((item: any) => item.fiscal_year === "2008" && item.variable === queryFilters.variables[0]).value);
             }
           });
           done()
@@ -207,36 +252,42 @@ describe('School Schema', function() {
 
   after('destroy test school', function(done) {
     SchoolSchema.find({ unitid: nwData.nwData.unitid }).remove().exec()
+      .then(() => SchoolDataSchema.find({ unitid: nwData.nwData.unitid }).remove().exec())
       .then(() => done())
       .catch(err => done(err));
   });
 
   after('destroy test school', function(done) {
     SchoolSchema.find({ unitid: nwData.nwDataSector40.unitid }).remove().exec()
+      .then(() => SchoolDataSchema.find({ unitid: nwData.nwDataSector40.unitid }).remove().exec())
       .then(() => done())
       .catch(err => done(err));
   });
 
   after('destroy test school', function(done) {
     SchoolSchema.find({ unitid: nwData.nwDataSector40_all_ones.unitid }).remove().exec()
+      .then(() => SchoolDataSchema.find({ unitid: nwData.nwDataSector40_all_ones.unitid }).remove().exec())
       .then(() => done())
       .catch(err => done(err));
   });
 
   after('destroy test school', function(done) {
     SchoolSchema.find({ unitid: nwData.nwDataSector40_all_zeroes.unitid }).remove().exec()
+      .then(() => SchoolDataSchema.find({ unitid: nwData.nwDataSector40_all_ones.unitid }).remove().exec())
       .then(() => done())
       .catch(err => done(err));
   });
 
   after('destroy test school', function(done) {
     SchoolSchema.find({ unitid: nwData.zzSchool1.unitid }).remove().exec()
+      .then(() => SchoolDataSchema.find({ unitid: nwData.zzSchool1.unitid }).remove().exec())
       .then(() => done())
       .catch(err => done(err));
   });
 
   after('destroy test school', function(done) {
     SchoolSchema.find({ unitid: nwData.zzSchool2.unitid }).remove().exec()
+      .then(() => SchoolDataSchema.find({ unitid: nwData.zzSchool2.unitid }).remove().exec())
       .then(() => done())
       .catch(err => done(err));
   });

@@ -1,4 +1,5 @@
 import { SchoolSchema, intSchoolSchema } from '../schemas/SchoolSchema';
+import { SchoolDataSchema } from '../schemas/SchoolDataSchema';
 import { VariableDefinitionSchema, intVariableDefinitionSchema } from '../schemas/VariableDefinitionSchema';
 import { Router, Response, Request, NextFunction } from "express";
 import { intChartModel } from '../schemas/ChartSchema';
@@ -10,7 +11,7 @@ let router = Router();
 let School = SchoolSchema;
 
 router.get('/fetch_names', passport.authenticate('basic', { session: false }), function(req, res, next) {
-	School.schema.statics.getVariableList()
+	SchoolDataSchema.schema.statics.getVariableList()
 		.then((resp: string[]) => {
 			return res.json(resp);
 		})
