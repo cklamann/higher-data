@@ -154,7 +154,6 @@ describe('School Schema', function() {
     });
   });
 
-
   describe('fetch aggregate', function() {
     it('should return sums by sector', function(done) {
       let queryFilters: intVariableAggQueryConfig = {
@@ -241,7 +240,7 @@ describe('School Schema', function() {
           expect(res.data.length).to.equal(10);
           res.data.forEach((datum: any, i: number) => {
             if (i < res.data.length - 1) {
-              expect(datum.school_data.find((item: any) => item.fiscal_year == "2003").value).to.be.greaterThan(res.data[i + 1].data.find((item: any) => item.fiscal_year === "2003").value);
+              expect(datum.school_data.find((item: any) => item.fiscal_year == "2003").value).to.be.greaterThan(res.data[i + 1].school_data.find((item: any) => item.fiscal_year === "2003").value);
             }
           });
           done();

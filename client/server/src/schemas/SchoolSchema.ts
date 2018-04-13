@@ -143,7 +143,7 @@ SchoolSchema.schema.statics = {
     });
 
     aggArgs.push({ "$unwind": { "path": "$school_data" } })
-    aggArgs.push({ "$group": { "_id": { [queryConfig.groupBy.variable]: "$" + queryConfig.groupBy.variable, "fiscal_year": "$data.fiscal_year", "variable": "$school_data.variable" }, value: { ["$" + queryConfig.groupBy.aggFunc]: "$school_data.value" } } });
+    aggArgs.push({ "$group": { "_id": { [queryConfig.groupBy.variable]: "$" + queryConfig.groupBy.variable, "fiscal_year": "$school_data.fiscal_year", "variable": "$school_data.variable" }, value: { ["$" + queryConfig.groupBy.aggFunc]: "$school_data.value" } } });
     aggArgs.push({
       "$group": {
         "_id": "$" + "_id." + queryConfig.groupBy.variable,
