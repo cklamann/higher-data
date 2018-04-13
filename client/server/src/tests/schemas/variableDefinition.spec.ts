@@ -1,5 +1,6 @@
 import { VariableDefinitionSchema, intVariableDefinitionSchema, intVariableDefinitionModel, intVariableSourceModel, variableSourcesSchema } from '../../schemas/VariableDefinitionSchema';
 import { SchoolSchema, intSchoolSchema } from '../../schemas/SchoolSchema';
+import { SchoolDataSchema } from '../../schemas/SchoolDataSchema';
 import * as chai from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import { expect } from 'chai';
@@ -13,7 +14,9 @@ describe('Variable Definition Schema', function() {
 
   const testVar: intVariableDefinitionModel = {
     variable: "test_var",
-    type: "currency",
+    valueType: "currency",
+    friendlyName: '',
+    category: '',
     sources: [{
       startYear: "2015",
       endYear: "2017",
@@ -26,37 +29,27 @@ describe('Variable Definition Schema', function() {
   }
 
   before('create school', done => {
-    SchoolSchema.create({
-      unitid: "12345",
-      data: [{
+    SchoolSchema.create({ unitid: "12345" })
+      .then(() => SchoolDataSchema.create({
+        unitid: '12345',
         variable: 'test_var',
         value: "4",
         fiscal_year: '2019'
-      }]
-    }).then(() => done()).catch(err => done(err));
+      }))
+      .then(() => VariableDefinitionSchema.create(testVar))
+      .then(() => done())
+      .catch(err => done(err));
   });
 
   describe('test school exists with test var', function() {
     it('should return without error', function(done) {
-      SchoolSchema.findOne({ unitid: 12345 }, function(err) {
-        if (err) done(err);
-        else done();
-      }).then(function(res) {
-        assert.equal(res.unitid, 12345);
-        expect(res).to.deep.include({ variable: 'test_var' })
-      });
-    });
-  })
-
-  describe('#save()', function() {
-    it('should save without error', function(done) {
-      var variable = new VariableDefinitionSchema(testVar);
-      variable.save(function(err) {
-        if (err) done(err);
-        else done();
-      }).then(function(resVar) {
-        assert.equal(resVar, testVar);
-      });
+      SchoolSchema.findOne({ unitid: '12345' }).populate('school_data').exec()
+        .then(res => {
+          assert.equal(res.unitid, '12345');
+          expect(res.school_data).to.have.lengthOf(1);
+          done();
+        })
+        .catch(err => done(err));
     });
   });
 
@@ -83,6 +76,7 @@ describe('Variable Definition Schema', function() {
 
       VariableDefinitionSchema.findOne({ variable: testVar.variable }).exec()
         .then(res => {
+          console.log(res);
           res.sources[0].source = "new fancy updated source!";
           res.sources.push(newSource);
           return VariableDefinitionSchema.schema.statics.fetchAndUpdate(res);
@@ -101,8 +95,9 @@ describe('Variable Definition Schema', function() {
   });
 
   after('remove test school', function(done) {
-    SchoolSchema.find({
-      unitid: "12345"
-    }).remove().exec().then(() => done());
+    SchoolSchema.find({ unitid: "12345" }).remove().exec();
+    SchoolDataSchema.find({ unitid: "12345" }).remove().exec()
+      .then(() => done())
+      .catch(err => done(err));
   });
 });

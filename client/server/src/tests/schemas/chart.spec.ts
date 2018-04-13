@@ -1,7 +1,8 @@
 import { ChartSchema, intChartSchema, intChartModel, intChartVariableModel, ChartVariableSchema, intChartVariableSchema } from '../../schemas/ChartSchema';
-import { nwData, dummyChartData } from '../fixtures/fixtures';
+import { nwData, nwData_school_data } from '../fixtures/fixtures';
 import { VariableDefinitionSchema, intVariableDefinitionSchema, intVariableDefinitionModel } from '../../schemas/VariableDefinitionSchema';
 import { SchoolSchema } from '../../schemas/SchoolSchema';
+import { SchoolDataSchema } from '../../schemas/SchoolDataSchema';
 import * as chai from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import { expect } from 'chai';
@@ -19,6 +20,8 @@ describe('Chart Schema', function() {
   const testVar1: intVariableDefinitionModel = {
     variable: "test_var_1",
     valueType: "currency",
+    friendlyName: '',
+    category: '',
     sources: [{
       startYear: "2015",
       endYear: "2017",
@@ -33,6 +36,8 @@ describe('Chart Schema', function() {
   const testVar2: intVariableDefinitionModel = {
     variable: "test_var_2",
     valueType: "currency0",
+    friendlyName: '',
+    category: '',
     sources: [{
       startYear: "2015",
       endYear: "2017",
@@ -45,11 +50,10 @@ describe('Chart Schema', function() {
   }
 
   before('seed data and create a test school and variables', function(done) {
-    nwData.data = nwData.data.concat(dummyChartData);
     SchoolSchema.create(nwData)
-      .then(() => {
-        return VariableDefinitionSchema.create([testVar1, testVar2]);
-      }).then(() => done()).catch((err) => done(err));
+      .then(() => SchoolDataSchema.create(nwData_school_data))
+      .then(() => VariableDefinitionSchema.create([testVar1, testVar2]))
+      .then(() => done()).catch((err) => done(err));
   });
 
   const testChart: intChartModel = {
@@ -59,7 +63,7 @@ describe('Chart Schema', function() {
     category: 'fake',
     active: true,
     valueType: 'currency',
-    cuts:[],
+    cuts: [],
     description: 'sweet chart',
     variables: []
   };
@@ -106,7 +110,7 @@ describe('Chart Schema', function() {
     it('should return without error', function() {
       testChart.variables = []; //reset...
       const model = new ChartSchema(testChart),
-        newVar = <any>testChartVariableGood; 
+        newVar = <any>testChartVariableGood;
       model.variables.push(newVar);
       return assert.isFulfilled(model.validate());
     });
@@ -139,13 +143,14 @@ describe('Chart Schema', function() {
     });
   });
 
-  afterEach('remove test chart', function(done){
+  afterEach('remove test chart', function(done) {
     ChartSchema.remove({ name: testChart.name }).exec().then(() => done()).catch(err => done(err));
   });
 
   after('remove test org and variables', function(done) {
     VariableDefinitionSchema.find({ variable: { "$in": ["test_var_1", "test_var_2"] } }).remove().exec()
       .then(() => SchoolSchema.find({ unitid: nwData.unitid }).remove().exec())
+      .then(() => SchoolDataSchema.find({ unitid: nwData.unitid }).remove().exec())
       .then(() => done()).catch(err => done(err));
   })
 

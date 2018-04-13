@@ -2,6 +2,7 @@ import { FormulaParser, intFormulaParserResult } from '../../modules/FormulaPars
 import { VariableDefinitionSchema, intVariableDefinitionSchema, intVariableDefinitionModel } from '../../schemas/VariableDefinitionSchema';
 import { SchoolSchema, intSchoolVarExport, intSchoolModel } from '../../schemas/SchoolSchema';
 import { intSchoolDataModel, intSchoolDataSchema } from '../../schemas/SchoolDataSchema';
+import { SchoolDataSchema } from '../../schemas/SchoolDataSchema';
 import assert = require('assert');
 import chai = require('chai');
 import { expect } from 'chai';
@@ -53,25 +54,24 @@ describe('FORMULA MODEL', function() {
 
 	before('create test school with incomplete variable', function(done) {
 		SchoolSchema.create(schoolWithIncompleteYears)
+			.then(() => SchoolDataSchema.create(schoolWithIncompleteYears_school_data))
 			.then(() => done())
 			.catch((err) => done(err));
 	});
 
-	before('create a test school and a test variable', function(done) {
-		SchoolSchema.create(nwData);
-		SchoolSchema.create({
-			unitid: "12345",
-			data: [{
+	before('create test schools and a test variable', function(done) {
+		SchoolSchema.create(nwData)
+			.then(() => SchoolDataSchema.create(nwData_school_data))
+			.then(() => SchoolSchema.create({ unitid: "12345" }))
+			.then(() => SchoolDataSchema.create({
 				variable: 'test_var',
-				value: "10",
-				fiscal_year: '2019'
-			}]
-		})
-			.then(() => {
-				VariableDefinitionSchema.create(testVar)
-					.then(() => done());
-			})
-			.catch((err) => done(err));
+				value: 10,
+				fiscal_year: '2019',
+				unitid: "12345"
+			}))
+			.then(() => VariableDefinitionSchema.create(testVar))
+			.then(() => done())
+			.catch(err => done(err));
 	});
 
 
@@ -222,7 +222,9 @@ describe('FORMULA MODEL', function() {
 	})
 
 	after('remove test schools', function(done) {
-		SchoolSchema.find({ unitid: { "$in": [nwData.unitid, schoolWithIncompleteYears.unitid, 12345] } }).remove().exec().then(() => done());
+		SchoolSchema.find({ unitid: { "$in": [nwData.unitid, schoolWithIncompleteYears.unitid, "12345"] } }).remove().exec()
+			.then(()=> SchoolDataSchema.find({ unitid: { "$in": [nwData.unitid, schoolWithIncompleteYears.unitid, "12345"] } }).remove().exec())
+			.then(() => done());
 	});
 
 });

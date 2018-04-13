@@ -1,7 +1,8 @@
 import { UserSchema } from '../../schemas/UserSchema';
-import { nwData, dummyChartData } from '../fixtures/fixtures';
+import { nwData, nwData_school_data } from '../fixtures/fixtures';
 import { VariableDefinitionSchema, intVariableDefinitionSchema, intVariableDefinitionModel } from '../../schemas/VariableDefinitionSchema';
 import { SchoolSchema } from '../../schemas/SchoolSchema';
+import { SchoolDataSchema } from '../../schemas/SchoolDataSchema';
 import * as assert from 'assert';
 import * as chai from 'chai';
 const chaiHttp = require('chai-http');
@@ -31,10 +32,12 @@ describe("CHART ROUTE", () => {
 
 	const testVar1: intVariableDefinitionModel = {
 		variable: "test_var_1",
-		type: "currency",
+		friendlyName: '',
+		category: '',
+		valueType: "currency0",
 		sources: [{
-			startYear: 2015,
-			endYear: 2017,
+			startYear: '2015',
+			endYear: '2017',
 			source: "IPEDS",
 			table: "test_ipeds_table",
 			formula: "source formula doesn't matter",
@@ -44,11 +47,9 @@ describe("CHART ROUTE", () => {
 	}
 
 	before('seed data and create a test school and variables', function(done) {
-		nwData.data = nwData.data.concat(dummyChartData);
 		SchoolSchema.create(nwData)
-			.then(() => {
-				return VariableDefinitionSchema.create([testVar1]);
-			})
+			.then(() => SchoolDataSchema.create(nwData_school_data))
+			.then(() => VariableDefinitionSchema.create([testVar1]))
 			.then(() => done())
 			.catch(err => done(err));
 	});
@@ -61,6 +62,7 @@ describe("CHART ROUTE", () => {
 		slug: 'the-slug',
 		valueType: 'currency',
 		description: 'sweet chart',
+		cuts: [],
 		variables: [{
 			formula: '1+test_var_1',
 			notes: 'test notes',
@@ -131,6 +133,7 @@ describe("CHART ROUTE", () => {
 	after('remove test org and variables', function(done) {
 		VariableDefinitionSchema.find({ variable: { "$in": ["test_var_1", "test_var_2"] } }).remove().exec()
 			.then(() => SchoolSchema.find({ unitid: nwData.unitid }).remove().exec())
+			.then(() => SchoolDataSchema.find({ unitid: nwData.unitid }).remove().exec())
 			.then(() => done()).catch(err => done(err));
 	})
 });
