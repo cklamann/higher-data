@@ -25,14 +25,6 @@ export interface intSchoolDataExportModel extends intSchoolModel {
 
 export interface intSchoolSchema extends Document, intSchoolModel { };
 
-export interface intVariableQueryConfig {
-  matches: object[];
-  sort: string;
-  pagination: intPaginationArgs;
-  inflationAdjusted: string;
-  variables: string[];
-}
-
 export interface intVariableAggQueryConfig {
   matches?: any[];
   groupBy: intGroupByArgs;
@@ -40,12 +32,6 @@ export interface intVariableAggQueryConfig {
   pagination: intPaginationArgs;
   inflationAdjusted: string;
   variables: string[];
-}
-
-export interface intPaginationArgs {
-  total?: number;
-  page: number;
-  perPage: number;
 }
 
 export interface intGroupByArgs {
