@@ -24,9 +24,9 @@ let schema: Schema = new Schema({
 	instnm: String
 });
 
-export let MajorSchema = model<intDegreeDataSchema>('major', schema, 'majors');
+export let DegreeDataSchema = model<intDegreeDataSchema>('degree_data', schema, 'degree_data');
 
-MajorSchema.schema.statics = {
+DegreeDataSchema.schema.statics = {
 
 
 }

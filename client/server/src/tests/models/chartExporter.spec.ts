@@ -107,7 +107,6 @@ describe('ChartExporter', function() {
 
   //give newData test_var_1 and test_var_2
   before('seed first and create variables', function(done) {
-    nwData_school_data = nwData_school_data.concat(dummyChartData);
     SchoolDataSchema.create(nwData_school_data)
       .then( () => SchoolSchema.create(nwData))  
       .then( () => done()).catch((err) => done(err));
@@ -119,7 +118,6 @@ describe('ChartExporter', function() {
       x.unitid = nwDataSector6.unitid;
       return x;
     });
-    nwDataSector6_school_data = nwDataSector6_school_data.concat(dummyChartData22);
     SchoolDataSchema.create(nwDataSector6_school_data)
       .then( () => SchoolSchema.create(nwDataSector6))  
       .then( () => done()).catch((err) => done(err));

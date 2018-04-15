@@ -50,6 +50,10 @@ describe('School Data Schema', function() {
 					page: 1,
 					perPage: 10
 				},
+				groupBy: {
+					variable: 'instnm',
+					aggFunc:''	
+				},
 				inflationAdjusted: 'false', //todo:update to boolean
 				filters: {
 					fieldName: 'variable',
@@ -87,6 +91,10 @@ describe('School Data Schema', function() {
 					page: 3,
 					perPage: 50
 				},
+				groupBy: {
+					variable: 'instnm',
+					aggFunc:''	
+				},
 				inflationAdjusted: 'false',
 				filters: {
 					fieldName: 'variable',
@@ -103,6 +111,49 @@ describe('School Data Schema', function() {
 					res.data.forEach(datum => expect(datum.data.filter((item: any) => item.variable === "white_p").length).to.equal(0));
 					expect(res.data.some(datum => datum.data.filter((item: any) => item.variable === "room_and_board").length > 0)).to.equal(true);
 					expect(res.data.some(datum => datum.data.filter((item: any) => item.variable === "in_state_tuition").length > 0)).to.equal(true);
+					res.data.forEach((datum, i) => {
+						if (i < res.data.length - 1) {
+							expect(datum.data.find(item => item.fiscal_year == "2008" && item.variable === qc.filters.values[0]).value)
+								.to.be.at.least(res.data[i + 1].data.find((item: any) => item.fiscal_year === "2008" && item.variable === qc.filters.values[0]).value);
+						}
+					});
+					done();
+				})
+				.catch(err => done(err));
+		});
+	});
+
+	describe('fetch aggregate', function() {
+		it('should retrieve room and board by sector', function(done) {
+			let qc: intQueryConfig = {
+				matches: [],
+				sort: {
+					field: '2008',
+					direction: '-'
+				},
+				pagination: {
+					page: 1,
+					perPage: 5
+				},
+				groupBy: {
+					variable: 'sector',
+					aggFunc:  'sum',	
+				},
+				inflationAdjusted: 'false',
+				filters: {
+					fieldName: 'variable',
+					values: ['room_and_board']
+				}
+			}
+
+			SchoolDataSchema.schema.statics.fetchWithSchoolNames(qc)
+				.then((res: intVarExport) => {
+					expect(res).to.exist;
+					expect(res).to.be.an('object');
+					expect(res).to.have.property('data');
+					expect(res.data[0]).to.have.property('sector');
+					res.data.forEach(datum => expect(datum.data.filter((item: any) => item.variable === "white_p").length).to.equal(0));
+					expect(res.data.some(datum => datum.data.filter((item: any) => item.variable === "room_and_board").length > 0)).to.equal(true);
 					res.data.forEach((datum, i) => {
 						if (i < res.data.length - 1) {
 							expect(datum.data.find(item => item.fiscal_year == "2008" && item.variable === qc.filters.values[0]).value)

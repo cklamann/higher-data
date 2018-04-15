@@ -129,6 +129,7 @@ SchoolSchema.schema.statics = {
     });
 
     aggArgs.push({ "$unwind": { "path": "$school_data" } })
+    //note:  this is different from the other, need to combine
     aggArgs.push({ "$group": { "_id": { [queryConfig.groupBy.variable]: "$" + queryConfig.groupBy.variable, "fiscal_year": "$school_data.fiscal_year", "variable": "$school_data.variable" }, value: { ["$" + queryConfig.groupBy.aggFunc]: "$school_data.value" } } });
     aggArgs.push({
       "$group": {

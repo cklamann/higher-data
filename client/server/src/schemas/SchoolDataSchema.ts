@@ -77,18 +77,28 @@ SchoolDataSchema.schema.statics = {
 
   getVariableList: (): Promise<string[]> => SchoolDataSchema.distinct('variable').exec(),
 
+  //todo: to implement aggregation, will just need to $group on other properties, really the same process...
+
   fetchWithSchoolNames: (queryConfig: intQueryConfig): Promise<intVarExport> => {
 
     const sd = queryConfig.sort.direction === "-" ? -1 : 1,
       sf = queryConfig.sort.field ? queryConfig.sort.field : "_id", //instnm in this case, every time
       start = (queryConfig.pagination.page * queryConfig.pagination.perPage) - queryConfig.pagination.perPage,
-      stop = queryConfig.pagination.perPage;
+      stop = queryConfig.pagination.perPage,
+      groupByFuncName = queryConfig.groupBy.aggFunc ? queryConfig.groupBy.aggFunc : "sum",
+      groupByField = queryConfig.groupBy.variable ? queryConfig.groupBy.variable : "instnm";
 
     //todo: qC = new QueryConfig(queryConfig)
 
     // then can do magic like aggArgs.push(qC.getMatches()), aggArgs.push(qC.getSort()), etc. 
-    // this gives you control over order, which is most important. Brilliant!
-    // might wanna do some manual runs, first, here and on agg, then abstract and apply to degrees
+    // this gives you control over order
+
+    /*
+      steps:
+        1) make it work for unaggregated school_data results (x)
+        2) make it work for aggregated school_data results (same method) (x)
+        3) make it work for degree_data results ()
+    */
 
     let aggArgs: object[] = [];
 
@@ -99,14 +109,33 @@ SchoolDataSchema.schema.statics = {
       }
     });
 
-    //slim down model
+    //2 groupBys -> first, reduce and groupby (if there's an aggFunc), then group into 'data' array
+
     aggArgs.push({
-      "$project": { "instnm": 1, "unitid": 1, "variable": 1, "value": 1, "fiscal_year": 1 }
+      "$group": {
+        "_id": {
+          [groupByField]: "$" + groupByField, 'variable': '$variable', 'fiscal_year': '$fiscal_year'
+        },
+        "value": { ['$' + groupByFuncName]: '$value' }
+      }
     });
 
-    //group by instnm
     aggArgs.push({
-      "$group": { "_id": "$instnm", "data": { $addToSet: { "fiscal_year": "$fiscal_year", "variable": "$variable", "value": "$value" } } }
+      $project: {
+        [groupByField]: "$_id." + groupByField,
+        'variable': '$_id.variable',
+        'fiscal_year': '$_id.fiscal_year',
+        'value': '$value',
+        '_id': 0
+      }
+    });
+
+    aggArgs.push({
+      "$group": {
+        "_id":
+          "$" + groupByField,
+        "data": { ["$addToSet"]: { "fiscal_year": "$fiscal_year", "variable": "$variable", "value": "$value" } }
+      }
     });
 
     //sort
@@ -145,11 +174,11 @@ SchoolDataSchema.schema.statics = {
       }
     ]
 
-    let sortArg = _.toNumber(sf) ? yearSort : normalSort; 
+    let sortArg = _.toNumber(sf) ? yearSort : normalSort;
 
     aggArgs.push({
       $facet: {
-        results: [...sortArg, { "$skip": start }, { "$limit": stop }, { "$project": { instnm: '$_id', data: 1, '_id': 0 } }],
+        results: [...sortArg, { "$skip": start }, { "$limit": stop }, { "$project": { [queryConfig.groupBy.variable]: '$_id', data: 1, '_id': 0 } }],
         totalCount: [{ $count: 'count' }]
       }
     });

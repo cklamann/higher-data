@@ -6,19 +6,25 @@ export interface intQueryConfig {
 	pagination: intPaginationArgs;
 	inflationAdjusted: string;
 	filters: intQueryFilter;
+	groupBy: intGroupByArgs;
 }
 
-export interface intQuerySort {
+interface intGroupByArgs {
+  aggFunc: string;
+  variable: string;
+}
+
+interface intQuerySort {
 	field: string,
 	direction: "-" | "";
 }
 
-export interface intQueryFilter {
+interface intQueryFilter {
 	fieldName: string,
 	values: string[]
 }
 
-export interface intPaginationArgs {
+interface intPaginationArgs {
 	total?: number;
 	page: number;
 	perPage: number;

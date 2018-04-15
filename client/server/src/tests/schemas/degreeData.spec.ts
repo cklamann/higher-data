@@ -1,4 +1,4 @@
-import { MajorSchema  } from '../../schemas/MajorSchema';
+import {  DegreeDataSchema } from '../../schemas/DegreeDataSchema';
 import assert = require('assert');
 import chai = require('chai');
 import { expect } from 'chai';
@@ -8,7 +8,7 @@ describe('CipMap Schema', function() {
 
   describe('#fetch()', function() {
     it('should fetch the schema', function(done) {
-      MajorSchema.find().limit(50)
+      DegreeDataSchema.find().limit(50)
         .then(schema => {
           expect(schema).to.be.an('array');
           expect(schema[0]).to.have.property('fiscal_year');

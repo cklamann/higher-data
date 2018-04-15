@@ -18,7 +18,8 @@ export let dummyChartData: intSchoolDataModel[] = [
 	{ sector: "1", state: "KS", instnm: "Nortdesters", variable: "test_var_3", fiscal_year: "2002", unitid: "666666", value: 160 },
 	{ sector: "1", state: "KS", instnm: "Nortdesters", variable: "test_var_3", fiscal_year: "2003", unitid: "666666", value: 170 },
 	{ sector: "1", state: "KS", instnm: "Nortdesters", variable: "test_var_3", fiscal_year: "2004", unitid: "666666", value: 180 },
-	{ sector: "1", state: "KS", instnm: "Nortdesters", variable: "test_var_3", fiscal_year: "2005", unitid: "666666", value: 190 }
+	{ sector: "1", state: "KS", instnm: "Nortdesters", variable: "test_var_3", fiscal_year: "2005", unitid: "666666", value: 190 },
+	{ sector: "1", state: "KS", instnm: "Nortdesters", variable: "test_var_4", fiscal_year: "2005", unitid: "666666", value: 190 }
 ];
 
 export let nwData: intSchoolModel = {"unitid":"666666","instnm":"Nortdesters","state":"KS","city":"Evanston","ein":"362167817","sector":"1","hbcu":"2","locale":"13","slug":"nortwestern-university-147767"};
