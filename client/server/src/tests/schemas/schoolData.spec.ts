@@ -61,7 +61,7 @@ describe('School Data Schema', function() {
 				}
 			}
 
-			SchoolDataSchema.schema.statics.fetchWithSchoolNames(qc)
+			SchoolDataSchema.schema.statics.fetchAggregate(qc)
 				.then((res: intVarExport) => {
 					expect(res).to.exist;
 					expect(res).to.be.an('object');
@@ -102,7 +102,7 @@ describe('School Data Schema', function() {
 				}
 			}
 
-			SchoolDataSchema.schema.statics.fetchWithSchoolNames(qc)
+			SchoolDataSchema.schema.statics.fetchAggregate(qc)
 				.then((res: intVarExport) => {
 					expect(res).to.exist;
 					expect(res).to.be.an('object');
@@ -146,7 +146,7 @@ describe('School Data Schema', function() {
 				}
 			}
 
-			SchoolDataSchema.schema.statics.fetchWithSchoolNames(qc)
+			SchoolDataSchema.schema.statics.fetchAggregate(qc)
 				.then((res: intVarExport) => {
 					expect(res).to.exist;
 					expect(res).to.be.an('object');

@@ -10,7 +10,6 @@ export interface intSchoolBaseDataModel {
 }
 
 export interface intSchoolDataModel extends intSchoolBaseDataModel {
-  unitid: string,
   state: string,
   sector: string,
   instnm: string,
@@ -79,7 +78,7 @@ SchoolDataSchema.schema.statics = {
 
   //todo: to implement aggregation, will just need to $group on other properties, really the same process...
 
-  fetchWithSchoolNames: (queryConfig: intQueryConfig): Promise<intVarExport> => {
+  fetchAggregate: (queryConfig: intQueryConfig): Promise<intVarExport> => {
 
     const sd = queryConfig.sort.direction === "-" ? -1 : 1,
       sf = queryConfig.sort.field ? queryConfig.sort.field : "_id", //instnm in this case, every time

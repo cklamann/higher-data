@@ -1,8 +1,9 @@
+import { SchoolSchema, intSchoolModel} from '../schemas/SchoolSchema';
+import { intQueryConfig } from '../types/types';
+import { SchoolDataSchema, intSchoolDataModel, intVarExport, intSchoolBaseDataModel } from '../schemas/SchoolDataSchema';
+import { VariableDefinitionSchema, intVariableDefinitionSchema } from '../schemas/VariableDefinitionSchema';
 import * as M from 'mathjs';
 import * as _ from 'lodash';
-import { SchoolSchema, intSchoolModel, intVariableQueryConfig, intSchoolVarExport } from '../schemas/SchoolSchema';
-import { intSchoolDataModel } from '../schemas/SchoolDataSchema';
-import { VariableDefinitionSchema, intVariableDefinitionSchema } from '../schemas/VariableDefinitionSchema';
 
 export interface intFormulaParserResult {
 	fiscal_year: string,
@@ -17,15 +18,25 @@ export class FormulaParser {
 	symbolNodes: string[];
 	optionalSymbolNodes: string[];
 	//todo: make default args its own class...
-	queryConfig: intVariableQueryConfig = {
+	queryConfig: intQueryConfig = {
 		matches: [],
-		sort: 'fiscal_year',
+		sort: {
+			direction: '',
+			field: 'fiscal_year'
+		},
 		pagination: {
 			page: 1,
 			perPage: 10000
 		},
 		inflationAdjusted: "false",
-		variables: [],
+		filters: {
+			fieldName: 'variable',
+			values:  []
+		},
+		groupBy: {
+			variable: 'instnm',
+			aggFunc: ''
+		}
 	}
 
 	constructor(formula: string) {
@@ -39,7 +50,7 @@ export class FormulaParser {
 		return this._verifyNodes();
 	}
 
-	private _transformModelForFormula(data: intSchoolDataModel[]): object[] {
+	private _transformModelForFormula(data: intSchoolBaseDataModel[]): object[] {
 		let grouped = _.groupBy(data, 'fiscal_year');
 		let mapped = _.map(grouped, (v, k) => {
 			return {
@@ -68,17 +79,17 @@ export class FormulaParser {
 	}
 
 	public execute(unitid: string): Promise<intFormulaParserResult[]> {
-		this.queryConfig.variables = this.symbolNodes;
+		this.queryConfig.filters.values = this.symbolNodes;
 		this.queryConfig.matches.push({ unitid })
-		return SchoolSchema.schema.statics.fetchWithVariables(this.queryConfig)
-			.then((school: intSchoolVarExport) => {
-				const fullData = this._fillMissingOptionalData(school.data[0].school_data),
+		return SchoolDataSchema.schema.statics.fetchAggregate(this.queryConfig)
+			.then((school: intVarExport) => {
+				const fullData = this._fillMissingOptionalData(school.data[0].data),
 					transformedData = this._transformModelForFormula(fullData);
 				return this._evaluate(transformedData);
 			});
 	}
 
-	private _fillMissingOptionalData(schoolData: intSchoolDataModel[]): intSchoolDataModel[] {
+	private _fillMissingOptionalData(schoolData: intSchoolBaseDataModel[]): intSchoolBaseDataModel[] {
 		const yearRange = this._getYearRange(schoolData),
 			extantVars = this._getUniqueVars(schoolData),
 			missingNodes: string[] = this.optionalSymbolNodes.filter(node => extantVars.indexOf(node) == -1);
@@ -98,14 +109,14 @@ export class FormulaParser {
 		return schoolData;
 	}
 
-	private _getYearRange(yearsData: intSchoolDataModel[]): Array<string> {
+	private _getYearRange(yearsData: intSchoolBaseDataModel[]): Array<string> {
 		const range: any[] = yearsData.filter(obj => obj.fiscal_year);
 		const vals: number[] = _.values(range);
 		let res = _.uniq(vals).sort();
 		return res.map(year => String(year));
 	}
 
-	private _getUniqueVars(yearsData: intSchoolDataModel[]): Array<string> {
+	private _getUniqueVars(yearsData: intSchoolBaseDataModel[]): Array<string> {
 		const vars: Array<any> = yearsData.filter(obj => obj.variable);
 		const vals: Array<string> = _.values(vars);
 		return _.uniq(vals);
