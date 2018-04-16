@@ -75,9 +75,9 @@ export let SchoolDataSchema = model<intSchoolDataSchema>('school_data', schoolDa
 
 SchoolDataSchema.schema.statics = {
 
-  getVariableList: (): Promise<string[]> => SchoolDataSchema.distinct('variable').exec(),
-
-  //todo: to implement aggregation, will just need to $group on other properties, really the same process...
+  getVariableList: (): Promise<string[]> => {
+    return SchoolDataSchema.distinct('variable').exec();
+  },
 
   fetchAggregate: (queryConfig: intQueryConfig): Promise<intVarExport> => {
 

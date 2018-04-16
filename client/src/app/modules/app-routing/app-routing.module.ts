@@ -4,6 +4,7 @@ import { ChartPageComponent } from '../data-page/chart-page/chart-page.component
 import { DataPageComponent } from '../data-page/data-page.component';
 import { TablePageComponent } from '../data-page/table-page/table-page.component'
 import { AdminPageComponent } from '../admin/admin-page/admin-page.component';
+import { ContentManagerComponent } from '../admin/admin-page/content-manager/content-manager.component';
 import { LoginPageComponent } from '../admin/login-page/login-page.component';
 import { BlogPageComponent } from '../blog/blog-page/blog-page.component';
 import { EditPageComponent } from '../blog/edit-page/edit-page.component';
@@ -42,7 +43,8 @@ const routes: Routes = [
 		children: [
 			{ path: 'edit-blog', component: EditPageComponent },
 			{ path: 'manage-charts', component: ChartCreatorComponent },
-			{ path: 'manage-variables', component: VariableDefinerComponent }
+			{ path: 'manage-variables', component: VariableDefinerComponent },
+			{ path: 'manage-content', component: ContentManagerComponent }
 		]
 	},
 	{

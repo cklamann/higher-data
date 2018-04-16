@@ -21,6 +21,13 @@
 	    [active]="rla3.isActive">
 	    manage variables
 	</a>
+	<a 
+	  	mat-tab-link
+	    [routerLink]="['manage-content']"
+	    routerLinkActive #rla4="routerLinkActive"
+	    [active]="rla4.isActive">
+	    manage content
+	</a>
 </nav>
 
 <router-outlet></router-outlet>
