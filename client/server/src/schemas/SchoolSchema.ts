@@ -1,5 +1,6 @@
 import { model, Schema, Document, Model } from 'mongoose';
 import { intSchoolDataModel, intSchoolDataSchema, SchoolDataSchema } from './SchoolDataSchema';
+import * as _ from 'lodash';
 
 export let ObjectId = Schema.Types.ObjectId;
 

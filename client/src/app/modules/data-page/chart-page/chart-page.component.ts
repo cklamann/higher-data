@@ -88,7 +88,6 @@ export class ChartPageComponent implements OnInit {
 
 	getChartTitle() {
 		if (this.chartData) {
-			console.log(this.chartData);
 			let cutName = this._cut ? "Per " + this.chartData.chart.cuts.find(item => item.formula == this._cut).name : ""
 			return this.chartData ? `${this.chartData.school.instnm} (${this.chartData.school.state}) ${this.chartData.chart.name} ${cutName}` : "";
 		}

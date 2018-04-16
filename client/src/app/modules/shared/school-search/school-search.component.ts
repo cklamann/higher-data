@@ -33,7 +33,7 @@ export class SchoolSearchComponent implements OnInit {
 	ngOnChanges(changes: SimpleChanges) {
 		if (changes.defaultModel.currentValue) {
 			this.searchForm.patchValue({
-				searchText: changes.defaultModel.currentValue
+				searchText: new School(changes.defaultModel.currentValue)
 			});
 		}
 	}
@@ -61,6 +61,6 @@ export class SchoolSearchComponent implements OnInit {
 	}
 
 	showSchoolName(school: School): any {
-		return school ? school.getName() : school;
+		return school && school ? school.getName() : school;
 	}
 }

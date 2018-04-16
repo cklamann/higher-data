@@ -1,6 +1,6 @@
 import { model, Schema, Document, Model } from 'mongoose';
 import { intQueryConfig } from '../types/types';
-import { getInflationAdjuster } from '../../src/modules/InflationAdjuster.service';
+import { getInflationAdjuster } from '../modules/InflationAdjuster.service';
 import * as _ from 'lodash';
 
 export interface intSchoolBaseDataModel {
@@ -13,6 +13,7 @@ export interface intSchoolDataModel extends intSchoolBaseDataModel {
   state: string,
   sector: string,
   instnm: string,
+  unitid: string
 };
 
 export interface intVarExport {

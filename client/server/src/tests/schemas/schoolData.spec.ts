@@ -95,7 +95,7 @@ describe('School Data Schema', function() {
 					variable: 'instnm',
 					aggFunc:''	
 				},
-				inflationAdjusted: 'false',
+				inflationAdjusted: 'true',
 				filters: {
 					fieldName: 'variable',
 					values: ['room_and_board', 'in_state_tuition']

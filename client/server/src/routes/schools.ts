@@ -1,4 +1,6 @@
-import { SchoolSchema, intSchoolSchema, intVariableQueryConfig, intSchoolVarExport } from '../schemas/SchoolSchema';
+import { SchoolSchema, intSchoolSchema } from '../schemas/SchoolSchema';
+import { SchoolDataSchema, intVarExport } from '../schemas/SchoolDataSchema';
+import { intQueryConfig } from '../types/types';
 import { Router, Response, Request, NextFunction } from "express";
 import { ChartExport, intChartExport } from '../models/ChartExporter';
 import { ChartSchema } from '../schemas/ChartSchema';
@@ -60,20 +62,9 @@ router.post('/chart/:school', function(req, res, next): void {
 
 //todo: this should use an include on show route rather than have its own route (convert to get request)
 router.post('/aggregateQuery', function(req, res, next): void {
-	let params: intVariableQueryConfig = req.body;
-	SchoolSchema.schema.statics.fetchAggregate(params)
-		.then((resp: intSchoolVarExport) => {
-			res.json(resp);
-			return;
-		})
-		.catch((err: Error) => next(err));
-});
-
-//todo: this should use an include on show route rather than have its own route (convert to get request)
-router.post('/fetchWithVariables', function(req, res, next): void {
-	let params: intVariableQueryConfig = req.body;
-	SchoolSchema.schema.statics.fetchWithVariables(params)
-		.then((resp: intSchoolVarExport) => {
+	let params: intQueryConfig = req.body;
+	SchoolDataSchema.schema.statics.fetchAggregate(params)
+		.then((resp: intVarExport) => {
 			res.json(resp);
 			return;
 		})

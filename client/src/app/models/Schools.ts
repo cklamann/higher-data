@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
-import { intSchoolModel, intSchoolVarExport, intVariableAggQueryConfig, intVariableQueryConfig } from '../../../server/src/schemas/SchoolSchema';
+import { intSchoolModel } from '../../../server/src/schemas/SchoolSchema';
+import { intVarExport } from '../../../server/src/schemas/SchoolDataSchema';
+import { intQueryConfig } from '../../../server/src/types/types';
 import { RestService } from '../services/rest/rest.service';
 import { Observable } from 'rxjs';
 import { sectors } from '../services/data/sectors';
@@ -21,16 +23,12 @@ export class Schools {
 		});
 	}
 
-	aggregateQuery(params: intVariableAggQueryConfig): Observable<intSchoolVarExport> {
+	fetchAggregate(params: intQueryConfig): Observable<intVarExport> {
 		return this.rest.post(`schools/aggregateQuery`, params).map(res => {
-			res.data = res.data.map(school => new School(school));
-			return res;
-		});
-	}
-
-	fetchWithVariables(params: intVariableQueryConfig): Observable<intSchoolVarExport> {
-		return this.rest.post(`schools/fetchWithVariables`, params).map(res => {
-			res.data = res.data.map(school => new School(school));
+			res.data = res.data.map(school => {
+				if(school.instnm) return new School(school)
+				return school;
+			});
 			return res;
 		});
 	}
@@ -41,7 +39,6 @@ export class School {
 	private sector?: string;
 	constructor(obj: intSchoolModel) {
 		Object.assign(this, obj);
-
 	}
 
 	//for table display

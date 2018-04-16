@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { intVarExport, intPaginationArgs } from '../../../../server/src/schemas/SchoolSchema';
+import { intVarExport } from '../../../../server/src/schemas/SchoolDataSchema';
 import { UtilService } from '../util/util';
 import { sectors } from '../data/sectors';
 import * as _ from 'lodash';
@@ -14,7 +14,7 @@ interface inputData {
 
 interface intermediateData {
 	fiscal_year: string;
-	value: string;
+	value: number | string;
 	variable?: string;
 	instnm?: string;
 	sector?: string;
@@ -29,19 +29,17 @@ export interface intVarDataSourceExport {
 @Injectable()
 export class VariableDataSource {
 
-	data: intVarDataSourceExport[]
-	pagination: intPaginationArgs;
-	sort: string;
+	private _export: intVarExport;
+	data: intVarDataSourceExport[];
 	util: UtilService;
 
 	constructor(_export: intVarExport) {
+		this._export = _export;
 		this.data = this._transformExport(_export);
-		this.pagination = _export.query.pagination;
-		this.sort = _export.query.sort;
 	}
 
 	get export() {
-		return { data: this.data, pagination: this.pagination, sort: this.sort };
+		return { data: this.data, pagination: this._export.query.pagination, sort: this._export.query.sort };
 	}
 
 	getColumns(): string[] {
@@ -64,7 +62,7 @@ export class VariableDataSource {
 		//many schools, one variable (agg included)
 		if (keyCol !== 'variable') {
 			data = _export.data.map(datum => datum.data);
-			data = this._fillInMissingYears(data, _export.query.variables[0]);
+			data = this._fillInMissingYears(data, _export.query.filters.values[0]);
 			keyMap = _export.data.map(item => item[keyCol]);
 		} else {
 			//one school, one or more variables (currently)

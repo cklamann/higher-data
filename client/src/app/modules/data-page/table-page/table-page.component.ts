@@ -1,7 +1,8 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { trigger, state, style, animate, transition } from '@angular/animations';
 import { MatPaginator, MatSort, MatTableDataSource, PageEvent } from '@angular/material';
-import { intSchoolVarExport, intVariableQueryConfig, intVarExport, intVariableAggQueryConfig } from '../../../../../server/src/schemas/SchoolSchema';
+import { intVarExport } from '../../../../../server/src/schemas/SchoolDataSchema';
+import { intQueryConfig } from '../../../../../server/src/types/types';
 import { RestService } from '../../../services/rest/rest.service';
 import { Schools } from '../../../models/Schools';
 import { Observable } from 'rxjs';
@@ -28,8 +29,9 @@ export class TablePageComponent implements OnInit {
 
 	groupByForm: FormGroup;
 	isAggregateForm: FormGroup;
+	filterForm: FormGroup;
 	matTableDataSource = new MatTableDataSource<intVarDataSourceExport>();
-	queryParams: intVariableQueryConfig | intVariableAggQueryConfig;
+	queryParams: intQueryConfig;
 	showTable = false;
 	tableOptionsForm: FormGroup;
 	visibleColumns: string[] = [];
@@ -54,19 +56,29 @@ export class TablePageComponent implements OnInit {
 
 		this.groupByForm = this.fb.group({
 			aggFunc: null,
-			variable: null,
+			variable: 'instnm',
+		});
+
+		this.filterForm = this.fb.group({
+			fieldName: 'variable',
+			values: this.fb.array([
+				new FormControl('variable').setValidators([Validators.required])
+			])
 		});
 
 		this.tableOptionsForm = this.fb.group({
 			matches: this.fb.array([]),
-			sort: null,
+			sort: {
+				field: '',
+				direction: ''
+			},
 			pagination: this.fb.group({
 				page: 1,
 				perPage: 10
 			}),
 			groupBy: this.groupByForm,
 			inflationAdjusted: "false",
-			variables: this.fb.array([])
+			filters: this.filterForm
 		})
 
 		this.isAggregateForm = this.fb.group({
@@ -75,16 +87,19 @@ export class TablePageComponent implements OnInit {
 	}
 
 	private _subscribeToForms() {
-		this.tableOptionsForm.controls['variables'].setValidators([Validators.required]);
+		this.tableOptionsForm.get('filters').setValidators([Validators.required]);
+		this.tableOptionsForm.get('groupBy').get('variable').setValidators(Validators.required);
 
 		this.isAggregateForm.valueChanges.subscribe(change => {
 			if (change.isAggregate) {
 				this.tableOptionsForm.get('groupBy').get('aggFunc').setValidators(Validators.required);
-				this.tableOptionsForm.get('groupBy').get('variable').setValidators(Validators.required);
 				this.tableOptionsForm.get('groupBy').reset();
 			} else {
+				//must do both
 				this.tableOptionsForm.get('groupBy').get('aggFunc').clearValidators();
-				this.tableOptionsForm.get('groupBy').get('variable').clearValidators();
+				this.tableOptionsForm.get('groupBy').get('aggFunc').reset();
+				this.tableOptionsForm.get('groupBy').get('aggFunc').patchValue('');
+				this.tableOptionsForm.get('groupBy').patchValue({"variable":"instnm"});
 				this.tableOptionsForm.updateValueAndValidity();
 			}
 		});
@@ -92,7 +107,7 @@ export class TablePageComponent implements OnInit {
 		// todo: subscribe to matches form. On change, find the obj that corresponds to school match and replace
 		// match should look like {"instnm" : { "$regex" : ".+" + form.value + ".+", $options: 'is' } }
 		// for now only allow filter on the many-school type 
-		//
+
 		this.tableOptionsForm.valueChanges.subscribe(change => {
 			this.query();
 		});
@@ -107,7 +122,7 @@ export class TablePageComponent implements OnInit {
 	}
 
 	getVariableDefinitionSelected() {
-		return this.tableOptionsForm.controls['variables'].value.length > 0;
+		return this.tableOptionsForm.controls['filters'].value.values.length > 0;
 	}
 
 	getTableIsCurrency() {
@@ -135,15 +150,16 @@ export class TablePageComponent implements OnInit {
 	}
 
 	onMatSortChange($event) {
-		const prefix = $event.direction === "desc" ? "-" : "",
-		val = $event.active === "Name" ? "instnm" : $event.active;
-		this.tableOptionsForm.patchValue({
-			sort: prefix + val
-		});
+		let sort = {
+			field: $event.active === "Name" ? "instnm" : $event.active,
+			direction: $event.direction === "desc" ? "-" : ""
+		}
+
+		this.tableOptionsForm.get('sort').patchValue(sort);
 	}
 
 	onPageEvent($event) {
-		this.tableOptionsForm.get('pagination').patchValue({
+		this.tableOptionsForm.get('pagination').patchValue({ 
 			page: $event.pageIndex + 1,
 			perPage: $event.pageSize,
 			total: $event.length,
@@ -152,7 +168,7 @@ export class TablePageComponent implements OnInit {
 
 	openErrorDialog(): void {
 		this.dialog.open(ModalErrorComponent, {
-			panelClass : 'error-panel',
+			panelClass: 'error-panel',
 		});
 	}
 
@@ -164,11 +180,10 @@ export class TablePageComponent implements OnInit {
 
 	query() {
 		if (!this.tableOptionsForm.valid) return;
-		let input = this.tableOptionsForm.value;
-		input.variables = input.variables.map(variable => variable.variable);
-		const query = this.getIsAggregate() ? this.schools.aggregateQuery(this.tableOptionsForm.value) : this.schools.fetchWithVariables(this.tableOptionsForm.value);
+		let input = _.cloneDeep(this.tableOptionsForm.value);
+		input.filters.values = input.filters.values.map(variable => variable.variable);
 		this.openLoadingDialog();
-		query
+		this.schools.fetchAggregate(input)
 			.map((res: intVarExport) => {
 				return new VariableDataSource(res);
 			})
@@ -193,11 +208,10 @@ export class TablePageComponent implements OnInit {
 
 	setVariable($event) {
 		this._variableType = $event.valueType;
-		let control = <FormArray>this.tableOptionsForm['controls'].variables;
-		control.removeAt(0);
-		control.push(this.fb.group({
-			variable: $event.variable
-		}));
+		let control = <FormArray>this.tableOptionsForm.get('filters').get('values');
+		control.at(0).patchValue({variable : $event.variable} );
+		//yet this logs correctly....
+		console.log(this.tableOptionsForm.get('filters').get('values').value);
 	}
 
 	setVisibleColumns() {
