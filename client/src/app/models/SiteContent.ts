@@ -17,4 +17,8 @@ export class SiteContent {
 	create(model: intSiteContentSchema): Observable<intSiteContentSchema> {
 		return this.rest.post(`site-content`, model);
 	}
+
+	delete(_id: string): Observable<any> {
+		return this.rest.delete(`site-content/${_id}`);
+	}
 }

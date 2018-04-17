@@ -8,6 +8,7 @@
 				<ul>
 					<li *ngFor="let content of contentList">
 						<span class="mat-button" mat-button (click) = "setContentToEdit(content._id)">{{content.handle}}</span>
+						<i class="material-icons mat-icon-button" (click)="delete(content)">delete</i>
 					</li>
 				</ul>
 			</div>
@@ -22,7 +23,6 @@
 				</mat-form-field>
 				<button mat-raised-button class = "mat-raised-button" (click) = 'submitForm()'>Submit</button>
 			</form>
-			<div> {{editorContent}}</div>
 		</div>
 		</mat-card-content>
 	</mat-card>

@@ -46,6 +46,16 @@ export class ContentManagerComponent implements OnInit {
 		this.setContentSelected();
 	}
 
+	delete(model: intSiteContentSchema) {
+		this.SiteContent.delete(model._id)
+			.subscribe(res => {
+				this.contentList = this.contentList.filter(item => item._id != model._id)
+				if(model._id === this.contentForm.value._id){
+					this.createNewContent();
+				}
+			});
+	}
+
 	getContentSelected() {
 		return this._contentSelected;
 	}
@@ -54,8 +64,8 @@ export class ContentManagerComponent implements OnInit {
 		this._contentSelected = true;
 	}
 
-	setContentToEdit(id:string){
-		this.contentForm.setValue(this.contentList.find( content => content._id == id));
+	setContentToEdit(id: string) {
+		this.contentForm.setValue(this.contentList.find(content => content._id == id));
 		this.setContentSelected();
 	}
 
@@ -63,7 +73,10 @@ export class ContentManagerComponent implements OnInit {
 		if (this.contentForm.valid) {
 			this.contentForm.patchValue({ updated: new Date() });
 			this.SiteContent.create(this.contentForm.value)
-				.subscribe(res => this.contentForm.setValue(res));
+				.subscribe(res => {
+					this.contentList.push(res);
+					this.contentForm.setValue(res)
+				});
 		}
 	}
 

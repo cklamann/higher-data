@@ -21,4 +21,8 @@ export class RestService {
 		let params = Object.assign({}, args);
 		return this.http.post(`${this.apiRoot}/${url}`, params);
 	}
+
+	delete(url: string): Observable<any> {
+		return this.http.delete(`${this.apiRoot}/${url}`);
+	}
 }

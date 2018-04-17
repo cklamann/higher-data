@@ -30,4 +30,13 @@ router.post('/', passport.authenticate('basic', { session: false }), function(re
 	}).catch((err: Error) => next(err));
 });
 
+router.delete('/:id', passport.authenticate('basic', { session: false }), function(req, res, next) {
+	SiteContentSchema.deleteOne({ _id: req.params.id })
+		.then(resp => {
+			res.json(resp);
+			return;
+		})
+		.catch((err: Error) => next(err));
+});
+
 module.exports = router;
