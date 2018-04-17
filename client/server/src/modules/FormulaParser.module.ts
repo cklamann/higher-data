@@ -111,19 +111,19 @@ export class FormulaParser {
 
 	private _getYearRange(yearsData: intSchoolBaseDataModel[]): Array<string> {
 		const range: any[] = yearsData.filter(obj => obj.fiscal_year);
-		const vals: number[] = _.values(range);
+		const vals: string[] = _.values(range);
 		let res = _.uniq(vals).sort();
 		return res.map(year => String(year));
 	}
 
 	private _getUniqueVars(yearsData: intSchoolBaseDataModel[]): Array<string> {
-		const vars: Array<any> = yearsData.filter(obj => obj.variable);
-		const vals: Array<string> = _.values(vars);
+		const vars: any[] = yearsData.filter(obj => obj.variable);
+		const vals: string[] = _.values(vars);
 		return _.uniq(vals);
 	}
 
 	private _getSymbolNodes(formula: string): string[] {
-		let nodes: any = [],
+		let nodes: string[] = [],
 			parsed: any = M.parse(formula)
 		_recurse(parsed);
 		function _recurse(parsed: any) {

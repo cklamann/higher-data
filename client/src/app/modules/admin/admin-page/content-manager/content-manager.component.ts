@@ -50,6 +50,7 @@ export class ContentManagerComponent implements OnInit {
 
 	submitForm() {
 		if (this.contentForm.valid) {
+			this.contentForm.patchValue({updated: new Date()});
 			this.SiteContent.create(this.contentForm.value)
 				.subscribe(res => this.contentForm.setValue(res));
 		}
