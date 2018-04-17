@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { FroalaEditorModule, FroalaViewModule } from 'angular-froala-wysiwyg';
 import { SiteContent } from '../../../../models/SiteContent';
 import { intSiteContentSchema } from '../../../../../../server/src/schemas/SiteContentSchema';
+import { MatButton } from '@angular/material';
 import * as _ from 'lodash';
 
 @Component({
@@ -29,14 +30,19 @@ export class ContentManagerComponent implements OnInit {
 	private _initializeForm() {
 		this.contentForm = this.fb.group({
 			_id: '',
-			handle: ['name', [Validators.minLength(3), Validators.required]],
-			content: ['content', [Validators.minLength(3), Validators.required]],
+			handle: ['', [Validators.minLength(3), Validators.required]],
+			content: [this.editorContent, [Validators.minLength(3), Validators.required]],
 			updated: [new Date(), [Validators.minLength(3), Validators.required]],
 			created: [new Date(), [Validators.minLength(3), Validators.required]]
 		});
 	}
 
 	createNewContent() {
+		this.contentForm.patchValue({
+			content: '',
+			_id: '',
+			handle: ''
+		});
 		this.setContentSelected();
 	}
 
@@ -48,9 +54,14 @@ export class ContentManagerComponent implements OnInit {
 		this._contentSelected = true;
 	}
 
+	setContentToEdit(id:string){
+		this.contentForm.setValue(this.contentList.find( content => content._id == id));
+		this.setContentSelected();
+	}
+
 	submitForm() {
 		if (this.contentForm.valid) {
-			this.contentForm.patchValue({updated: new Date()});
+			this.contentForm.patchValue({ updated: new Date() });
 			this.SiteContent.create(this.contentForm.value)
 				.subscribe(res => this.contentForm.setValue(res));
 		}

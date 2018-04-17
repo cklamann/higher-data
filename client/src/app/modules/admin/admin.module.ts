@@ -2,7 +2,8 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdminPageComponent } from './admin-page/admin-page.component';
 import { ReactiveFormsModule } from '@angular/forms';
-import { MatFormFieldModule, MatInputModule, MatTabsModule, MatButtonModule, MatButtonToggleModule, MatCardModule } from '@angular/material';
+import { MatFormFieldModule, MatInputModule, MatTabsModule, MatButtonModule, 
+    MatButtonToggleModule, MatCardModule } from '@angular/material';
 import { MatOptionModule, MatSelectModule } from '@angular/material';
 import { Users } from '../../models/Users';
 import { VariableDefinitions } from '../../models/VariableDefinitions';

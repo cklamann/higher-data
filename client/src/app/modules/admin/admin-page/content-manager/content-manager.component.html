@@ -5,17 +5,25 @@
 	  	</mat-card-header>
 	  	<mat-card-content fxFlex = "100">
 			<div class = "content-list">
-				<!-- loop through content list and display as links, admin clicks a link, content loads -->	
+				<ul>
+					<li *ngFor="let content of contentList">
+						<span class="mat-button" mat-button (click) = "setContentToEdit(content._id)">{{content.handle}}</span>
+					</li>
+				</ul>
 			</div>
-
-			<button (click) = 'createNewContent()'>New Content</button>
-
-			<form [formGroup]="contentForm">
-				<input type='text' formControlName = 'handle'/> 
-				<textarea formControlName = 'content' [froalaEditor] [(froalaModel)]='editorContent' *ngIf='getContentSelected()'> </textarea>
-				<button (click) = 'submitForm()'>Submit</button>
+		<button mat-raised-button class = "mat-raised-button" (click) = 'createNewContent()'>New Content</button>
+		<div class = "content-edit-section" *ngIf='getContentSelected()'>
+			<form [formGroup]="contentForm" fxLayout="row wrap">
+				<mat-form-field fxFlex="100" fxFlex.gt-sm = "50">
+					<input matInput type='text' formControlName = 'handle'> 
+				</mat-form-field>
+				<mat-form-field fxFlex="100">
+					<textarea matInput formControlName = 'content' [froalaEditor] [(froalaModel)]='editorContent'> </textarea>
+				</mat-form-field>
+				<button mat-raised-button class = "mat-raised-button" (click) = 'submitForm()'>Submit</button>
 			</form>
 			<div> {{editorContent}}</div>
+		</div>
 		</mat-card-content>
 	</mat-card>
 </div>
