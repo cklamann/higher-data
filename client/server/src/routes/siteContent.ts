@@ -14,6 +14,15 @@ router.get('/', function(req, res, next) {
 		.catch((err: Error) => next(err));
 });
 
+router.get('/:handle', function(req, res, next) {
+	SiteContentSchema.findOne({handle:req.params.handle}).exec()
+		.then((content: intSiteContentSchema) => {
+			res.json(content);
+			return;
+		})
+		.catch((err: Error) => next(err));
+});
+
 router.post('/', passport.authenticate('basic', { session: false }), function(req, res, next) {
 	let promise: Promise<any>;
 	//todo: put this logic in app-wide transformer

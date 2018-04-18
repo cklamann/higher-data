@@ -14,6 +14,10 @@ export class SiteContent {
 		return this.rest.get(`site-content/`);
 	}
 
+	fetchByHandle(handle: string): Observable<intSiteContentSchema> {
+		return this.rest.get(`site-content/${handle}`);
+	}
+
 	create(model: intSiteContentSchema): Observable<intSiteContentSchema> {
 		return this.rest.post(`site-content`, model);
 	}

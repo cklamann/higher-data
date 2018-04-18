@@ -26,7 +26,7 @@ let schema: Schema = new Schema({
 	updated: {
 		type: Date,
 		required: true,
-	},{ versionKey: false }
+	}},{ versionKey: false 
 });
 
 export let SiteContentSchema = model<intSiteContentSchema>('site_content', schema, 'site_content');

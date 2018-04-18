@@ -9,14 +9,17 @@ import { VariableSelectComponent } from './variable-select/variable-select.compo
 import { ModalLoadingComponent } from './modals/loading/loading.component';
 import { ModalErrorComponent } from './modals/error/error.component';
 import { Charts } from '../../models/Charts';
+import { SiteContentComponent } from './site-content/site-content.component';
 
 @NgModule({
 	imports: [
 		CommonModule, ReactiveFormsModule, MatAutocompleteModule, MatFormFieldModule, MatOptionModule, MatInputModule, MatSelectModule, MatProgressSpinnerModule, MatDialogModule
 	],
-	declarations: [SchoolSearchComponent, ChartSearchComponent, VariableDefinitionSelectComponent, VariableSelectComponent, ModalLoadingComponent, ModalErrorComponent],
+	declarations: [SchoolSearchComponent, ChartSearchComponent, VariableDefinitionSelectComponent, 
+					VariableSelectComponent, ModalLoadingComponent, ModalErrorComponent, SiteContentComponent],
 	exports: [
-		SchoolSearchComponent, ChartSearchComponent, VariableDefinitionSelectComponent, VariableSelectComponent, ModalLoadingComponent
+		SchoolSearchComponent, ChartSearchComponent, VariableDefinitionSelectComponent, VariableSelectComponent, 
+		ModalLoadingComponent, SiteContentComponent
 	],
 	providers: [Charts],
 	entryComponents: [ModalLoadingComponent, ModalErrorComponent]

@@ -6,6 +6,7 @@ import { TablePageComponent } from '../data-page/table-page/table-page.component
 import { AdminPageComponent } from '../admin/admin-page/admin-page.component';
 import { ContentManagerComponent } from '../admin/admin-page/content-manager/content-manager.component';
 import { LoginPageComponent } from '../admin/login-page/login-page.component';
+import { AboutPageComponent } from '../about-page/about-page.component';
 import { BlogPageComponent } from '../blog/blog-page/blog-page.component';
 import { EditPageComponent } from '../blog/edit-page/edit-page.component';
 import { ChartCreatorComponent } from '../admin/admin-page//chart-creator/chart-creator.component';
@@ -37,7 +38,12 @@ const routes: Routes = [
 	{
 		path: 'login',
 		component: LoginPageComponent,
-	}, {
+	},
+	{
+		path: 'about',
+		component: AboutPageComponent,
+	}, 
+	{
 		path: 'admin',
 		component: AdminPageComponent,
 		children: [

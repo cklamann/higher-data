@@ -8,6 +8,7 @@ import { FlexLayoutModule } from "@angular/flex-layout";
 import { AdminModule } from '../admin/admin.module';
 import { ChartPageModule } from '../data-page/data-page.module';
 import { SharedModule } from '../shared/shared.module'
+import { AboutPageModule } from '../about-page/about-page.module';
 import { BlogModule } from '../blog/blog.module';
 import { ChartModule } from '../chart/chart.module';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
@@ -18,7 +19,8 @@ import { RestService } from '../../services/rest/rest.service';
 @NgModule({
 	//imports will be available to all components in module 
 	imports: [BrowserModule, BrowserAnimationsModule, AppRoutingModule, ChartPageModule, AdminModule,
-		GlobalLayoutModule, FlexLayoutModule, HttpClientModule, BlogModule, SharedModule, ChartModule],
+		GlobalLayoutModule, FlexLayoutModule, HttpClientModule, BlogModule, SharedModule, ChartModule,
+		AboutPageModule],
 	declarations: [AppComponent], //list all components in the module
 	bootstrap: [AppComponent],
 	providers: [{
