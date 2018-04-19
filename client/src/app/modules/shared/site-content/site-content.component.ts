@@ -17,7 +17,6 @@ export class SiteContentComponent implements OnInit {
 	}
 
 	ngOnInit() {
-		console.log(this.handle);
 		this.SiteContent.fetchByHandle(this.handle)
 			.subscribe( res => this.content = res.content);
 	}
