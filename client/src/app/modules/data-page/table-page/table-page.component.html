@@ -20,7 +20,7 @@
 						</mat-radio-button>
 					</mat-radio-group>
 				</div>
-				<div *ngIf="getIsAggregate()" [formGroup]="groupByForm" fxFlex="100" fxLayout="row wrap" class = "agg-opt-container" fxLayoutAlign="space-between">
+				<div *ngIf="getIsAggregate()" [formGroup]="tableOptionsForm.get('groupBy')" fxFlex="100" fxLayout="row wrap" class = "agg-opt-container" fxLayoutAlign="space-between">
 					<div fxFlex="100" fxFlex.gt-xs="45" fxLayout="row wrap">
 						<div fxFlex="100" fxLayout="row wrap" fxLayout.gt-xs="row">	
 							<label fxFlex="50" class="p-r-5" fxFlexAlign="center">Select an aggregation group</label>
@@ -34,7 +34,7 @@
 							</mat-radio-group>
 						</div>
 						<div>
-							<div fxFlex="100" *ngIf = "groupByForm.get('variable').errors" class="mat-error">
+							<div fxFlex="100" *ngIf = "tableOptionsForm.get('groupBy').get('variable').errors" class="mat-error">
 								An aggregate group is required
 							</div>
 						</div>
@@ -46,7 +46,7 @@
 								<mat-option value="sum">Sum</mat-option>
 							</mat-select>
 						</mat-form-field>
-						<div *ngIf = "groupByForm.get('aggFunc').errors" class="mat-error">
+						<div *ngIf = "tableOptionsForm.get('groupBy').get('aggFunc').errors" class="mat-error">
 							An aggregate function is required
 						</div> 
 					</div>

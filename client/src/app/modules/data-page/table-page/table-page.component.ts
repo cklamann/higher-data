@@ -27,7 +27,6 @@ export class TablePageComponent implements OnInit {
 	@ViewChild('tablePaginator') tablePaginator: MatPaginator;
 	@ViewChild('tableSort') tableSort: MatSort;
 
-	groupByForm: FormGroup;
 	isAggregateForm: FormGroup;
 	filterForm: FormGroup;
 	matchesForm: FormGroup;
@@ -53,16 +52,6 @@ export class TablePageComponent implements OnInit {
 
 	private _intializeForms() {
 
-		/*
-			working principle is to use independent forms if transforms are needed, so can transform
-			on update, then push into parent in order not to trigger parent update prematurely
-		*/
-
-		this.groupByForm = this.fb.group({
-			aggFunc: null,
-			variable: 'instnm',
-		});
-
 		this.matchesForm = this.fb.group({
 			match: new FormControl('')
 		});
@@ -77,7 +66,10 @@ export class TablePageComponent implements OnInit {
 				page: 1,
 				perPage: 10
 			}),
-			groupBy: this.groupByForm,
+			groupBy: this.fb.group({
+				aggFunc: null,
+				variable: 'instnm',
+			}),
 			inflationAdjusted: 'false',
 			filters: this.fb.group({
 				fieldName: 'variable',
@@ -131,7 +123,7 @@ export class TablePageComponent implements OnInit {
 	}
 
 	getShowMatchesForm() {
-		return !!this.tableOptionsForm.get('filters').get('values').value; 
+		return !!this.tableOptionsForm.get('filters').get('values').value;
 	}
 
 	getTableIsCurrency() {
@@ -255,7 +247,7 @@ export class TablePageComponent implements OnInit {
 		const change = this.matchesForm.value,
 			regex = `.+${change.match}.+|${change.match}+.|.+${change.match}|${change.match}`,
 			arg = change.match ? regex : `.+`;
-		return { [this.groupByForm.value.variable]: { '$regex': arg, '$options': 'is' } };
+		return { [this.tableOptionsForm.value.groupBy.variable]: { '$regex': arg, '$options': 'is' } };
 	};
 
 	private _updateTableOptionsMatches(regex: string = '') {
