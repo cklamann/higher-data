@@ -11,7 +11,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatRadioModule, MatTabsModule, MatCardModule, MatSelectModule, 
-	MatDividerModule, MatSortModule, MatPaginatorModule,MatDialogModule } from '@angular/material';
+	MatDividerModule, MatSortModule, MatPaginatorModule, MatDialogModule, MatInputModule } from '@angular/material';
 import { MatButtonModule } from '@angular/material/button';
 import { AppRoutingModule } from '../app-routing/app-routing.module';
 import { ChartModule } from '../chart/chart.module';
@@ -29,7 +29,7 @@ import { SourceDisplayComponent } from './sources-page/source-display/source-dis
 				BrowserAnimationsModule, FlexLayoutModule, AppRoutingModule, MatToolbarModule, 
 				SharedModule, ChartModule, MatRadioModule, MatCardModule, MatTableModule, 
 				MatButtonModule, MatSelectModule, MatDividerModule, MatPaginatorModule, MatSortModule,
-				MatDialogModule],
+				MatDialogModule, MatInputModule],
 	declarations: [ChartPageComponent, DataPageComponent, TablePageComponent, SourcesPageComponent, 
 				ChartSourcesComponent, VariableSourcesComponent, SourceDisplayComponent], //list all components in the module
 	providers: [RestService, Schools] // module-wide providers, still need to be imported in each component

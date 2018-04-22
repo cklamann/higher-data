@@ -75,9 +75,11 @@
 				<div fxFlex="100" *ngIf = "!showTable" class="center-text">
 					No datter
 				</div>
-				<div fxFlex="100" class = "filter-form" [formGroup]="matchesForm">
-					<input formControlName="match">
-					<button (click)="query()">submit</button>	
+				<div *ngIf = "getShowMatchesForm()" fxFlex="100" fxFlex.gt-sm = "75" class = "filter-form" [formGroup]="matchesForm">
+					<mat-form-field>
+						<input matInput type="text" placeholder="filter" formControlName="match">	
+					</mat-form-field>
+					<button mat-button class = "mat-button" (click)="query()">submit</button>
 				</div>
 				<div *ngIf="showTable" class="table-container mat-elevation-z8" fxFlex = 100 fxFlex.gt-sm = 75 fxLayoutAlign = "space-around start" fxLayout="row wrap">
 					<mat-table [dataSource]="matTableDataSource" fxFlex=85 fxLayout="row wrap" matSort matSortActive="false" matSortDirection="asc" #tableSort="matSort" (matSortChange)="onMatSortChange($event)">

@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { trigger, state, style, animate, transition } from '@angular/animations';
-import { MatPaginator, MatSort, MatTableDataSource, PageEvent } from '@angular/material';
+import { MatPaginator, MatSort, MatTableDataSource, PageEvent, MatInput } from '@angular/material';
 import { intVarExport } from '../../../../../server/src/schemas/SchoolDataSchema';
 import { intQueryConfig } from '../../../../../server/src/types/types';
 import { RestService } from '../../../services/rest/rest.service';
@@ -58,13 +58,6 @@ export class TablePageComponent implements OnInit {
 			on update, then push into parent in order not to trigger parent update prematurely
 		*/
 
-		this.filterForm = this.fb.group({
-			fieldName: 'variable',
-			values: this.fb.array([
-				new FormControl('variable').setValidators([Validators.required])
-			])
-		});
-
 		this.groupByForm = this.fb.group({
 			aggFunc: null,
 			variable: 'instnm',
@@ -86,7 +79,10 @@ export class TablePageComponent implements OnInit {
 			}),
 			groupBy: this.groupByForm,
 			inflationAdjusted: 'false',
-			filters: this.filterForm
+			filters: this.fb.group({
+				fieldName: 'variable',
+				values: ''
+			})
 		})
 
 		this.isAggregateForm = this.fb.group({
@@ -95,7 +91,7 @@ export class TablePageComponent implements OnInit {
 	}
 
 	private _subscribeToForms() {
-		this.tableOptionsForm.get('filters').setValidators([Validators.required]);
+		this.tableOptionsForm.get('filters').get('values').setValidators([Validators.required]);
 
 		this.tableOptionsForm.get('groupBy').get('variable').setValidators(Validators.required);
 
@@ -122,18 +118,6 @@ export class TablePageComponent implements OnInit {
 		return this._dataTotal;
 	}
 
-	getTableOptionsVisible() {
-		return this._tableOptionsVisible;
-	}
-
-	getVariableDefinitionSelected() {
-		return this.tableOptionsForm.controls['filters'].value.values.length > 0;
-	}
-
-	getTableIsCurrency() {
-		return /currency+./.test(this._variableType);
-	}
-
 	getIsAggregate() {
 		return this.isAggregateForm.controls['isAggregate'].value;
 	}
@@ -144,6 +128,22 @@ export class TablePageComponent implements OnInit {
 
 	getRightArrowVisible() {
 		return this.visibleColumns[this.visibleColumns.length - 1] !== this._columns[this._columns.length - 1];
+	}
+
+	getShowMatchesForm() {
+		return !!this.tableOptionsForm.get('filters').get('values').value; 
+	}
+
+	getTableIsCurrency() {
+		return /currency+./.test(this._variableType);
+	}
+
+	getTableOptionsVisible() {
+		return this._tableOptionsVisible;
+	}
+
+	getVariableDefinitionSelected() {
+		return this.tableOptionsForm.controls['filters'].value.values.length > 0;
 	}
 
 	onMatSortChange($event) {
@@ -179,7 +179,7 @@ export class TablePageComponent implements OnInit {
 		if (!this.tableOptionsForm.valid) return;
 		let input = _.cloneDeep(this.tableOptionsForm.value);
 		//todo: make transformer more deliberate
-		input.filters.values = input.filters.values.map(variable => variable.variable);
+		input.filters.values = [input.filters.values];
 		input.matches.push(this._transformMatches());
 		this.openLoadingDialog();
 		this.schools.fetchAggregate(input)
@@ -208,8 +208,9 @@ export class TablePageComponent implements OnInit {
 	setVariable($event) {
 		this._variableType = $event.valueType;
 		this.variableFriendly = $event.friendlyName;
-		let control = <FormArray>this.tableOptionsForm.get('filters').get('values');
-		control.at(0).patchValue({ variable: $event.variable });
+		this.tableOptionsForm.get('filters').patchValue({
+			values: $event.variable
+		})
 	}
 
 	setVisibleColumns() {
