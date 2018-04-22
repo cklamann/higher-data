@@ -34,7 +34,6 @@ export class VariableDataSource {
 	util: UtilService;
 
 	constructor(_export: intVarExport) {
-		//todo: better handling of empty response
 		this._export = _export;
 		this.data = _export.data.length > 0 ? this._transformExport(_export) : [];
 	}
@@ -46,6 +45,7 @@ export class VariableDataSource {
 	getColumns(): string[] {
 		let keys = Object.keys(this.data[0]).sort();
 		let label = keys.pop();
+//		label = label === "instnm" ? "Name" : label;
 		keys.unshift(label);
 		return keys;
 	}
@@ -57,7 +57,7 @@ export class VariableDataSource {
 			keyMap: string[] = []; // array of unique values for label column
 		keyCol = _.keys(_export.data[0]).length === 2 ? // agg has 2 props per item -> brittle, rethink
 			_.keys(_export.data[0]).find(datum => datum != "data") :
-			_export.data.length > 1 ? 'Name' : 'variable';
+			_export.data.length > 1 ? 'instnm' : 'variable';
 
 		//many schools, one variable (agg included)
 		if (keyCol !== 'variable') {

@@ -79,9 +79,9 @@
 					<mat-form-field>
 						<input matInput type="text" placeholder="filter" formControlName="match">	
 					</mat-form-field>
-					<button mat-button class = "mat-button" (click)="query()">submit</button>
+					<button mat-button class = "mat-button" (click)="query()">set filter</button>
 				</div>
-				<div *ngIf="showTable" class="table-container mat-elevation-z8" fxFlex = 100 fxFlex.gt-sm = 75 fxLayoutAlign = "space-around start" fxLayout="row wrap">
+				<div *ngIf="showTable" class="table-container mat-elevation-z8" fxFlex = 100 fxFlex.gt-sm = 85 fxLayoutAlign = "space-around start" fxLayout="row wrap">
 					<mat-table [dataSource]="matTableDataSource" fxFlex=85 fxLayout="row wrap" matSort matSortActive="false" matSortDirection="asc" #tableSort="matSort" (matSortChange)="onMatSortChange($event)">
 	  					<ng-container *ngFor="let column of visibleColumns" [matColumnDef]="column">
 	    					<mat-header-cell mat-sort-header  class = "center-text" *matHeaderCellDef>{{ column }}</mat-header-cell>
