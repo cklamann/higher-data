@@ -45,8 +45,7 @@ schoolSchema.virtual('school_data', {
 export let SchoolSchema = model<intSchoolSchema>('school', schoolSchema);
 
 SchoolSchema.schema.statics = {
-
-  search: (name: string): Promise<intSchoolSchema[]> => SchoolSchema.find({ instnm: { $regex: `${name}+.`, $options: 'is' } }).limit(25).exec(),
+  search: (name: string): Promise<intSchoolSchema[]> => SchoolSchema.find({ instnm: { $regex: `.+${name}.+|${name}+.|.+${name}|.+${name}|${name}`, $options: 'is' } }).limit(25).exec(),
   fetch: (arg: string): Promise<intSchoolSchema> => {
     let promise;
     if (!!_.toNumber(arg)) {

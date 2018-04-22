@@ -86,26 +86,19 @@ SchoolDataSchema.schema.statics = {
       start = (queryConfig.pagination.page * queryConfig.pagination.perPage) - queryConfig.pagination.perPage,
       stop = queryConfig.pagination.perPage,
       groupByFuncName = queryConfig.groupBy.aggFunc ? queryConfig.groupBy.aggFunc : "sum",
-      groupByField = queryConfig.groupBy.variable ? queryConfig.groupBy.variable : "instnm";
+      groupByField = queryConfig.groupBy.variable ? queryConfig.groupBy.variable : "instnm",
+      matches = queryConfig.matches.filter(match => match);
 
     //todo: qC = new QueryConfig(queryConfig)
 
     // then can do magic like aggArgs.push(qC.getMatches()), aggArgs.push(qC.getSort()), etc. 
-    // this gives you control over order
-
-    /*
-      steps:
-        1) make it work for unaggregated school_data results (x)
-        2) make it work for aggregated school_data results (same method) (x)
-        3) make it work for degree_data results ()
-    */
 
     let aggArgs: object[] = [];
 
     //remove unneeded fields
     aggArgs.push({
       "$match": {
-        "$and": queryConfig.matches.concat([{ "variable": { "$in": queryConfig.filters.values } }])
+        "$and": matches.concat([{ "variable": { "$in": queryConfig.filters.values } }])
       }
     });
 
@@ -187,7 +180,7 @@ SchoolDataSchema.schema.statics = {
       .then((res: intSchoolDataQueryResult[]) => {
         let result = res.pop();
         let ret = { query: queryConfig, data: result.results };
-        ret.query.pagination.total = result.totalCount.pop().count;
+        ret.query.pagination.total = result.totalCount.length > 0 ? result.totalCount.pop().count : 0;
         if (queryConfig.inflationAdjusted == "true") {
           return getInflationAdjuster().then(adjust => {
             ret.data.forEach(datum => datum.data.forEach(item => item.value = adjust(item.fiscal_year, item.value)))

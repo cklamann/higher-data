@@ -64,15 +64,20 @@
 				</mat-radio-group>
 			</div>
 		</div><!--end options container-->
+		<!--start table-->
 		<div fxLayout="row wrap"  fxLayoutAlign="center center" fxFlex = "100" fxFlex.gt-sm="80" class = "table-content">
 			<div fxFlex="100"  fxLayoutAlign = "center center" fxLayout = "row wrap">
 				<div class = "title-container" fxFlex="100"  fxLayoutAlign = "center center">
 					<div class = "chart-title mat-title">
-						title goes here i suppse
+						{{variableFriendly}}
 					</div>
 				</div>
 				<div fxFlex="100" *ngIf = "!showTable" class="center-text">
 					No datter
+				</div>
+				<div fxFlex="100" class = "filter-form" [formGroup]="matchesForm">
+					<input formControlName="match">
+					<button (click)="query()">submit</button>	
 				</div>
 				<div *ngIf="showTable" class="table-container mat-elevation-z8" fxFlex = 100 fxFlex.gt-sm = 75 fxLayoutAlign = "space-around start" fxLayout="row wrap">
 					<mat-table [dataSource]="matTableDataSource" fxFlex=85 fxLayout="row wrap" matSort matSortActive="false" matSortDirection="asc" #tableSort="matSort" (matSortChange)="onMatSortChange($event)">

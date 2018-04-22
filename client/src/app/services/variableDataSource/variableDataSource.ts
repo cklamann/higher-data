@@ -34,8 +34,9 @@ export class VariableDataSource {
 	util: UtilService;
 
 	constructor(_export: intVarExport) {
+		//todo: better handling of empty response
 		this._export = _export;
-		this.data = this._transformExport(_export);
+		this.data = _export.data.length > 0 ? this._transformExport(_export) : [];
 	}
 
 	get export() {
@@ -45,13 +46,12 @@ export class VariableDataSource {
 	getColumns(): string[] {
 		let keys = Object.keys(this.data[0]).sort();
 		let label = keys.pop();
-		keys.unshift(label); //if we rename instnm here, would need to do it on the data too so table works...
+		keys.unshift(label);
 		return keys;
 	}
 
 	_transformExport(_export: intVarExport): intVarDataSourceExport[] {
 		//todo: replace with transformer
-		console.log(_export);
 		var data: intermediateData[][],
 			keyCol: string,
 			keyMap: string[] = []; // array of unique values for label column
