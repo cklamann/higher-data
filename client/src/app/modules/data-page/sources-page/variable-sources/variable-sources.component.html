@@ -1,7 +1,11 @@
+<mat-toolbar>
+	<mat-toolbar-row fxFlex="100" fxLayoutAlign="center center">
+		<h3>
+			Select a variable to view its sources
+		</h3>
+	</mat-toolbar-row>
+</mat-toolbar>
 <div fxFlex = 100 fxLayoutAlign = "center center" fxLayout="row wrap" >	
-	<div fxFlex = 100 class = "mat-body-strong" class="center-text margin-top-15">
-		Select a variable to view its sources
-	</div>
 	<app-variable-definition-select [defined]="true" fxLayout="row wrap" fxFlex="75" fxFlex.gt-xs="33" fxLayoutAlign="center center" [urlVariable] = "urlVariable" (onVariableDefinitionSelect) = "setVariable($event)" class="margin-top-15"></app-variable-definition-select>
 	<app-source-display fxLayout="row wrap" fxFlex = 100 fxFlex.gt-sm = 68  fxLayoutAlign = "center center" [variable]="variable"></app-source-display>
 </div>

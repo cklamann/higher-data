@@ -1,11 +1,14 @@
+<mat-toolbar>
+	<mat-toolbar-row fxFlex="100" fxLayoutAlign="center center">
+		<h3>
+		Select a chart to view its sources
+		</h3>
+	</mat-toolbar-row>
+</mat-toolbar>
 <div fxFlex = 100 fxLayoutAlign = "center center" fxLayout="row wrap">	
 		<!--todo: the whole item should be a narrow card, only 10% wider than the dropdown
 	          it really should stand out more, and even unselected the card should run
 	      	  to the bottom of the page-->
-	    <!--also, might have fucked up tree in merge-->
-	<div class = "mat-body-strong" fxFlex="100" class="center-text margin-top-15">
-		Select a chart to view its sources
-	</div>
 	<app-chart-search fxFlex="75" fxFlex.gt-xs="33" fxLayoutAlign="center center" [defaultChart] = "urlChart" (onChartSelect) = setChart($event) class = "margin-top-15"></app-chart-search>
 	<div fxFlex = 100 fxLayoutAlign = "center center" fxLayout="row wrap">	
 	<div *ngIf="chart" fxFlex=100 fxLayoutAlign = "center center">

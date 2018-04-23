@@ -1,1 +1,5 @@
- <app-site-content [handle] = "'about-page'"></app-site-content>
+<div fxLayout = "row wrap" [fxFlex]="100"  fxLayoutAlign="center center">
+	<div class = "inner-container" [fxFlex] = "95" [fxFlex.gt-sm] = "70">
+		<app-site-content fxFlex=100 [handle] = "'about-page'"></app-site-content>
+	</div>
+</div>

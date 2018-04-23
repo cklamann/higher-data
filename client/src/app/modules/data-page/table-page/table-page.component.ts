@@ -1,4 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { Router } from '@angular/router';
 import { trigger, state, style, animate, transition } from '@angular/animations';
 import { MatPaginator, MatSort, MatTableDataSource, PageEvent, MatInput } from '@angular/material';
 import { intVarExport } from '../../../../../server/src/schemas/SchoolDataSchema';
@@ -10,6 +11,7 @@ import { MatToolbar, MatToolbarRow } from '@angular/material/toolbar';
 import { FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
 import { UtilService } from '../../../services/util/util';
 import { VariableDataSource, intVarDataSourceExport } from '../../../services/variableDataSource/variableDataSource';
+import { intVariableDefinitionModel } from '../../../../../server/src/schemas/VariableDefinitionSchema';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { ModalLoadingComponent } from '../../shared/modals/loading/loading.component';
 import { ModalErrorComponent } from '../../shared/modals/error/error.component';
@@ -35,14 +37,13 @@ export class TablePageComponent implements OnInit {
 	showTable = false;
 	tableOptionsForm: FormGroup;
 	visibleColumns: string[] = [];
-	variableFriendly: string = '';
+	variable: intVariableDefinitionModel;
 	private _columns: string[] = [];
 	private _columnIndex: number = 0;
 	private _dataTotal: number = 0;
 	private _tableOptionsVisible: boolean = false;
-	private _variableType: string;
 	constructor(private schools: Schools, private fb: FormBuilder, private util: UtilService,
-		public dialog: MatDialog) {
+		public dialog: MatDialog, private router: Router) {
 	}
 
 	ngOnInit() {
@@ -127,7 +128,7 @@ export class TablePageComponent implements OnInit {
 	}
 
 	getTableIsCurrency() {
-		return /currency+./.test(this._variableType);
+		return /currency+./.test(this.variable.valueType);
 	}
 
 	getTableOptionsVisible() {
@@ -136,6 +137,10 @@ export class TablePageComponent implements OnInit {
 
 	getVariableDefinitionSelected() {
 		return this.tableOptionsForm.controls['filters'].value.values.length > 0;
+	}
+
+	goToVariableSource(){
+		this.router.navigate(['data/sources/variables/' + this.variable.variable])
 	}
 
 	onMatSortChange($event) {
@@ -198,8 +203,7 @@ export class TablePageComponent implements OnInit {
 	}
 
 	setVariable($event) {
-		this._variableType = $event.valueType;
-		this.variableFriendly = $event.friendlyName;
+		this.variable = $event;
 		this.tableOptionsForm.get('filters').patchValue({
 			values: $event.variable
 		})
@@ -232,11 +236,11 @@ export class TablePageComponent implements OnInit {
 	}
 
 	private _formatValues(data: intVarDataSourceExport[]): intVarDataSourceExport[] {
-		if (this._variableType) {
+		if (this.variable) {
 			return data.map((item: intVarDataSourceExport) => {
 				return _.forIn(item, (v, k, obj) => {
 					if (_.toNumber(k) && _.toNumber(v)) {
-						obj[k] = this.util.numberFormatter().format(v, this._variableType);
+						obj[k] = this.util.numberFormatter().format(v, this.variable.valueType);
 					}
 				});
 			});
