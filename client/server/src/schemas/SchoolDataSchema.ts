@@ -82,7 +82,7 @@ SchoolDataSchema.schema.statics = {
   fetchAggregate: (queryConfig: intQueryConfig): Promise<intVarExport> => {
 
     const sd = queryConfig.sort.direction === "-" ? -1 : 1,
-      sf = queryConfig.sort.field ? queryConfig.sort.field : "_id", //instnm in this case, every time
+      sf = _.toNumber(queryConfig.sort.field) ? queryConfig.sort.field : "_id", //instnm in this case, every time
       start = (queryConfig.pagination.page * queryConfig.pagination.perPage) - queryConfig.pagination.perPage,
       stop = queryConfig.pagination.perPage,
       groupByFuncName = queryConfig.groupBy.aggFunc ? queryConfig.groupBy.aggFunc : "sum",
