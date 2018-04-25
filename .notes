@@ -1,41 +1,18 @@
 ---front end---
 
-front end should also have some good utilities -- should be able to get some basic intelligence on the data -- how much is there, how does it break down per school and per year? That way you can quickly check to see if any update went wrong.
+refactor form submission for table. Currently an antipattern. Should do the following:
 
+1) validate
+2) reshape form.value into mongo query (fe transformer)
+3) submit
+
+* ui logic can: turn on and off validation, but *that's it*, no intermediate transformers, save that for reshape step
 
 ---back end---
 
-*promise refactor*
-1) move from callbacks to promises
-2) use chainable mongoose methods instead of callbacks
-https://medium.com/@AdamRNeary/refactoring-mongoose-with-q-99d2759a97b6
-
-
-*chart plan*
-
--- chart lines are saved in formulae -- when we request a chart, we:
-
-	1) retrieve formula 
-	2) parse formula
-	3) get variables and reshape
-		reshaping means 
-			-> group all variables by year
-				2014->{population : 5, growth : 2}
-			-> filter out years without all required variables
-	4) loop through years and apply formula with values
-	5) transform into standard format and return
-
-store charts as entire docs, with child variables[], each of which contains a formula, definition, and so on -- front end takes care of integrity, though there's some be validation checks. Can recycle formulas/lines on fe.
-
 ---database---
 
-how to upload from R? mongoimport --db colleges --collection chart_data --drop --file ~/Desktop/trendsDump.json --jsonArray
 
-#query a subset of data in mongo: 
-
-db.chart_data.find({opeid:{$eq:"147767"},"data.variable":{$eq:"room_and_board"}})
-
-rename: -> db.chart_data.updateMany({}, {$rename: {"opeid": "unitid"}})
 
 
 ---BEFORE DEPLOY---
