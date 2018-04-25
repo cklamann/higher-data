@@ -6,16 +6,16 @@ refactor form submission for table. Currently an antipattern. Should do the foll
 2) reshape form.value into mongo query (fe transformer)
 3) submit
 
-* ui logic can: turn on and off validation, but *that's it*, no intermediate transformers, save that for reshape step
+* validation should not be automatic, we should validate on ngChange, using form state to selectively validate other fields, i.e., 
+if groupBy.variable != 'instnm', then require aggFunc, else let through, and always have a variable in there of course. Then, if valid,
+pass on to transformer, which makes it into a proper queryConfig object and sends it off. Should update error handling on both sides.
 
 ---back end---
 
 ---database---
 
-
-
-
 ---BEFORE DEPLOY---
 
 1) make sure all routes, including create users, are covered by auth
 2) remove all uniques from schemas
+3) make sure exceptions from be are being handled properly
