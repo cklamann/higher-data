@@ -24,7 +24,7 @@
 						</mat-radio-button>
 					</mat-radio-group>
 				</div>
-				<div *ngIf="getIsAggregate()" [formGroup]="tableOptionsForm.get('groupBy')" fxFlex="100" fxLayout="row wrap" class = "agg-opt-container" fxLayoutAlign="space-between">
+				<div *ngIf="getAggOptionsVisible()" [formGroup]="tableOptionsForm.get('groupBy')" fxFlex="100" fxLayout="row wrap" class = "agg-opt-container" fxLayoutAlign="space-between">
 					<div fxFlex="100" fxFlex.gt-xs="45" fxLayout="row wrap">
 						<div fxFlex="100" fxLayout="row wrap" fxLayout.gt-xs="row">	
 							<label fxFlex="50" class="p-r-5" fxFlexAlign="center">Select an aggregation group</label>
@@ -83,7 +83,7 @@
 						{{variable.friendlyName}}
 					</div>
 				</div>
-				<div *ngIf = "getShowMatchesForm()" fxFlex="100" fxFlex.gt-sm = "75" class = "filter-form" [formGroup]="matchesForm">
+				<div *ngIf = "getShowMatchesForm()" fxFlex="100" fxFlex.gt-sm = "75" class = "filter-form" [formGroup]="tableOptionsForm">
 					<mat-form-field>
 						<input matInput type="text" placeholder="filter" formControlName="match">	
 					</mat-form-field>

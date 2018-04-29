@@ -6,8 +6,7 @@ refactor form submission for table. Currently an antipattern. Should do the foll
 2) reshape form.value into mongo query (fe transformer)
 3) submit
 
-* validation should not be automatic, we should validate on ngChange, using form state to selectively validate other fields, i.e., 
-if groupBy.variable != 'instnm', then require aggFunc, else let through, and always have a variable in there of course. Then, if valid,
+* validation should not be automatic, we should validate on ngChange, using form state to selectively validate other fields, i.e., if groupBy.variable != 'instnm', then require aggFunc, else let through, and always have a variable in there of course. Then, if valid,
 pass on to transformer, which makes it into a proper queryConfig object and sends it off. Should update error handling on both sides.
 
 ---back end---

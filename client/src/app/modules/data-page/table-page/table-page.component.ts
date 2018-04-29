@@ -4,6 +4,7 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
 import { MatPaginator, MatSort, MatTableDataSource, PageEvent, MatInput } from '@angular/material';
 import { intVarExport } from '../../../../../server/src/schemas/SchoolDataSchema';
 import { intQueryConfig } from '../../../../../server/src/types/types';
+import { newQueryConfig } from '../../../factories/queryConfig.factory';
 import { RestService } from '../../../services/rest/rest.service';
 import { Schools } from '../../../models/Schools';
 import { Observable } from 'rxjs';
@@ -16,7 +17,31 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { ModalLoadingComponent } from '../../shared/modals/loading/loading.component';
 import { ModalErrorComponent } from '../../shared/modals/error/error.component';
 import * as _ from 'lodash';
+import 'rxjs/add/operator/distinctUntilChanged';
 import 'rxjs/add/operator/map';
+
+
+interface intTableOptionsForm {
+	match: string | null,
+	sort: {
+		field: string,
+		direction: string
+	},
+	pagination: {
+		page: number,
+		perPage: number
+	},
+	groupBy: {
+		aggFunc: string | null,
+		variable: string
+	},
+	inflationAdjusted: string,
+	filter: {
+		fieldName: string,
+		value: string | null
+	}
+}
+
 
 @Component({
 	selector: 'app-table-page',
@@ -29,19 +54,18 @@ export class TablePageComponent implements OnInit {
 	@ViewChild('tablePaginator') tablePaginator: MatPaginator;
 	@ViewChild('tableSort') tableSort: MatSort;
 
-	isAggregateForm: FormGroup;
-	filterForm: FormGroup;
-	matchesForm: FormGroup;
 	matTableDataSource = new MatTableDataSource<intVarDataSourceExport>();
-	queryParams: intQueryConfig;
 	showTable = false;
 	tableOptionsForm: FormGroup;
+	isAggregateForm: FormGroup;
 	visibleColumns: string[] = [];
-	variable: intVariableDefinitionModel;
+	selectedVariable: intVariableDefinitionModel;
 	private _columns: string[] = [];
 	private _columnIndex: number = 0;
 	private _dataTotal: number = 0;
 	private _tableOptionsVisible: boolean = false;
+	private _aggOptionsVisible: boolean = false;
+
 	constructor(private schools: Schools, private fb: FormBuilder, private util: UtilService,
 		public dialog: MatDialog, private router: Router) {
 	}
@@ -53,12 +77,12 @@ export class TablePageComponent implements OnInit {
 
 	private _intializeForms() {
 
-		this.matchesForm = this.fb.group({
-			match: new FormControl('')
+		this.isAggregateForm = this.fb.group({
+			isAggregate: false
 		});
 
 		this.tableOptionsForm = this.fb.group({
-			matches: this.fb.array([]),
+			match: null,
 			sort: {
 				field: '',
 				direction: ''
@@ -66,53 +90,35 @@ export class TablePageComponent implements OnInit {
 			pagination: this.fb.group({
 				page: 1,
 				perPage: 10
-			}),
+			}, { validator: Validators.required }),
 			groupBy: this.fb.group({
 				aggFunc: null,
-				variable: 'instnm',
+				variable: new FormControl('instnm', Validators.required)
 			}),
 			inflationAdjusted: 'false',
-			filters: this.fb.group({
-				fieldName: 'variable',
-				values: ''
-			})
-		})
-
-		this.isAggregateForm = this.fb.group({
-			isAggregate: false
-		})
+			filter: new FormControl(null, Validators.required)
+		});
 	}
 
 	private _subscribeToForms() {
-		this.tableOptionsForm.get('filters').get('values').setValidators([Validators.required]);
 
-		this.tableOptionsForm.get('groupBy').get('variable').setValidators(Validators.required);
+		this.isAggregateForm.valueChanges.subscribe(() => {
+			this._updateGroupByFields();
+			this._aggOptionsVisible = !this._aggOptionsVisible;
+			this.tableOptionsForm.updateValueAndValidity();
+		})
 
-		this.tableOptionsForm.get('groupBy').get('variable').valueChanges.subscribe(change => this.matchesForm.reset());
-
-		this.isAggregateForm.valueChanges.subscribe(change => {
-			if (change.isAggregate) {
-				this.tableOptionsForm.get('groupBy').get('variable').reset();
-				this.tableOptionsForm.get('groupBy').get('aggFunc').setValidators(Validators.required);
-			} else {
-				this.tableOptionsForm.get('groupBy').get('aggFunc').clearValidators();
-				this.tableOptionsForm.get('groupBy').get('aggFunc').reset();
-				this.tableOptionsForm.get('groupBy').patchValue({ "variable": "instnm" });
-			}
-			this.matchesForm.reset();
-		});
-
-		this.tableOptionsForm.valueChanges.subscribe(change => {
-			this.query();
-		});
+		this.tableOptionsForm.valueChanges
+			.distinctUntilChanged((prev, curr) => this._onlyMatchChanged(prev, curr))
+			.subscribe(change => this.query() );
 	}
 
 	getDataTotal() {
 		return this._dataTotal;
 	}
 
-	getIsAggregate() {
-		return this.isAggregateForm.controls['isAggregate'].value;
+	getAggOptionsVisible() {
+		return this._aggOptionsVisible;
 	}
 
 	getLeftArrowVisible() {
@@ -124,11 +130,11 @@ export class TablePageComponent implements OnInit {
 	}
 
 	getShowMatchesForm() {
-		return !!this.tableOptionsForm.get('filters').get('values').value;
+		return !!this.tableOptionsForm.get('filter').value;
 	}
 
 	getTableIsCurrency() {
-		return /currency+./.test(this.variable.valueType);
+		return /currency+./.test(this.selectedVariable.valueType);
 	}
 
 	getTableOptionsVisible() {
@@ -136,11 +142,11 @@ export class TablePageComponent implements OnInit {
 	}
 
 	getVariableDefinitionSelected() {
-		return this.tableOptionsForm.controls['filters'].value.values.length > 0;
+		return this.tableOptionsForm.controls['filter'].value;
 	}
 
-	goToVariableSource(){
-		this.router.navigate(['data/sources/variables/' + this.variable.variable])
+	goToVariableSource() {
+		this.router.navigate(['data/sources/variables/' + this.selectedVariable.variable])
 	}
 
 	onMatSortChange($event) {
@@ -173,11 +179,9 @@ export class TablePageComponent implements OnInit {
 	}
 
 	query() {
+		this._validateGroupByFields();
 		if (!this.tableOptionsForm.valid) return;
-		let input = _.cloneDeep(this.tableOptionsForm.value);
-		//todo: make transformer more deliberate
-		input.filters.values = [input.filters.values];
-		input.matches.push(this._transformMatches());
+		let input = this._transformQuery(this.tableOptionsForm.value);
 		this.openLoadingDialog();
 		this.schools.fetchAggregate(input)
 			.map((res: intVarExport) => {
@@ -203,9 +207,9 @@ export class TablePageComponent implements OnInit {
 	}
 
 	setVariable($event) {
-		this.variable = $event;
-		this.tableOptionsForm.get('filters').patchValue({
-			values: $event.variable
+		this.selectedVariable = $event;
+		this.tableOptionsForm.get('filter').patchValue({
+			value: $event.variable
 		})
 	}
 
@@ -236,29 +240,49 @@ export class TablePageComponent implements OnInit {
 	}
 
 	private _formatValues(data: intVarDataSourceExport[]): intVarDataSourceExport[] {
-		if (this.variable) {
+		if (this.selectedVariable) {
 			return data.map((item: intVarDataSourceExport) => {
 				return _.forIn(item, (v, k, obj) => {
 					if (_.toNumber(k) && _.toNumber(v)) {
-						obj[k] = this.util.numberFormatter().format(v, this.variable.valueType);
+						obj[k] = this.util.numberFormatter().format(v, this.selectedVariable.valueType);
 					}
 				});
 			});
 		} else return data;
 	}
 
-	private _transformMatches() {
-		const change = this.matchesForm.value,
-			regex = `.+${change.match}.+|${change.match}+.|.+${change.match}|${change.match}`,
-			arg = change.match ? regex : `.+`;
+	private _onlyMatchChanged(prev: intTableOptionsForm, curr: intTableOptionsForm): boolean {
+		const formBezMatch = [prev, curr].map(form => Object.entries(form))
+			.map(pairs => pairs.filter(item => item[0] != 'match'));
+
+		return _.isEqual(formBezMatch[0], formBezMatch[1]);
+	}
+
+	private _transformMatches(match: string) {
+		const regex = `.+${match}.+|${match}+.|.+${match}|${match}`,
+			arg = match ? regex : `.+`;
 		return { [this.tableOptionsForm.value.groupBy.variable]: { '$regex': arg, '$options': 'is' } };
 	};
 
-	private _updateTableOptionsMatches(regex: string = '') {
-		if (!regex) regex = `.+`;
-		this.tableOptionsForm.setControl('matches', this.fb.group({
-
-		}));
+	private _transformQuery(form: intTableOptionsForm): intQueryConfig {
+		let qc = <intQueryConfig>this.util.assignToOwnProps(newQueryConfig(), form);
+		qc.matches = [this._transformMatches(form.match)];
+		qc.filters.fieldName = 'variable';
+		qc.filters.values.push(form.filter.value);
+		return qc;
 	}
 
+	private _updateGroupByFields() {
+		if (this._aggOptionsVisible) {
+			this.tableOptionsForm.get('groupBy').get('aggFunc').setErrors(null);
+			this.tableOptionsForm.get('groupBy').patchValue({ 'variable': 'instnm', 'aggFunc': null });
+		} else this.tableOptionsForm.get('groupBy').patchValue({ 'variable': null });
+	}
+
+	private _validateGroupByFields() {
+		if (this._aggOptionsVisible
+			&& !this.tableOptionsForm.get('groupBy').get('aggFunc').value) {
+			this.tableOptionsForm.get('groupBy').get('aggFunc').setErrors({ 'required': true });
+		} else this.tableOptionsForm.get('groupBy').get('aggFunc').setErrors(null);
+	}
 }

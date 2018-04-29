@@ -89,7 +89,7 @@ SchoolDataSchema.schema.statics = {
       groupByField = queryConfig.groupBy.variable ? queryConfig.groupBy.variable : "instnm",
       matches = queryConfig.matches.filter(match => match);
 
-    //todo: qC = new QueryConfig(queryConfig)
+    //todo: qC = newQueryConfig(queryConfig)
 
     // then can do magic like aggArgs.push(qC.getMatches()), aggArgs.push(qC.getSort()), etc. 
 
@@ -102,7 +102,7 @@ SchoolDataSchema.schema.statics = {
       }
     });
 
-    //2 groupBys -> first, reduce and groupby (if there's an aggFunc), then group into 'data' array
+    //2 $groups -> first, reduce and groupby (if there's an aggFunc), then group into 'data' array
 
     aggArgs.push({
       "$group": {

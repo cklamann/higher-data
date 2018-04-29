@@ -59,24 +59,25 @@ export class UtilService {
 	};
 
 	/*
-		Replace an object in an array with another with the same key
+		assigns source props to obj only if prop names already exist on obj
+	
 	*/
 
-	replace(array: object[], item: object): object[] {
-		const keys = _.flatMap(array, member => Object.keys(member)),
-			key = Object.keys(item)[0];
-		if (keys.includes(key)) {
-			array = array.filter(member => Object.keys(member)[0] != key);
+	assignToOwnProps(obj: object, src: object): object {
+		let srcC = _.cloneDeep(src);
+
+		_filterForeign(obj, srcC);
+
+		return Object.assign(obj, srcC);
+
+		function _filterForeign(obj: object, src: object) {
+			_.forIn(src, (v,k) => {
+				if (_.isObject(v) && _.isObject(obj[k])) {
+					_filterForeign(v, src[k]);
+				}
+				if (! (Object.keys(obj).find(key => key === k) )) delete src[k]
+			});
 		}
-		array.push(item);
-		return array;
 	}
 
-	/*
-		Replace an object in an array with another with the same key
-	*/
-
-	getKey(obj: object): string {
-		return Object.keys(obj)[0];
-	}
 }
