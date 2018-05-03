@@ -82,20 +82,20 @@ SchoolDataSchema.schema.statics = {
   fetchAggregate: (queryConfig: intQueryConfig): Promise<intVarExport> => {
 
     const sd = queryConfig.sort.direction === "-" ? -1 : 1,
-      sf = _.toNumber(queryConfig.sort.field) ? queryConfig.sort.field : "_id", //instnm in this case, every time
+      sf = _.toNumber(queryConfig.sort.field) ? queryConfig.sort.field : "_id",
       start = (queryConfig.pagination.page * queryConfig.pagination.perPage) - queryConfig.pagination.perPage,
       stop = queryConfig.pagination.perPage,
       groupByFuncName = queryConfig.groupBy.aggFunc ? queryConfig.groupBy.aggFunc : "sum",
       groupByField = queryConfig.groupBy.variable ? queryConfig.groupBy.variable : "instnm",
       matches = queryConfig.matches.filter(match => match);
 
-    //todo: qC = newQueryConfig(queryConfig)
-
-    // then can do magic like aggArgs.push(qC.getMatches()), aggArgs.push(qC.getSort()), etc. 
+    // todo: if this has to be used elsewhere, make its own object: 
+    // qC = newQueryConfig(queryConfig)
+    // then qC.verify(), aggArgs.push(qC.getMatches()), aggArgs.push(qC.getSort()), etc. 
 
     let aggArgs: object[] = [];
 
-    //remove unneeded fields
+    //filter out unneeded fields
     aggArgs.push({
       "$match": {
         "$and": matches.concat([{ "variable": { "$in": queryConfig.filters.values } }])
@@ -103,7 +103,6 @@ SchoolDataSchema.schema.statics = {
     });
 
     //2 $groups -> first, reduce and groupby (if there's an aggFunc), then group into 'data' array
-
     aggArgs.push({
       "$group": {
         "_id": {

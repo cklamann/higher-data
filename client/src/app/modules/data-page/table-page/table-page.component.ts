@@ -191,9 +191,7 @@ export class TablePageComponent implements OnInit {
 			.subscribe(resp => {
 				this.dialog.closeAll();
 				if (!_.isEmpty(resp.export.data)) {
-					let data = resp.export.data,
-						formattedData = this._formatValues(data);
-					this.matTableDataSource.data = formattedData;
+					this.matTableDataSource.data = this._formatValues(resp.export.data);
 					this._dataTotal = resp.export.pagination.total;
 					this._columns = resp.getColumns();
 					this.setVisibleColumns();
