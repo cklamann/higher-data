@@ -13,7 +13,6 @@ export interface intSchoolModel {
   sector: string;
   locale: string;
   hbcu: string;
-  slug: string;
   school_data?: intSchoolDataModel[];
 };
 
@@ -32,7 +31,6 @@ let schoolSchema: Schema = new Schema({
     enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 40]
   },
   hbcu: String,
-  slug: String,
 }, { toJSON: { virtuals: true } });
 
 schoolSchema.virtual('school_data', {
@@ -44,6 +42,7 @@ schoolSchema.virtual('school_data', {
 
 export let SchoolSchema = model<intSchoolSchema>('school', schoolSchema);
 
+//todo: fix this, no more slug!
 SchoolSchema.schema.statics = {
   search: (name: string): Promise<intSchoolSchema[]> => SchoolSchema.find({ instnm: { $regex: `.+${name}.+|${name}+.|.+${name}|.+${name}|${name}`, $options: 'is' } }).limit(25).exec(),
   fetch: (arg: string): Promise<intSchoolSchema> => {
