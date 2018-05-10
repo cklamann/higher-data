@@ -30,10 +30,11 @@ export class ChartPageComponent implements OnInit {
 	private _chartEmpty: boolean = false;
 	private _inflationAdjusted: boolean = false;
 	private _cut: string = '';
+	//todo: why does this exist?
 	selections: {
 		chartSlug: string,
-		schoolSlug: string
-	} = { chartSlug: null, schoolSlug: null };
+		instnm: string
+	} = { chartSlug: '', instnm: '' };
 
 	constructor(public Schools: Schools,
 		private ChartService: ChartService,
@@ -106,7 +107,7 @@ export class ChartPageComponent implements OnInit {
 
 	onSchoolSelect(school: intSchoolModel | null) {
 		if (school) {
-			this.selections.schoolSlug = school.slug;
+			this.selections.instnm = school.instnm;
 			this.chartOptionsForm.reset();
 			this._loadChart();
 		}
@@ -142,9 +143,9 @@ export class ChartPageComponent implements OnInit {
 		return this.chartOptionsVisible;
 	}
 
-	private _setUi(schoolSlug: string, chartSlug: string) {
+	private _setUi(instnm: string, chartSlug: string) {
 		this.selections.chartSlug = chartSlug;
-		this.selections.schoolSlug = schoolSlug;
+		this.selections.instnm = instnm;
 	}
 
 	private _setOptions(options: intChartExportOptions) {
@@ -156,9 +157,9 @@ export class ChartPageComponent implements OnInit {
 	}
 
 	private _loadChart(): void {
-		if (this.selections.schoolSlug && this.selections.chartSlug) {
+		if (this.selections.instnm && this.selections.chartSlug) {
 			let options = _.pickBy(this.chartOptionsForm.value, (v, k) => !_.isNil(v) && v != "");
-			this.router.navigate([`data/charts/${this.selections.schoolSlug}/${this.selections.chartSlug}`, options]);
+			this.router.navigate([`data/charts/${this.selections.instnm}/${this.selections.chartSlug}`, options]);
 		}
 	}
 }

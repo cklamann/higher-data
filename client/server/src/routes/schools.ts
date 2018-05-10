@@ -11,9 +11,8 @@ let mongoose = require("mongoose");
 let router = Router();
 let School = SchoolSchema;
 
-//todo: fix! this should be an index route with a ?q= param; see branch
-router.get('/search', function(req, res, next) {
-	School.schema.statics.search(req.query.name)
+router.get('/', function(req, res, next) {
+	School.schema.statics.search(req.query.q)
 		.then((resp: intSchoolSchema[]) => {
 			res.json(resp);
 			return;
@@ -30,7 +29,6 @@ router.get('/:id', function(req, res, next) {
 		.catch(err => next(err));
 });
 
-//todo:fix --> no more slug! also have to make fe changes!
 router.get('/:school/charts/:chart', function(req, res, next) {
 	const promises: Promise<any>[] = [],
 		options = req.query ? req.query : {};

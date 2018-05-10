@@ -114,8 +114,8 @@ export class VariableDefinerComponent implements OnInit {
 
 	private _loadChart() {
 		if (!this.variableDefinitionForm.value.variable) return;
-		const schoolSlug = this.school ? this.school.slug : 'northwestern-university-147767';
-		this.ChartService.fetchChartByVariable(this.variableDefinitionForm.value.variable, schoolSlug)
+		const instnm = this.school ? this.school.instnm : 'Northwestern University';
+		this.ChartService.fetchChartByVariable(this.variableDefinitionForm.value.variable, instnm)
 			.subscribe(res => {
 				this.chartData = res;
 			});

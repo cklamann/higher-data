@@ -42,14 +42,13 @@ schoolSchema.virtual('school_data', {
 
 export let SchoolSchema = model<intSchoolSchema>('school', schoolSchema);
 
-//todo: fix this, no more slug!
 SchoolSchema.schema.statics = {
-  search: (name: string): Promise<intSchoolSchema[]> => SchoolSchema.find({ instnm: { $regex: `.+${name}.+|${name}+.|.+${name}|.+${name}|${name}`, $options: 'is' } }).limit(25).exec(),
+  search: (name: string): Promise<intSchoolSchema[]> => SchoolSchema.find({instnm:{$regex: `.*${name}.*` , $options:'i'}}).limit(25).exec(),
   fetch: (arg: string): Promise<intSchoolSchema> => {
     let promise;
     if (!!_.toNumber(arg)) {
       promise = SchoolSchema.findOne({ unitid: arg }).exec();
-    } else promise = SchoolSchema.findOne({ slug: arg }).exec();
+    } else promise = SchoolSchema.findOne({ instnm: arg }).exec();
     return promise;
   }
 };
