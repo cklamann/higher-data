@@ -16,7 +16,7 @@ export class Schools {
 	}
 
 	search(name: string): Observable<School[]> {
-		return this.rest.get(`schools/search?name=${name}`).map(res => {
+		return this.rest.get(`schools?q=${name}`).map(res => {
 			return res.map(school => {
 				return new School(school);
 			});

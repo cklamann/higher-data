@@ -82,8 +82,9 @@ export class FormulaParser {
 		this.queryConfig.filters.values = this.symbolNodes;
 		this.queryConfig.matches.push({ unitid })
 		return SchoolDataSchema.schema.statics.fetchAggregate(this.queryConfig)
-			.then((school: intVarExport) => {
-				const fullData = this._fillMissingOptionalData(school.data[0].data),
+			.then((exp: intVarExport) => {
+				let data = exp.data[0] ? exp.data[0].data : [];
+				const fullData = this._fillMissingOptionalData(data),
 					transformedData = this._transformModelForFormula(fullData);
 				return this._evaluate(transformedData);
 			});

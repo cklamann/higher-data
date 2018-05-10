@@ -63,8 +63,7 @@ export class ChartExport {
 					data: data,
 					options: this.options
 				}
-			})
-			.catch(err => err);
+			});
 	}
 	_adjustForInflation(res: intFormulaParserResult[]): Promise<intFormulaParserResult[]> {
 		return getInflationAdjuster().then(adjuster => {
