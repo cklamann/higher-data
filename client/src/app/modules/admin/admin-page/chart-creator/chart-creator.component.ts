@@ -95,6 +95,13 @@ export class ChartCreatorComponent implements OnInit {
 		control.push(this.initCut());
 	}
 
+	deleteChart() {
+		return this.Charts.delete(this.chartBuilderForm.value._id)
+			.subscribe( () => {
+				this.chartBuilderForm.reset();
+			})
+	}
+
 	removeVariable(i: number) {
 		const control = <FormArray>this.chartBuilderForm.controls['variables'];
 		control.removeAt(i);
@@ -106,7 +113,6 @@ export class ChartCreatorComponent implements OnInit {
 	}
 
 	onSubmit() {
-		let formContent = _stripEmptyIds(this.chartBuilderForm.value);
 		return this.Charts.save(this.chartBuilderForm.value)
 			.subscribe(res => {
 				this.chartBuilderForm.patchValue({
@@ -162,17 +168,4 @@ export class ChartCreatorComponent implements OnInit {
 		}
 	}
 
-}
-
-//private helpers --> todo: move to utility class
-let _stripEmptyIds = function(model: any): any {
-	_.forEach(model, (item, key, parent) => {
-		if (_.isArray(item)) {
-			item.forEach(val => _stripEmptyIds(val));
-		}
-		if (key === "_id" && item == "") {
-			delete parent[key];
-		}
-		return model;
-	});
 }

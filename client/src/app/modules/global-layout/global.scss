@@ -1,8 +1,7 @@
 //theme
 $primary: #673ab7; //for extending
-
 //margin/padding
-$spaceamounts: (5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 75, 100); 
+$spaceamounts: (5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 75, 100);
 $sides: (top, bottom, left, right);
 @each $space in $spaceamounts {
     @each $side in $sides {
@@ -13,25 +12,22 @@ $sides: (top, bottom, left, right);
             padding-#{$side}: #{$space}px !important;
         }
     }
-} 
-
+}
 //material resets
-
 //so that injected panel class extends to children
 .mat-dialog-container {
-    background:inherit;
+    background: inherit;
 }
-
 .froala-editor {
     width: 100%;
 }
-
-
 //global
 svg {
     shape-rendering: auto;
 }
-
+path {
+    fill: none;
+}
 text {
     font-family: 'Roboto';
 }
@@ -53,7 +49,6 @@ li {
 .left-text {
     text-align: left;
 }
-
 .d3-tip {
     position: absolute;
     text-align: left;

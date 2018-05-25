@@ -1,11 +1,14 @@
 <div class = "card-holder"  fxLayout="row wrap">
 	<mat-card fxLayout="row wrap"  fxFlex = "100" fxFlex.gt-sm="50">
 		<mat-card-header fxFlex = "90"  fxLayout="row wrap" fxLayoutAlign.gt-sm="space-between center">
-	    	<div class = "card-info" fxFlex ="35">
+	    	<div class = "card-info" fxFlex ="30">
 		    	<mat-card-title><h2>Chart Management</h2></mat-card-title>
 	    	</div>
+	    	<div class = "delete-button" fxFlex = "5" *ngIf="chartBuilderForm.value._id">
+	    		<i class="material-icons mat-icon-button" (click)="deleteChart()">delete</i>
+	    	</div>
 	    	<div class = "chart-search" fxFlex="90" fxFlex.gt-sm="60" fxLayout="row wrap" fxLayoutAlign="start center" *ngIf="!showChartSearch">
-				<i class="material-icons mat-icon-button" (click)="toggleChartSearch()">search</i>		    	
+				<i class="material-icons mat-icon-button" (click)="toggleChartSearch()">search</i>
 			</div>
 	    	<div class = "chart-search" fxFlex="90" fxFlex.gt-sm="60" fxLayout="row wrap" fxLayoutAlign="none center" *ngIf="showChartSearch">
 		    	<app-chart-search (onChartSelect)="onChartSelect($event)" fxFlex="100" fxFlex.gt-sm="100"></app-chart-search>

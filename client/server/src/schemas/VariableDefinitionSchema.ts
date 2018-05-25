@@ -38,6 +38,7 @@ const sourcesSchema = new Schema({
 
 const schema: Schema = new Schema({
   valueType: String,
+  category: String,
   friendlyName: {
     type: String,
     unique: true

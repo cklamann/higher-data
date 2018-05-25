@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { intChartModel, intChartVariableModel, intCutByModel } from '../../../server/src/schemas/ChartSchema';
+import { intChartModel, intChartSchema, intCutByModel, intChartVariableModel } from '../../../server/src/schemas/ChartSchema';
 import { RestService } from '../services/rest/rest.service';
 import { Observable, Subscription } from 'rxjs';
 import 'rxjs/add/observable/throw';
@@ -9,7 +9,7 @@ import 'rxjs/add/observable/throw';
 export class Charts {
 	constructor(private rest: RestService) { }
 
-	fetch(id: number): Observable<intChartModel> {
+	fetch(id: number): Observable<intChartSchema> {
 		return this.rest.get(`api/charts/${id}`);
 	}
 
@@ -17,9 +17,13 @@ export class Charts {
 		return this.rest.get(`charts`);
 	}
 
-	save(model: intChartModel): any {
+	save(model: intChartModel): Observable<intChartSchema> {
 		return this.rest.post(`charts`, model);
 	}
+
+	delete(_id: string): Observable<any> {
+		return this.rest.delete(`charts/${_id}`);
+	} 
 }
 
 export class Chart implements intChartModel {
