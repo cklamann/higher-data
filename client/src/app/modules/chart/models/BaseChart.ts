@@ -117,7 +117,6 @@ export class BaseChart {
 	};
 
 	formatAxes() {
-
 		this.yAxis.ticks(10);
 		this.xAxis.ticks(d3.timeYear.every(1));
 		if (this.width < 401) {

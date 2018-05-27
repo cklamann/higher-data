@@ -132,17 +132,21 @@ export class LineChart extends BaseChart {
 			.append("li")
 			.attr("class", "legend-element")
 			.merge(legend)
-			.html((d, i) => "<span style='color:" + this.zScale(d.key) + "'><i class='fa fa-circle' aria-hidden='true'></i></span> " + d.legendName);
-
-		d3.selectAll(".legend-element")
-			.on("click", (d: any) => {
+			.html((d, i) => "<span style='color:" + 
+							this.zScale(d.key) + 
+							"'><i class='fa fa-circle'></i></span> " + 
+							d.legendName + 
+							"&nbsp;<i class='fa fa-close" + " " + d.key + "' style='display:none'></i>")
+			.on("mouseover", (d) => d3.select('.' + d.key).style("display","inline"))
+			.on("mouseout", (d) => d3.select('.' + d.key).style("display","none"))
+			.on("click", (data) => {
 				this.chartData.data.forEach((datum, i) => {
-					if (datum.legendName === d.legendName) {
+					if (datum.legendName === data.legendName) {
 						this.chartData.removeDatum(i);
 					}
 				});
 				this.draw();
-			});
+			});			
 	}
 
 	getToolTip(fiscal_year: Date): string {

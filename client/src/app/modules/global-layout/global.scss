@@ -21,7 +21,9 @@ $sides: (top, bottom, left, right);
 .froala-editor {
     width: 100%;
 }
-//global
+////global
+
+//charts
 svg {
     shape-rendering: auto;
 }
@@ -31,6 +33,11 @@ path {
 text {
     font-family: 'Roboto';
 }
+.legend-element{
+    cursor: pointer;
+}
+
+
 form {
     width: 100%;
 }

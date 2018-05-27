@@ -29,7 +29,7 @@ export class AreaChart extends LineChart {
 			return d3.sum(vals);
 		});
 
-		this.yScale.domain([0, maxVal]); //must start at 0
+		this.yScale.domain([0, maxVal]); 
 
 		this.formatAxes();
 
@@ -55,8 +55,7 @@ export class AreaChart extends LineChart {
 			.style("fill", (d, i) => this.zScale(d.key))
 			.attr("d", <any>area);
 
-		//elements in _groups selection need to be drawn cuz they may have new data
-
+		//todo: move this stuff to parent class
 		let legendData = _.sortBy(this.stackData, datum => datum.index).reverse(); // ensure descending order
 
 		const legend = d3.select(".legend").selectAll("li")
@@ -68,18 +67,17 @@ export class AreaChart extends LineChart {
 			.append("li")
 			.attr("class", "legend-element")
 			.merge(legend)
-			.html(d => this._getLegendLine(d));
-
-		d3.selectAll(".legend-element")
+			.html(d => this._getLegendLine(d))
+			.on("mouseover", (d) => d3.select('.' + d.key).style("display","inline"))
+			.on("mouseout", (d) => d3.select('.' + d.key).style("display","none"))
 			.on("click", (d: any) => {
 				this.chartData.data.forEach((datum, i) => {
 					if (datum.key === d.key) {
 						this.chartData.removeDatum(i);
 					}
 				});
-				d3.select('.legend').selectAll("*").remove();
 				this.draw();
-			});
+			})
 
 		let barScale = d3.scaleBand().rangeRound([0, this.width]).domain(this.areaChartData.map(datum => datum.date)).padding(0.0);
 
@@ -140,7 +138,11 @@ export class AreaChart extends LineChart {
 
 	private _getLegendLine(stackDatum) {
 		let legendName = this.chartData.data.find(datum => datum.key == stackDatum.key).legendName;
-		return "<span style='color:" + this.zScale(stackDatum.key) + "'><i class='fa fa-circle' aria-hidden='true'></i></span>&nbsp" + legendName;
+		return "<span style='color:" + 
+				this.zScale(stackDatum.key) + 
+				"'><i class='fa fa-circle' aria-hidden='true'></i></span>&nbsp" + 
+				legendName + 
+				"&nbsp;<i class='fa fa-close" + " " + stackDatum.key + "' style='display:none'></i>";
 	}
 
 	private _transformData(): any {

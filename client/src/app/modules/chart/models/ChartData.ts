@@ -38,8 +38,9 @@ export class ChartData {
 
 	setNullsToZero = (): void => this.data.forEach(datum => datum.data.forEach(item => item.value === null ? item.value = 0 : item.value = item.value));
 
-	//loops through variables and any variable missing years gets gets zeroes
-	setMissingValsToZero = () => {
+	//loops through variables and any variable missing years gets zeroes
+	//needed for area chart
+	setMissingValsToZero = () => { 
 		let dateRange = this.getDateRange();
 		this.data.forEach(datum => {
 			let diff = _.differenceBy(dateRange, datum.data.map(item => item.fiscal_year), (item) => item.getFullYear()),
@@ -92,7 +93,7 @@ function _baseTransform(data: intChartExportDataParentModel[]): intBaseChartData
 		let data = variable.data.map((datum: any) => {
 			datum = Object.assign(datum, { legendName: variable.legendName });
 			datum.value = parseFloat(datum.value);
-			datum.key = variable.legendName.toLowerCase().replace(' ', '_');
+			datum.key = variable.legendName.toLowerCase().replace(/ /g, '_');
 			datum.fiscal_year = d3.timeParse("%Y")(datum.fiscal_year)
 			return datum;
 		});
