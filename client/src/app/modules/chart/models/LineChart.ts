@@ -150,7 +150,7 @@ export class LineChart extends BaseChart {
 			forYear = everything.filter(item => item.fiscal_year.getFullYear() === fiscal_year.getFullYear()),
 			sum = forYear.reduce((a, b) => a + b.value, 0),
 			str = forYear.map(item => `<li><span style='color: ${this.zScale(item.key)}'><i class='fa fa-circle' aria-hidden='true'></i></span> ${item.legendName} : ${this.formatNumber(item.value, this.displayOptions.valueType)}</li>`).join('');
-		return "<ul class='mat-caption'>" + str + `<li>Total: ${this.formatNumber(sum, this.displayOptions.valueType)}</li>` + "<ul>";
+		return "<ul class='mat-caption'>" + str + "<ul>";
 	}
 
 };
