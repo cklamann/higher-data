@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormArray, ValidatorFn, AbstractControl } from '@angular/forms';
 import { intChartModel, intChartSchema } from '../../../../../../server/src/schemas/ChartSchema';
 import { intVariableDefinitionModel } from '../../../../../../server/src/schemas/VariableDefinitionSchema';
 import { Charts } from '../../../../models/Charts';
@@ -48,12 +48,18 @@ export class ChartCreatorComponent implements OnInit {
 	private mockCategories() {
 		return ['Enrollment', 'Finance', 'Teaching'];
 	}
-	
+
 	private getValueTypes() {
 		const formatters = this.util.numberFormatter().getFormats().map(formatter => formatter.name);
 		return _.values(formatters);
 	}
 
+	private arrayLengthValidator(length:number): ValidatorFn {
+		return (control: AbstractControl): { [key: string]: any } => {
+			console.log(control.value);
+			return control.value.length === 0 ? { 'emptyArray': { value: control.value } } : null;
+		};
+	}
 
 	createForm() {
 		this.chartBuilderForm = this.fb.group({
@@ -64,8 +70,8 @@ export class ChartCreatorComponent implements OnInit {
 			category: ['', [Validators.minLength(3), Validators.required]],
 			active: ['', [Validators.minLength(3), Validators.required]],
 			valueType: ['', [Validators.minLength(3), Validators.required]],
-			slug: ['', [Validators.minLength(3), Validators.required]],
-			variables: this.fb.array([]),
+			slug: ['', [Validators.minLength(3)]],
+			variables: this.fb.array([], this.arrayLengthValidator(1)),
 			cuts: this.fb.array([])
 		});
 	}
@@ -97,7 +103,7 @@ export class ChartCreatorComponent implements OnInit {
 
 	deleteChart() {
 		return this.Charts.delete(this.chartBuilderForm.value._id)
-			.subscribe( () => {
+			.subscribe(() => {
 				this.chartBuilderForm.reset();
 			})
 	}
