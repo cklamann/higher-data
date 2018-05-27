@@ -14,7 +14,7 @@ export class SourceDisplayComponent implements OnInit {
 	constructor() { }
 
 	ngOnInit() {
-	
+
 	}
 
 	ngOnChanges(changes:SimpleChanges){

@@ -6,9 +6,6 @@
 	</mat-toolbar-row>
 </mat-toolbar>
 <div fxFlex = 100 fxLayoutAlign = "center center" fxLayout="row wrap">	
-		<!--todo: the whole item should be a narrow card, only 10% wider than the dropdown
-	          it really should stand out more, and even unselected the card should run
-	      	  to the bottom of the page-->
 	<app-chart-search fxFlex="75" fxFlex.gt-xs="33" fxLayoutAlign="center center" [defaultChart] = "urlChart" (onChartSelect) = setChart($event) class = "margin-top-15"></app-chart-search>
 	<div fxFlex = 100 fxLayoutAlign = "center center" fxLayout="row wrap">	
 	<div *ngIf="chart" fxFlex=100 fxLayoutAlign = "center center">
@@ -29,7 +26,9 @@
 							</div>
 							<div fxFlex = 100 class = "mat-body-1">
 								<span class = "mat-body-strong">Variable {{i+1}} Calculation:</span> 
-								<span class = "mat-body-1">{{definition.formula}}</span>
+								<span class = "mat-body-1">{{definition.formula | stripOptTags}} </span>
+							</div>
+							<div *ngFor="let def of definition.variableDefinitions">			<app-source-display  [variable] = "def"></app-source-display>
 							</div>
 						</div>
 					</div>

@@ -51,7 +51,7 @@ export class ChartSourcesComponent implements OnInit {
 				definitions.forEach(def => {
 					let matches: intVariableDefinitionModel[] = [];
 					defs.forEach(df => {
-						if(def.variables.indexOf(df.variable) != -1){
+						if (def.variables.indexOf(df.variable) != -1) {
 							matches.push(df);
 						}
 					});
@@ -81,7 +81,7 @@ export class ChartSourcesComponent implements OnInit {
 				nodes.push(parsed.name);
 			}
 		}
-		return nodes;
+		return nodes.map(node => node.replace(/^__opt_/, ""));
 	}
 
 }
@@ -90,5 +90,5 @@ export interface intChartSourceDefinition {
 	legendName: string;
 	formula: string;
 	variables: string[];
-	variableDefinitions: intVariableDefinitionModel[]; 
+	variableDefinitions: intVariableDefinitionModel[];
 }

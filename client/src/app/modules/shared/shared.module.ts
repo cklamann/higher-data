@@ -10,16 +10,17 @@ import { ModalLoadingComponent } from './modals/loading/loading.component';
 import { ModalErrorComponent } from './modals/error/error.component';
 import { Charts } from '../../models/Charts';
 import { SiteContentComponent } from './site-content/site-content.component';
+import { stripOptTags } from './pipes/stripOptTags';
 
 @NgModule({
 	imports: [
 		CommonModule, ReactiveFormsModule, MatAutocompleteModule, MatFormFieldModule, MatOptionModule, MatInputModule, MatSelectModule, MatProgressSpinnerModule, MatDialogModule
 	],
-	declarations: [SchoolSearchComponent, ChartSearchComponent, VariableDefinitionSelectComponent, 
-					VariableSelectComponent, ModalLoadingComponent, ModalErrorComponent, SiteContentComponent],
+	declarations: [SchoolSearchComponent, ChartSearchComponent, VariableDefinitionSelectComponent,
+		VariableSelectComponent, ModalLoadingComponent, ModalErrorComponent, SiteContentComponent, stripOptTags],
 	exports: [
-		SchoolSearchComponent, ChartSearchComponent, VariableDefinitionSelectComponent, VariableSelectComponent, 
-		ModalLoadingComponent, SiteContentComponent
+		SchoolSearchComponent, ChartSearchComponent, VariableDefinitionSelectComponent, VariableSelectComponent,
+		ModalLoadingComponent, SiteContentComponent, stripOptTags
 	],
 	providers: [Charts],
 	entryComponents: [ModalLoadingComponent, ModalErrorComponent]

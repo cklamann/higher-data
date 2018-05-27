@@ -50,13 +50,11 @@ export class ChartCreatorComponent implements OnInit {
 	}
 
 	private getValueTypes() {
-		const formatters = this.util.numberFormatter().getFormats().map(formatter => formatter.name);
-		return _.values(formatters);
+		return this.util.numberFormatter().getFormats().map(formatter => formatter.name);
 	}
 
-	private arrayLengthValidator(length:number): ValidatorFn {
+	private _arrayLengthValidator(length:number): ValidatorFn {
 		return (control: AbstractControl): { [key: string]: any } => {
-			console.log(control.value);
 			return control.value.length === 0 ? { 'emptyArray': { value: control.value } } : null;
 		};
 	}
@@ -71,7 +69,7 @@ export class ChartCreatorComponent implements OnInit {
 			active: ['', [Validators.minLength(3), Validators.required]],
 			valueType: ['', [Validators.minLength(3), Validators.required]],
 			slug: ['', [Validators.minLength(3)]],
-			variables: this.fb.array([], this.arrayLengthValidator(1)),
+			variables: this.fb.array([], this._arrayLengthValidator(1)),
 			cuts: this.fb.array([])
 		});
 	}
