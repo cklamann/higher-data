@@ -1,4 +1,4 @@
-import { SchoolSchema, intSchoolModel} from '../schemas/SchoolSchema';
+import { SchoolSchema, intSchoolModel } from '../schemas/SchoolSchema';
 import { intQueryConfig } from '../types/types';
 import { SchoolDataSchema, intSchoolDataModel, intVarExport, intSchoolBaseDataModel } from '../schemas/SchoolDataSchema';
 import { VariableDefinitionSchema, intVariableDefinitionSchema } from '../schemas/VariableDefinitionSchema';
@@ -10,14 +10,12 @@ export interface intFormulaParserResult {
 	value: any
 }
 
-// [ { '2003': [{ in_state_tuition: 27108, room_and_board: 8446 }] } ]
-
 export class FormulaParser {
 	formula: string;
 	cleanFormula: string;
 	symbolNodes: string[];
 	optionalSymbolNodes: string[];
-	//todo: make default args its own class...
+	//todo: make query config its own class...
 	queryConfig: intQueryConfig = {
 		matches: [],
 		sort: {
@@ -31,7 +29,7 @@ export class FormulaParser {
 		inflationAdjusted: "false",
 		filters: {
 			fieldName: 'variable',
-			values:  []
+			values: []
 		},
 		groupBy: {
 			variable: 'instnm',
@@ -83,26 +81,23 @@ export class FormulaParser {
 		this.queryConfig.matches.push({ unitid })
 		return SchoolDataSchema.schema.statics.fetchAggregate(this.queryConfig)
 			.then((exp: intVarExport) => {
-				let data = exp.data[0] ? exp.data[0].data : [];
-				const fullData = this._fillMissingOptionalData(data),
+				const data = exp.data[0] ? exp.data[0].data : [],
+					fullData = this._fillMissingOptionalData(data),
 					transformedData = this._transformModelForFormula(fullData);
 				return this._evaluate(transformedData);
 			});
 	}
 
 	private _fillMissingOptionalData(schoolData: intSchoolBaseDataModel[]): intSchoolBaseDataModel[] {
-		const yearRange = this._getYearRange(schoolData),
-			extantVars = this._getUniqueVars(schoolData),
-			missingNodes: string[] = this.optionalSymbolNodes.filter(node => extantVars.indexOf(node) == -1);
+		const yearRange = this._getYearRange(schoolData);
 
-		missingNodes.forEach(item => {
-			yearRange.forEach(fiscal_year => {
-				if (schoolData.filter(datum => datum.fiscal_year == fiscal_year && item == datum.variable).length === 0) {
+		yearRange.forEach(year => {
+			this.optionalSymbolNodes.forEach(optionalNode => {
+				if(!schoolData.find(datum => datum.fiscal_year === year && datum.variable === optionalNode)){
 					schoolData.push({
-						"fiscal_year": fiscal_year,
-						"variable": item,
-						"value": 0
-					});
+					"fiscal_year": year,
+					"variable": optionalNode,
+					"value": 0});
 				}
 			});
 		});
@@ -110,17 +105,8 @@ export class FormulaParser {
 		return schoolData;
 	}
 
-	private _getYearRange(yearsData: intSchoolBaseDataModel[]): Array<string> {
-		const range: any[] = yearsData.filter(obj => obj.fiscal_year);
-		const vals: string[] = _.values(range);
-		let res = _.uniq(vals).sort();
-		return res.map(year => String(year));
-	}
-
-	private _getUniqueVars(yearsData: intSchoolBaseDataModel[]): Array<string> {
-		const vars: any[] = yearsData.filter(obj => obj.variable);
-		const vals: string[] = _.values(vars);
-		return _.uniq(vals);
+	private _getYearRange(yearsData: intSchoolBaseDataModel[]): string[] {
+		return _.uniq(yearsData.map(datum => datum.fiscal_year));
 	}
 
 	private _getSymbolNodes(formula: string): string[] {

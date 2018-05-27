@@ -1,6 +1,6 @@
 import { FormulaParser, intFormulaParserResult } from '../../modules/FormulaParser.module';
 import { VariableDefinitionSchema, intVariableDefinitionSchema, intVariableDefinitionModel } from '../../schemas/VariableDefinitionSchema';
-import { SchoolSchema, intSchoolVarExport, intSchoolModel } from '../../schemas/SchoolSchema';
+import { SchoolSchema, intSchoolModel } from '../../schemas/SchoolSchema';
 import { intSchoolDataModel, intSchoolDataSchema } from '../../schemas/SchoolDataSchema';
 import { SchoolDataSchema } from '../../schemas/SchoolDataSchema';
 import assert = require('assert');
@@ -11,8 +11,6 @@ import * as _ from 'lodash';
 const app = require('../../app');
 
 describe('FORMULA MODEL', function() {
-
-	//todo:test that incomplete years get filtered out
 
 	const testVar: intVariableDefinitionModel = {
 		category: '',
@@ -31,30 +29,30 @@ describe('FORMULA MODEL', function() {
 	}
 
 	const dataWithIncompleteYear: any[] = [
-		{sector: nwData.sector, state: nwData.state, instnm:nwData.instnm, variable: "in_state_tuition", fiscal_year: "2003", value: "50", unitid: "000001" },
-		{sector: nwData.sector, state: nwData.state, instnm:nwData.instnm, variable: "in_state_tuition", fiscal_year: "2004", value: "60", unitid: "000001" },
-		{sector: nwData.sector, state: nwData.state, instnm:nwData.instnm, variable: "room_and_board", fiscal_year: "2003", value: "70", unitid: "000001" },
-		{sector: nwData.sector, state: nwData.state, instnm:nwData.instnm, variable: "room_and_board", fiscal_year: "2004", value: "80", unitid: "000001" },
-		{sector: nwData.sector, state: nwData.state, instnm:nwData.instnm, variable: "room_and_board", fiscal_year: "2005", value: "90", unitid: "000001" },
+		{ sector: nwData.sector, state: nwData.state, instnm: nwData.instnm, variable: "in_state_tuition", fiscal_year: "2003", value: "50", unitid: "000001" },
+		{ sector: nwData.sector, state: nwData.state, instnm: nwData.instnm, variable: "in_state_tuition", fiscal_year: "2004", value: "60", unitid: "000001" },
+		{ sector: nwData.sector, state: nwData.state, instnm: nwData.instnm, variable: "room_and_board", fiscal_year: "2003", value: "70", unitid: "000001" },
+		{ sector: nwData.sector, state: nwData.state, instnm: nwData.instnm, variable: "room_and_board", fiscal_year: "2004", value: "80", unitid: "000001" },
+		{ sector: nwData.sector, state: nwData.state, instnm: nwData.instnm, variable: "room_and_board", fiscal_year: "2005", value: "90", unitid: "000001" },
 	]
 
-	const schoolWithIncompleteYears: intSchoolModel = _.cloneDeep(nwData);
-	schoolWithIncompleteYears.unitid = "000001";
-	const schoolWithIncompleteYears_school_data = dataWithIncompleteYear;
+	const schoolMissingOneYearOfTuition: intSchoolModel = _.cloneDeep(nwData);
+	schoolMissingOneYearOfTuition.unitid = "000001";
+	const schoolMissingOneYearOfTuition_school_data = dataWithIncompleteYear;
 
 	//helpful to have minimum value on hand for proving value is there / addition got done
 	const room_and_board = nwData_school_data.filter(datum => datum.variable === "room_and_board")
 		.map(item => item.value),
 		min_room_and_board = _.min(room_and_board);
 
-	const testFormulaParser: string = '(test_var - 5) / 5',
-		testFormulaParserBad: string = '(fake_var - 5) / ( 5 * other_fake_var)',
-		nwFormulaParser: string = 'in_state_tuition + room_and_board',
-		optionalFormulaParser: string = 'in_state_tuition + __opt_room_and_board';
+	const testFormula: string = '(test_var - 5) / 5',
+		testFormulaBad: string = '(fake_var - 5) / ( 5 * other_fake_var)',
+		nwFormula: string = 'in_state_tuition + room_and_board',
+		optionalFormula: string = '__opt_in_state_tuition + room_and_board';
 
 	before('create test school with incomplete variable', function(done) {
-		SchoolSchema.create(schoolWithIncompleteYears)
-			.then(() => SchoolDataSchema.create(schoolWithIncompleteYears_school_data))
+		SchoolSchema.create(schoolMissingOneYearOfTuition)
+			.then(() => SchoolDataSchema.create(schoolMissingOneYearOfTuition_school_data))
 			.then(() => done())
 			.catch((err) => done(err));
 	});
@@ -66,7 +64,7 @@ describe('FORMULA MODEL', function() {
 			.then(() => SchoolDataSchema.create({
 				instnm: "bleh",
 				state: "MA",
-				sector:"5",
+				sector: "5",
 				variable: 'test_var',
 				value: 10,
 				fiscal_year: '2019',
@@ -80,7 +78,7 @@ describe('FORMULA MODEL', function() {
 
 	describe('get the symbol nodes', function() {
 		it('should return an array of symbol nodes in the formula', function(done) {
-			let form1 = new FormulaParser(testFormulaParserBad);
+			let form1 = new FormulaParser(testFormulaBad);
 			expect(form1.symbolNodes).to.be.an('array');
 			expect(form1.symbolNodes).to.contain('fake_var');
 			assert(form1.symbolNodes.length == 2);
@@ -90,7 +88,7 @@ describe('FORMULA MODEL', function() {
 
 	describe('validate the good formula', function() {
 		it('should return true', function(done) {
-			let form1 = new FormulaParser(testFormulaParser);
+			let form1 = new FormulaParser(testFormula);
 			let validated = form1.validate()
 				.then(res => {
 					expect(res).to.equal(true);
@@ -102,7 +100,7 @@ describe('FORMULA MODEL', function() {
 
 	describe('validate the bad formula', function() {
 		it('should return false', function(done) {
-			let form1 = new FormulaParser(testFormulaParserBad);
+			let form1 = new FormulaParser(testFormulaBad);
 			let validated = form1.validate()
 				.then(res => {
 					expect(res).to.equal(false);
@@ -112,7 +110,7 @@ describe('FORMULA MODEL', function() {
 		})
 	});
 
-	describe('test clean formula', function() {
+	describe('test that parser strips __opt_ prefix', function() {
 		it('should return a cleaned formula from one with optional arguments', function(done) {
 			let form1 = new FormulaParser('__opt_room_and_board + hat');
 			assert(form1.cleanFormula == "room_and_board + hat");
@@ -120,7 +118,7 @@ describe('FORMULA MODEL', function() {
 		})
 	});
 
-	describe('test optional symbol nodes', function() {
+	describe('test that optional symbol nodes exist', function() {
 		it('should return optional symbol nodes as clean variables', function(done) {
 			let form1 = new FormulaParser('__opt_room_and_board + cow');
 			assert(form1.optionalSymbolNodes[0] == "room_and_board");
@@ -130,7 +128,6 @@ describe('FORMULA MODEL', function() {
 
 	describe('return a variable with no math involved', function() {
 		it('should return room and board', function(done) {
-
 			let form1 = new FormulaParser('room_and_board');
 			form1.execute(nwData.unitid)
 				.then(res => {
@@ -153,7 +150,7 @@ describe('FORMULA MODEL', function() {
 
 	describe('transform the data with some simple arithmetic', function() {
 		it('should return tuition plus room and board', function(done) {
-			let form1 = new FormulaParser(nwFormulaParser);
+			let form1 = new FormulaParser(nwFormula);
 			form1.execute(nwData.unitid)
 				.then((res: intFormulaParserResult[]) => {
 					expect(res).to.be.an('array');
@@ -173,11 +170,11 @@ describe('FORMULA MODEL', function() {
 		})
 	});
 
-	describe('test optional variable', function() {
-		it('should return data with missing optional data filled in as zeroes', function(done) {
-			let formula = new FormulaParser(nwFormulaParser);
+	describe('test optional variable where value exists', function() {
+		it('should return correct result for present optional variable', function(done) {
+			let formula = new FormulaParser(optionalFormula);
 			formula.execute(nwData.unitid)
-				.then(res => {
+				.then((res: intFormulaParserResult[]) => {
 					expect(res).to.be.an('array');
 					//confirm the array has data
 					expect(res.length).to.be.greaterThan(0);
@@ -189,6 +186,27 @@ describe('FORMULA MODEL', function() {
 					res.forEach(resp => expect(resp.value).to.be.a('number'));
 					//confirm that each result is greater than the minimum tuition value (confirm addition happened)
 					res.forEach(resp => expect(resp.value >= min_room_and_board));
+					done();
+				}).catch(err => done(err));
+		});
+	});
+
+	describe('test optional variable where value does not exist', function() {
+		it('should return data with missing optional data filled in as zeroes', function(done) {
+			let formula = new FormulaParser(optionalFormula);
+			formula.execute(schoolMissingOneYearOfTuition.unitid)
+				.then((res: intFormulaParserResult[]) => {
+					expect(res).to.be.an('array');
+					//confirm the array has data
+					expect(res.length).to.equal(3);
+					//confirm it's an array of objects
+					res.forEach(resp => expect(resp).to.be.an('object'));
+					//confirm there's only one kv per array
+					res.forEach(resp => expect(Object.keys(resp)).to.have.lengthOf(2));
+					//confirm that the value is numeric
+					res.forEach(resp => expect(resp.value).to.be.a('number'));
+					//confirm that each result is greater than the minimum tuition value (confirm addition happened)
+					res.forEach(resp => expect(resp.value === min_room_and_board));
 					done();
 				}).catch(err => done(err));
 		});
@@ -209,7 +227,7 @@ describe('FORMULA MODEL', function() {
 	describe('test missing year', function() {
 		it('should return 2 years worth of data because one was filtered out', function(done) {
 			let formula = new FormulaParser('room_and_board + in_state_tuition');
-			formula.execute(schoolWithIncompleteYears.unitid)
+			formula.execute(schoolMissingOneYearOfTuition.unitid)
 				.then(res => {
 					console.log(res);
 					expect(res).to.be.an('array');
@@ -225,8 +243,8 @@ describe('FORMULA MODEL', function() {
 	})
 
 	after('remove test schools', function(done) {
-		SchoolSchema.find({ unitid: { "$in": [nwData.unitid, schoolWithIncompleteYears.unitid, "12345"] } }).remove().exec()
-			.then(()=> SchoolDataSchema.find({ unitid: { "$in": [nwData.unitid, schoolWithIncompleteYears.unitid, "12345"] } }).remove().exec())
+		SchoolSchema.find({ unitid: { "$in": [nwData.unitid, schoolMissingOneYearOfTuition.unitid, "12345"] } }).remove().exec()
+			.then(() => SchoolDataSchema.find({ unitid: { "$in": [nwData.unitid, schoolMissingOneYearOfTuition.unitid, "12345"] } }).remove().exec())
 			.then(() => done());
 	});
 
