@@ -3,7 +3,7 @@ import { Schools, School } from '../../../models/Schools';
 import { MatToolbar, MatToolbarRow } from '@angular/material/toolbar'
 import { intSchoolModel } from '../../../../../server/src/schemas/SchoolSchema';
 import { intChartModel } from '../../../../../server/src/schemas/ChartSchema';
-import { ChartService } from '../../../modules/chart/ChartService.service';
+import { Charts } from '../../../models/Charts';
 import { intChartExport, intChartExportOptions } from '../../../../../server/src/models/ChartExporter';
 import { TrendChartComponent } from '../../chart/components/trend-chart/trend-chart.component'
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
@@ -19,8 +19,7 @@ import 'rxjs/add/operator/switchMap';
 @Component({
 	selector: 'chart-page',
 	templateUrl: './chart-page.component.html',
-	styleUrls: ['./chart-page.component.scss'],
-	providers: [ChartService]
+	styleUrls: ['./chart-page.component.scss']
 })
 
 export class ChartPageComponent implements OnInit {
@@ -37,7 +36,7 @@ export class ChartPageComponent implements OnInit {
 	} = { chartSlug: '', instnm: '' };
 
 	constructor(public Schools: Schools,
-		private ChartService: ChartService,
+		private Charts: Charts,
 		private fb: FormBuilder,
 		private route: ActivatedRoute,
 		private router: Router) { }
@@ -53,7 +52,7 @@ export class ChartPageComponent implements OnInit {
 		}).subscribe(params => {
 			if (params.chart && params.school) {
 				let options = _.fromPairs(Object.entries(params).filter(pair => pair[0] != "chart" && pair[0] != "school"));
-				this.ChartService.fetchChart(params.school, params.chart, options)
+				this.Charts.fetchChart(params.school, params.chart, options)
 					.subscribe(data => this.chartData = data);
 				this._setUi(params.school, params.chart);
 				this._setOptions(options);

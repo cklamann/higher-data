@@ -17,7 +17,6 @@ import { ChartCreatorComponent } from './admin-page/chart-creator/chart-creator.
 import { VariableDefinerComponent } from './admin-page/variable-definer/variable-definer.component';
 import { SharedModule } from '../shared/shared.module';
 import { ChartModule } from '../chart/chart.module';
-import { ChartService } from '../chart/ChartService.service';
 import { Categories} from '../../models/Categories';
 import { SiteContent } from '../../models/SiteContent';
 import { FroalaEditorModule, FroalaViewModule } from 'angular-froala-wysiwyg';
@@ -43,6 +42,6 @@ import { FroalaEditorModule, FroalaViewModule } from 'angular-froala-wysiwyg';
     FroalaViewModule
   ],
   declarations: [AdminPageComponent, LoginPageComponent, ChartCreatorComponent, VariableDefinerComponent, ContentManagerComponent],
-  providers: [Users, RestService, InterceptService, VariableDefinitions, ChartService, Categories, SiteContent]
+  providers: [Users, RestService, InterceptService, VariableDefinitions, Categories, SiteContent]
 })
 export class AdminModule { }

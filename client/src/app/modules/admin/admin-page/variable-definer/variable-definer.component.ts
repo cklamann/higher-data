@@ -5,7 +5,6 @@ import { intVariableDefinitionModel, intVariableDefinitionSchema } from '../../.
 import { Charts } from '../../../../models/Charts';
 import { Categories } from '../../../../models/Categories';
 import { VariableDefinitionSelectComponent } from '../../../shared/variable-definition-select/variable-definition-select.component';
-import { ChartService } from '../../../chart/ChartService.service';
 import { intSchoolModel } from '../../../../../../server/src/schemas/SchoolSchema';
 import { intChartExport } from '../../../../../../server/src/models/ChartExporter';
 import { UtilService } from '../../../../services/util/util';
@@ -29,9 +28,9 @@ export class VariableDefinerComponent implements OnInit {
 
 	constructor(private fb: FormBuilder,
 		private variableDefinitions: VariableDefinitions,
-		private ChartService: ChartService,
 		private util: UtilService,
-		private cats: Categories) {
+		private cats: Categories,
+		private Charts: Charts) {
 		this.cats.fetch('variable')
 			.subscribe(res => this.categories = res.categories);
 	}
@@ -115,7 +114,7 @@ export class VariableDefinerComponent implements OnInit {
 	private _loadChart() {
 		if (!this.variableDefinitionForm.value.variable) return;
 		const instnm = this.school ? this.school.instnm : 'Northwestern University';
-		this.ChartService.fetchChartByVariable(this.variableDefinitionForm.value.variable, instnm)
+		this.Charts.fetchChartByVariable(this.variableDefinitionForm.value.variable, instnm)
 			.subscribe(res => {
 				this.chartData = res;
 			});

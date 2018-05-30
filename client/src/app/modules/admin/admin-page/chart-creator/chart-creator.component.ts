@@ -6,7 +6,6 @@ import { Charts } from '../../../../models/Charts';
 import { VariableDefinitionSelectComponent } from '../../../shared/variable-definition-select/variable-definition-select.component';
 import { intSchoolModel } from '../../../../../../server/src/schemas/SchoolSchema';
 import { intChartExport } from '../../../../../../server/src/models/ChartExporter';
-import { ChartService } from '../../../chart/ChartService.service';
 import { UtilService } from '../../../../services/util/util';
 
 import * as _ from 'lodash';
@@ -31,7 +30,6 @@ export class ChartCreatorComponent implements OnInit {
 
 	constructor(private fb: FormBuilder,
 		private Charts: Charts,
-		private ChartService: ChartService,
 		private util: UtilService) { }
 
 	ngOnInit() {
@@ -167,7 +165,7 @@ export class ChartCreatorComponent implements OnInit {
 
 	private _loadChart() {
 		if (this.chartBuilderForm.valid && this.school) {
-			this.ChartService.fetchChartPreview(this.school, this.chartBuilderForm.value)
+			this.Charts.fetchChartPreview(this.school, this.chartBuilderForm.value)
 				.subscribe(res => this.chartData = res);
 		}
 	}
