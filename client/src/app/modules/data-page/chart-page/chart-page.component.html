@@ -43,7 +43,7 @@
 									</li>
 									<li>	
 										<mat-radio-group formControlName="cut" (change) = "onCutByChange($event)">
-											<mat-radio-button *ngFor="let cut of chartData.chart.cuts" [value] = cut.formula>
+											<mat-radio-button *ngFor="let cut of chartData.chart.cuts" [value] = cut.formula class = "p-r-10">
 												{{cut.name}}
 											</mat-radio-button>
 											<mat-radio-button >
