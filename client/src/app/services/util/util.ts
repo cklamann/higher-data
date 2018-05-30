@@ -22,7 +22,7 @@ export class UtilService {
 
 		function format(num: number, format: string): string {
 			const suffix = (num > 999999 && num < 999999999) ? " Mil" : num > 999999999 ? " Bil" : "",
-				figure = suffix === " Mil" ? num / 1000000 : <any>suffix === " Bill" ? num / 1000000000 : num,
+				figure = suffix === " Mil" ? num / 1000000 : <any>suffix === " Bil" ? num / 1000000000 : num,
 				formatter = getFormats().find(item => item.name === format);
 			return formatter.formula(figure) + suffix;
 		}
