@@ -128,7 +128,7 @@ export class AreaChart extends LineChart {
 			}
 		});
 		let sum = this.chartData.getSumForYear(datum.date);
-		let sumString = `<li>Total:${this.formatNumber(sum, this.displayOptions.valueType)}</li>`;
+		let sumString = `<li>Total: ${this.formatNumber(sum, this.displayOptions.valueType)}</li>`;
 		tips.sort((a, b) => b.index < a.index ? -1 : b.index > a.index ? 1 : b.index >= a.index ? 0 : NaN);
 		let str = tips.map(tip => {
 			return "<li><span style='color:" + this.zScale(tip.key) + "'><i class='fa fa-circle' aria-hidden='true'></i></span>&nbsp" + tip.legendName + ": " + this.formatNumber(datum[tip.key], this.displayOptions.valueType) + "</li>";

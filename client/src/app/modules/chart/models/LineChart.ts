@@ -30,7 +30,7 @@ export class LineChart extends BaseChart {
 			.tickFormat(x => "");
 
 		this.yAxis = d3.axisLeft(this.yScale)
-			.tickFormat(x => this.formatNumber(x, this.displayOptions.valueType));
+			.tickFormat(x => this.formatNumber(x, this.displayOptions.valueType).replace(/\.00/,""));
 
 		this.canvas.append("g")
 			.attr("class", "axis axis--y");

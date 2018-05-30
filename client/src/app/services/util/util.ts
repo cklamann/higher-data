@@ -21,8 +21,9 @@ export class UtilService {
 		}
 
 		function format(num: number, format: string): string {
-			const suffix = (num > 999999 && num < 999999999) ? " Mil" : num > 999999999 ? " Bil" : "",
-				figure = suffix === " Mil" ? num / 1000000 : <any>suffix === " Bil" ? num / 1000000000 : num,
+			let abs = Math.abs(num);
+			const suffix = (abs > 999999 && abs < 999999999) ? " Mil" : abs > 999999999 ? " Bil" : "",
+				figure = suffix === " Mil" ? (num / 10000) / 100 : <any>suffix === " Bil" ? (num / 10000000) / 100 : num,
 				formatter = getFormats().find(item => item.name === format);
 			return formatter.formula(figure) + suffix;
 		}

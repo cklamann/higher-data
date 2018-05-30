@@ -23,7 +23,7 @@ export class ChartService {
 		var queryString = "";
 		if(!_.isEmpty(options)){
 			let vars = _.toPairs(options);
-			queryString = "?" + vars.map( pair => pair[0] + "=" + pair[1]).join("&");
+			queryString = "?" + vars.map( pair => pair[0] + "=" + pair[1]).join("&").replace(/\+/g,"%2B");
 		}
 		return this.rest.get(`schools/${schoolSlug}/charts/${chartSlug}${queryString}`);
 	}
