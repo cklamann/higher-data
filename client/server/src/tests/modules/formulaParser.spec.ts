@@ -10,7 +10,7 @@ import { nwData, nwData_school_data } from "../fixtures/fixtures";
 import * as _ from 'lodash';
 const app = require('../../app');
 
-describe('FORMULA MODEL', function() {
+describe('FORMULA PARSER', function() {
 
 	const testVar: intVariableDefinitionModel = {
 		category: '',

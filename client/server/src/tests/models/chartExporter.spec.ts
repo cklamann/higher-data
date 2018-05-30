@@ -184,9 +184,9 @@ describe('ChartExporter', function() {
     });
   });
 
-  describe('cut a chart by fte_ug', function() {
+  describe('cut a chart by fte_ug + fte_g', function() {
     it('should return a chart export with cut values', function(done) {
-      let chart = new ChartExport(nwData, testChartValidAddition, { cut: 'fte_ug' });
+      let chart = new ChartExport(nwData, testChartValidAddition, { cut: 'fte_ug + fte_g' });
       chart.export()
         .then(chart => {
           expect(chart).to.be.an('object');
