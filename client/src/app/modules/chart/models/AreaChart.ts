@@ -4,6 +4,11 @@ import { intBaseChartDatum, intBaseChartData, ChartData } from './ChartData';
 import * as d3 from 'd3';
 import * as _ from 'lodash';
 
+interface intAreaChartData {
+	date: any,
+	[key:string]: any
+}
+
 export class AreaChart extends LineChart {
 	xAxis: any;
 	yAxis: any;
@@ -11,27 +16,13 @@ export class AreaChart extends LineChart {
 	yGrid: any;
 	keys: string[];
 	stackData: d3.Series<{ [key: string]: number }, string>[];
-	areaChartData: any;
+	stack:any;
+	areaChartData: intAreaChartData[];
 	constructor(data: intChartExport, selector: string, overrides: any) {
 		super(data, selector, overrides);
 	}
 
 	draw() {
-
-		/*
-			todo: break this up into 4 functions:
-			
-				2) draw positive values
-				3) draw negative values -- note that order should mirror positives
-					a. split data into the positive and negative datasets
-					b. get negMax and posMax, each being the highest sum of pos/neg vals for a given year
-						--these should be the scale domain
-					c. then pass the datasets to some kind of draw method, should be same for each
-				4) draw legend
-				5) draw bar 
-
-		*/
-
 
 		let dateRange = this.chartData.getDateRange();
 		this.xScale.domain(d3.extent(dateRange));
@@ -41,50 +32,58 @@ export class AreaChart extends LineChart {
 
 		this.areaChartData = this._transformData();
 
-
-		let maxVal = d3.max(this.areaChartData, variable => {
+		let maxPos = d3.max(this._transformData("POSITIVE"), variable => {
 			let vals = d3.keys(variable).map(key => key !== 'date' ? variable[key] : 0);
 			return d3.sum(vals);
 		});
 
-		//max positive val...
+		let maxNeg = d3.max(this._transformData("NEGATIVE"), variable => {
+			let vals = d3.keys(variable).map(key => key !== 'date' ? Math.abs(variable[key]) : 0);
+			return d3.sum(vals);
+		});
+
+			//min should be at least 0
 		this.yScale.domain([
-			this.chartData.getMin() > 0 ? 0 : this.chartData.getMin(),
-			maxVal
+			maxNeg > 0 ? maxNeg * -1 : 0,
+			maxPos
 		]);
 
 		this.formatAxes();
 
-		const stack = d3.stack().order(d3.stackOrderDescending);
+		this.stack = d3.stack().order(d3.stackOrderDescending);
+		this.stack.keys(this.chartData.data.map(datum => datum.key));
+
+		this._drawAreaChart("POSITIVE");
+
+		this._drawAreaChart("NEGATIVE");
+
+		this._drawLegend();
+
+		this._drawBarsForToolTip()
+	}
+
+	private _drawAreaChart(typeFlag){
 
 		let area = d3.area()
 			.x((d: any) => this.xScale(d.data.date))
 			.y0(d => this.yScale(d[0]))
 			.y1(d => this.yScale(d[1]));
 
-		stack.keys(this.chartData.data.map(datum => datum.key));
+		this.stackData = this.stack(this._transformData(typeFlag));
 
-		this.stackData = stack(this.areaChartData);
-
-		const layers = this.canvas.selectAll(".layer"),
+		const layers = this.canvas.selectAll(".layer-" + typeFlag),
 			layersWithData = layers.data(this.stackData, (d: any) => d),
 			removedLayers = layersWithData.exit().remove(),
 			enteredLayers = layersWithData.enter()
 				.append("path")
-				.attr("class", "layer")
+				.attr("class", "layer-" + typeFlag)
 
 		const mergedLayers = layersWithData.merge(enteredLayers)
 			.style("fill", (d, i) => this.zScale(d.key))
 			.attr("d", <any>area);
-
-		//todo: move this stuff to parent class
-		
-		this._drawLegend();
-
-		this._drawBarsForToolTip()
 	}
 
-	private _drawBarsForToolTip(){
+	private _drawBarsForToolTip() {
 		let barScale = d3.scaleBand().rangeRound([0, this.width]).domain(this.areaChartData.map(datum => datum.date)).padding(0.0);
 
 		this.canvas.selectAll(".bar") //redraw every time
@@ -119,7 +118,7 @@ export class AreaChart extends LineChart {
 			});
 	}
 
-	private _drawLegend(){
+	private _drawLegend() {
 
 		let legendData = _.sortBy(this.stackData, datum => datum.index).reverse(); // ensure descending order
 
@@ -133,8 +132,8 @@ export class AreaChart extends LineChart {
 			.attr("class", "legend-element")
 			.merge(legend)
 			.html(d => this._getLegendLine(d))
-			.on("mouseover", (d) => d3.select('.' + d.key).style("display","inline"))
-			.on("mouseout", (d) => d3.select('.' + d.key).style("display","none"))
+			.on("mouseover", (d) => d3.select('.' + d.key).style("display", "inline"))
+			.on("mouseout", (d) => d3.select('.' + d.key).style("display", "none"))
 			.on("click", (d: any) => {
 				this.chartData.data.forEach((datum, i) => {
 					if (datum.key === d.key) {
@@ -170,26 +169,34 @@ export class AreaChart extends LineChart {
 
 	private _getLegendLine(stackDatum) {
 		let legendName = this.chartData.data.find(datum => datum.key == stackDatum.key).legendName;
-		return "<span style='color:" + 
-				this.zScale(stackDatum.key) + 
-				"'><i class='fa fa-circle' aria-hidden='true'></i></span>&nbsp" + 
-				legendName + 
-				"&nbsp;<i class='fa fa-close" + " " + stackDatum.key + "' style='display:none'></i>";
+		return "<span style='color:" +
+			this.zScale(stackDatum.key) +
+			"'><i class='fa fa-circle' aria-hidden='true'></i></span>&nbsp" +
+			legendName +
+			"&nbsp;<i class='fa fa-close" + " " + stackDatum.key + "' style='display:none'></i>";
 	}
 
-	private _transformData(): any {
+	private _transformData(typeFlag:string = ""): intAreaChartData[] {
+		
+		let resolver = function(value){
+			if(typeFlag === "POSITIVE"){
+				return value > 0 ? value : 0;
+			} else if(typeFlag === "NEGATIVE"){
+				return value < 0 ? value : 0;
+			} else return value;
+		};
+
 		this.chartData.setMissingValsToZero();
-		let newData: { date: Date }[] = this.chartData.getDateRange().map(date => {
-			return { date: date }
-		});
-		this.chartData.data.forEach(datum => {
-			datum.data.forEach(item => {
-				let match = _.find(newData, piece => piece.date.getFullYear() === item.fiscal_year.getFullYear());
-				match[item.key] = item.value;
-			});
-		});
-		newData = _.sortBy(newData, datum => datum.date);
-		return newData;
+
+		return _.chain(this.chartData.data)
+			.flatMap(datum => datum.data)
+			 .groupBy('fiscal_year')
+			 .map( (v,k) => {
+				return v.reduce( (prev,curr):any => {
+					return Object.assign(prev,{[curr.key]: resolver(curr.value)})
+				},{date: new Date(k)})
+			})
+			.value();
 	}
 
 };
