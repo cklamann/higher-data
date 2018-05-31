@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators, FormArray, ValidatorFn, AbstractCon
 import { intChartModel, intChartSchema } from '../../../../../../server/src/schemas/ChartSchema';
 import { intVariableDefinitionModel } from '../../../../../../server/src/schemas/VariableDefinitionSchema';
 import { Charts } from '../../../../models/Charts';
+import { Categories } from '../../../../models/Categories';
 import { VariableDefinitionSelectComponent } from '../../../shared/variable-definition-select/variable-definition-select.component';
 import { intSchoolModel } from '../../../../../../server/src/schemas/SchoolSchema';
 import { intChartExport } from '../../../../../../server/src/models/ChartExporter';
@@ -28,23 +29,20 @@ export class ChartCreatorComponent implements OnInit {
 		widthRatio: .75
 	}
 
-	constructor(private fb: FormBuilder,
+	constructor(private Categories: Categories,
+		private fb: FormBuilder,
 		private Charts: Charts,
 		private util: UtilService) { }
 
 	ngOnInit() {
 		this.createForm();
 		this.chartTypes = this.mockTypes();
-		this.chartCategories = this.mockCategories();
+		this.Categories.fetch('chart').subscribe(cats => this.chartCategories = cats.categories);
 		this.chartValueTypes = this.getValueTypes();
 	}
 
 	private mockTypes() {
 		return ['line', 'bar', 'area'];
-	}
-
-	private mockCategories() {
-		return ['Enrollment', 'Finance', 'Teaching'];
 	}
 
 	private getValueTypes() {
