@@ -36,23 +36,19 @@ export class ChartCreatorComponent implements OnInit {
 
 	ngOnInit() {
 		this.createForm();
-		this.chartTypes = this.mockTypes();
+		this.chartTypes = this._mockTypes();
 		this.Categories.fetch('chart').subscribe(cats => this.chartCategories = cats.categories);
-		this.chartValueTypes = this.getValueTypes();
+		this.chartValueTypes = this._getValueTypes();
 	}
 
-	private mockTypes() {
-		return ['line', 'bar', 'area'];
+	addCut() {
+		const control = <FormArray>this.chartBuilderForm.controls['cuts'];
+		control.push(this.initCut());
 	}
-
-	private getValueTypes() {
-		return this.util.numberFormatter().getFormats().map(formatter => formatter.name);
-	}
-
-	private _arrayLengthValidator(length:number): ValidatorFn {
-		return (control: AbstractControl): { [key: string]: any } => {
-			return control.value.length === 0 ? { 'emptyArray': { value: control.value } } : null;
-		};
+	
+	addVariable() {
+		const control = <FormArray>this.chartBuilderForm.controls['variables'];
+		control.push(this.initVariable());
 	}
 
 	createForm() {
@@ -70,12 +66,15 @@ export class ChartCreatorComponent implements OnInit {
 		});
 	}
 
-	initVariable() {
-		return this.fb.group({
-			notes: ['', [Validators.minLength(3), Validators.required]],
-			formula: ['', [Validators.minLength(3), Validators.required]],
-			legendName: ['', [Validators.minLength(3), Validators.required]]
-		});
+	deleteChart() {
+		return this.Charts.delete(this.chartBuilderForm.value._id)
+			.subscribe(() => {
+				this.chartBuilderForm.reset();
+			})
+	}
+
+	getPreview() {
+		this._loadChart();
 	}
 
 	initCut() {
@@ -85,45 +84,14 @@ export class ChartCreatorComponent implements OnInit {
 		});
 	}
 
-	addVariable() {
-		const control = <FormArray>this.chartBuilderForm.controls['variables'];
-		control.push(this.initVariable());
+	initVariable() {
+		return this.fb.group({
+			notes: ['', [Validators.minLength(3), Validators.required]],
+			formula: ['', [Validators.minLength(3), Validators.required]],
+			legendName: ['', [Validators.minLength(3), Validators.required]]
+		});
 	}
 
-	addCut() {
-		const control = <FormArray>this.chartBuilderForm.controls['cuts'];
-		control.push(this.initCut());
-	}
-
-	deleteChart() {
-		return this.Charts.delete(this.chartBuilderForm.value._id)
-			.subscribe(() => {
-				this.chartBuilderForm.reset();
-			})
-	}
-
-	removeVariable(i: number) {
-		const control = <FormArray>this.chartBuilderForm.controls['variables'];
-		control.removeAt(i);
-	}
-
-	removeCut(i: number) {
-		const control = <FormArray>this.chartBuilderForm.controls['cuts'];
-		control.removeAt(i);
-	}
-
-	onSubmit() {
-		return this.Charts.save(this.chartBuilderForm.value)
-			.subscribe(res => {
-				this.chartBuilderForm.patchValue({
-					_id: res._id
-				})
-			});
-	}
-
-	toggleChartSearch(): void {
-		this.showChartSearch = !this.showChartSearch;
-	}
 
 	onChartSelect(chart: intChartSchema): void {
 		this.chartBuilderForm.reset();
@@ -141,19 +109,15 @@ export class ChartCreatorComponent implements OnInit {
 		chart.cuts.forEach(variable => this.addCut());
 		this.chartBuilderForm.setValue(chart);
 	}
-
-	onVariableDefinitionSelect(variable: intVariableDefinitionModel, i: number): void {
-		let control = <FormArray>this.chartBuilderForm.controls['variables'];
-		control.at(i).patchValue({ formula: control.at(i).value.formula + " " + variable.variable });
-	}
-
+	
 	onCutVariableSelect(variable: intVariableDefinitionModel, i: number): void {
 		let control = <FormArray>this.chartBuilderForm.controls['cuts'];
 		control.at(i).patchValue({ formula: control.at(i).value.formula + " " + variable.variable });
 	}
 
-	getPreview() {
-		this._loadChart();
+	onVariableDefinitionSelect(variable: intVariableDefinitionModel, i: number): void {
+		let control = <FormArray>this.chartBuilderForm.controls['variables'];
+		control.at(i).patchValue({ formula: control.at(i).value.formula + " " + variable.variable });
 	}
 
 	onSchoolSelect(school: intSchoolModel) {
@@ -161,11 +125,48 @@ export class ChartCreatorComponent implements OnInit {
 		this._loadChart();
 	}
 
+	onSubmit() {
+		return this.Charts.save(this.chartBuilderForm.value)
+			.subscribe(res => {
+				this.chartBuilderForm.patchValue({
+					_id: res._id
+				})
+			});
+	}
+
+	removeCut(i: number) {
+		const control = <FormArray>this.chartBuilderForm.controls['cuts'];
+		control.removeAt(i);
+	}
+	
+	removeVariable(i: number) {
+		const control = <FormArray>this.chartBuilderForm.controls['variables'];
+		control.removeAt(i);
+	}
+
+	toggleChartSearch(): void {
+		this.showChartSearch = !this.showChartSearch;
+	}
+
+	private _arrayLengthValidator(length:number): ValidatorFn {
+		return (control: AbstractControl): { [key: string]: any } => {
+			return control.value.length === 0 ? { 'emptyArray': { value: control.value } } : null;
+		};
+	}
+	
+	private _getValueTypes() {
+		return this.util.numberFormatter().getFormats().map(formatter => formatter.name);
+	}
+	
 	private _loadChart() {
 		if (this.chartBuilderForm.valid && this.school) {
 			this.Charts.fetchChartPreview(this.school, this.chartBuilderForm.value)
 				.subscribe(res => this.chartData = res);
 		}
+	}
+	
+	private _mockTypes() {
+		return ['line', 'bar', 'area'];
 	}
 
 }
