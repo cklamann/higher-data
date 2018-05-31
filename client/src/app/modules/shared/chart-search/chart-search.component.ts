@@ -1,13 +1,18 @@
-import { Component, OnInit, QueryList, Input, Output, EventEmitter, ViewChildren} from '@angular/core';
+import { Component, OnInit, QueryList, Input, Output, EventEmitter, ViewChildren } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatSelect, MatOption } from '@angular/material';
+import { MatSelect, MatOption, MatOptgroup } from '@angular/material';
 import { Charts } from '../../../models/Charts';
 import { intChartModel } from '../../../../../server/src/schemas/ChartSchema';
 import { Observable } from 'rxjs';
+import * as _ from 'lodash';
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/switchMap';
 import 'rxjs/add/operator/first';
 
+interface intChartList {
+	category: string,
+	charts: intChartModel[]
+}[];
 
 @Component({
 	selector: 'app-chart-search',
@@ -16,6 +21,7 @@ import 'rxjs/add/operator/first';
 })
 
 export class ChartSearchComponent implements OnInit {
+
 	chartSelectForm: FormGroup;
 
 	@Input()
@@ -26,7 +32,7 @@ export class ChartSearchComponent implements OnInit {
 
 	@ViewChildren(MatOption) options: QueryList<MatOption>;
 
-	charts: intChartModel[] = [];
+	charts: intChartList;
 
 	constructor(private fb: FormBuilder, private Charts: Charts) {
 		this.createForm();
@@ -35,15 +41,14 @@ export class ChartSearchComponent implements OnInit {
 	ngOnInit() {
 		this.Charts.fetchAll()
 			.switchMap(res => {
-				this.charts = res;
-				return this.options.changes; //charts are options...
+				this.charts = this._groupCharts(res);
+				return this.options.changes;
 			})
-			.first()//we are only interested in the initial values 
-			.subscribe(change => { //coming back as undefined.... why? 
+			.first()
+			.subscribe(change => {
 				if (change.length) {
 					change.forEach(option => {
 						if (option.value && this.defaultChart && option.value.slug == this.defaultChart) {
-							//avoid viewsetaftercheck error
 							//todo: replace with better solution once angular solves it
 							setTimeout(() => {
 								option['_selectViaInteraction']();
@@ -66,5 +71,20 @@ export class ChartSearchComponent implements OnInit {
 		this.chartSelectForm.valueChanges.debounceTime(500).subscribe(input => {
 			this.onChartSelect.emit(input.chart);
 		});
+	}
+
+	//chaining seems to blow up typescript...
+	_groupCharts(charts): any {
+		return _.chain(charts)
+			.sortBy(chart => chart.name)
+			.groupBy(chart => chart.category)
+			.map((v, k) => {
+				return {
+					category: k,
+					charts: v
+				}
+			})
+			.sortBy(cat => cat.category)
+			.value();
 	}
 }

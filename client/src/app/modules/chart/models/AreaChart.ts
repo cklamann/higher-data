@@ -18,9 +18,24 @@ export class AreaChart extends LineChart {
 
 	draw() {
 
+		/*
+			todo: break this up into 4 functions:
+			
+				2) draw positive values
+				3) draw negative values -- note that order should mirror positives
+				4) draw legend
+				5) draw bar 
+
+		*/
+
+
 		this.areaChartData = this._transformData();
 		let dateRange = this.chartData.getDateRange();
 		this.xScale.domain(d3.extent(dateRange));
+		this.yScale.domain([
+			this.chartData.getMin(),
+			this.chartData.getMax()
+		]);
 		let tickNumber = dateRange.length > 20 ? 20 : dateRange.length;
 		this.xAxis.ticks(tickNumber);
 
@@ -28,8 +43,6 @@ export class AreaChart extends LineChart {
 			let vals = d3.keys(variable).map(key => key !== 'date' ? variable[key] : 0);
 			return d3.sum(vals);
 		});
-
-		this.yScale.domain([0, maxVal]); 
 
 		this.formatAxes();
 
