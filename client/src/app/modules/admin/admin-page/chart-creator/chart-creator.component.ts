@@ -19,15 +19,15 @@ import * as _ from 'lodash';
 export class ChartCreatorComponent implements OnInit {
 
 	chartBuilderForm: FormGroup;
-	chartTypes: string[];
 	chartCategories: string[];
-	chartValueTypes: string[];
-	showChartSearch: boolean = false;
-	school: intSchoolModel;
 	chartData: intChartExport;
 	chartOverrides: object = {
 		widthRatio: .75
 	}
+	chartTypes: string[];
+	chartValueTypes: string[];
+	school: intSchoolModel;
+	showChartSearch: boolean = false;
 
 	constructor(private Categories: Categories,
 		private fb: FormBuilder,
@@ -91,7 +91,6 @@ export class ChartCreatorComponent implements OnInit {
 			legendName: ['', [Validators.minLength(3), Validators.required]]
 		});
 	}
-
 
 	onChartSelect(chart: intChartSchema): void {
 		this.chartBuilderForm.reset();

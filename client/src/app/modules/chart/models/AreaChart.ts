@@ -23,26 +23,35 @@ export class AreaChart extends LineChart {
 			
 				2) draw positive values
 				3) draw negative values -- note that order should mirror positives
+					a. split data into the positive and negative datasets
+					b. get negMax and posMax, each being the highest sum of pos/neg vals for a given year
+						--these should be the scale domain
+					c. then pass the datasets to some kind of draw method, should be same for each
 				4) draw legend
 				5) draw bar 
 
 		*/
 
 
-		this.areaChartData = this._transformData();
 		let dateRange = this.chartData.getDateRange();
 		this.xScale.domain(d3.extent(dateRange));
-		this.yScale.domain([
-			this.chartData.getMin(),
-			this.chartData.getMax()
-		]);
+
 		let tickNumber = dateRange.length > 20 ? 20 : dateRange.length;
 		this.xAxis.ticks(tickNumber);
+
+		this.areaChartData = this._transformData();
+
 
 		let maxVal = d3.max(this.areaChartData, variable => {
 			let vals = d3.keys(variable).map(key => key !== 'date' ? variable[key] : 0);
 			return d3.sum(vals);
 		});
+
+		//max positive val...
+		this.yScale.domain([
+			this.chartData.getMin() > 0 ? 0 : this.chartData.getMin(),
+			maxVal
+		]);
 
 		this.formatAxes();
 
@@ -69,29 +78,13 @@ export class AreaChart extends LineChart {
 			.attr("d", <any>area);
 
 		//todo: move this stuff to parent class
-		let legendData = _.sortBy(this.stackData, datum => datum.index).reverse(); // ensure descending order
+		
+		this._drawLegend();
 
-		const legend = d3.select(".legend").selectAll("li")
-			.data(legendData);
+		this._drawBarsForToolTip()
+	}
 
-		legend.exit().remove();
-
-		legend.enter()
-			.append("li")
-			.attr("class", "legend-element")
-			.merge(legend)
-			.html(d => this._getLegendLine(d))
-			.on("mouseover", (d) => d3.select('.' + d.key).style("display","inline"))
-			.on("mouseout", (d) => d3.select('.' + d.key).style("display","none"))
-			.on("click", (d: any) => {
-				this.chartData.data.forEach((datum, i) => {
-					if (datum.key === d.key) {
-						this.chartData.removeDatum(i);
-					}
-				});
-				this.draw();
-			})
-
+	private _drawBarsForToolTip(){
 		let barScale = d3.scaleBand().rangeRound([0, this.width]).domain(this.areaChartData.map(datum => datum.date)).padding(0.0);
 
 		this.canvas.selectAll(".bar") //redraw every time
@@ -124,6 +117,32 @@ export class AreaChart extends LineChart {
 					.duration(200)
 					.style("opacity", 0);
 			});
+	}
+
+	private _drawLegend(){
+
+		let legendData = _.sortBy(this.stackData, datum => datum.index).reverse(); // ensure descending order
+
+		const legend = d3.select(".legend").selectAll("li")
+			.data(legendData);
+
+		legend.exit().remove();
+
+		legend.enter()
+			.append("li")
+			.attr("class", "legend-element")
+			.merge(legend)
+			.html(d => this._getLegendLine(d))
+			.on("mouseover", (d) => d3.select('.' + d.key).style("display","inline"))
+			.on("mouseout", (d) => d3.select('.' + d.key).style("display","none"))
+			.on("click", (d: any) => {
+				this.chartData.data.forEach((datum, i) => {
+					if (datum.key === d.key) {
+						this.chartData.removeDatum(i);
+					}
+				});
+				this.draw();
+			})
 	}
 
 	private _getToolTip(datum): string {
