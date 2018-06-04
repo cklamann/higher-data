@@ -1,12 +1,12 @@
-<mat-card *ngIf="variable" fxFlex = 100 fxFlex.gt-xs = 75 fxLayout="row wrap">
-	<mat-card-title fxFlex=100 fxLayoutAlign = "center center">
-		<span class = "mat-body-1">{{variable.variable}}</span>
+<mat-card *ngIf="variable" fxFlex fxLayout="row wrap">
+	<mat-card-title fxFlex = 100 fxLayoutAlign = "center center">
+		{{variable.variable}}
 	</mat-card-title>
-	<div fxLayoutAlign = "center start">
-		<span class = "mat-body-strong">Sources:</span>
-	</div>
-	<mat-card-content fxLayoutAlign = "start center" class = "left-text" fxFlex = 100 fxFlex.gt-xs = 75>
-		<ul>
+	<mat-card-content fxLayout="row wrap" fxLayoutAlign = "start center" class = "left-text" fxFlex = 100>
+		<div fxFlex = 100 fxLayoutAlign = "center start">
+			<span class = "mat-subheader">Sources</span>
+		</div>
+		<ul fxFlex = 100>
 			<li *ngFor = "let source of variable.sources; let i = index">
 				<div><span class = "mat-body-strong">Source {{i+1}}:</span> 
 					<span class = "mat-body-1">{{source.source}}</span>

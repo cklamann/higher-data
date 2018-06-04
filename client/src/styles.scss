@@ -1,12 +1,12 @@
 @import '~@angular/material/prebuilt-themes/deeppurple-amber.css';
+@import './app/modules/global-layout/global';
 @import './app/modules/shared/school-search/school-search.component';
 @import './app/modules/global-layout/header/header.component';
 @import './app/modules/global-layout/nav/nav.component';
-@import './app/modules/global-layout/global';
 @import './app/modules/data-page/chart-page/chart-page.component';
 @import './app/modules/data-page/table-page/table-page.component';
-@import './app/modules/shared/chart-search/chart-search.component';
 @import './app/modules/data-page/sources-page/variable-sources/variable-sources.component';
 @import './app/modules/data-page/sources-page/chart-sources/chart-sources.component';
 @import './app/modules/shared/modals/loading/loading.component';
+@import './app/modules/shared/chart-search/chart-search.component';
 @import './app/modules/shared/modals/error/error.component';

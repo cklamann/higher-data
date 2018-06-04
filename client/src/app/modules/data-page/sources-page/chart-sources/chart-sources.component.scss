@@ -1,6 +1,15 @@
+@import '../../../global-layout/variables';
 app-chart-sources {
     display: flex;
     justify-content: center;
     flex: 1 1 100%;
-    flex-wrap:wrap;
+    flex-wrap: wrap;
+    .definition-headings {
+        background-color: $accent-md;
+        padding: 5px;
+        margin-top: 10px;
+        &:first-child {
+            margin-top: none;
+        }
+    }
 }

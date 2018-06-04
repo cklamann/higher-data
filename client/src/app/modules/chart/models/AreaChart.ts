@@ -189,7 +189,7 @@ export class AreaChart extends LineChart {
 		this.chartData.setMissingValsToZero();
 
 		return _.chain(this.chartData.data)
-			.flatMap(datum => datum.data)
+			 .flatMap(datum => datum.data)
 			 .groupBy('fiscal_year')
 			 .map( (v,k) => {
 				return v.reduce( (prev,curr):any => {

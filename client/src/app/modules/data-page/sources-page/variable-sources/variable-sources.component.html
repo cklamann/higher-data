@@ -5,7 +5,7 @@
 		</h3>
 	</mat-toolbar-row>
 </mat-toolbar>
-<div fxFlex = 100 fxLayoutAlign = "center center" fxLayout="row wrap" >	
-	<app-variable-definition-select [defined]="true" fxLayout="row wrap" fxFlex="75" fxFlex.gt-xs="33" fxLayoutAlign="center center" [urlVariable] = "urlVariable" (onVariableDefinitionSelect) = "setVariable($event)" class="margin-top-15"></app-variable-definition-select>
-	<app-source-display fxLayout="row wrap" fxFlex = 100 fxFlex.gt-sm = 68  fxLayoutAlign = "center center" [variable]="variable"></app-source-display>
+<div fxFlex = 100 fxFlex.gt-xs = 33 fxLayoutAlign = "center center" fxLayout="column" >	
+	<app-variable-definition-select [defined]="true" fxFlex [urlVariable] = "urlVariable" (onVariableDefinitionSelect) = "setVariable($event)" class="margin-top-15"></app-variable-definition-select>
+	<app-source-display fxFlex [variable]="variable"></app-source-display>
 </div>
