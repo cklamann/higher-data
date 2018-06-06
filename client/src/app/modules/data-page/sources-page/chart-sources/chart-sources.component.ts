@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { intChartModel } from '../../../../../../server/src/schemas/ChartSchema';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ChartSearchComponent } from '../../../shared/chart-search/chart-search.component';
@@ -10,7 +10,8 @@ import * as _ from 'lodash';
 @Component({
 	selector: 'app-chart-sources',
 	templateUrl: './chart-sources.component.html',
-	styleUrls: ['./chart-sources.component.scss']
+	styleUrls: ['./chart-sources.component.scss'],
+	encapsulation: ViewEncapsulation.None
 })
 
 export class ChartSourcesComponent implements OnInit {

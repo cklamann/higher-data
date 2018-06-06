@@ -81,4 +81,42 @@ export class UtilService {
 		}
 	}
 
+	/*
+	
+		converts string values 'true' and 'false' to booleans
+
+	*/
+
+	boolToString(obj:object): object {
+		_.forIn(obj, (v,k) => {
+			if(_.isObject(v)){
+				this.boolToString(v);
+			}
+			if(v === true || v === false){
+				obj[k] = v === true ? "true" : "false";
+			}
+		});
+
+		return obj;
+	}
+
+	/*
+	
+		converts string values 'true' and 'false' to booleans
+
+	*/
+
+	stringToBool(obj:object): object {
+		_.forIn(obj, (v,k) => {
+			if(_.isObject(v)){
+				this.stringToBool(v);
+			}
+			if(v === "true" || v === "false"){
+				obj[k] = v === "true" ? true : false;
+			}
+		});
+
+		return obj;
+	}
+
 }

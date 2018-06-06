@@ -106,7 +106,7 @@ export class ChartCreatorComponent implements OnInit {
 		}
 		chart.variables.forEach(variable => this.addVariable());
 		chart.cuts.forEach(variable => this.addCut());
-		this.chartBuilderForm.setValue(chart);
+		this.chartBuilderForm.setValue(this.util.boolToString(chart));
 	}
 	
 	onCutVariableSelect(variable: intVariableDefinitionModel, i: number): void {
@@ -125,7 +125,8 @@ export class ChartCreatorComponent implements OnInit {
 	}
 
 	onSubmit() {
-		return this.Charts.save(this.chartBuilderForm.value)
+		const transformed = <intChartModel>this.util.stringToBool(_.cloneDeep(this.chartBuilderForm.value));
+		return this.Charts.save(transformed)
 			.subscribe(res => {
 				this.chartBuilderForm.patchValue({
 					_id: res._id
