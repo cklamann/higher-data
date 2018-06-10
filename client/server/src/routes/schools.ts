@@ -32,7 +32,6 @@ router.get('/:id', function(req, res, next) {
 router.get('/:school/charts/:chart', function(req, res, next) {
 	const promises: Promise<any>[] = [],
 		options = req.query ? req.query : {};
-		console.log(options);
 	promises.push(SchoolSchema.schema.statics.fetch(req.params.school));
 	promises.push(ChartSchema.findOne({ slug: req.params.chart }).exec());
 	Q.all(promises)

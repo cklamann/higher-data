@@ -36,8 +36,10 @@ export class Charts {
 	fetchChart(schoolSlug: string, chartSlug: string, options: intChartExportOptions = {}): Observable<intChartExport> {
 		var queryString = "";
 		if(!_.isEmpty(options)){
-			let vars = _.toPairs(options);
-			queryString = "?" + vars.map( pair => pair[0] + "=" + pair[1]).join("&").replace(/\+/g,"%2B");
+			queryString = "?" + Object.entries(options)
+									.map( pair => pair[0] + "=" + pair[1])
+									.join("&")
+									.replace(/\+/g,"%2B");
 		}
 		return this.rest.get(`schools/${schoolSlug}/charts/${chartSlug}${queryString}`);
 	}

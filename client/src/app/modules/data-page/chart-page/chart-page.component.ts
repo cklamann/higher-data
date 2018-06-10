@@ -51,7 +51,7 @@ export class ChartPageComponent implements OnInit {
 			})
 		}).subscribe(params => {
 			if (params.chart && params.school) {
-				let options = _.fromPairs(Object.entries(params).filter(pair => pair[0] != "chart" && pair[0] != "school"));
+				const options = _.pickBy(params, (v,k) => k != "chart" && k != "school");				
 				this.Charts.fetchChart(params.school, params.chart, options)
 					.subscribe(data => this.chartData = data);
 				this._setUi(params.school, params.chart);
@@ -157,7 +157,7 @@ export class ChartPageComponent implements OnInit {
 
 	private _loadChart(): void {
 		if (this.selections.instnm && this.selections.chartSlug) {
-			let options = _.pickBy(this.chartOptionsForm.value, (v, k) => !_.isNil(v) && v != "");
+			const options = _.pickBy(this.chartOptionsForm.value, (v, k) => !_.isNil(v) && v != "");			
 			this.router.navigate([`data/charts/${this.selections.instnm}/${this.selections.chartSlug}`, options]);
 		}
 	}

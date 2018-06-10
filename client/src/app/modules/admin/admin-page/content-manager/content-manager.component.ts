@@ -72,9 +72,11 @@ export class ContentManagerComponent implements OnInit {
 	submitForm() {
 		if (this.contentForm.valid) {
 			this.contentForm.patchValue({ updated: new Date() });
-			this.SiteContent.create(this.contentForm.value)
+			this.SiteContent.createOrUpdate(this.contentForm.value)
 				.subscribe(res => {
-					this.contentList.push(res);
+					this.contentList = this.contentList.filter(item => {
+						return item._id !== res._id;
+					}).concat(res);
 					this.contentForm.setValue(res)
 				});
 		}
