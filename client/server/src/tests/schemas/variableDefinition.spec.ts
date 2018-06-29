@@ -31,7 +31,7 @@ describe('Variable Definition Schema', function() {
   before('create school', done => {
     SchoolSchema.create({ unitid: "12345" })
       .then(() => SchoolDataSchema.create({
-        instnm: 'asdf',
+        name: 'asdf',
         state: 'MA',
         sector: "6",
         unitid: '12345',

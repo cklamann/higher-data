@@ -32,7 +32,7 @@ export class FormulaParser {
 			values: []
 		},
 		groupBy: {
-			variable: 'instnm',
+			variable: 'name',
 			aggFunc: ''
 		}
 	}

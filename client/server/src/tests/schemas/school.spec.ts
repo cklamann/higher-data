@@ -33,7 +33,7 @@ describe('School Schema', function() {
 
   describe('perform a test search', function() {
     it('should return return one dummy school', function(done) {
-      SchoolSchema.schema.statics.search(nwData_school_data[0].instnm.slice(0,5))
+      SchoolSchema.schema.statics.search(nwData_school_data[0].name.slice(0,5))
         .then(res => {
           expect(res).to.be.an('array');
           expect(res).to.have.lengthOf.at.least(1);

@@ -47,7 +47,7 @@ describe('ChartExporter', function() {
   const testVar1: intVariableDefinitionModel = {
     variable: "test_var_1",
     valueType: "currency0",
-    friendlyName: '',
+    friendlyName: 'asdf',
     category: '',
     sources: [{
       startYear: "2015",
@@ -63,7 +63,7 @@ describe('ChartExporter', function() {
   const testVar2: intVariableDefinitionModel = {
     variable: "test_var_2",
     valueType: "currency0",
-    friendlyName: '',
+    friendlyName: 'aaaa',
     category: '', sources: [{
       startYear: "2015",
       endYear: "2017",
@@ -78,7 +78,7 @@ describe('ChartExporter', function() {
   const testVar3: intVariableDefinitionModel = {
     variable: "test_var_3",
     valueType: "currency0",
-    friendlyName: '',
+    friendlyName: 'ddddd',
     category: '', sources: [{
       startYear: "2015",
       endYear: "2017",
@@ -93,7 +93,7 @@ describe('ChartExporter', function() {
   const testVar4: intVariableDefinitionModel = {
     variable: "test_var_4",
     valueType: "currency0",
-    friendlyName: '',
+    friendlyName: 'asdfddddd',
     category: '', sources: [{
       startYear: "2015",
       endYear: "2017",

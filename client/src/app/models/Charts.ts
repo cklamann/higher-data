@@ -48,8 +48,8 @@ export class Charts {
 		return this.rest.post(`charts/preview`, { school: schoolModel, chart: chartModel });
 	}
 
-	fetchChartByVariable(variable: string, instnm: string): Observable<intChartExport> {
-		return this.rest.get(`variables/${variable}/chart/${instnm}`);
+	fetchChartByVariable(variable: string, name: string): Observable<intChartExport> {
+		return this.rest.get(`variables/${variable}/chart/${name}`);
 	}
 
 	resolveChart(chartData: intChartExport, selector: string, overrides: object) {

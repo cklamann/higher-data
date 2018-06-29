@@ -6,13 +6,14 @@ export let ObjectId = Schema.Types.ObjectId;
 
 export interface intSchoolModel {
   unitid: string;
-  instnm: string;
+  name: string;
   state: string;
   city: string;
   ein: string;
   sector: string;
   locale: string;
   hbcu: string;
+  slug: string;
   school_data?: intSchoolDataModel[];
 };
 
@@ -21,11 +22,12 @@ export interface intSchoolSchema extends Document, intSchoolModel { };
 let schoolSchema: Schema = new Schema({
   id: ObjectId,
   unitid: String,
-  instnm: String,
+  name: String,
   state: String,
   city: String,
   ein: String,
   locale: String,
+  slug: String,
   sector: {
     type: String,
     enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 40]
@@ -43,12 +45,12 @@ schoolSchema.virtual('school_data', {
 export let SchoolSchema = model<intSchoolSchema>('school', schoolSchema);
 
 SchoolSchema.schema.statics = {
-  search: (name: string): Promise<intSchoolSchema[]> => SchoolSchema.find({instnm:{$regex: `.*${name}.*` , $options:'i'}}).limit(25).exec(),
+  search: (name: string): Promise<intSchoolSchema[]> => SchoolSchema.find({name:{$regex: `.*${name}.*` , $options:'i'}}).limit(25).exec(),
   fetch: (arg: string): Promise<intSchoolSchema> => {
     let promise;
     if (!!_.toNumber(arg)) {
       promise = SchoolSchema.findOne({ unitid: arg }).exec();
-    } else promise = SchoolSchema.findOne({ instnm: arg }).exec();
+    } else promise = SchoolSchema.findOne({ name: arg }).exec();
     return promise;
   }
 };

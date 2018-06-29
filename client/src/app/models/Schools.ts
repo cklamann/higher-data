@@ -26,7 +26,7 @@ export class Schools {
 	fetchAggregate(params: intQueryConfig): Observable<intVarExport> {
 		return this.rest.post(`schools/aggregateQuery`, params).map(res => {
 			res.data = res.data.map(school => {
-				if(school.instnm) return new School(school)
+				if(school.name) return new School(school)
 				return school;
 			});
 			return res;
@@ -35,7 +35,7 @@ export class Schools {
 }
 
 export class School {
-	private instnm?: string;
+	private name?: string;
 	private sector?: string;
 	constructor(obj: intSchoolModel) {
 		Object.assign(this, obj);
@@ -43,11 +43,11 @@ export class School {
 
 	//for table display
 	public get Name(){
-		return this.instnm;
+		return this.name;
 	}
 
 	//todo: can
 	public getName(): string {
-		return this.instnm;
+		return this.name;
 	}
 }

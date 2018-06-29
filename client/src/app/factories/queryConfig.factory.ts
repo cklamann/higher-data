@@ -9,7 +9,7 @@ export function newQueryConfig(): intQueryConfig {
 		},
 		groupBy: {
 			aggFunc: null,
-			variable: 'instnm'
+			variable: 'name'
 		},
 		inflationAdjusted: 'false',
 		pagination: {

@@ -12,7 +12,7 @@ export interface intSchoolBaseDataModel {
 export interface intSchoolDataModel extends intSchoolBaseDataModel {
   state: string,
   sector: string,
-  instnm: string,
+  name: string,
   unitid: string
 };
 
@@ -29,7 +29,7 @@ interface intSchoolDataQueryResult {
 }
 
 interface intSchoolDataQueryDataResult {
-  instnm: string,
+  name: string,
   data: intSchoolBaseDataModel[]
 }
 
@@ -64,7 +64,7 @@ const schoolDataSchema = new Schema({
     required: true,
     trim: true
   },
-  instnm: {
+  name: {
     type: String,
     required: true,
     trim: true
@@ -86,7 +86,7 @@ SchoolDataSchema.schema.statics = {
       start = (queryConfig.pagination.page * queryConfig.pagination.perPage) - queryConfig.pagination.perPage,
       stop = queryConfig.pagination.perPage,
       groupByFuncName = queryConfig.groupBy.aggFunc ? queryConfig.groupBy.aggFunc : "sum",
-      groupByField = queryConfig.groupBy.variable ? queryConfig.groupBy.variable : "instnm",
+      groupByField = queryConfig.groupBy.variable ? queryConfig.groupBy.variable : "name",
       matches = queryConfig.matches.filter(match => match);
 
     // todo: if this has to be used elsewhere, make its own object: 

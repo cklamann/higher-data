@@ -51,10 +51,10 @@ describe('School Data Schema', function() {
 					perPage: 10
 				},
 				groupBy: {
-					variable: 'instnm',
+					variable: 'name',
 					aggFunc:''	
 				},
-				inflationAdjusted: 'false', //todo:update to boolean
+				inflationAdjusted: 'false', 
 				filters: {
 					fieldName: 'variable',
 					values: ['room_and_board']
@@ -66,12 +66,12 @@ describe('School Data Schema', function() {
 					expect(res).to.exist;
 					expect(res).to.be.an('object');
 					expect(res).to.have.property('data');
-					expect(res.data[0]).to.have.property('instnm');
+					expect(res.data[0]).to.have.property('name');
 					expect(res.data[0]).to.not.have.property('_id');
 					//first page
 					expect(res.data).to.have.length(10);
 					//default ascending sort
-					res.data.forEach(school => expect(school.instnm.slice(0, 1).toLowerCase() < "b").to.be.true);
+					res.data.forEach(school => expect(school.name.slice(0, 1).toLowerCase() < "b").to.be.true);
 					expect(res.query.pagination.total).to.be.greaterThan(10);
 					done();
 				})
@@ -92,7 +92,7 @@ describe('School Data Schema', function() {
 					perPage: 50
 				},
 				groupBy: {
-					variable: 'instnm',
+					variable: 'name',
 					aggFunc:''	
 				},
 				inflationAdjusted: 'true',
@@ -107,7 +107,7 @@ describe('School Data Schema', function() {
 					expect(res).to.exist;
 					expect(res).to.be.an('object');
 					expect(res).to.have.property('data');
-					expect(res.data[0]).to.have.property('instnm');
+					expect(res.data[0]).to.have.property('name');
 					res.data.forEach(datum => expect(datum.data.filter((item: any) => item.variable === "white_p").length).to.equal(0));
 					expect(res.data.some(datum => datum.data.filter((item: any) => item.variable === "room_and_board").length > 0)).to.equal(true);
 					expect(res.data.some(datum => datum.data.filter((item: any) => item.variable === "in_state_tuition").length > 0)).to.equal(true);

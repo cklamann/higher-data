@@ -32,8 +32,8 @@ export class ChartPageComponent implements OnInit {
 	//todo: why does this exist?
 	selections: {
 		chartSlug: string,
-		instnm: string
-	} = { chartSlug: '', instnm: '' };
+		name: string
+	} = { chartSlug: '', name: '' };
 
 	constructor(public Schools: Schools,
 		private Charts: Charts,
@@ -88,7 +88,7 @@ export class ChartPageComponent implements OnInit {
 	getChartTitle() {
 		if (this.chartData && this.chartData.school) {
 			let cutName = this._cut ? "Per " + this.chartData.chart.cuts.find(item => item.formula == this._cut).name : ""
-			return this.chartData ? `${this.chartData.school.instnm} (${this.chartData.school.state}) ${this.chartData.chart.name} ${cutName}` : "";
+			return this.chartData ? `${this.chartData.school.name} (${this.chartData.school.state}) ${this.chartData.chart.name} ${cutName}` : "";
 		}
 	}
 
@@ -106,7 +106,7 @@ export class ChartPageComponent implements OnInit {
 
 	onSchoolSelect(school: intSchoolModel | null) {
 		if (school) {
-			this.selections.instnm = school.instnm;
+			this.selections.name = school.name;
 			this.chartOptionsForm.reset();
 			this._loadChart();
 		}
@@ -142,9 +142,9 @@ export class ChartPageComponent implements OnInit {
 		return this.chartOptionsVisible;
 	}
 
-	private _setUi(instnm: string, chartSlug: string) {
+	private _setUi(name: string, chartSlug: string) {
 		this.selections.chartSlug = chartSlug;
-		this.selections.instnm = instnm;
+		this.selections.name = name;
 	}
 
 	private _setOptions(options: intChartExportOptions) {
@@ -156,9 +156,9 @@ export class ChartPageComponent implements OnInit {
 	}
 
 	private _loadChart(): void {
-		if (this.selections.instnm && this.selections.chartSlug) {
+		if (this.selections.name && this.selections.chartSlug) {
 			const options = _.pickBy(this.chartOptionsForm.value, (v, k) => !_.isNil(v) && v != "");			
-			this.router.navigate([`data/charts/${this.selections.instnm}/${this.selections.chartSlug}`, options]);
+			this.router.navigate([`data/charts/${this.selections.name}/${this.selections.chartSlug}`, options]);
 		}
 	}
 }

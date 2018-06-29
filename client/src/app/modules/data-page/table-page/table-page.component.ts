@@ -93,7 +93,7 @@ export class TablePageComponent implements OnInit {
 			}, { validator: Validators.required }),
 			groupBy: this.fb.group({
 				aggFunc: null,
-				variable: new FormControl('instnm', Validators.required)
+				variable: new FormControl('name', Validators.required)
 			}),
 			inflationAdjusted: 'false',
 			filter: new FormControl(null, Validators.required)
@@ -151,7 +151,7 @@ export class TablePageComponent implements OnInit {
 
 	onMatSortChange($event) {
 		let sort = {
-			field: $event.active === "Name" ? "instnm" : $event.active,
+			field: $event.active === "Name" ? "name" : $event.active,
 			direction: $event.direction === "desc" ? "-" : ""
 		}
 
@@ -273,7 +273,7 @@ export class TablePageComponent implements OnInit {
 	private _updateGroupByFields() {
 		if (this._aggOptionsVisible) {
 			this.tableOptionsForm.get('groupBy').get('aggFunc').setErrors(null);
-			this.tableOptionsForm.get('groupBy').patchValue({ 'variable': 'instnm', 'aggFunc': null });
+			this.tableOptionsForm.get('groupBy').patchValue({ 'variable': 'name', 'aggFunc': null });
 		} else this.tableOptionsForm.get('groupBy').patchValue({ 'variable': null });
 	}
 

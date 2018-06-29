@@ -29,11 +29,11 @@ describe('FORMULA PARSER', function() {
 	}
 
 	const dataWithIncompleteYear: any[] = [
-		{ sector: nwData.sector, state: nwData.state, instnm: nwData.instnm, variable: "in_state_tuition", fiscal_year: "2003", value: "50", unitid: "000001" },
-		{ sector: nwData.sector, state: nwData.state, instnm: nwData.instnm, variable: "in_state_tuition", fiscal_year: "2004", value: "60", unitid: "000001" },
-		{ sector: nwData.sector, state: nwData.state, instnm: nwData.instnm, variable: "room_and_board", fiscal_year: "2003", value: "70", unitid: "000001" },
-		{ sector: nwData.sector, state: nwData.state, instnm: nwData.instnm, variable: "room_and_board", fiscal_year: "2004", value: "80", unitid: "000001" },
-		{ sector: nwData.sector, state: nwData.state, instnm: nwData.instnm, variable: "room_and_board", fiscal_year: "2005", value: "90", unitid: "000001" },
+		{ sector: nwData.sector, state: nwData.state, name: nwData.name, variable: "in_state_tuition", fiscal_year: "2003", value: "50", unitid: "000001" },
+		{ sector: nwData.sector, state: nwData.state, name: nwData.name, variable: "in_state_tuition", fiscal_year: "2004", value: "60", unitid: "000001" },
+		{ sector: nwData.sector, state: nwData.state, name: nwData.name, variable: "room_and_board", fiscal_year: "2003", value: "70", unitid: "000001" },
+		{ sector: nwData.sector, state: nwData.state, name: nwData.name, variable: "room_and_board", fiscal_year: "2004", value: "80", unitid: "000001" },
+		{ sector: nwData.sector, state: nwData.state, name: nwData.name, variable: "room_and_board", fiscal_year: "2005", value: "90", unitid: "000001" },
 	]
 
 	const schoolMissingOneYearOfTuition: intSchoolModel = _.cloneDeep(nwData);
@@ -62,7 +62,7 @@ describe('FORMULA PARSER', function() {
 			.then(() => SchoolDataSchema.create(nwData_school_data))
 			.then(() => SchoolSchema.create({ unitid: "12345" }))
 			.then(() => SchoolDataSchema.create({
-				instnm: "bleh",
+				name: "bleh",
 				state: "MA",
 				sector: "5",
 				variable: 'test_var',

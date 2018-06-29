@@ -9,14 +9,14 @@ interface inputData {
 	fiscal_year: string,
 	value: string,
 	variable?: string,
-	instnm?: string
+	name?: string
 };
 
 interface intermediateData {
 	fiscal_year: string;
 	value: number | string;
 	variable?: string;
-	instnm?: string;
+	name?: string;
 	sector?: string;
 	state?: string;
 }
@@ -45,7 +45,7 @@ export class VariableDataSource {
 	getColumns(): string[] {
 		let keys = Object.keys(this.data[0]).sort();
 		let label = keys.pop();
-//		label = label === "instnm" ? "Name" : label;
+//		label = label === "name" ? "Name" : label;
 		keys.unshift(label);
 		return keys;
 	}
@@ -57,7 +57,7 @@ export class VariableDataSource {
 			keyMap: string[] = []; // array of unique values for label column
 		keyCol = _.keys(_export.data[0]).length === 2 ? // agg has 2 props per item -> brittle, rethink
 			_.keys(_export.data[0]).find(datum => datum != "data") :
-			_export.data.length > 1 ? 'instnm' : 'variable';
+			_export.data.length > 1 ? 'name' : 'variable';
 
 		//many schools, one variable (agg included)
 		if (keyCol !== 'variable') {

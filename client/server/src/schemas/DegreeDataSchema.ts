@@ -21,7 +21,7 @@ let schema: Schema = new Schema({
 	awlevel: String,
 	state: String,
 	sector: String,
-	instnm: String
+	name: String
 });
 
 export let DegreeDataSchema = model<intDegreeDataSchema>('degree_data', schema, 'degree_data');
