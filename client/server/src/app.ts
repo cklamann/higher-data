@@ -26,10 +26,6 @@ const app = express();
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/favicon.ico', function(req,res,next) {
-  res.sendStatus(404);
-});
-
 app.use(logger('common', {
   stream: fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' })
 }));
