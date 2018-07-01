@@ -1,0 +1,109 @@
+@import '~@angular/material/theming';
+
+//build palette colors here:
+//https://github.com/angular/material2/blob/master/src/lib/toolbar/_toolbar-theme.scss
+$higher-blue:(
+  50:   #e9f1fb,
+  100:  #c8ddf5,
+  200:  #a3c7ef,
+  300:  #7eb0e8,
+  400:  #629fe3,
+  500:  #468ede,
+  600:  #3f86da,
+  700:  #377bd5,
+  800:  #2f71d1,
+  900:  #205fc8,
+  A100: #ffffff,
+  A200: #cedfff,
+  A400: #9bbdff,
+  A700: #81adff,
+  'contrast': (
+    50:  $dark-primary-text,
+    100: $dark-primary-text,
+    200: $dark-primary-text,
+    300: $dark-primary-text,
+    400: $dark-primary-text,
+    500: $light-primary-text,
+    600: $light-primary-text,
+    700: $light-primary-text,
+    800: $light-primary-text,
+    900: $light-primary-text,
+    A100: $dark-primary-text,
+    A200: $light-primary-text,
+    A400: $light-primary-text,
+    A700: $light-primary-text,
+  )
+ );
+
+$higher-beige: (
+  50:   #fdfaf6,
+  100:  #faf3e9,
+  200:  #f7ebdb,
+  300:  #f4e2cd,
+  400:  #f1dcc2,
+  500:  #efd6b7,
+  600:  #edd1b0,
+  700:  #ebcca7,
+  800:  #e8c69f,
+  900:  #e4bc90,
+  A100: #ffffff,
+  A200: #ffffff,
+  A400: #ffffff,
+  A700: #fffdfb,
+  'contrast': (
+    50: $dark-primary-text,
+    100: $dark-primary-text,
+    200: $dark-primary-text,
+    300: $dark-primary-text,
+    400: $dark-primary-text,
+    500: $light-primary-text,
+    600: $light-primary-text,
+    700: $light-primary-text,
+    800: $light-primary-text,
+    900: $light-primary-text,
+    A100: $dark-primary-text,
+    A200: $light-primary-text,
+    A400: $light-primary-text,
+    A700: $light-primary-text,
+  )
+);
+
+$higher-red: (
+  50:   #fce9ea,
+  100:  #f6c9cb,
+  200:  #f1a5a8,
+  300:  #eb8185,
+  400:  #e6666a,
+  500:  #e24b50,
+  600:  #df4449,
+  700:  #da3b40,
+  800:  #d63337,
+  900:  #cf2327,
+  A100: #ffffff,
+  A200: #ffd6d7,
+  A400: #ffa3a5,
+  A700: #ff8a8c,
+  'contrast': (
+    50: $dark-primary-text,
+    100: $dark-primary-text,
+    200: $dark-primary-text,
+    300: $dark-primary-text,
+    400: $dark-primary-text,
+    500: $light-primary-text,
+    600: $light-primary-text,
+    700: $light-primary-text,
+    800: $light-primary-text,
+    900: $light-primary-text,
+    A100: $dark-primary-text,
+    A200: $light-primary-text,
+    A400: $light-primary-text,
+    A700: $light-primary-text,
+  )
+);
+
+$higher-app-primary: mat-palette($higher-blue);
+$higher-app-accent:  mat-palette($higher-beige);
+$higher-app-warn:    mat-palette($higher-red);
+
+$theme: mat-light-theme($higher-app-primary, $higher-app-accent, $higher-app-warn);
+

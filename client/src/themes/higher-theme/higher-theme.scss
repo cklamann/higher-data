@@ -1,0 +1,10 @@
+@import '~@angular/material/theming';
+@import './higher-palette.scss';
+
+@include mat-core(); //include only once!
+
+@include angular-material-theme($theme);
+
+.higher-app-theme {
+  @include angular-material-theme($theme);
+}

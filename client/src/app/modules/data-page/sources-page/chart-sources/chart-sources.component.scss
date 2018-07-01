@@ -1,11 +1,15 @@
-@import '../../../global-layout/variables';
+@import '../../../../../themes/higher-theme/higher-palette.scss';
+
+@import './_chart-sources-theme.component.scss';
+
+@include chart-sources-theme($theme);
+
 app-chart-sources {
     display: flex;
     justify-content: center;
     flex: 1 1 100%;
     flex-wrap: wrap;
     .definition-headings {
-        background-color: $accent-md;
         padding: 5px;
         margin-top: 10px;
         &:first-child {

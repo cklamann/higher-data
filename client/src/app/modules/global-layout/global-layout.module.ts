@@ -8,6 +8,7 @@ import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
+import { OverlayContainer } from '@angular/cdk/overlay';
 
 @NgModule({
 	imports: [
@@ -18,4 +19,8 @@ import { MatButtonModule } from '@angular/material/button';
 		HeaderComponent, FooterComponent
 	]
 })
-export class GlobalLayoutModule { }
+export class GlobalLayoutModule {
+  constructor(overlayContainer: OverlayContainer) {
+    overlayContainer.getContainerElement().classList.add('higher-app-theme');
+  }
+}
