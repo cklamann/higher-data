@@ -54,7 +54,7 @@ const routes: Routes = [
 		]
 	},
 	{
-		path: 'blog',
+		path: 'logout',
 		component: BlogPageComponent,
 	},
 	{
