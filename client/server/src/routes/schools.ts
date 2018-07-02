@@ -29,10 +29,10 @@ router.get('/:id', function(req, res, next) {
 		.catch(err => next(err));
 });
 
-router.get('/:school/charts/:chart', function(req, res, next) {
+router.get('/:schoolSlug/charts/:chart', function(req, res, next) {
 	const promises: Promise<any>[] = [],
 		options = req.query ? req.query : {};
-	promises.push(SchoolSchema.schema.statics.fetch(req.params.school));
+	promises.push(SchoolSchema.schema.statics.fetch(req.params.schoolSlug));
 	promises.push(ChartSchema.findOne({ slug: req.params.chart }).exec());
 	Q.all(promises)
 		.then(fulfs => {

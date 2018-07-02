@@ -26,14 +26,13 @@ export class ChartPageComponent implements OnInit {
 	chartData: intChartExport;
 	chartOptionsForm: FormGroup;
 	chartOptionsVisible: boolean = false;
-	private _chartEmpty: boolean = false;
-	private _inflationAdjusted: boolean = false;
-	private _cut: string = '';
-	//todo: why does this exist?
 	selections: {
 		chartSlug: string,
-		name: string
-	} = { chartSlug: '', name: '' };
+		schoolSlug: string
+	} = { chartSlug: '', schoolSlug: '' };
+	private _chartEmpty: boolean = false;
+	private _cut: string = '';
+	private _inflationAdjusted: boolean = false;
 
 	constructor(public Schools: Schools,
 		private Charts: Charts,
@@ -50,11 +49,11 @@ export class ChartPageComponent implements OnInit {
 				return Object.assign({}, qv, param);
 			})
 		}).subscribe(params => {
-			if (params.chart && params.school) {
+			if (params.chart && params.schoolSlug) {
 				const options = _.pickBy(params, (v,k) => k != "chart" && k != "school");				
-				this.Charts.fetchChart(params.school, params.chart, options)
+				this.Charts.fetchChart(params.schoolSlug, params.chart, options)
 					.subscribe(data => this.chartData = data);
-				this._setUi(params.school, params.chart);
+				this._setUi(params.schoolSlug, params.chart);
 				this._setOptions(options);
 			}
 		});
@@ -67,7 +66,7 @@ export class ChartPageComponent implements OnInit {
 		});
 
 		this.chartOptionsForm.get('inflationAdjusted').valueChanges.subscribe(change => {
-			this._inflationAdjusted = change; //todo: why is this here? Can't we just access the value when needed?
+			this._inflationAdjusted = change; 
 		})
 
 		this.chartOptionsForm.get('cut').valueChanges.subscribe(change => {
@@ -106,7 +105,7 @@ export class ChartPageComponent implements OnInit {
 
 	onSchoolSelect(school: intSchoolModel | null) {
 		if (school) {
-			this.selections.name = school.name;
+			this.selections.schoolSlug = school.slug;
 			this.chartOptionsForm.reset();
 			this._loadChart();
 		}
@@ -142,9 +141,9 @@ export class ChartPageComponent implements OnInit {
 		return this.chartOptionsVisible;
 	}
 
-	private _setUi(name: string, chartSlug: string) {
+	private _setUi(schoolSlug: string, chartSlug: string) {
 		this.selections.chartSlug = chartSlug;
-		this.selections.name = name;
+		this.selections.schoolSlug = schoolSlug;
 	}
 
 	private _setOptions(options: intChartExportOptions) {
@@ -156,9 +155,9 @@ export class ChartPageComponent implements OnInit {
 	}
 
 	private _loadChart(): void {
-		if (this.selections.name && this.selections.chartSlug) {
+		if (this.selections.schoolSlug && this.selections.chartSlug) {
 			const options = _.pickBy(this.chartOptionsForm.value, (v, k) => !_.isNil(v) && v != "");			
-			this.router.navigate([`data/charts/${this.selections.name}/${this.selections.chartSlug}`, options]);
+			this.router.navigate([`data/charts/${this.selections.schoolSlug}/${this.selections.chartSlug}`, options]);
 		}
 	}
 }

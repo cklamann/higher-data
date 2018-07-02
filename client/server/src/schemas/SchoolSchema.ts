@@ -50,7 +50,7 @@ SchoolSchema.schema.statics = {
     let promise;
     if (!!_.toNumber(arg)) {
       promise = SchoolSchema.findOne({ unitid: arg }).exec();
-    } else promise = SchoolSchema.findOne({ name: arg }).exec();
+    } else promise = SchoolSchema.findOne({ slug: arg }).exec();
     return promise;
   }
 };
