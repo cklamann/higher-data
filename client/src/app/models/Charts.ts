@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { intChartModel, intChartSchema, intCutByModel, intChartVariableModel } from '../../../server/src/schemas/ChartSchema';
 import { RestService } from '../services/rest/rest.service';
 import { Observable, Subscription } from 'rxjs';
-import { intChartExport, intChartExportOptions } from '../../../server/src/models/ChartExporter';
+import { intChartExport, intChartExportOptions } from '../../../server/src/modules/ChartExporter.module';
 import { intChartDisplayOptions } from '../modules/chart/models/BaseChart';
 import { LineChart } from '../modules/chart/models/LineChart';
 import { AreaChart } from '../modules/chart/models/AreaChart';

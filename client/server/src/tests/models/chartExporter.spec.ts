@@ -1,5 +1,5 @@
 import { ChartSchema, ChartVariableSchema, intChartSchema, intChartModel, intChartVariableModel } from '../../schemas/ChartSchema';
-import { ChartExport, intChartExport } from '../../models/ChartExporter';
+import { ChartExport, intChartExport } from '../../modules/ChartExporter.module';
 import { intSchoolSchema, SchoolSchema } from '../../schemas/SchoolSchema';
 import { VariableDefinitionSchema, intVariableDefinitionSchema, intVariableDefinitionModel } from '../../schemas/VariableDefinitionSchema';
 import { nwData, nwData_school_data, nwDataSector6, nwDataSector6_school_data, dummyChartData, dummyChartData2 } from '../fixtures/fixtures';

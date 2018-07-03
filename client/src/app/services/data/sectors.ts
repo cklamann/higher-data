@@ -49,5 +49,10 @@ export let sectors: intSectors[] = [
 		number: "9",
 		const: "FOR_PROFIT_LT_2",
 		name: "For-Profit, Less than 2-Year"
+	},
+	{
+		number: "99",
+		const: "Uknown",
+		name: "Sector Unknown"
 	}
 ];

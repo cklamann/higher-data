@@ -1,5 +1,5 @@
 import { intChartModel, intChartVariableModel } from '../../../../../server/src/schemas/ChartSchema';
-import { intChartExport, intChartExportDataParentModel } from '../../../../../server/src/models/ChartExporter';
+import { intChartExport, intChartExportDataParentModel } from '../../../../../server/src/modules/ChartExporter.module';
 import { ChartData } from './ChartData';
 import { UtilService } from '../../../services/util/util';
 import * as d3 from 'd3';

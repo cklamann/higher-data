@@ -4,7 +4,7 @@ import { MatToolbar, MatToolbarRow } from '@angular/material/toolbar'
 import { intSchoolModel } from '../../../../../server/src/schemas/SchoolSchema';
 import { intChartModel } from '../../../../../server/src/schemas/ChartSchema';
 import { Charts } from '../../../models/Charts';
-import { intChartExport, intChartExportOptions } from '../../../../../server/src/models/ChartExporter';
+import { intChartExport, intChartExportOptions } from '../../../../../server/src/modules/ChartExporter.module';
 import { TrendChartComponent } from '../../chart/components/trend-chart/trend-chart.component'
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { intBaseChartDatum } from '../../chart/models/ChartData';

@@ -1,7 +1,7 @@
 import { Router, Response, Request, NextFunction } from "express";
 import { ChartSchema, intChartSchema } from '../schemas/ChartSchema';
 import * as passport from 'passport';
-import { ChartExport } from '../models/ChartExporter';
+import { ChartExport } from '../modules/ChartExporter.module';
 import { intSchoolModel } from '../schemas/SchoolSchema';
 import { intChartModel } from '../schemas/ChartSchema';
 import * as _ from 'lodash';
