@@ -1,7 +1,7 @@
 import { Component, OnInit, AfterViewInit, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { Charts } from '../../../../models/Charts';
 import { RestService } from '../../../../services/rest/rest.service';
-import { intChartExport } from '../../../../../../server/src/models/ChartExporter';
+import { intChartExport } from '../../../../../../server/src/modules/ChartExporter.module';
 import { BaseChart } from '../../models/BaseChart';
 import { ChartData } from '../../models/ChartData';
 import { EventEmitter, Output } from '@angular/core'

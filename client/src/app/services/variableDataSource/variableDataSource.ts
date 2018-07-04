@@ -45,14 +45,13 @@ export class VariableDataSource {
 	getColumns(): string[] {
 		let keys = Object.keys(this.data[0]).sort();
 		let label = keys.pop();
-//		label = label === "name" ? "Name" : label;
 		keys.unshift(label);
 		return keys;
 	}
 
 	_transformExport(_export: intVarExport): intVarDataSourceExport[] {
 		//todo: replace with transformer
-		var data: intermediateData[][],
+		let data: intermediateData[][],
 			keyCol: string,
 			keyMap: string[] = []; // array of unique values for label column
 		keyCol = _.keys(_export.data[0]).length === 2 ? // agg has 2 props per item -> brittle, rethink
@@ -62,7 +61,7 @@ export class VariableDataSource {
 		//many schools, one variable (agg included)
 		if (keyCol !== 'variable') {
 			data = _export.data.map(datum => datum.data);
-			data = this._fillInMissingYears(data, _export.query.filters.values[0]);
+			data = this._fillInMissingYears(data, _export.query.variable);
 			keyMap = _export.data.map(item => item[keyCol]);
 		} else {
 			//one school, one or more variables (currently)

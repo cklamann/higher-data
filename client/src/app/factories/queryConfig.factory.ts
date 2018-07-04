@@ -1,24 +1,21 @@
-import { intQueryConfig } from '../../../server/src/types/types';
+import { intAggQueryConfig } from '../../../server/src/modules/AggQueryConfig.module';
 
-export function newQueryConfig(): intQueryConfig {
+export function newAggQueryConfig(): intAggQueryConfig {
 	return {
 		matches: [],
-		filters: {
-			fieldName: '',
-			values: []
-		},
 		groupBy: {
 			aggFunc: null,
 			variable: 'name'
 		},
-		inflationAdjusted: 'false',
+		inflationAdjusted: false,
 		pagination: {
 			page: 1,
 			perPage: 10
 		},
 		sort: {
 			field: '',
-			direction: ''
-		}
+			direction: 'asc'
+		},
+		variable: ''
 	}
 }

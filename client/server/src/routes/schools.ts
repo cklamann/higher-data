@@ -1,8 +1,8 @@
 import { SchoolSchema, intSchoolSchema } from '../schemas/SchoolSchema';
 import { SchoolDataSchema, intVarExport } from '../schemas/SchoolDataSchema';
-import { intQueryConfig } from '../types/types';
+import { intAggQueryConfig } from '../modules/AggQueryConfig.module';
 import { Router, Response, Request, NextFunction } from "express";
-import { ChartExport, intChartExport } from '../models/ChartExporter';
+import { ChartExport, intChartExport } from '../modules/ChartExporter.module';
 import { ChartSchema } from '../schemas/ChartSchema';
 import { FormulaParser, intFormulaParserResult } from '../modules/FormulaParser.module';
 import * as Q from 'q';
@@ -29,11 +29,11 @@ router.get('/:id', function(req, res, next) {
 		.catch(err => next(err));
 });
 
-router.get('/:school/charts/:chart', function(req, res, next) {
+router.get('/:schoolSlug/charts/:chartSlug', function(req, res, next) {
 	const promises: Promise<any>[] = [],
 		options = req.query ? req.query : {};
-	promises.push(SchoolSchema.schema.statics.fetch(req.params.school));
-	promises.push(ChartSchema.findOne({ slug: req.params.chart }).exec());
+	promises.push(SchoolSchema.schema.statics.fetch(req.params.schoolSlug));
+	promises.push(ChartSchema.findOne({ slug: req.params.chartSlug }).exec());
 	Q.all(promises)
 		.then(fulfs => {
 			const chart = new ChartExport(fulfs[0], fulfs[1], options);
@@ -46,7 +46,7 @@ router.get('/:school/charts/:chart', function(req, res, next) {
 
 //todo: this should use an include on show route rather than have its own route (convert to get request)
 router.post('/aggregateQuery', function(req, res, next): void {
-	let params: intQueryConfig = req.body;
+	let params: intAggQueryConfig = req.body;
 	SchoolDataSchema.schema.statics.fetchAggregate(params)
 		.then((resp: intVarExport) => {
 			res.json(resp);

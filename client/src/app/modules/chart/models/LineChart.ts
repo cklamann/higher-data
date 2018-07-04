@@ -1,5 +1,5 @@
 import { BaseChart } from './BaseChart';
-import { intChartExport, intChartExportDataParentModel } from '../../../../../server/src/models/ChartExporter';
+import { intChartExport, intChartExportDataParentModel } from '../../../../../server/src/modules/ChartExporter.module';
 import * as d3 from 'd3';
 import * as _ from 'lodash';
 

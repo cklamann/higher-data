@@ -23,7 +23,7 @@ describe("CHART ROUTE", () => {
 
 	const creds = Buffer.from(`${username}:${password}`).toString('base64');
 
-	before('create user', function() {
+	before('create user', function() { //route is now protected, won't work
 		UserSchema.create({
 			username: username,
 			password: password

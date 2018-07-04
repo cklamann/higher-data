@@ -1,7 +1,7 @@
 import { SchoolDataSchema, intSchoolDataSchema, intVarExport } from '../../schemas/SchoolDataSchema';
 import { SchoolSchema } from '../../schemas/SchoolSchema';
 import { nwData, nwData_school_data } from '../fixtures/fixtures';
-import { intQueryConfig } from '../../types/types';
+import { intAggQueryConfig } from '../../modules/AggQueryConfig.module';
 import * as chai from 'chai';
 import { expect } from 'chai';
 require('../../app');
@@ -38,98 +38,13 @@ describe('School Data Schema', function() {
 		});
 	});
 
-	describe('fetch with school names', function() {
-		it('should retrieve the variables grouped by school names', function(done) {
-			let qc: intQueryConfig = {
-				matches: [],
-				sort: {
-					field: '',
-					direction: ''
-				},
-				pagination: {
-					page: 1,
-					perPage: 10
-				},
-				groupBy: {
-					variable: 'name',
-					aggFunc:''	
-				},
-				inflationAdjusted: 'false', 
-				filters: {
-					fieldName: 'variable',
-					values: ['room_and_board']
-				}
-			}
-
-			SchoolDataSchema.schema.statics.fetchAggregate(qc)
-				.then((res: intVarExport) => {
-					expect(res).to.exist;
-					expect(res).to.be.an('object');
-					expect(res).to.have.property('data');
-					expect(res.data[0]).to.have.property('name');
-					expect(res.data[0]).to.not.have.property('_id');
-					//first page
-					expect(res.data).to.have.length(10);
-					//default ascending sort
-					res.data.forEach(school => expect(school.name.slice(0, 1).toLowerCase() < "b").to.be.true);
-					expect(res.query.pagination.total).to.be.greaterThan(10);
-					done();
-				})
-				.catch(err => done(err));
-		});
-	});
-
-	describe('fetch with school names and sort by year', function() {
-		it('should retrieve the variables grouped by school names  and sort by year', function(done) {
-			let qc: intQueryConfig = {
-				matches: [],
-				sort: {
-					field: '2008',
-					direction: '-'
-				},
-				pagination: {
-					page: 3,
-					perPage: 50
-				},
-				groupBy: {
-					variable: 'name',
-					aggFunc:''	
-				},
-				inflationAdjusted: 'true',
-				filters: {
-					fieldName: 'variable',
-					values: ['room_and_board', 'in_state_tuition']
-				}
-			}
-
-			SchoolDataSchema.schema.statics.fetchAggregate(qc)
-				.then((res: intVarExport) => {
-					expect(res).to.exist;
-					expect(res).to.be.an('object');
-					expect(res).to.have.property('data');
-					expect(res.data[0]).to.have.property('name');
-					res.data.forEach(datum => expect(datum.data.filter((item: any) => item.variable === "white_p").length).to.equal(0));
-					expect(res.data.some(datum => datum.data.filter((item: any) => item.variable === "room_and_board").length > 0)).to.equal(true);
-					expect(res.data.some(datum => datum.data.filter((item: any) => item.variable === "in_state_tuition").length > 0)).to.equal(true);
-					res.data.forEach((datum, i) => {
-						if (i < res.data.length - 1) {
-							expect(datum.data.find(item => item.fiscal_year == "2008" && item.variable === qc.filters.values[0]).value)
-								.to.be.at.least(res.data[i + 1].data.find((item: any) => item.fiscal_year === "2008" && item.variable === qc.filters.values[0]).value);
-						}
-					});
-					done();
-				})
-				.catch(err => done(err));
-		});
-	});
-
-	describe('fetch aggregate', function() {
+	describe('fetch aggregate key sort', function() {
 		it('should retrieve room and board by sector', function(done) {
-			let qc: intQueryConfig = {
+			let qc: intAggQueryConfig = {
 				matches: [],
 				sort: {
-					field: '2008',
-					direction: '-'
+					field: 'sector',
+					direction: 'desc'
 				},
 				pagination: {
 					page: 1,
@@ -139,11 +54,8 @@ describe('School Data Schema', function() {
 					variable: 'sector',
 					aggFunc:  'sum',	
 				},
-				inflationAdjusted: 'false',
-				filters: {
-					fieldName: 'variable',
-					values: ['room_and_board']
-				}
+				inflationAdjusted: false,
+				variable: 'room_and_board'
 			}
 
 			SchoolDataSchema.schema.statics.fetchAggregate(qc)
@@ -153,11 +65,51 @@ describe('School Data Schema', function() {
 					expect(res).to.have.property('data');
 					expect(res.data[0]).to.have.property('sector');
 					res.data.forEach(datum => expect(datum.data.filter((item: any) => item.variable === "white_p").length).to.equal(0));
-					expect(res.data.some(datum => datum.data.filter((item: any) => item.variable === "room_and_board").length > 0)).to.equal(true);
+					expect(res.data.every(datum => datum.data.every((item: any) => item.variable === "room_and_board"))).to.equal(true);
+					//sort test
 					res.data.forEach((datum, i) => {
 						if (i < res.data.length - 1) {
-							expect(datum.data.find(item => item.fiscal_year == "2008" && item.variable === qc.filters.values[0]).value)
-								.to.be.at.least(res.data[i + 1].data.find((item: any) => item.fiscal_year === "2008" && item.variable === qc.filters.values[0]).value);
+							expect(+datum.sector).to.be.lessThan(+res.data[i + 1].sector);
+						}
+					});
+					done();
+				})
+				.catch(err => done(err));
+		});
+	});
+
+	describe('fetch aggregate year sort', function() {
+		it('should retrieve room and board by sector', function(done) {
+			let qc: intAggQueryConfig = {
+				matches: [],
+				sort: {
+					field: '2008',
+					direction: 'asc'
+				},
+				pagination: {
+					page: 1,
+					perPage: 5
+				},
+				groupBy: {
+					variable: 'sector',
+					aggFunc:  'sum',	
+				},
+				inflationAdjusted: false,
+				variable: 'room_and_board'
+			}
+
+			SchoolDataSchema.schema.statics.fetchAggregate(qc)
+				.then((res: intVarExport) => {
+					expect(res).to.exist;
+					expect(res).to.be.an('object');
+					expect(res).to.have.property('data');
+					expect(res.data[0]).to.have.property('sector');
+					res.data.forEach(datum => expect(datum.data.filter((item: any) => item.variable === "white_p").length).to.equal(0));
+					expect(res.data.every(datum => datum.data.every((item: any) => item.variable === "room_and_board"))).to.equal(true);
+					res.data.forEach((datum, i) => {
+						if (i < res.data.length - 1) {
+							expect(datum.data.find(item => item.fiscal_year == "2008" && item.variable === qc.variable).value)
+								.to.be.at.least(res.data[i + 1].data.find((item: any) => item.fiscal_year === "2008" && item.variable === qc.variable).value);
 						}
 					});
 					done();

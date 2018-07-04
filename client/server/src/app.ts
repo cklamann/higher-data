@@ -37,7 +37,9 @@ app.use(passport.initialize());
 passport.use(new BasicStrategy(
   function(userid: string, password: string, done: any) {
     UserSchema.findOne({ username: userid }, function(err, user) {
-      if (err) return done(err);
+      if (err){ 
+        return done(err);
+      }
       if (!user) return done(null, false);
       if (user.password != password) return done(null, false);
       done(err, user);

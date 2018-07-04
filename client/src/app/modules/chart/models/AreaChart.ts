@@ -1,5 +1,5 @@
 import { LineChart } from './LineChart';
-import { intChartExport, intChartExportDataParentModel } from '../../../../../server/src/models/ChartExporter';
+import { intChartExport, intChartExportDataParentModel } from '../../../../../server/src/modules/ChartExporter.module';
 import { intBaseChartDatum, intBaseChartData, ChartData } from './ChartData';
 import * as d3 from 'd3';
 import * as _ from 'lodash';

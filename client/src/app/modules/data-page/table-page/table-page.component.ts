@@ -3,8 +3,7 @@ import { Router } from '@angular/router';
 import { trigger, state, style, animate, transition } from '@angular/animations';
 import { MatPaginator, MatSort, MatTableDataSource, PageEvent, MatInput } from '@angular/material';
 import { intVarExport } from '../../../../../server/src/schemas/SchoolDataSchema';
-import { intQueryConfig } from '../../../../../server/src/types/types';
-import { newQueryConfig } from '../../../factories/queryConfig.factory';
+import { intAggQueryConfig, AggQueryConfig } from '../../../../../server/src/modules/AggQueryConfig.module';
 import { RestService } from '../../../services/rest/rest.service';
 import { Schools } from '../../../models/Schools';
 import { Observable } from 'rxjs';
@@ -22,7 +21,7 @@ import 'rxjs/add/operator/map';
 
 
 interface intTableOptionsForm {
-	match: string | null,
+	nameSearch: string | null,
 	sort: {
 		field: string,
 		direction: string
@@ -32,14 +31,11 @@ interface intTableOptionsForm {
 		perPage: number
 	},
 	groupBy: {
-		aggFunc: string | null,
+		aggFunc: string,
 		variable: string
 	},
-	inflationAdjusted: string,
-	filter: {
-		fieldName: string,
-		value: string | null
-	}
+	inflationAdjusted: boolean,
+	variable: string
 }
 
 
@@ -54,17 +50,17 @@ export class TablePageComponent implements OnInit {
 	@ViewChild('tablePaginator') tablePaginator: MatPaginator;
 	@ViewChild('tableSort') tableSort: MatSort;
 
+	isAggregateForm: FormGroup;
 	matTableDataSource = new MatTableDataSource<intVarDataSourceExport>();
+	selectedVariable: intVariableDefinitionModel;
 	showTable = false;
 	tableOptionsForm: FormGroup;
-	isAggregateForm: FormGroup;
 	visibleColumns: string[] = [];
-	selectedVariable: intVariableDefinitionModel;
+	private _aggOptionsVisible: boolean = false;
 	private _columns: string[] = [];
 	private _columnIndex: number = 0;
 	private _dataTotal: number = 0;
 	private _tableOptionsVisible: boolean = false;
-	private _aggOptionsVisible: boolean = false;
 
 	constructor(private schools: Schools, private fb: FormBuilder, private util: UtilService,
 		public dialog: MatDialog, private router: Router) {
@@ -82,7 +78,7 @@ export class TablePageComponent implements OnInit {
 		});
 
 		this.tableOptionsForm = this.fb.group({
-			match: null,
+			nameSearch: '',
 			sort: {
 				field: '',
 				direction: ''
@@ -95,8 +91,8 @@ export class TablePageComponent implements OnInit {
 				aggFunc: null,
 				variable: new FormControl('name', Validators.required)
 			}),
-			inflationAdjusted: 'false',
-			filter: new FormControl(null, Validators.required)
+			inflationAdjusted: false,
+			variable: ''
 		});
 	}
 
@@ -130,7 +126,7 @@ export class TablePageComponent implements OnInit {
 	}
 
 	getShowMatchesForm() {
-		return !!this.tableOptionsForm.get('filter').value;
+		return !!this.tableOptionsForm.get('variable');
 	}
 
 	getTableIsCurrency() {
@@ -142,7 +138,7 @@ export class TablePageComponent implements OnInit {
 	}
 
 	getVariableDefinitionSelected() {
-		return this.tableOptionsForm.controls['filter'].value;
+		return !!this.tableOptionsForm.controls['variable'];
 	}
 
 	goToVariableSource() {
@@ -152,7 +148,7 @@ export class TablePageComponent implements OnInit {
 	onMatSortChange($event) {
 		let sort = {
 			field: $event.active === "Name" ? "name" : $event.active,
-			direction: $event.direction === "desc" ? "-" : ""
+			direction: $event.direction
 		}
 
 		this.tableOptionsForm.get('sort').patchValue(sort);
@@ -206,9 +202,7 @@ export class TablePageComponent implements OnInit {
 
 	setVariable($event) {
 		this.selectedVariable = $event;
-		this.tableOptionsForm.get('filter').patchValue({
-			value: $event.variable
-		})
+		this.tableOptionsForm.get('variable').patchValue($event.variable)
 	}
 
 	setVisibleColumns() {
@@ -262,11 +256,9 @@ export class TablePageComponent implements OnInit {
 		return { [this.tableOptionsForm.value.groupBy.variable]: { '$regex': arg, '$options': 'is' } };
 	};
 
-	private _transformQuery(form: intTableOptionsForm): intQueryConfig {
-		let qc = <intQueryConfig>this.util.assignToOwnProps(newQueryConfig(), form);
-		qc.matches = [this._transformMatches(form.match)];
-		qc.filters.fieldName = 'variable';
-		qc.filters.values.push(form.filter.value);
+	private _transformQuery(form: intTableOptionsForm): intAggQueryConfig {
+		let qc = <intAggQueryConfig>this.util.assignToOwnProps(AggQueryConfig.create(), form);
+		qc.matches = [this._transformMatches(form.nameSearch)];
 		return qc;
 	}
 

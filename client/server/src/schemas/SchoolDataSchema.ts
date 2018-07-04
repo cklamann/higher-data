@@ -1,6 +1,6 @@
 import { model, Schema, Document, Model } from 'mongoose';
-import { intQueryConfig } from '../types/types';
 import { getInflationAdjuster } from '../modules/InflationAdjuster.service';
+import { AggQueryConfig, intAggQueryConfig } from '../modules/AggQueryConfig.module';
 import * as _ from 'lodash';
 
 export interface intSchoolBaseDataModel {
@@ -17,7 +17,7 @@ export interface intSchoolDataModel extends intSchoolBaseDataModel {
 };
 
 export interface intVarExport {
-  query: intQueryConfig;
+  query: intAggQueryConfig;
   data: intSchoolDataQueryDataResult[];
 }
 
@@ -29,7 +29,8 @@ interface intSchoolDataQueryResult {
 }
 
 interface intSchoolDataQueryDataResult {
-  name: string,
+  sector?: string,
+  state?: string,
   data: intSchoolBaseDataModel[]
 }
 
@@ -79,18 +80,11 @@ SchoolDataSchema.schema.statics = {
     return SchoolDataSchema.distinct('variable').exec();
   },
 
-  fetchAggregate: (queryConfig: intQueryConfig): Promise<intVarExport> => {
+  fetchAggregate: (queryConfig: intAggQueryConfig): Promise<intVarExport> => {
 
-    const sd = queryConfig.sort.direction === "-" ? -1 : 1,
-      sf = _.toNumber(queryConfig.sort.field) ? queryConfig.sort.field : "_id",
-      start = (queryConfig.pagination.page * queryConfig.pagination.perPage) - queryConfig.pagination.perPage,
-      stop = queryConfig.pagination.perPage,
-      groupByFuncName = queryConfig.groupBy.aggFunc ? queryConfig.groupBy.aggFunc : "sum",
-      groupByField = queryConfig.groupBy.variable ? queryConfig.groupBy.variable : "name",
-      matches = queryConfig.matches.filter(match => match);
+    const qConfig = new AggQueryConfig(queryConfig),
+      sf = _.toNumber(qConfig.getSortField()) ? qConfig.getSortField() : "_id";
 
-    // todo: if this has to be used elsewhere, make its own object: 
-    // qC = newQueryConfig(queryConfig)
     // then qC.verify(), aggArgs.push(qC.getMatches()), aggArgs.push(qC.getSort()), etc. 
 
     let aggArgs: object[] = [];
@@ -98,23 +92,24 @@ SchoolDataSchema.schema.statics = {
     //filter out unneeded fields
     aggArgs.push({
       "$match": {
-        "$and": matches.concat([{ "variable": { "$in": queryConfig.filters.values } }])
+        "$and": qConfig.getMatches().concat([{ "variable": { "$in": [qConfig.getVariable()] } }])
       }
     });
 
-    //2 $groups -> first, reduce and groupby (if there's an aggFunc), then group into 'data' array
+    //2 $groups -> first, reduce and groupby, then group results into 'data' array
     aggArgs.push({
       "$group": {
         "_id": {
-          [groupByField]: "$" + groupByField, 'variable': '$variable', 'fiscal_year': '$fiscal_year'
+          [qConfig.getGroupByField()]: "$" + qConfig.getGroupByField(), 'variable': '$variable', 'fiscal_year': '$fiscal_year'
         },
-        "value": { ['$' + groupByFuncName]: '$value' }
+        "value": { ['$' + qConfig.getGroupByFunc()]: '$value' }
       }
     });
 
+    //strip out id
     aggArgs.push({
       $project: {
-        [groupByField]: "$_id." + groupByField,
+        [qConfig.getGroupByField()]: "$_id." + qConfig.getGroupByField(),
         'variable': '$_id.variable',
         'fiscal_year': '$_id.fiscal_year',
         'value': '$value',
@@ -124,15 +119,22 @@ SchoolDataSchema.schema.statics = {
 
     aggArgs.push({
       "$group": {
-        "_id":
-          "$" + groupByField,
+        "_id": "$" + qConfig.getGroupByField(),
         "data": { ["$addToSet"]: { "fiscal_year": "$fiscal_year", "variable": "$variable", "value": "$value" } }
       }
     });
 
-    //sort
-    let normalSort = [{ "$sort": { [sf]: sd } }];
+    //todo: strip out _id again in favor of groupby key to make sort cleaner
 
+    //sort
+
+    let normalSort = [{ "$sort": { [sf]: qConfig.getSortDirection() } }];
+
+    //todo: abstract yearSort into queryConfig object
+    //can do a check in there sortFieldIsYear(), verify that it's a valid date
+
+
+    //here we build an index to rank the values of each entry in the data arrays
     let yearSort = [
       {
         $addFields: {
@@ -142,14 +144,14 @@ SchoolDataSchema.schema.statics = {
               as: "val",
               cond: {
                 $and: [
-                  { "$eq": ["$$val.fiscal_year", sf] },
-                  { "$eq": ["$$val.variable", queryConfig.filters.values[0]] }
+                  { "$eq": ["$$val.fiscal_year", sf] }
                 ]
               }
             }
           }
         }
       },
+
       {
         $addFields: {
           'red': {
@@ -162,7 +164,7 @@ SchoolDataSchema.schema.statics = {
         }
       },
       {
-        $sort: { 'red': sd }
+        $sort: { 'red': qConfig.getSortDirection() }
       }
     ]
 
@@ -170,7 +172,12 @@ SchoolDataSchema.schema.statics = {
 
     aggArgs.push({
       $facet: {
-        results: [...sortArg, { "$skip": start }, { "$limit": stop }, { "$project": { [queryConfig.groupBy.variable]: '$_id', data: 1, '_id': 0 } }],
+        results: [
+          ...sortArg,
+          { "$skip": qConfig.getPageOffset() },
+          { "$limit": qConfig.getPageLimit() },
+          { "$project": { [queryConfig.groupBy.variable]: '$_id', data: 1, '_id': 0 } }
+        ],
         totalCount: [{ $count: 'count' }]
       }
     });
@@ -180,13 +187,19 @@ SchoolDataSchema.schema.statics = {
         let result = res.pop();
         let ret = { query: queryConfig, data: result.results };
         ret.query.pagination.total = result.totalCount.length > 0 ? result.totalCount.pop().count : 0;
-        if (queryConfig.inflationAdjusted == "true") {
+        if (queryConfig.inflationAdjusted) {
           return getInflationAdjuster().then(adjust => {
             ret.data.forEach(datum => datum.data.forEach(item => item.value = adjust(item.fiscal_year, item.value)))
             return ret
           });
         } else return ret;
       });
-  }
+  },
 
+  fetch(unitids: string[], variables: string[]): Promise<intSchoolDataSchema[]> {
+    if(!_.isArray(unitids)) unitids = [unitids]; 
+    return SchoolDataSchema.find({
+      'unitid': {'$in' : unitids}, 'variable': { '$in': variables }
+    }).exec();
+  }
 }

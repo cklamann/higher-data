@@ -1,4 +1,4 @@
-import { intChartExport, intChartExportDataParentModel } from '../../../../../server/src/models/ChartExporter';
+import { intChartExport, intChartExportDataParentModel } from '../../../../../server/src/modules/ChartExporter.module';
 import { intFormulaParserResult } from '../../../../../server/src/modules/FormulaParser.module';
 import * as _ from 'lodash';
 import * as d3 from 'd3';

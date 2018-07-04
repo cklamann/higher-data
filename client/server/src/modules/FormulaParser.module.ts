@@ -1,5 +1,5 @@
 import { SchoolSchema, intSchoolModel } from '../schemas/SchoolSchema';
-import { intQueryConfig } from '../types/types';
+import { intSchoolDataSchema } from '../schemas/SchoolDataSchema'
 import { SchoolDataSchema, intSchoolDataModel, intVarExport, intSchoolBaseDataModel } from '../schemas/SchoolDataSchema';
 import { VariableDefinitionSchema, intVariableDefinitionSchema } from '../schemas/VariableDefinitionSchema';
 import * as M from 'mathjs';
@@ -15,27 +15,8 @@ export class FormulaParser {
 	cleanFormula: string;
 	symbolNodes: string[];
 	optionalSymbolNodes: string[];
-	//todo: make query config its own class...
-	queryConfig: intQueryConfig = {
-		matches: [],
-		sort: {
-			direction: '',
-			field: 'fiscal_year'
-		},
-		pagination: {
-			page: 1,
-			perPage: 10000
-		},
-		inflationAdjusted: "false",
-		filters: {
-			fieldName: 'variable',
-			values: []
-		},
-		groupBy: {
-			variable: 'name',
-			aggFunc: ''
-		}
-	}
+
+	//todo: use regular query, not agg, since we're pulling several fields
 
 	constructor(formula: string) {
 		this.formula = formula;
@@ -77,11 +58,13 @@ export class FormulaParser {
 	}
 
 	public execute(unitid: string): Promise<intFormulaParserResult[]> {
-		this.queryConfig.filters.values = this.symbolNodes;
-		this.queryConfig.matches.push({ unitid })
-		return SchoolDataSchema.schema.statics.fetchAggregate(this.queryConfig)
-			.then((exp: intVarExport) => {
-				const data = exp.data[0] ? exp.data[0].data : [],
+		return SchoolDataSchema.schema.statics.fetch(unitid,this.symbolNodes)
+			.then((result: intSchoolDataSchema[]) => {
+				const data = result ? result.map(item => {
+					return {fiscal_year: item.fiscal_year, 
+							variable: item.variable, 
+							value: item.value}
+						}) : [],
 					fullData = this._fillMissingOptionalData(data),
 					transformedData = this._transformModelForFormula(fullData);
 				return this._evaluate(transformedData);

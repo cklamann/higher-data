@@ -3,7 +3,7 @@ import { SchoolDataSchema } from '../schemas/SchoolDataSchema';
 import { VariableDefinitionSchema, intVariableDefinitionSchema } from '../schemas/VariableDefinitionSchema';
 import { Router, Response, Request, NextFunction } from "express";
 import { intChartModel } from '../schemas/ChartSchema';
-import { ChartExport } from '../models/ChartExporter';
+import { ChartExport } from '../modules/ChartExporter.module';
 import * as passport from 'passport';
 
 let mongoose = require("mongoose");

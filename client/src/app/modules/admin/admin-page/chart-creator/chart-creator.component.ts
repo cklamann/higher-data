@@ -6,7 +6,7 @@ import { Charts } from '../../../../models/Charts';
 import { Categories } from '../../../../models/Categories';
 import { VariableDefinitionSelectComponent } from '../../../shared/variable-definition-select/variable-definition-select.component';
 import { intSchoolModel } from '../../../../../../server/src/schemas/SchoolSchema';
-import { intChartExport } from '../../../../../../server/src/models/ChartExporter';
+import { intChartExport } from '../../../../../../server/src/modules/ChartExporter.module';
 import { UtilService } from '../../../../services/util/util';
 
 import * as _ from 'lodash';
