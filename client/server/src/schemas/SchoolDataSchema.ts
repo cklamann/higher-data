@@ -1,6 +1,6 @@
 import { model, Schema, Document, Model } from 'mongoose';
 import { getInflationAdjuster } from '../modules/InflationAdjuster.service';
-import { AggQueryConfig, intAggQueryConfig } from '../modules/AggQueryConfig.module';
+import { SchoolDataAggQuery, intSchoolDataAggQuery, SchoolDataQuery, intSchoolDataQuery } from '../modules/SchoolDataQuery.module';
 import * as _ from 'lodash';
 
 export interface intSchoolBaseDataModel {
@@ -17,7 +17,7 @@ export interface intSchoolDataModel extends intSchoolBaseDataModel {
 };
 
 export interface intVarExport {
-  query: intAggQueryConfig;
+  query: intSchoolDataAggQuery;
   data: intSchoolDataQueryDataResult[];
 }
 
@@ -80,9 +80,9 @@ SchoolDataSchema.schema.statics = {
     return SchoolDataSchema.distinct('variable').exec();
   },
 
-  fetchAggregate: (queryConfig: intAggQueryConfig): Promise<intVarExport> => {
+  fetchAggregate: (queryConfig: intSchoolDataAggQuery): Promise<intVarExport> => {
 
-    const qConfig = new AggQueryConfig(queryConfig),
+    const qConfig = new SchoolDataAggQuery(queryConfig),
       sf = _.toNumber(qConfig.getSortField()) ? qConfig.getSortField() : "_id";
 
     // then qC.verify(), aggArgs.push(qC.getMatches()), aggArgs.push(qC.getSort()), etc. 
@@ -90,11 +90,8 @@ SchoolDataSchema.schema.statics = {
     let aggArgs: object[] = [];
 
     //filter out unneeded fields
-    aggArgs.push({
-      "$match": {
-        "$and": qConfig.getMatches().concat([{ "variable": { "$in": [qConfig.getVariable()] } }])
-      }
-    });
+
+    aggArgs.push(qConfig.getMatchArgs());
 
     //2 $groups -> first, reduce and groupby, then group results into 'data' array
     aggArgs.push({
@@ -196,10 +193,12 @@ SchoolDataSchema.schema.statics = {
       });
   },
 
-  fetch(unitids: string[], variables: string[]): Promise<intSchoolDataSchema[]> {
-    if(!_.isArray(unitids)) unitids = [unitids]; 
-    return SchoolDataSchema.find({
-      'unitid': {'$in' : unitids}, 'variable': { '$in': variables }
-    }).exec();
+  fetch(dq:SchoolDataQuery): Promise<intSchoolDataSchema[]> {
+    return SchoolDataSchema
+            .find(dq.getMatchArgs())
+            .sort(dq.getSortArgs())
+            .skip(dq.getSkipArgs())
+            .limit(dq.getLimitArgs())
+            .exec();
   }
 }
