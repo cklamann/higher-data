@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { trigger, state, style, animate, transition } from '@angular/animations';
 import { MatPaginator, MatSort, MatTableDataSource, PageEvent, MatInput } from '@angular/material';
 import { intVarExport } from '../../../../../server/src/schemas/SchoolDataSchema';
-import { intAggQueryConfig, AggQueryConfig } from '../../../../../server/src/modules/AggQueryConfig.module';
+import { intSchoolDataAggQuery } from '../../../../../server/src/modules/SchoolDataQuery.module';
 import { RestService } from '../../../services/rest/rest.service';
 import { Schools } from '../../../models/Schools';
 import { Observable } from 'rxjs';
@@ -105,7 +105,7 @@ export class TablePageComponent implements OnInit {
 		})
 
 		this.tableOptionsForm.valueChanges
-			.distinctUntilChanged((prev, curr) => this._onlyMatchChanged(prev, curr))
+			.distinctUntilChanged((prev, curr) => this._onlyNameSearchChanged(prev, curr))
 			.subscribe(change => this.query() );
 	}
 
@@ -177,11 +177,16 @@ export class TablePageComponent implements OnInit {
 	query() {
 		this._validateGroupByFields();
 		if (!this.tableOptionsForm.valid) return;
-		let input = this._transformQuery(this.tableOptionsForm.value);
+
+		let input = this._transformQuery();
+
 		this.openLoadingDialog();
+		
+
+
 		this.schools.fetchAggregate(input)
 			.map((res: intVarExport) => {
-				return new VariableDataSource(res);
+				return new VariableDataSource(res); //pass in type, keycol, and res
 			})
 			.debounceTime(500)
 			.subscribe(resp => {
@@ -243,22 +248,24 @@ export class TablePageComponent implements OnInit {
 		} else return data;
 	}
 
-	private _onlyMatchChanged(prev: intTableOptionsForm, curr: intTableOptionsForm): boolean {
+	//don't submit when user types something in the box, wait for button press
+	private _onlyNameSearchChanged(prev: intTableOptionsForm, curr: intTableOptionsForm): boolean {
 		const formBezMatch = [prev, curr].map(form => Object.entries(form))
 			.map(pairs => pairs.filter(item => item[0] != 'match'));
 
 		return _.isEqual(formBezMatch[0], formBezMatch[1]);
 	}
 
-	private _transformMatches(match: string) {
+	private _transformNameSearch(match: string) {
 		const regex = `.+${match}.+|${match}+.|.+${match}|${match}`,
 			arg = match ? regex : `.+`;
 		return { [this.tableOptionsForm.value.groupBy.variable]: { '$regex': arg, '$options': 'is' } };
 	};
 
-	private _transformQuery(form: intTableOptionsForm): intAggQueryConfig {
-		let qc = <intAggQueryConfig>this.util.assignToOwnProps(AggQueryConfig.create(), form);
-		qc.matches = [this._transformMatches(form.nameSearch)];
+	private _transformQuery(): intSchoolDataAggQuery | intQueryConfig {
+		const config = this.isAggregateForm.value ? SchoolDataAggQuery.create() : QueryConfig.create(); 
+		let qc = <intSchoolDataAggQuery | intQueryConfig>this.util.assignToOwnProps(config, this.tableOptionsForm.value);
+		qc.matches = [this._transformNameSearch(this.tableOptionsForm.value.nameSearch)];
 		return qc;
 	}
 

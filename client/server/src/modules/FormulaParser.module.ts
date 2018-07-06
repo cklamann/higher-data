@@ -2,6 +2,7 @@ import { SchoolSchema, intSchoolModel } from '../schemas/SchoolSchema';
 import { intSchoolDataSchema } from '../schemas/SchoolDataSchema'
 import { SchoolDataSchema, intSchoolDataModel, intVarExport, intSchoolBaseDataModel } from '../schemas/SchoolDataSchema';
 import { VariableDefinitionSchema, intVariableDefinitionSchema } from '../schemas/VariableDefinitionSchema';
+import { SchoolDataQuery } from '../modules/schooldataQuery.module';
 import * as M from 'mathjs';
 import * as _ from 'lodash';
 
@@ -15,8 +16,6 @@ export class FormulaParser {
 	cleanFormula: string;
 	symbolNodes: string[];
 	optionalSymbolNodes: string[];
-
-	//todo: use regular query, not agg, since we're pulling several fields
 
 	constructor(formula: string) {
 		this.formula = formula;
@@ -58,7 +57,10 @@ export class FormulaParser {
 	}
 
 	public execute(unitid: string): Promise<intFormulaParserResult[]> {
-		return SchoolDataSchema.schema.statics.fetch(unitid,this.symbolNodes)
+		let qc = SchoolDataQuery.createBase();
+		qc.addMatch('unitid',unitid);
+		qc.addMatch('variable', this.symbolNodes);
+		return SchoolDataSchema.schema.statics.fetch(qc)
 			.then((result: intSchoolDataSchema[]) => {
 				const data = result ? result.map(item => {
 					return {fiscal_year: item.fiscal_year, 

@@ -5,6 +5,17 @@ import { sectors } from '../data/sectors';
 import * as _ from 'lodash';
 import * as d3 from 'd3';
 
+/*
+	- todo: refactor into SchoolDataTableSource
+		- can be either aggregate (aggVariable as key) or single (name as key), always one var
+		- will output the same data structure (as needed for table)
+		- in the future, we should be able to pass it a single school and all its data, with
+		  variables as keys
+
+	  so: it needs 1) the data and 2) a key field passed to constructor
+*/
+
+
 interface inputData {
 	fiscal_year: string,
 	value: string,

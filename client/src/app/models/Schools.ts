@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { intSchoolModel } from '../../../server/src/schemas/SchoolSchema';
 import { intVarExport } from '../../../server/src/schemas/SchoolDataSchema';
-import { intAggQueryConfig } from '../../../server/src/modules/AggQueryConfig.module';
+import { intSchoolDataAggQuery } from '../../../server/src/modules/SchoolDataQuery.module';
 import { RestService } from '../services/rest/rest.service';
 import { Observable } from 'rxjs';
 import { sectors } from '../services/data/sectors';
@@ -23,7 +23,7 @@ export class Schools {
 		});
 	}
 
-	fetchAggregate(params: intAggQueryConfig): Observable<intVarExport> {
+	fetchAggregate(params: intSchoolDataAggQuery): Observable<intVarExport> {
 		return this.rest.post(`schools/aggregateQuery`, params).map(res => {
 			res.data = res.data.map(school => {
 				if(school.name) return new School(school)
