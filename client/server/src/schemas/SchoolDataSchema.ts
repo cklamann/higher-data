@@ -82,6 +82,8 @@ SchoolDataSchema.schema.statics = {
 
   fetchAggregate: (queryConfig: intSchoolDataAggQuery): Promise<intVarExport> => {
 
+    //todo: replace ad-hoc getters with full agg query arg builders
+
     const qConfig = new SchoolDataAggQuery(queryConfig),
       sf = _.toNumber(qConfig.getSortField()) ? qConfig.getSortField() : "_id";
 

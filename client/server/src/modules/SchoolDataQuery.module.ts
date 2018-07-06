@@ -110,9 +110,21 @@ export class SchoolDataQuery {
 		this.inflationAdjusted = status;
 	}
 
+	public setPage(page: number) {
+		this.pagination.page = page;
+	}
+
+	public setPagination(page: number, perPage: number) {
+		this.setPage(page);
+		this.setPerPage(perPage);
+	}
+
 	public setPerPage(amount: number) {
 		this.pagination.perPage = amount;
 	}
+
+
+
 
 	public setOrder(order: string) {
 		const orderChecked = order === 'desc' ? 'desc' : 'asc';

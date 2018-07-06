@@ -44,15 +44,4 @@ router.get('/:schoolSlug/charts/:chartSlug', function(req, res, next) {
 		});
 });
 
-//todo: this should use an include on show route rather than have its own route (convert to get request)
-router.post('/aggregateQuery', function(req, res, next): void {
-	let params: intSchoolDataAggQuery = req.body;
-	SchoolDataSchema.schema.statics.fetchAggregate(params)
-		.then((resp: intVarExport) => {
-			res.json(resp);
-			return;
-		})
-		.catch((err: Error) => next(err));
-});
-
 module.exports = router;
