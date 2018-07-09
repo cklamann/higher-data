@@ -1,10 +1,11 @@
 import * as _ from 'lodash';
 
 export interface intSchoolDataQuery {
-	matches: intMatch[];
+	matches: any[];
 	sort: intQuerySort;
 	pagination: intPaginationArgs;
 	inflationAdjusted: boolean;
+	nameFilter: intNameFilter;
 }
 
 export interface intSchoolDataAggQuery extends intSchoolDataQuery {
@@ -21,6 +22,11 @@ interface intMatch {
 	valuesToMatch: string[]
 }
 
+interface intNameFilter {
+	fieldName: string;
+	value: string;
+}
+
 interface intPaginationArgs {
 	total?: number;
 	page: number;
@@ -35,15 +41,17 @@ interface intQuerySort {
 export class SchoolDataQuery {
 
 	protected inflationAdjusted: boolean;
-	protected matches: intMatch[];
+	protected matches: any[];
 	protected pagination: intPaginationArgs;
 	protected sort: intQuerySort;
+	protected nameFilter: intNameFilter;
 
 	constructor(qConfig: intSchoolDataQuery) {
 		this.inflationAdjusted = qConfig.inflationAdjusted;
 		this.matches = qConfig.matches;
 		this.pagination = qConfig.pagination;
 		this.sort = qConfig.sort;
+		this.nameFilter = qConfig.nameFilter;
 	};
 
 	public static createBase(): SchoolDataQuery {
@@ -57,6 +65,10 @@ export class SchoolDataQuery {
 			pagination: {
 				page: 1,
 				perPage: 25
+			},
+			nameFilter: {
+				fieldName: '',
+				value: ''
 			}
 		});
 	}
@@ -74,12 +86,23 @@ export class SchoolDataQuery {
 		return this.pagination.perPage;
 	}
 
-	public getMatchArgs() {
-		return {
+	public getMatchArgs(): object {
+		let matches:any = {
 			'$and': this.matches.map(match => {
 				return { [match.fieldName]: { "$in": match.valuesToMatch } };
 			})
 		};
+		if(this.nameFilter.value){
+			matches.$and.push(this.getNameFilterArgs())
+		}
+		return matches;
+	}
+
+	public getNameFilterArgs(): object {
+		const val = this.nameFilter.value;
+		const regex = `.+${val}.+|${val}+.|.+${val}|${val}`,
+			arg = this.nameFilter.fieldName ? regex : `.+`;
+		return { [this.nameFilter.fieldName]: { '$regex': arg, '$options': 'is' } }
 	}
 
 	public getPageLimit() {
@@ -110,6 +133,11 @@ export class SchoolDataQuery {
 		this.inflationAdjusted = status;
 	}
 
+	public setNameFilter(field:string , val: string = ''): void{
+		this.nameFilter.fieldName = field;
+		this.nameFilter.value = val;
+	}
+
 	public setPage(page: number) {
 		this.pagination.page = page;
 	}
@@ -122,9 +150,6 @@ export class SchoolDataQuery {
 	public setPerPage(amount: number) {
 		this.pagination.perPage = amount;
 	}
-
-
-
 
 	public setOrder(order: string) {
 		const orderChecked = order === 'desc' ? 'desc' : 'asc';
@@ -160,6 +185,10 @@ export class SchoolDataAggQuery extends SchoolDataQuery {
 			pagination: {
 				page: 1,
 				perPage: 25
+			},
+			nameFilter: {
+				fieldName: '',
+				value: ''
 			}
 		});
 	}
@@ -172,14 +201,20 @@ export class SchoolDataAggQuery extends SchoolDataQuery {
 		return this.groupBy.variable;
 	}
 
-	public getMatchArgs(): any {
-		return {
+	public getMatchArgs(): object {
+		let matches:any = {
 			"$match": {
 				"$and": this.matches.map(match => {
 					return { [match.fieldName]: { "$in": match.valuesToMatch } };
 				})
 			}
 		};
+
+		if(this.nameFilter.value){
+			matches.$match.$and.push(this.getNameFilterArgs())
+		}
+
+		return matches;
 	}
 
 	public setGroupBy(variable: string, aggFunc: string) {

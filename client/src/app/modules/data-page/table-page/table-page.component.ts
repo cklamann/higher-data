@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { trigger, state, style, animate, transition } from '@angular/animations';
 import { MatPaginator, MatSort, MatTableDataSource, PageEvent, MatInput } from '@angular/material';
-import { intVarExport } from '../../../../../server/src/schemas/SchoolDataSchema';
+import { intExport, intExportAgg, intSchoolDataModel } from '../../../../../server/src/schemas/SchoolDataSchema';
 import { intSchoolDataAggQuery } from '../../../../../server/src/modules/SchoolDataQuery.module';
 import { RestService } from '../../../services/rest/rest.service';
 import { Schools } from '../../../models/Schools';
@@ -10,7 +10,7 @@ import { Observable } from 'rxjs';
 import { MatToolbar, MatToolbarRow } from '@angular/material/toolbar';
 import { FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
 import { UtilService } from '../../../services/util/util';
-import { VariableDataSource, intVarDataSourceExport } from '../../../services/variableDataSource/variableDataSource';
+import { SchoolDataSource, SchoolDataSourceAgg, intVarDataSourceExport } from '../../../services/SchoolDataSource/SchoolDataSource';
 import { intVariableDefinitionModel } from '../../../../../server/src/schemas/VariableDefinitionSchema';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { ModalLoadingComponent } from '../../shared/modals/loading/loading.component';
@@ -21,7 +21,7 @@ import 'rxjs/add/operator/map';
 
 
 interface intTableOptionsForm {
-	nameSearch: string | null,
+	searchBox: string,
 	sort: {
 		field: string,
 		direction: string
@@ -77,8 +77,11 @@ export class TablePageComponent implements OnInit {
 			isAggregate: false
 		});
 
+		//todo: get rid of nested stuff -- unnecessary now that we're flattening it
+		//rename fields to what be transformer expects, then just .toString them all
+
 		this.tableOptionsForm = this.fb.group({
-			nameSearch: '',
+			searchBox: '',
 			sort: {
 				field: '',
 				direction: ''
@@ -106,7 +109,7 @@ export class TablePageComponent implements OnInit {
 
 		this.tableOptionsForm.valueChanges
 			.distinctUntilChanged((prev, curr) => this._onlyNameSearchChanged(prev, curr))
-			.subscribe(change => this.query() );
+			.subscribe(change => this.query());
 	}
 
 	getDataTotal() {
@@ -125,8 +128,8 @@ export class TablePageComponent implements OnInit {
 		return this.visibleColumns[this.visibleColumns.length - 1] !== this._columns[this._columns.length - 1];
 	}
 
-	getShowMatchesForm() {
-		return !!this.tableOptionsForm.get('variable');
+	getShowSearchBox() {
+		return !!this.tableOptionsForm.get('variable') && !this.isAggregateForm.get('isAggregate');
 	}
 
 	getTableIsCurrency() {
@@ -178,22 +181,22 @@ export class TablePageComponent implements OnInit {
 		this._validateGroupByFields();
 		if (!this.tableOptionsForm.valid) return;
 
-		let input = this._transformQuery();
+		let queryString = this._transformQuery();
 
 		this.openLoadingDialog();
-		
 
-
-		this.schools.fetchAggregate(input)
-			.map((res: intVarExport) => {
-				return new VariableDataSource(res); //pass in type, keycol, and res
+		this.schools.fetchData(queryString)
+			.map((res: any) => {
+				if (this.isAggregateForm.get('isAggregate')) {
+					return new SchoolDataSourceAgg(res, this.tableOptionsForm.value.groupBy.variable);
+				} else return new SchoolDataSource(res, 'name');
 			})
 			.debounceTime(500)
 			.subscribe(resp => {
 				this.dialog.closeAll();
-				if (!_.isEmpty(resp.export.data)) {
+				if (!_.isEmpty(resp)) {
 					this.matTableDataSource.data = this._formatValues(resp.export.data);
-					this._dataTotal = resp.export.pagination.total;
+					this._dataTotal = resp.export.total;
 					this._columns = resp.getColumns();
 					this.setVisibleColumns();
 					this.showTable = true;
@@ -251,22 +254,32 @@ export class TablePageComponent implements OnInit {
 	//don't submit when user types something in the box, wait for button press
 	private _onlyNameSearchChanged(prev: intTableOptionsForm, curr: intTableOptionsForm): boolean {
 		const formBezMatch = [prev, curr].map(form => Object.entries(form))
-			.map(pairs => pairs.filter(item => item[0] != 'match'));
+			.map(pairs => pairs.filter(item => item[0] != 'searchBox'));
 
 		return _.isEqual(formBezMatch[0], formBezMatch[1]);
 	}
 
-	private _transformNameSearch(match: string) {
-		const regex = `.+${match}.+|${match}+.|.+${match}|${match}`,
-			arg = match ? regex : `.+`;
-		return { [this.tableOptionsForm.value.groupBy.variable]: { '$regex': arg, '$options': 'is' } };
-	};
-
-	private _transformQuery(): intSchoolDataAggQuery | intQueryConfig {
-		const config = this.isAggregateForm.value ? SchoolDataAggQuery.create() : QueryConfig.create(); 
-		let qc = <intSchoolDataAggQuery | intQueryConfig>this.util.assignToOwnProps(config, this.tableOptionsForm.value);
-		qc.matches = [this._transformNameSearch(this.tableOptionsForm.value.nameSearch)];
-		return qc;
+	private _transformQuery(): string {
+		let qs = '',
+			vals = this.tableOptionsForm.value;
+		qs += `match1var=variable&match1vals=${vals.variable}`;
+		if (vals.pagination.page) qs += `&page=${vals.pagination.page}`;
+		if (vals.pagination.perPage) qs += `&perPage=${vals.pagination.perPage}`;
+		if (vals.sort.field) qs += `&sort=${vals.field}`;
+		if (vals.sort.direction) qs += `&order=${vals.direction}`;
+		if (vals.inflationAdjusted) qs += `&ia=true`;
+		if (this.isAggregateForm.value.isAggregate) {
+			qs += `&type=aggregate`;
+			qs += `&gbField=${vals.groupBy.variable}`;
+			qs += `&gbFunc=${vals.groupBy.aggFunc}`;
+			qs += `&qField=${vals.groupBy.variable}`;
+		} else {
+			if (vals.searchBox) {
+				qs += `&qField=name`;
+				qs += `&qVal=${vals.searchBox}`;
+			}
+		}
+		return qs;
 	}
 
 	private _updateGroupByFields() {

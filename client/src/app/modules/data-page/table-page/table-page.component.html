@@ -83,9 +83,9 @@
 						{{variable.friendlyName}}
 					</div>
 				</div>
-				<div *ngIf = "getShowMatchesForm()" fxFlex="100" fxFlex.gt-sm = "75" class = "filter-form" [formGroup]="tableOptionsForm">
+				<div *ngIf = "getShowSearchBox()" fxFlex="100" fxFlex.gt-sm = "75" class = "filter-form" [formGroup]="tableOptionsForm">
 					<mat-form-field>
-						<input matInput type="text" placeholder="filter" formControlName="nameSearch">	
+						<input matInput type="text" placeholder="filter" formControlName="searchBox">	
 					</mat-form-field>
 					<button mat-button class = "mat-button" (click)="query()">set filter</button>
 				</div>

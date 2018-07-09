@@ -16,10 +16,16 @@ export interface intSchoolDataModel extends intSchoolBaseDataModel {
   unitid: string
 };
 
-export interface intVarExport {
+export interface intExportAgg {
   query: intSchoolDataAggQuery;
   data: intSchoolDataQueryDataResult[];
 }
+
+export interface intExport {
+  data: intSchoolDataSchema[], 
+  total: number
+}
+
 
 interface intSchoolDataQueryResult {
   totalCount: {
@@ -80,7 +86,7 @@ SchoolDataSchema.schema.statics = {
     return SchoolDataSchema.distinct('variable').exec();
   },
 
-  fetchAggregate: (queryConfig: intSchoolDataAggQuery): Promise<intVarExport> => {
+  fetchAggregate: (queryConfig: intSchoolDataAggQuery): Promise<intExportAgg> => {
 
     //todo: replace ad-hoc getters with full agg query arg builders
 
@@ -195,12 +201,25 @@ SchoolDataSchema.schema.statics = {
       });
   },
 
-  fetch(dq:SchoolDataQuery): Promise<intSchoolDataSchema[]> {
+  fetch(dq: SchoolDataQuery): Promise<{ data: intSchoolDataSchema[], total: number }> {
     return SchoolDataSchema
-            .find(dq.getMatchArgs())
-            .sort(dq.getSortArgs())
-            .skip(dq.getSkipArgs())
-            .limit(dq.getLimitArgs())
-            .exec();
-  }
+      .find(dq.getMatchArgs())
+      .sort(dq.getSortArgs())
+      .count()
+      .exec()
+      .then(res => {
+        return SchoolDataSchema
+          .find(dq.getMatchArgs())
+          .sort(dq.getSortArgs())
+          .skip(dq.getSkipArgs())
+          .limit(dq.getLimitArgs())
+          .exec()
+          .then(resp => {
+            return {
+              total: res,
+              data: resp
+            };
+          })
+      });
+  },
 }
