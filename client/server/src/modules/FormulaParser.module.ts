@@ -1,5 +1,5 @@
 import { SchoolSchema, intSchoolModel } from '../schemas/SchoolSchema';
-import { intSchoolDataSchema } from '../schemas/SchoolDataSchema'
+import { intSchoolDataSchema, intSchoolDataBaseQueryResult } from '../schemas/SchoolDataSchema'
 import { SchoolDataSchema, intSchoolDataModel, intExportAgg, intSchoolBaseDataModel } from '../schemas/SchoolDataSchema';
 import { VariableDefinitionSchema, intVariableDefinitionSchema } from '../schemas/VariableDefinitionSchema';
 import { SchoolDataQuery } from '../modules/SchoolDataQuery.module';
@@ -61,8 +61,8 @@ export class FormulaParser {
 		qc.addMatch('unitid',unitid);
 		qc.addMatch('variable', this.symbolNodes);
 		return SchoolDataSchema.schema.statics.fetch(qc)
-			.then((result: intSchoolDataSchema[]) => {
-				const data = result ? result.map(item => {
+			.then((result: intSchoolDataBaseQueryResult) => {
+				const data = result ? result.data.map(item => {
 					return {fiscal_year: item.fiscal_year, 
 							variable: item.variable, 
 							value: item.value}

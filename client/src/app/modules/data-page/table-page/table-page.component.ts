@@ -79,29 +79,29 @@ export class TablePageComponent implements OnInit {
 		this.tableOptionsForm = this.fb.group({
 			searchBox: '',
 			sort: {
-				field: '',
-				direction: ''
+				field: 'name',
+				direction: 'asc'
 			},
 			pagination: this.fb.group({
 				page: 1,
 				perPage: 10
 			}, { validator: Validators.required }),
 			groupBy: this.fb.group({
-				aggFunc: new FormControl('addToSet', Validators.required),
+				aggFunc: new FormControl('first', Validators.required),
 				variable: new FormControl('name', Validators.required)
 			}),
 			inflationAdjusted: false,
-			variable: ''
+			variable: new FormControl('', Validators.required)
 		});
 	}
 
 	private _subscribeToForms() {
 
 		this.isAggregateForm.valueChanges
-			.subscribe( val => {
-				if(!val){
+			.subscribe( change => {
+				if(!change.isAggregate){
 					this.tableOptionsForm.get('groupBy').patchValue({
-						aggFunc: 'addToSet',
+						aggFunc: 'first',
 						variable: 'name'
 					});
 				} else this.tableOptionsForm.get('groupBy').reset();
@@ -129,7 +129,7 @@ export class TablePageComponent implements OnInit {
 	}
 
 	getShowSearchBox() {
-		return !!this.tableOptionsForm.get('variable') && !this.isAggregateForm.get('isAggregate');
+		return !!this.tableOptionsForm.get('variable').value && !this.isAggregateForm.get('isAggregate').value;
 	}
 
 	getTableIsCurrency() {
@@ -266,9 +266,9 @@ export class TablePageComponent implements OnInit {
 		qs += `&qField=${vals.groupBy.variable}`;
 		if (vals.pagination.page) qs += `&page=${vals.pagination.page}`;
 		if (vals.pagination.perPage) qs += `&perPage=${vals.pagination.perPage}`;
-		if (vals.sort.field) qs += `&sort=${vals.field}`;
-		if (vals.sort.direction) qs += `&order=${vals.direction}`;
-		if (vals.inflationAdjusted) qs += `&ia=true`;
+		if (vals.sort.field) qs += `&sort=${vals.sort.field}`;
+		if (vals.sort.direction) qs += `&order=${vals.sort.direction}`;
+		if (vals.inflationAdjusted) qs += `&ia=${vals.inflationAdjusted}`;
 		if (vals.searchBox) {
 			qs += `&qField=${vals.groupBy.variable}`;
 			qs += `&qVal=${vals.searchBox}`;

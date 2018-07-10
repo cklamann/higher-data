@@ -14,9 +14,9 @@ export interface intSchoolQueryArgs {
 	match3vals?: string;
 	sort?: string;
 	order?: string;
-	ia?: boolean,
-	page?: number,
-	perPage?: number
+	ia?: string;
+	page?: string;
+	perPage?: string;
 }
 
 export interface intSchoolAggQueryArgs extends intSchoolQueryArgs {

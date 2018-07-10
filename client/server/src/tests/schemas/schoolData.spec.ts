@@ -71,21 +71,26 @@ describe('School Data Schema', function() {
 		});
 	});
 
-	describe('fetch room_and_board for kansas and missouri schools, sort desc by 2007, 50 per page', function() {
-		it('should retrieve only schools requested', function(done) {
+	describe('fetch room_and_board for kansas and missouri schools, sort desc by 2007, 50 per page, group by name', function() {
+		it('should retrieve only schools requested with correct sorting (year sort on name)', function(done) {
 			const qc = SchoolDataAggQuery.createAgg();
 			qc.addMatch('variable', 'room_and_board');
 			qc.addMatch('state', ['KS', 'MO']);
-			qc.setGroupBy('name', 'addToSet')
+			qc.setGroupBy('name', 'first')
 			qc.setPerPage(50);
 			qc.setSortField('2007');
 			qc.setOrder('desc');
 			SchoolDataSchema.schema.statics.fetchAggregate(qc)
 				.then(res => {
 					expect(res).to.exist;
-					expect(res).to.be.an('object');
 					expect(res.data.length).to.equal(50);
 					expect(res.data.every(datum => datum.data.every(item => item.variable === 'room_and_board'))).to.be.true;
+					res.data.forEach((datum, i) => {
+						if (i < res.data.length - 1) {
+							expect(+datum.data.find(item => item.fiscal_year === '2007').value)
+								.to.be.at.least(+res.data[i + 1].data.find(item => item.fiscal_year === '2007').value);
+						}
+					});
 					done();
 				}).catch(err => done(err));
 		});
@@ -112,7 +117,7 @@ describe('School Data Schema', function() {
 					//sort test
 					res.data.forEach((datum, i) => {
 						if (i < res.data.length - 1) {
-							expect(+datum.sector).to.be.lessThan(+res.data[i + 1].sector);
+							expect(+datum.sector).to.be.greaterThan(+res.data[i + 1].sector);
 						}
 					});
 					done();
@@ -160,7 +165,7 @@ describe('School Data Schema', function() {
 					res.data.forEach((datum, i) => {
 						if (i < res.data.length - 1) {
 							expect(datum.data.find(item => item.fiscal_year == "2008" && item.variable === 'room_and_board').value)
-								.to.be.at.least(res.data[i + 1].data.find((item: any) => item.fiscal_year === "2008" && item.variable === 'room_and_board').value);
+								.to.be.at.most(res.data[i + 1].data.find((item: any) => item.fiscal_year === "2008" && item.variable === 'room_and_board').value);
 						}
 					});
 					done();

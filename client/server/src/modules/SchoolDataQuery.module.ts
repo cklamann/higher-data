@@ -122,15 +122,15 @@ export class SchoolDataQuery {
 	}
 
 	public getSortDirection() {
-		return this.sort.direction === 'asc' ? -1 : 1;
+		return this.sort.direction === 'asc' ? 1 : -1;
 	}
 
 	public getSortField() {
 		return this.sort.field;
 	}
 
-	public setInflationAdjusted(status: boolean) {
-		this.inflationAdjusted = status;
+	public setInflationAdjusted(status: string) {
+		this.inflationAdjusted = status === "true" ? true : false;
 	}
 
 	public setNameFilter(field: string, val: string = ''): void {
@@ -152,8 +152,7 @@ export class SchoolDataQuery {
 	}
 
 	public setOrder(order: string) {
-		const orderChecked = order === 'desc' ? 'desc' : 'asc';
-		this.sort.direction = orderChecked;
+		this.sort.direction = order === 'desc' ? 'desc' : 'asc';
 	}
 
 	public setSortField(field: string) {
@@ -194,7 +193,7 @@ export class SchoolDataAggQuery extends SchoolDataQuery {
 	}
 
 	public getGroupByFunc() {
-		return this.groupBy.aggFunc ? this.groupBy.aggFunc : 'addToSet';
+		return this.groupBy.aggFunc ? this.groupBy.aggFunc : 'first';
 	}
 
 	public getGroupByField() {

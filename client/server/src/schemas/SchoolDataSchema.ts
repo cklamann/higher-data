@@ -97,8 +97,6 @@ SchoolDataSchema.schema.statics = {
     const qConfig = new SchoolDataAggQuery(queryConfig),
       sf = _.toNumber(qConfig.getSortField()) ? qConfig.getSortField() : "_id";
 
-    // then qC.verify(), aggArgs.push(qC.getMatches()), aggArgs.push(qC.getSort()), etc. 
-
     let aggArgs: object[] = [];
 
     //filter out unneeded fields
@@ -170,7 +168,7 @@ SchoolDataSchema.schema.statics = {
             '$reduce': {
               input: "$idx",
               initialValue: 0,
-              in: { "$sum": ["$$value", "$$this.value"] }
+              in: { "$add": ["$$value", "$$this.value"] } //problem is that addToSet on groupby returns array, not val
             }
           }
         }
@@ -188,7 +186,7 @@ SchoolDataSchema.schema.statics = {
           ...sortArg,
           { "$skip": qConfig.getPageOffset() },
           { "$limit": qConfig.getPageLimit() },
-          { "$project": { [qConfig.getGroupByField()]: '$_id', data: 1, '_id': 0 } }
+          { "$project": { [qConfig.getGroupByField()]: '$_id', data: 1, '_id': 0} }
         ],
         totalCount: [{ $count: 'count' }]
       }
