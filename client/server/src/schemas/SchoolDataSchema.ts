@@ -22,8 +22,12 @@ export interface intExportAgg {
 }
 
 export interface intExport {
-  data: intSchoolDataSchema[], 
+  data: intSchoolDataSchema[],
   total: number
+}
+
+export interface intSchoolDataBaseQueryResult { 
+  data: intSchoolDataSchema[], total: number
 }
 
 
@@ -111,7 +115,6 @@ SchoolDataSchema.schema.statics = {
       }
     });
 
-    //strip out id
     aggArgs.push({
       $project: {
         [qConfig.getGroupByField()]: "$_id." + qConfig.getGroupByField(),
@@ -129,7 +132,11 @@ SchoolDataSchema.schema.statics = {
       }
     });
 
-    //todo: strip out _id again in favor of groupby key to make sort cleaner
+    aggArgs.push({
+      "$match": {
+        "_id": { "$regex": qConfig.getNameFilterRegex(), '$options': 'ig' }
+      }
+    });
 
     //sort
 
@@ -181,7 +188,7 @@ SchoolDataSchema.schema.statics = {
           ...sortArg,
           { "$skip": qConfig.getPageOffset() },
           { "$limit": qConfig.getPageLimit() },
-          { "$project": { [queryConfig.groupBy.variable]: '$_id', data: 1, '_id': 0 } }
+          { "$project": { [qConfig.getGroupByField()]: '$_id', data: 1, '_id': 0 } }
         ],
         totalCount: [{ $count: 'count' }]
       }
@@ -201,7 +208,7 @@ SchoolDataSchema.schema.statics = {
       });
   },
 
-  fetch(dq: SchoolDataQuery): Promise<{ data: intSchoolDataSchema[], total: number }> {
+  fetch(dq: SchoolDataQuery): Promise<intSchoolDataBaseQueryResult> {
     return SchoolDataSchema
       .find(dq.getMatchArgs())
       .sort(dq.getSortArgs())

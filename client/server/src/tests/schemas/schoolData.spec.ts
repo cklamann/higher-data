@@ -1,4 +1,4 @@
-import { SchoolDataSchema, intSchoolDataSchema, intVarExport } from '../../schemas/SchoolDataSchema';
+import { SchoolDataSchema, intSchoolDataSchema, intExportAgg, intSchoolDataBaseQueryResult } from '../../schemas/SchoolDataSchema';
 import { SchoolSchema } from '../../schemas/SchoolSchema';
 import { nwData, nwData_school_data } from '../fixtures/fixtures';
 import { SchoolDataAggQuery, SchoolDataQuery } from '../../modules/SchoolDataQuery.module';
@@ -38,34 +38,54 @@ describe('School Data Schema', function() {
 		});
 	});
 
-	describe('fetch only sector 3', function(){
+	describe('fetch only sector 3', function() {
 		it('should retrieve only schools in sector 3', function(done) {
 			const qc = SchoolDataQuery.createBase();
-			qc.addMatch('sector','3');
+			qc.addMatch('sector', '3');
 			SchoolDataSchema.schema.statics.fetch(qc)
-				.then( (res:intSchoolDataSchema[]) => {
+				.then((res: intSchoolDataBaseQueryResult) => {
 					expect(res).to.exist;
-					expect(res).to.be.an('array');
-					expect(res.every(datum => datum.sector === '3')).to.be.true;
+					expect(res).to.be.an('object');
+					expect(res.data.every(datum => datum.sector === '3')).to.be.true;
 					done();
 				}).catch(err => done(err));
 		});
 	});
 
-	describe('fetch only room_and_board for kansas and missouri, sort desc by sector, 50 per page', function(){
+	describe('fetch only room_and_board for kansas and missouri, sort desc by sector, 50 per page', function() {
 		it('should retrieve only schools requested', function(done) {
 			const qc = SchoolDataQuery.createBase();
 			qc.addMatch('variable', 'room_and_board');
-			qc.addMatch('state', ['KS','MO']);
+			qc.addMatch('state', ['KS', 'MO']);
 			qc.setPerPage(50);
 			qc.setOrder('desc');
 			SchoolDataSchema.schema.statics.fetch(qc)
-				.then( (res:intSchoolDataSchema[]) => {
+				.then((res: intSchoolDataBaseQueryResult) => {
 					expect(res).to.exist;
-					expect(res).to.be.an('array');
-					expect(res.length).to.equal(50);
-					expect(res.every(datum => datum.state === 'KS' || datum.state === 'MO')).to.be.true;
-					expect(res.every(datum => datum.variable === 'room_and_board')).to.be.true;
+					expect(res).to.be.an('object');
+					expect(res.data.length).to.equal(50);
+					expect(res.data.every(datum => datum.state === 'KS' || datum.state === 'MO')).to.be.true;
+					expect(res.data.every(datum => datum.variable === 'room_and_board')).to.be.true;
+					done();
+				}).catch(err => done(err));
+		});
+	});
+
+	describe('fetch room_and_board for kansas and missouri schools, sort desc by 2007, 50 per page', function() {
+		it('should retrieve only schools requested', function(done) {
+			const qc = SchoolDataAggQuery.createAgg();
+			qc.addMatch('variable', 'room_and_board');
+			qc.addMatch('state', ['KS', 'MO']);
+			qc.setGroupBy('name', 'addToSet')
+			qc.setPerPage(50);
+			qc.setSortField('2007');
+			qc.setOrder('desc');
+			SchoolDataSchema.schema.statics.fetchAggregate(qc)
+				.then(res => {
+					expect(res).to.exist;
+					expect(res).to.be.an('object');
+					expect(res.data.length).to.equal(50);
+					expect(res.data.every(datum => datum.data.every(item => item.variable === 'room_and_board'))).to.be.true;
 					done();
 				}).catch(err => done(err));
 		});
@@ -73,22 +93,22 @@ describe('School Data Schema', function() {
 
 	describe('fetch aggregate key sort', function() {
 		it('should retrieve room and board by sector', function(done) {
-			let qc = SchoolDataAggQuery.createAgg(); 
-				qc.setOrder('desc');
-				qc.setSortField('sector');
-				qc.setPerPage(5);
-				qc.setGroupBy('sector','sum');
-				qc.setInflationAdjusted(false);
-				qc.addMatch('variable','room_and_board');
+			let qc = SchoolDataAggQuery.createAgg();
+			qc.setOrder('desc');
+			qc.setSortField('sector');
+			qc.setPerPage(5);
+			qc.setGroupBy('sector', 'sum');
+			qc.setInflationAdjusted(false);
+			qc.addMatch('variable', 'room_and_board');
 
 			SchoolDataSchema.schema.statics.fetchAggregate(qc)
-				.then((res: intVarExport) => {
+				.then((res: intExportAgg) => {
 					expect(res).to.exist;
 					expect(res).to.be.an('object');
 					expect(res).to.have.property('data');
 					expect(res.data[0]).to.have.property('sector');
-					res.data.forEach(datum => expect(datum.data.filter((item: any) => item.variable === "white_p").length).to.equal(0));
-					expect(res.data.every(datum => datum.data.every((item: any) => item.variable === "room_and_board"))).to.equal(true);
+					res.data.forEach(datum => expect(datum.data.filter(item => item.variable === "white_p").length).to.equal(0));
+					expect(res.data.every(datum => datum.data.every(item => item.variable === "room_and_board"))).to.equal(true);
 					//sort test
 					res.data.forEach((datum, i) => {
 						if (i < res.data.length - 1) {
@@ -120,13 +140,17 @@ describe('School Data Schema', function() {
 				},
 				groupBy: {
 					variable: 'sector',
-					aggFunc:  'sum',	
+					aggFunc: 'sum',
+				},
+				nameFilter: {
+					value: '',
+					fieldName: ''
 				},
 				inflationAdjusted: false,
 			});
 
 			SchoolDataSchema.schema.statics.fetchAggregate(qc)
-				.then((res: intVarExport) => {
+				.then((res: intExportAgg) => {
 					expect(res).to.exist;
 					expect(res).to.be.an('object');
 					expect(res).to.have.property('data');

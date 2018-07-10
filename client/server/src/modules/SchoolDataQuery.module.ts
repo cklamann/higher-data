@@ -87,12 +87,12 @@ export class SchoolDataQuery {
 	}
 
 	public getMatchArgs(): object {
-		let matches:any = {
+		let matches: any = {
 			'$and': this.matches.map(match => {
 				return { [match.fieldName]: { "$in": match.valuesToMatch } };
 			})
 		};
-		if(this.nameFilter.value){
+		if (this.nameFilter.value) {
 			matches.$and.push(this.getNameFilterArgs())
 		}
 		return matches;
@@ -133,7 +133,7 @@ export class SchoolDataQuery {
 		this.inflationAdjusted = status;
 	}
 
-	public setNameFilter(field:string , val: string = ''): void{
+	public setNameFilter(field: string, val: string = ''): void {
 		this.nameFilter.fieldName = field;
 		this.nameFilter.value = val;
 	}
@@ -194,27 +194,29 @@ export class SchoolDataAggQuery extends SchoolDataQuery {
 	}
 
 	public getGroupByFunc() {
-		return this.groupBy.aggFunc;
+		return this.groupBy.aggFunc ? this.groupBy.aggFunc : 'addToSet';
 	}
 
 	public getGroupByField() {
-		return this.groupBy.variable;
+		return this.groupBy.variable ? this.groupBy.variable : 'name';
 	}
 
 	public getMatchArgs(): object {
-		let matches:any = {
+		let matches: any = {
 			"$match": {
 				"$and": this.matches.map(match => {
 					return { [match.fieldName]: { "$in": match.valuesToMatch } };
 				})
 			}
 		};
-
-		if(this.nameFilter.value){
-			matches.$match.$and.push(this.getNameFilterArgs())
-		}
-
 		return matches;
+	}
+
+	public getNameFilterRegex(): string {
+		const val = this.nameFilter.value;
+		if(val){
+			return `.+${val}.+|${val}+.|.+${val}|${val}`;
+		} else return '.';
 	}
 
 	public setGroupBy(variable: string, aggFunc: string) {

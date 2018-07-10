@@ -1,5 +1,5 @@
 import { SchoolSchema, intSchoolSchema } from '../schemas/SchoolSchema';
-import { SchoolDataSchema, intVarExport } from '../schemas/SchoolDataSchema';
+import { SchoolDataSchema, intExportAgg } from '../schemas/SchoolDataSchema';
 import { intSchoolDataAggQuery } from '../modules/SchoolDataQuery.module';
 import { Router, Response, Request, NextFunction } from "express";
 import { ChartExport, intChartExport } from '../modules/ChartExporter.module';

@@ -1,6 +1,6 @@
 import { SchoolSchema, intSchoolModel } from '../schemas/SchoolSchema';
 import { intSchoolDataSchema } from '../schemas/SchoolDataSchema'
-import { SchoolDataSchema, intSchoolDataModel, intVarExport, intSchoolBaseDataModel } from '../schemas/SchoolDataSchema';
+import { SchoolDataSchema, intSchoolDataModel, intExportAgg, intSchoolBaseDataModel } from '../schemas/SchoolDataSchema';
 import { VariableDefinitionSchema, intVariableDefinitionSchema } from '../schemas/VariableDefinitionSchema';
 import { SchoolDataQuery } from '../modules/SchoolDataQuery.module';
 import * as M from 'mathjs';

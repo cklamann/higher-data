@@ -1,16 +1,13 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { trigger, state, style, animate, transition } from '@angular/animations';
 import { MatPaginator, MatSort, MatTableDataSource, PageEvent, MatInput } from '@angular/material';
 import { intExport, intExportAgg, intSchoolDataModel } from '../../../../../server/src/schemas/SchoolDataSchema';
 import { intSchoolDataAggQuery } from '../../../../../server/src/modules/SchoolDataQuery.module';
-import { RestService } from '../../../services/rest/rest.service';
 import { Schools } from '../../../models/Schools';
-import { Observable } from 'rxjs';
 import { MatToolbar, MatToolbarRow } from '@angular/material/toolbar';
 import { FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
 import { UtilService } from '../../../services/util/util';
-import { SchoolDataSource, SchoolDataSourceAgg, intVarDataSourceExport } from '../../../services/SchoolDataSource/SchoolDataSource';
+import { SchoolDataSourceAgg, intVarDataSourceExport } from '../../../services/SchoolDataSource/SchoolDataSource';
 import { intVariableDefinitionModel } from '../../../../../server/src/schemas/VariableDefinitionSchema';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { ModalLoadingComponent } from '../../shared/modals/loading/loading.component';
@@ -56,7 +53,6 @@ export class TablePageComponent implements OnInit {
 	showTable = false;
 	tableOptionsForm: FormGroup;
 	visibleColumns: string[] = [];
-	private _aggOptionsVisible: boolean = false;
 	private _columns: string[] = [];
 	private _columnIndex: number = 0;
 	private _dataTotal: number = 0;
@@ -91,7 +87,7 @@ export class TablePageComponent implements OnInit {
 				perPage: 10
 			}, { validator: Validators.required }),
 			groupBy: this.fb.group({
-				aggFunc: null,
+				aggFunc: new FormControl('addToSet', Validators.required),
 				variable: new FormControl('name', Validators.required)
 			}),
 			inflationAdjusted: false,
@@ -101,11 +97,15 @@ export class TablePageComponent implements OnInit {
 
 	private _subscribeToForms() {
 
-		this.isAggregateForm.valueChanges.subscribe(() => {
-			this._updateGroupByFields();
-			this._aggOptionsVisible = !this._aggOptionsVisible;
-			this.tableOptionsForm.updateValueAndValidity();
-		})
+		this.isAggregateForm.valueChanges
+			.subscribe( val => {
+				if(!val){
+					this.tableOptionsForm.get('groupBy').patchValue({
+						aggFunc: 'addToSet',
+						variable: 'name'
+					});
+				} else this.tableOptionsForm.get('groupBy').reset();
+			})
 
 		this.tableOptionsForm.valueChanges
 			.distinctUntilChanged((prev, curr) => this._onlyNameSearchChanged(prev, curr))
@@ -117,7 +117,7 @@ export class TablePageComponent implements OnInit {
 	}
 
 	getAggOptionsVisible() {
-		return this._aggOptionsVisible;
+		return this.isAggregateForm.get('isAggregate').value;
 	}
 
 	getLeftArrowVisible() {
@@ -178,7 +178,7 @@ export class TablePageComponent implements OnInit {
 	}
 
 	query() {
-		this._validateGroupByFields();
+
 		if (!this.tableOptionsForm.valid) return;
 
 		let queryString = this._transformQuery();
@@ -187,9 +187,7 @@ export class TablePageComponent implements OnInit {
 
 		this.schools.fetchData(queryString)
 			.map((res: any) => {
-				if (this.isAggregateForm.get('isAggregate')) {
-					return new SchoolDataSourceAgg(res, this.tableOptionsForm.value.groupBy.variable);
-				} else return new SchoolDataSource(res, 'name');
+				return new SchoolDataSourceAgg(res, this.tableOptionsForm.value.groupBy.variable);
 			})
 			.debounceTime(500)
 			.subscribe(resp => {
@@ -263,36 +261,18 @@ export class TablePageComponent implements OnInit {
 		let qs = '',
 			vals = this.tableOptionsForm.value;
 		qs += `match1var=variable&match1vals=${vals.variable}`;
+		qs += `&gbField=${vals.groupBy.variable}`;
+		qs += `&gbFunc=${vals.groupBy.aggFunc}`;
+		qs += `&qField=${vals.groupBy.variable}`;
 		if (vals.pagination.page) qs += `&page=${vals.pagination.page}`;
 		if (vals.pagination.perPage) qs += `&perPage=${vals.pagination.perPage}`;
 		if (vals.sort.field) qs += `&sort=${vals.field}`;
 		if (vals.sort.direction) qs += `&order=${vals.direction}`;
 		if (vals.inflationAdjusted) qs += `&ia=true`;
-		if (this.isAggregateForm.value.isAggregate) {
-			qs += `&type=aggregate`;
-			qs += `&gbField=${vals.groupBy.variable}`;
-			qs += `&gbFunc=${vals.groupBy.aggFunc}`;
+		if (vals.searchBox) {
 			qs += `&qField=${vals.groupBy.variable}`;
-		} else {
-			if (vals.searchBox) {
-				qs += `&qField=name`;
-				qs += `&qVal=${vals.searchBox}`;
-			}
+			qs += `&qVal=${vals.searchBox}`;
 		}
 		return qs;
-	}
-
-	private _updateGroupByFields() {
-		if (this._aggOptionsVisible) {
-			this.tableOptionsForm.get('groupBy').get('aggFunc').setErrors(null);
-			this.tableOptionsForm.get('groupBy').patchValue({ 'variable': 'name', 'aggFunc': null });
-		} else this.tableOptionsForm.get('groupBy').patchValue({ 'variable': null });
-	}
-
-	private _validateGroupByFields() {
-		if (this._aggOptionsVisible
-			&& !this.tableOptionsForm.get('groupBy').get('aggFunc').value) {
-			this.tableOptionsForm.get('groupBy').get('aggFunc').setErrors({ 'required': true });
-		} else this.tableOptionsForm.get('groupBy').get('aggFunc').setErrors(null);
 	}
 }
