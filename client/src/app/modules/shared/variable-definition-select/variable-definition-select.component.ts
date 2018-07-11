@@ -1,4 +1,4 @@
-import { Component, OnInit, QueryList, Output, Input, EventEmitter, OnChanges, SimpleChanges, ViewChildren} from '@angular/core';
+import { Component, OnInit, QueryList, Output, Input, EventEmitter, OnChanges, SimpleChanges, ViewChildren } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSelect, MatOption } from '@angular/material';
 import { VariableDefinitions } from '../../../models/VariableDefinitions';
@@ -29,7 +29,7 @@ export class VariableDefinitionSelectComponent implements OnInit {
 	variables: intVariableDefinitionModel[] = [];
 
 	constructor(private fb: FormBuilder, private VariableDefinitions: VariableDefinitions) {
-		
+
 	}
 
 	ngOnInit() {
@@ -39,13 +39,10 @@ export class VariableDefinitionSelectComponent implements OnInit {
 				this.variables = res;
 				return this.options.changes;
 			})
-			.first()//we are only interested in the initial values
 			.subscribe(change => {
 				if (change.length) {
 					change.forEach(option => {
 						if (option.value && this.urlVariable && option.value.variable == this.urlVariable) {
-							//avoid viewsetaftercheck error
-							//todo: replace with better solution once angular solves it
 							setTimeout(() => {
 								option['_selectViaInteraction']();
 							});
@@ -63,12 +60,35 @@ export class VariableDefinitionSelectComponent implements OnInit {
 		});
 	}
 
+	//todo: get rid of switchmap stuff and use this method everywhere
+	updateForm(vari: string) {
+		if (this.options.length === 0) {
+			this.options.changes.first().subscribe(change => {
+				change.forEach(option => {
+					if (option.value && option.value.variable == vari) {
+						setTimeout(() => {
+							option['_selectViaInteraction']();
+						});
+					}
+				});
+			});
+		} else {
+			this.options.forEach(option => {
+				if (option.value && option.value.variable == vari) {
+					setTimeout(() => {
+						option['_selectViaInteraction']();
+					});
+				}
+			})
+		};
+	}
+
 	listenForSelectChanges(): void {
 		this.VariableDefinitionSelectForm.valueChanges
 			.subscribe(change => {
 				if (this.multi && this.selectMax && change.variable.length >= this.selectMax) {
 					this.options.forEach(option => {
-						if(!option.selected){
+						if (!option.selected) {
 							option.disabled = true;
 						}
 					})

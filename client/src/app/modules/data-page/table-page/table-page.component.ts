@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { MatPaginator, MatSort, MatTableDataSource, PageEvent, MatInput } from '@angular/material';
 import { intExport, intExportAgg, intSchoolDataModel } from '../../../../../server/src/schemas/SchoolDataSchema';
 import { intSchoolDataAggQuery } from '../../../../../server/src/modules/SchoolDataQuery.module';
@@ -12,10 +12,10 @@ import { intVariableDefinitionModel } from '../../../../../server/src/schemas/Va
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { ModalLoadingComponent } from '../../shared/modals/loading/loading.component';
 import { ModalErrorComponent } from '../../shared/modals/error/error.component';
+import { VariableDefinitionSelectComponent } from '../../shared/variable-definition-select/variable-definition-select.component';
 import * as _ from 'lodash';
 import 'rxjs/add/operator/distinctUntilChanged';
 import 'rxjs/add/operator/map';
-
 
 interface intTableOptionsForm {
 	qVal: string,
@@ -40,25 +40,34 @@ export class TablePageComponent implements OnInit {
 
 	@ViewChild('tablePaginator') tablePaginator: MatPaginator;
 	@ViewChild('tableSort') tableSort: MatSort;
+	@ViewChild('varDefSelect') varDefSelect: VariableDefinitionSelectComponent;
 
 	isAggregateForm: FormGroup;
 	matTableDataSource = new MatTableDataSource<intVarDataSourceExport>();
 	selectedVariable: intVariableDefinitionModel;
 	showTable = false;
 	tableOptionsForm: FormGroup;
+	urlVariable: string;
 	visibleColumns: string[] = [];
 	private _columns: string[] = [];
 	private _columnIndex: number = 0;
 	private _dataTotal: number = 0;
 	private _tableOptionsVisible: boolean = false;
 
-	constructor(private schools: Schools, private fb: FormBuilder, private util: UtilService,
-		public dialog: MatDialog, private router: Router) {
+	constructor(private schools: Schools,
+		private fb: FormBuilder,
+		private util: UtilService,
+		public dialog: MatDialog,
+		private router: Router,
+		private route: ActivatedRoute) {
 	}
 
 	ngOnInit() {
 		this._intializeForms();
 		this._subscribeToForms();
+		//get around issue of loading modal throwing error
+		//https://github.com/angular/angular/issues/15634
+		setTimeout(() => this._subscribeToRoute());
 	}
 
 	private _intializeForms() {
@@ -92,14 +101,55 @@ export class TablePageComponent implements OnInit {
 				} else {
 					this.tableOptionsForm.patchValue({
 						gbFunc: null,
-						gbField: null
+						gbField: null,
+						qVal: ''
 					});
 				}
 			})
 
 		this.tableOptionsForm.valueChanges
 			.distinctUntilChanged((prev, curr) => this._onlyNameSearchChanged(prev, curr))
-			.subscribe(change => this.query());
+			.subscribe(change => {
+				this.query();
+			});
+	}
+
+	_subscribeToRoute() {
+		this.route.params
+			.subscribe(args => {
+				this._updateForm(args);
+				this._updateUI(args);
+				const str = Object.entries(args)
+					.filter(pair => !['variable'].includes(pair[0]))
+					.map(pair => pair.join('='))
+					.join('&');
+				this._query(str);
+			})
+	}
+
+	_updateForm(args: any) {
+		if (!this.selectedVariable && args.match1var) {
+			this.urlVariable = args.match1vals;
+			this.varDefSelect.updateForm(args.match1vals);
+		}
+		this.tableOptionsForm.patchValue(args, { emitEvent: false });
+	}
+
+	_updateUI(args: any) {
+		if (['sum', 'avg'].includes(args.gbFunc)) {
+			this.isAggregateForm.patchValue({ isAggregate: true }, { emitEvent: false });
+		}
+	}
+
+	query() {
+		if (!this.tableOptionsForm.valid) return;
+		const options = _.pickBy(this.tableOptionsForm.value, (v, k) => k !== 'variable');
+
+		this.router.navigate([`data/tables`, Object.assign({}, options, {
+			match1var: 'variable',
+			match1vals: this.tableOptionsForm.value.variable,
+			qField: this.tableOptionsForm.value.gbField
+		})]);
 	}
 
 	getDataTotal() {
@@ -123,7 +173,7 @@ export class TablePageComponent implements OnInit {
 	}
 
 	getTableIsCurrency() {
-		return /currency+./.test(this.selectedVariable.valueType);
+		return this.selectedVariable ? /currency+./.test(this.selectedVariable.valueType) : false;
 	}
 
 	getTableOptionsVisible() {
@@ -170,11 +220,9 @@ export class TablePageComponent implements OnInit {
 		});
 	}
 
-	query() {
+	private _query(queryString: string) {
 
-		if (!this.tableOptionsForm.valid) return;
-
-		let queryString = this._transformQuery();
+		if (!queryString) return;
 
 		this.openLoadingDialog();
 
@@ -248,16 +296,5 @@ export class TablePageComponent implements OnInit {
 			.map(pairs => pairs.filter(item => item[0] != 'qVal'));
 
 		return _.isEqual(formBezMatch[0], formBezMatch[1]);
-	}
-
-	private _transformQuery(): string {
-		let qs = '',
-			vals = this.tableOptionsForm.value;
-		qs += `match1var=variable&match1vals=${vals.variable}`;
-		qs += `&qField=${vals.gbField}`;
-		return qs += '&' + Object.entries(vals)
-						.filter(pair => !['variable','qField'].includes(pair[0]))
-						.map(pair => pair.join('='))
-						.join('&');
 	}
 }

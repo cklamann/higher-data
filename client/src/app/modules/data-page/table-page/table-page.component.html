@@ -11,7 +11,7 @@
 			<div class = "agg-options" fxLayout="row wrap" fxFlex="100" fxLayoutAlign="space-between center">
 				<div class = "variable-dropdown-container" fxFlex="100" fxFlex.gt-xs="45" fxLayout="column">
 					<label *ngIf="!getVariableDefinitionSelected()">Select a variable to query</label>
-					<app-variable-definition-select [multi]="false" [defined]="true" (onVariableDefinitionSelect) = "setVariable($event)" ></app-variable-definition-select>
+					<app-variable-definition-select [multi]="false" [defined]="true" (onVariableDefinitionSelect) = "setVariable($event)" #varDefSelect ></app-variable-definition-select>
 				</div>
 				<div class = "is-agg-container" fxFlex="100" fxFlex.gt-xs="45" fxLayout="row wrap" fxLayout.gt-xs="row" [formGroup]="isAggregateForm">
 					<label fxFlex="50" class="p-r-5" fxFlexAlign="center">Select query type</label>

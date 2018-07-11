@@ -8,7 +8,7 @@ import { intChartExport, intChartExportOptions } from '../../../../../server/src
 import { TrendChartComponent } from '../../chart/components/trend-chart/trend-chart.component'
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { intBaseChartDatum } from '../../chart/models/ChartData';
-import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import * as _ from 'lodash';
 import { Observable } from 'rxjs';
 import 'rxjs/add/operator/mergeMap';
