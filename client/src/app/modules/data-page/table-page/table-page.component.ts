@@ -18,20 +18,14 @@ import 'rxjs/add/operator/map';
 
 
 interface intTableOptionsForm {
-	searchBox: string,
-	sort: {
-		field: string,
-		direction: string
-	},
-	pagination: {
-		page: number,
-		perPage: number
-	},
-	groupBy: {
-		aggFunc: string,
-		variable: string
-	},
-	inflationAdjusted: boolean,
+	qVal: string,
+	sortField: string,
+	sortDirection: string,
+	page: number,
+	perPage: number
+	gbFunc: string,
+	gbField: string
+	ia: boolean,
 	variable: string
 }
 
@@ -73,24 +67,15 @@ export class TablePageComponent implements OnInit {
 			isAggregate: false
 		});
 
-		//todo: get rid of nested stuff -- unnecessary now that we're flattening it
-		//rename fields to what be transformer expects, then just .toString them all
-
 		this.tableOptionsForm = this.fb.group({
-			searchBox: '',
-			sort: {
-				field: 'name',
-				direction: 'asc'
-			},
-			pagination: this.fb.group({
-				page: 1,
-				perPage: 10
-			}, { validator: Validators.required }),
-			groupBy: this.fb.group({
-				aggFunc: new FormControl('first', Validators.required),
-				variable: new FormControl('name', Validators.required)
-			}),
-			inflationAdjusted: false,
+			qVal: '',
+			sort: 'name',
+			order: 'asc',
+			page: 1,
+			perPage: 10,
+			gbFunc: new FormControl('first', Validators.required),
+			gbField: new FormControl('name', Validators.required),
+			ia: false,
 			variable: new FormControl('', Validators.required)
 		});
 	}
@@ -98,13 +83,18 @@ export class TablePageComponent implements OnInit {
 	private _subscribeToForms() {
 
 		this.isAggregateForm.valueChanges
-			.subscribe( change => {
-				if(!change.isAggregate){
-					this.tableOptionsForm.get('groupBy').patchValue({
-						aggFunc: 'first',
-						variable: 'name'
+			.subscribe(change => {
+				if (!change.isAggregate) {
+					this.tableOptionsForm.patchValue({
+						gbFunc: 'first',
+						gbField: 'name'
 					});
-				} else this.tableOptionsForm.get('groupBy').reset();
+				} else {
+					this.tableOptionsForm.patchValue({
+						gbFunc: null,
+						gbField: null
+					});
+				}
 			})
 
 		this.tableOptionsForm.valueChanges
@@ -154,7 +144,10 @@ export class TablePageComponent implements OnInit {
 			direction: $event.direction
 		}
 
-		this.tableOptionsForm.get('sort').patchValue(sort);
+		this.tableOptionsForm.patchValue({
+			sort: sort.field,
+			order: sort.direction
+		});
 	}
 
 	onPageEvent($event) {
@@ -187,7 +180,7 @@ export class TablePageComponent implements OnInit {
 
 		this.schools.fetchData(queryString)
 			.map((res: any) => {
-				return new SchoolDataSourceAgg(res, this.tableOptionsForm.value.groupBy.variable);
+				return new SchoolDataSourceAgg(res, this.tableOptionsForm.value.gbField);
 			})
 			.debounceTime(500)
 			.subscribe(resp => {
@@ -252,7 +245,7 @@ export class TablePageComponent implements OnInit {
 	//don't submit when user types something in the box, wait for button press
 	private _onlyNameSearchChanged(prev: intTableOptionsForm, curr: intTableOptionsForm): boolean {
 		const formBezMatch = [prev, curr].map(form => Object.entries(form))
-			.map(pairs => pairs.filter(item => item[0] != 'searchBox'));
+			.map(pairs => pairs.filter(item => item[0] != 'qVal'));
 
 		return _.isEqual(formBezMatch[0], formBezMatch[1]);
 	}
@@ -261,18 +254,10 @@ export class TablePageComponent implements OnInit {
 		let qs = '',
 			vals = this.tableOptionsForm.value;
 		qs += `match1var=variable&match1vals=${vals.variable}`;
-		qs += `&gbField=${vals.groupBy.variable}`;
-		qs += `&gbFunc=${vals.groupBy.aggFunc}`;
-		qs += `&qField=${vals.groupBy.variable}`;
-		if (vals.pagination.page) qs += `&page=${vals.pagination.page}`;
-		if (vals.pagination.perPage) qs += `&perPage=${vals.pagination.perPage}`;
-		if (vals.sort.field) qs += `&sort=${vals.sort.field}`;
-		if (vals.sort.direction) qs += `&order=${vals.sort.direction}`;
-		if (vals.inflationAdjusted) qs += `&ia=${vals.inflationAdjusted}`;
-		if (vals.searchBox) {
-			qs += `&qField=${vals.groupBy.variable}`;
-			qs += `&qVal=${vals.searchBox}`;
-		}
-		return qs;
+		qs += `&qField=${vals.gbField}`;
+		return qs += '&' + Object.entries(vals)
+						.filter(pair => !['variable','qField'].includes(pair[0]))
+						.map(pair => pair.join('='))
+						.join('&');
 	}
 }

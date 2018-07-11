@@ -24,11 +24,11 @@
 						</mat-radio-button>
 					</mat-radio-group>
 				</div>
-				<div *ngIf="getAggOptionsVisible()" [formGroup]="tableOptionsForm.get('groupBy')" fxFlex="100" fxLayout="row wrap" class = "agg-opt-container" fxLayoutAlign="space-between">
+				<div *ngIf="getAggOptionsVisible()" [formGroup]="tableOptionsForm" fxFlex="100" fxLayout="row wrap" class = "agg-opt-container" fxLayoutAlign="space-between">
 					<div fxFlex="100" fxFlex.gt-xs="45" fxLayout="row wrap">
 						<div fxFlex="100" fxLayout="row wrap" fxLayout.gt-xs="row">	
 							<label fxFlex="50" class="p-r-5" fxFlexAlign="center">Select an aggregation group</label>
-							<mat-radio-group fxFlex="50" formControlName="variable" fxLayout="column" fxLayout.gt-sm="row" fxLayoutAlign="start start" fxFlexAlign="center">
+							<mat-radio-group fxFlex="50" formControlName="gbField" fxLayout="column" fxLayout.gt-sm="row" fxLayoutAlign="start start" fxFlexAlign="center">
 								<mat-radio-button [value] = "'state'" class="p-r-5">
 									State
 								</mat-radio-button>
@@ -38,19 +38,19 @@
 							</mat-radio-group>
 						</div>
 						<div>
-							<div fxFlex="100" *ngIf = "tableOptionsForm.get('groupBy').get('variable').errors" class="mat-error">
+							<div fxFlex="100" *ngIf = "tableOptionsForm.get('gbField').errors" class="mat-error">
 								An aggregate group is required
 							</div>
 						</div>
 					</div>	
 					<div class = "agg-func-container" fxFlex = "100" fxFlex.gt-xs= "45" fxLayout="row wrap" fxLayoutAlign="space-between start">
 						<mat-form-field fxFlex="100">
-							<mat-select formControlName="aggFunc" placeholder = "Function">
+							<mat-select formControlName="gbFunc" placeholder = "Function">
 								<mat-option value="avg">Average</mat-option>
 								<mat-option value="sum">Sum</mat-option>
 							</mat-select>
 						</mat-form-field>
-						<div *ngIf = "tableOptionsForm.get('groupBy').get('aggFunc').errors" class="mat-error">
+						<div *ngIf = "tableOptionsForm.get('gbFunc').errors" class="mat-error">
 							An aggregate function is required
 						</div> 
 					</div>
@@ -59,7 +59,7 @@
 			<div class = "currency-and-source" fxFlex="100" fxLayout = "row" fxLayoutAlign="space-between center">
 				<div *ngIf="showTable && getTableIsCurrency()">
 					<label class="p-r-5">Inflation Adjusted</label>
-					<mat-radio-group formControlName="inflationAdjusted">
+					<mat-radio-group formControlName="ia">
 						<mat-radio-button [value] = "'true'" class = "p-r-5">
 							Adjusted
 						</mat-radio-button>
@@ -85,7 +85,7 @@
 				</div>
 				<div *ngIf = "getShowSearchBox()" fxFlex="100" fxFlex.gt-sm = "75" class = "filter-form" [formGroup]="tableOptionsForm">
 					<mat-form-field>
-						<input matInput type="text" placeholder="filter" formControlName="searchBox">	
+						<input matInput type="text" placeholder="filter" formControlName="qVal">	
 					</mat-form-field>
 					<button mat-button class = "mat-button" (click)="query()">set filter</button>
 				</div>
