@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { Schools, School } from '../../../models/Schools';
-import { MatToolbar, MatToolbarRow } from '@angular/material/toolbar'
 import { intSchoolModel } from '../../../../../server/src/schemas/SchoolSchema';
 import { intChartModel } from '../../../../../server/src/schemas/ChartSchema';
 import { Charts } from '../../../models/Charts';

@@ -1,10 +1,8 @@
-<mat-toolbar color="surface">
-	<mat-toolbar-row fxFlex="100" fxLayoutAlign="center center">
-		<h3>
+<div fxFlex="100" fxLayoutAlign="center center">
+	<h3 class = "section-heading">
 		Select a chart to view its sources
-		</h3>
-	</mat-toolbar-row>
-</mat-toolbar>
+	</h3>
+</div>
 <div fxFlex = 100 fxFlex.gt-xs = 33 fxLayoutAlign = "center center" fxLayout="column" >	
 	<app-chart-search fxLayoutAlign="center center" [defaultChart] = "urlChart" (onChartSelect) = setChart($event) class = "m-t-15"></app-chart-search>
 	<div *ngIf="chart" fxLayoutAlign = "center center" fxLayout="column">

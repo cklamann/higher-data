@@ -7,7 +7,6 @@ import { HttpClientModule } from '@angular/common/http';
 import { Schools } from '../../models/Schools';
 import { ChartPageComponent } from './chart-page/chart-page.component';
 import { SharedModule } from '../shared/shared.module';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatRadioModule, MatTabsModule, MatCardModule, MatSelectModule, 
@@ -26,7 +25,7 @@ import { SourceDisplayComponent } from './sources-page/source-display/source-dis
 @NgModule({
 	//imports will be available to all components in module 
 	imports: [BrowserModule, HttpClientModule, ReactiveFormsModule, MatTabsModule, 
-				BrowserAnimationsModule, FlexLayoutModule, AppRoutingModule, MatToolbarModule, 
+				BrowserAnimationsModule, FlexLayoutModule, AppRoutingModule, 
 				SharedModule, ChartModule, MatRadioModule, MatCardModule, MatTableModule, 
 				MatButtonModule, MatSelectModule, MatDividerModule, MatPaginatorModule, MatSortModule,
 				MatDialogModule, MatInputModule],
