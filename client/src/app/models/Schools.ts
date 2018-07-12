@@ -24,7 +24,7 @@ export class Schools {
 		});
 	}
 
-	fetchData(qs:string): Observable<intSchoolDataModel[]> {
+	fetchData(qs:string): Observable<intExportAgg> {
 		if(!qs.length) throw new Error("query string missing!");
 		return this.rest.get(`school-data/?${qs}`).map(res => {
 			res.data = res.data.map(school => {

@@ -13,6 +13,7 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { ModalLoadingComponent } from '../../shared/modals/loading/loading.component';
 import { ModalErrorComponent } from '../../shared/modals/error/error.component';
 import { VariableDefinitionSelectComponent } from '../../shared/variable-definition-select/variable-definition-select.component';
+import { Observable } from 'rxjs';
 import * as _ from 'lodash';
 import 'rxjs/add/operator/distinctUntilChanged';
 import 'rxjs/add/operator/map';
@@ -226,9 +227,18 @@ export class TablePageComponent implements OnInit {
 
 		this.openLoadingDialog();
 
-		this.schools.fetchData(queryString)
-			.map((res: any) => {
-				return new SchoolDataSourceAgg(res, this.tableOptionsForm.value.gbField);
+		let fetch = [this.schools.fetchData(queryString)];
+		//make sure we have our varDef data available for formatting
+		if(this.varDefSelect.options.length === 0){
+			fetch.push(this.varDefSelect.options.changes);
+		} 
+		
+		Observable.forkJoin(...fetch)
+			.map(res => {
+				return new SchoolDataSourceAgg(res[0], this.tableOptionsForm.value.gbField)
+			}).catch( (err, caught) => {
+				console.log(err);
+				return caught;
 			})
 			.debounceTime(500)
 			.subscribe(resp => {
