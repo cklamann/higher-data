@@ -27,13 +27,8 @@ export class AuthService implements intAuthService {
 			});
 	}
 
-	public authorize(): boolean {
-		if (localStorage.getItem("tihe_token")) {
-			return true;
-		} else {
-			this.router.navigate(['/login']);
-			return false;
-		}
+	public authorize(): Promise<boolean> {
+		return this.rest.get(`users/cred`).toPromise();
 	}
 
 	public isLoggedIn() {

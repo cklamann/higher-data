@@ -13,11 +13,11 @@ router.get('/', function(req, res, next) {
 /* create new user */
 router.post('/', function(req: any, res, next) {
 	UserSchema.schema.statics.create(req.body)
-		.then((user:any) => {
+		.then((user: any) => {
 			res.json(user);
 			return;
 		})
-		.catch( (err:Error) => next(err));
+		.catch((err: Error) => next(err));
 
 });
 
@@ -55,6 +55,15 @@ router.post('/login', (req, res, next) => {
 router.post('/logout', function(req, res, next) {
 	req.logout();
 	res.redirect('/');
+});
+
+/*check credentials*/
+router.get('/cred', function(req, res, next) {
+	passport.authenticate('basic', function(err, user, info, status) {
+		if (err) next(err) 
+		if (!user) return res.json(false);
+		return res.json(true);
+	})(req, res, next);
 });
 
 /* destroy user */

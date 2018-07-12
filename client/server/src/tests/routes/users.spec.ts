@@ -11,8 +11,8 @@ chai.use(chaiHttp);
 chai.use(chaiAsPromised);
 const connection = chai.request(app);
 
-const username = 'test',
-	password = 'test';
+const username = 'tester',
+	password = 'tester';
 
 describe("userRoute", () => {
 
@@ -45,7 +45,7 @@ describe("userRoute", () => {
 
 	after('remove user', function() {
 		UserSchema.find({
-			username: "test"
+			username: "tester"
 		}).remove().exec();
 	});
 });
