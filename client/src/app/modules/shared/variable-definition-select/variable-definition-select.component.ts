@@ -15,7 +15,7 @@ import 'rxjs/add/operator/map';
 export class VariableDefinitionSelectComponent implements OnInit {
 	VariableDefinitionSelectForm: FormGroup;
 	@Output()
-	onVariableDefinitionSelect: EventEmitter<string> = new EventEmitter<string>();
+	onVariableDefinitionSelect: EventEmitter<intVariableDefinitionModel> = new EventEmitter<intVariableDefinitionModel>();
 	@Input()
 	defined: boolean = false;
 	@Input()
@@ -60,7 +60,6 @@ export class VariableDefinitionSelectComponent implements OnInit {
 		});
 	}
 
-	//todo: get rid of switchmap stuff and use this method everywhere
 	updateForm(vari: string) {
 		if (this.options.length === 0) {
 			this.options.changes.first().subscribe(change => {

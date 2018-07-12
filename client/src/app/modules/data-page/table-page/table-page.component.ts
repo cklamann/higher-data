@@ -130,7 +130,6 @@ export class TablePageComponent implements OnInit {
 
 	_updateForm(args: any) {
 		if (!this.selectedVariable && args.match1var) {
-			this.urlVariable = args.match1vals;
 			this.varDefSelect.updateForm(args.match1vals);
 		}
 		this.tableOptionsForm.patchValue(args, { emitEvent: false });
@@ -229,8 +228,8 @@ export class TablePageComponent implements OnInit {
 
 		let fetch = [this.schools.fetchData(queryString)];
 		//make sure we have our varDef data available for formatting
-		if(this.varDefSelect.options.length === 0){
-			fetch.push(this.varDefSelect.options.changes);
+		if(!this.selectedVariable){
+			fetch.push(<any>this.varDefSelect.onVariableDefinitionSelect.first())
 		} 
 		
 		Observable.forkJoin(...fetch)
