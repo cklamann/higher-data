@@ -8,10 +8,10 @@ mongoose.Promise = require('q').Promise;
 import * as passport from 'passport';
 const BasicStrategy = require('passport-http').BasicStrategy;
 const fs = require('fs');
-import * as winston from 'winston';
 import { UserSchema, intUserSchema } from './schemas/UserSchema';
-import { SchoolSchema, intSchoolSchema } from './schemas/SchoolSchema';
 import * as _ from 'lodash';
+const helmet = require('helmet');
+const compression = require('compression');
 
 const users = require('./routes/users');
 const schools = require('./routes/schools');
@@ -21,7 +21,9 @@ const categories = require('./routes/categories');
 const siteContent = require('./routes/siteContent');
 const schoolData = require('./routes/schoolData');
 
-mongoose.set('debug', true);
+if(process.env.ENVI === 'DEV'){
+  mongoose.set('debug', true);  
+}
 
 const app = express();
 
@@ -48,10 +50,15 @@ passport.use(new BasicStrategy(
   }
 ));
 
-mongoose.connect('mongodb://localhost/colleges');
+mongoose.connect('mongodb://' + 
+                  process.env.DB_USERNAME + ':' +
+                  process.env.DB_PASSWORD + '@' +
+                  process.env.DB_HOST + ':' +
+                  process.env.DB_PORT + '/' +
+                  process.env.DB_NAME);
 
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+app.use(bodyParser.json());   
 
 app.use('/api/users', users);
 app.use('/api/schools', schools);
