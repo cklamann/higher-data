@@ -32,7 +32,7 @@
 				        </mat-form-field>
 				    </div>  
 				    <div fxLayout="row wrap" formArrayName="sources" fxFlex="100">
-		        		<div fxFlex = "100" *ngFor="let source of variableDefinitionForm.controls.sources.controls; let i=index"
+		        		<div fxFlex = "100" *ngFor="let source of variableDefinitionForm['controls'].sources['controls']; let i=index"
 		        		[formGroupName]="i" fxLayout="row wrap" fxLayoutAlign="space-around center">
 							<i class="material-icons mat-icon-button" (click)="removeVariable()">indeterminate_check_box</i>
 		        			<span fxFlex = "90">Source {{i + 1}}</span>

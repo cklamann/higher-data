@@ -58,7 +58,7 @@
 				        </mat-form-field>
 				    </div>
 				    <div fxLayout="row wrap" formArrayName="cuts" fxFlex="100" >
-		        		<div fxFlex = "100" *ngFor="let cut of chartBuilderForm.controls.cuts.controls; let i=index"
+		        		<div fxFlex = "100" *ngFor="let cut of chartBuilderForm['controls'].cuts['controls']; let i=index"
 		        		[formGroupName]="i" fxLayout="row wrap" fxLayoutAlign="space-around center" >
 							<i class="material-icons mat-icon-button" (click)="removeCut()">indeterminate_check_box</i>
 		        			<span fxFlex = "90">Cut {{i + 1}}</span>
@@ -75,7 +75,7 @@
 		        		</div>
 				    </div>
 				    <div fxLayout="row wrap" formArrayName="variables" fxFlex="100" >
-		        		<div fxFlex = "100" *ngFor="let variable of chartBuilderForm.controls.variables.controls; let i=index"
+		        		<div fxFlex = "100" *ngFor="let variable of chartBuilderForm['controls'].variables['controls']; let i=index"
 		        		[formGroupName]="i" fxLayout="row wrap" fxLayoutAlign="space-around center" >
 							<i class="material-icons mat-icon-button" (click)="removeVariable()">indeterminate_check_box</i>
 		        			<span fxFlex = "90">Variable {{i + 1}}</span>

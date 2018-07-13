@@ -1,4 +1,3 @@
-import { Injectable } from '@angular/core';
 import { intExportAgg } from '../../../../server/src/schemas/SchoolDataSchema';
 import { sectors } from '../data/sectors';
 import * as _ from 'lodash';
@@ -17,8 +16,6 @@ export interface intVarDataSourceExport {
 	fiscal_year: string;
 	[key: string]: any
 }
-
-@Injectable()
 
 export class SchoolDataSourceAgg {
 	private _keyCol: string;
