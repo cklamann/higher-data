@@ -79,7 +79,6 @@ describe('Variable Definition Schema', function() {
 
       VariableDefinitionSchema.findOne({ variable: testVar.variable }).exec()
         .then(res => {
-          console.log(res);
           res.sources[0].source = "new fancy updated source!";
           res.sources.push(newSource);
           return VariableDefinitionSchema.schema.statics.fetchAndUpdate(res);

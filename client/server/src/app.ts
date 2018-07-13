@@ -50,12 +50,14 @@ passport.use(new BasicStrategy(
   }
 ));
 
+const userpass = process.env.DB_USERNAME && process.env.DB_PASSWORD ? 
+                  process.env.DB_USERNAME + ':' + process.env.DB_PASSWORD + '@' : '';
+
 mongoose.connect('mongodb://' + 
-                  process.env.DB_USERNAME + ':' +
-                  process.env.DB_PASSWORD + '@' +
+                  userpass + 
                   process.env.DB_HOST + ':' +
                   process.env.DB_PORT + '/' +
-                  process.env.DB_NAME);
+                  process.env.DB_NAME, { useMongoClient: true });
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());   

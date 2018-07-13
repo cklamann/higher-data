@@ -46,7 +46,6 @@ export let SchoolSchema = model<intSchoolSchema>('school', schoolSchema);
 
 SchoolSchema.schema.statics = {
   search: (name: string): Promise<intSchoolSchema[]> => {
-    console.log(name);
     return SchoolSchema.find({name:{$regex: `.*${name}.*` , $options:'i'}}).limit(25).exec();
   },
   fetch: (arg: string): Promise<intSchoolSchema> => {

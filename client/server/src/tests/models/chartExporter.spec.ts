@@ -210,7 +210,6 @@ describe('ChartExporter', function() {
         .then(response => {
           expect(response.data).to.be.an('array');
           //minimum fixture val is 50, so inflated should be above 70...
-          response.data.forEach(datum => datum.data.forEach(item => console.log(item)));
           response.data.forEach(datum => datum.data.forEach(item => expect(item.value).to.be.greaterThan(70)));
           done();
         }).catch(err => done(err));
