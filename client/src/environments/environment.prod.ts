@@ -1,4 +1,4 @@
 export const environment = {
-  apiRoot: this.apiRoot = 'https://www.higherdata.org/api',
+  apiRoot: this.apiRoot = '/api',
   production: true
 };
