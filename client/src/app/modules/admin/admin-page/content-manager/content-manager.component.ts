@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
-import { FroalaEditorModule, FroalaViewModule } from 'angular-froala-wysiwyg';
 import { SiteContent } from '../../../../models/SiteContent';
 import { intSiteContentSchema } from '../../../../../../server/src/schemas/SiteContentSchema';
 import { MatButton } from '@angular/material';

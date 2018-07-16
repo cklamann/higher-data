@@ -19,9 +19,8 @@ import { SharedModule } from '../shared/shared.module';
 import { ChartModule } from '../chart/chart.module';
 import { Categories} from '../../models/Categories';
 import { SiteContent } from '../../models/SiteContent';
-import { FroalaEditorModule, FroalaViewModule } from 'angular-froala-wysiwyg';
-
-
+import { NgxEditorModule } from 'ngx-editor';
+ 
 @NgModule({
   imports: [
     AppRoutingModule,
@@ -38,8 +37,7 @@ import { FroalaEditorModule, FroalaViewModule } from 'angular-froala-wysiwyg';
     ReactiveFormsModule,
     SharedModule,
     ChartModule,
-    FroalaEditorModule,
-    FroalaViewModule
+    NgxEditorModule
   ],
   declarations: [AdminPageComponent, LoginPageComponent, ChartCreatorComponent, VariableDefinerComponent, ContentManagerComponent],
   providers: [Users, RestService, InterceptService, VariableDefinitions, Categories, SiteContent]

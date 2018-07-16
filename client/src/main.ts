@@ -5,7 +5,6 @@ import { AppModule } from './app/modules/app/app.module';
 import { environment } from './environments/environment';
 
 import * as $ from 'jquery'; window["$"] = $; window["jQuery"] = $;
-import "froala-editor/js/froala_editor.pkgd.min.js";
 
 //for some reason these weren't getting imported from the cli config
 
