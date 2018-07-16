@@ -1,7 +1,6 @@
 <nav fxLayout = "row" fxLayoutAlign="space-between center">
 	<div fxFlex>
-	  	<!-- <a class = "mat-button" fxFlex="none" mat-button routerLink="/blog" routerLinkActive="mat-button-toggle-checked">Blog</a> -->
-  		<a class = "mat-button" fxFlex="0 1 auto" mat-button routerLink="/data/" routerLinkActive="mat-button-toggle-checked">Data</a>
+  		<a class = "mat-button" fxHide fxShow.gt-xs = "true" fxFlex="0 1 auto" mat-button routerLink="/data/" routerLinkActive="mat-button-toggle-checked">Data</a>
   		<a class = "mat-button" fxFlex="0 1 auto" mat-button routerLink="/about" routerLinkActive="mat-button-toggle-checked">About</a>
   	</div>
 
@@ -10,7 +9,7 @@
   	</div>
 
   	<div fxLayout = "row" fxFlex>
-  		<!-- <a class = "mat-button" fxFlex="none" mat-button routerLink="/admin" routerLinkActive="mat-button-toggle-checked">Admin</a> -->
+        <a class = "mat-button" fxShow.gt-xs = "false" fxFlex="0 1 auto" mat-button routerLink="/about" routerLinkActive="mat-button-toggle-checked">About</a>
   	</div>
 </nav>
 

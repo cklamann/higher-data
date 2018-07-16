@@ -6,26 +6,26 @@
 <div fxFlex = 100 fxFlex.gt-xs = 33 fxLayoutAlign = "center center" fxLayout="column" >	
 	<app-chart-search fxLayoutAlign="center center" [defaultChart] = "urlChart" (onChartSelect) = setChart($event) class = "m-t-15"></app-chart-search>
 	<div *ngIf="chart" fxLayoutAlign = "center center" fxLayout="column">
-		<span fxFlex class = "mat-headline">
+		<h3 fxFlex class ="center-text mat-title">
 			Chart: {{chart.name}}
-		</span>
-		<span fxFlex class ="center-text mat-subheading-1">
+		</h3>
+		<h4 fxFlex class ="center-text mat-title">
 			Chart Variables:
-		</span>
+		</h4>
 		<div *ngIf="definitions" fxFlex = 100 fxLayoutAlign = "center center" fxLayout="column">
 			<div *ngFor = "let definition of definitions; let i = index;" fxLayoutAlign = "center center" fxLayout="column">
 				<div class = "m-t-15 component-holder left-text" fxLayout="column">
-					<div class = "definition-headings mat-elevation-z2">
+					<div class = "definition-headings mat-body-1 mat-elevation-z2">
 						<div>
-							<span class = "mat-body-strong">Variable {{i+1}} Legend Name:</span> 
-							<span class = "mat-body-1">{{definition.legendName}}</span>
+							<strong>Variable {{i+1}} Legend Name:</strong> 
+							{{definition.legendName}}
 						</div>
 						<div>
-							<span class = "mat-body-strong">Variable {{i+1}} Calculation:</span> 
-							<span class = "mat-body-1">{{definition.formula | stripOptTags}} </span>
+							<strong>Variable {{i+1}} Calculation:</strong> 
+							{{definition.formula | stripOptTags}}
 						</div>
 						<div>
-							<span class = "mat-body-strong">Variable {{i+1}} Calculation details:</span> 
+							<strong>Variable {{i+1}} Calculation details:</strong> 
 						</div>
 					</div>
 					<div *ngFor="let def of definition.variableDefinitions">			
