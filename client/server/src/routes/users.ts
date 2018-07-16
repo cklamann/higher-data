@@ -8,10 +8,8 @@ router.get('/', function(req, res, next) {
 
 });
 
-//todo: restrict route on prod!
-
 /* create new user */
-router.post('/', function(req: any, res, next) {
+router.post('/', passport.authenticate('basic', { session: false }), function(req: any, res, next) {
 	UserSchema.schema.statics.create(req.body)
 		.then((user: any) => {
 			res.json(user);
