@@ -200,10 +200,9 @@ export class TablePageComponent implements OnInit {
 	}
 
 	onPageEvent($event) {
-		this.tableOptionsForm.get('pagination').patchValue({
+		this.tableOptionsForm.patchValue({
 			page: $event.pageIndex + 1,
-			perPage: $event.pageSize,
-			total: $event.length,
+			perPage: $event.pageSize
 		});
 	}
 
