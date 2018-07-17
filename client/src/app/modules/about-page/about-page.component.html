@@ -1,12 +1,12 @@
-<div fxLayout = "row wrap" [fxFlex]="100"  fxLayoutAlign="center center">
-	<div [fxFlex]="100" class = "m-t-20">
-		<h3 class = "section-heading mat-display-3">
-			Welcome to HigherData
+<div fxLayout = "column" [fxFlex]="100"  fxLayoutAlign="center center">
+	<div [fxFlex]="100" [fxFlex.gt-sm]="80" class = "m-t-20">
+		<h4 class = "section-heading mat-display-1">
+			Longitudinal Higher Education Data
 			<br>
-			<small class="subheader-1">Making Higher Ed Data Accessible</small>
-		</h3>
+			<small>HigherData.org collects data on American higher education from diverse public sources and makes it accessible through charts and tables.</small>
+		</h4>
 	</div>
-	<div class = "inner-container" [fxFlex] = "90" [fxFlex.gt-sm] = "70">
+	<div [fxFlex] = "100" [fxFlex.gt-sm] = "80">
 		<app-site-content fxFlex=100 [handle] = "'about-page'"></app-site-content>
 	</div>
 </div>
