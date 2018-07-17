@@ -18,9 +18,9 @@
 				<mat-form-field fxFlex="100" fxFlex.gt-sm = "50">
 					<input matInput type='text' placeholder='handle' formControlName = 'handle'> 
 				</mat-form-field>
-				<!-- <mat-form-field fxFlex="100"> -->
+				<mat-form-field fxFlex="100">
 					<app-ngx-editor matInput formControlName = 'content' [(ngModel)]='editorContent'> </app-ngx-editor>
-				<!-- </mat-form-field> -->
+				</mat-form-field>
 				<button mat-raised-button class = "mat-raised-button" (click) = 'submitForm()'>Submit</button>
 			</form>
 		</div>

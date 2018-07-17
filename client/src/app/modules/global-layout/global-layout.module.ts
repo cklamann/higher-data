@@ -8,11 +8,14 @@ import { FlexLayoutModule } from "@angular/flex-layout";
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { OverlayContainer } from '@angular/cdk/overlay';
 
 @NgModule({
 	imports: [
-		CommonModule, AppRoutingModule, FlexLayoutModule, MatToolbarModule, MatMenuModule, MatButtonModule
+		CommonModule, AppRoutingModule, FlexLayoutModule, 
+		MatToolbarModule, MatMenuModule, MatButtonModule,
+		MatIconModule
 	],
 	declarations: [HeaderComponent, NavComponent, FooterComponent],
 	exports: [

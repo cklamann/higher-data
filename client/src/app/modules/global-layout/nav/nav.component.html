@@ -1,17 +1,29 @@
-<!--todo: just make three simple columns at like 20 60 20, align left center right-->
-<nav fxLayout = "row" fxLayoutAlign="space-around center">
-	<div fxFlex = "0 1 auto" fxLayoutAlign="flex-start">
+<nav fxLayout = "row">
+	<div fxFlex = "0 1 30" fxLayoutAlign="flex-start" fxHide fxShow.gt-xs = "true" >
   		<a class = "mat-button" fxFlex="0 1 auto" mat-button routerLink="/data/" routerLinkActive="mat-button-toggle-checked">Data</a>
-  		<a class = "mat-button" fxHide fxShow.gt-xs = "true" fxFlex="0 1 auto" mat-button routerLink="/about" routerLinkActive="mat-button-toggle-checked">About</a>
-  </div>
+  		<a class = "mat-button" fxFlex="0 1 auto" mat-button routerLink="/about" routerLinkActive="mat-button-toggle-checked">About</a>
+  	</div>
 
-	<div fxFlex fxLayoutAlign="center center">
+  	<div fxShow.gt-xs = "false" fxFlex = "1 0 10"></div>
+
+	<div fxFlex = "1 1 80" fxFlex.gt-xs = "0 1 40" fxLayoutAlign="center center">
 		<h1 class = "nav-title" fxFlex = "0 1 auto">Higher Data</h1>
 	</div>
 
-	<div fxLayout = "row" fxLayoutAlign="flex-end">
-      <a class = "mat-button" fxShow.gt-xs = "false" fxFlex="0 1 auto" mat-button routerLink="/about" routerLinkActive="mat-button-toggle-checked">About</a>
-      <span fxHide fxShow.gt-xs = "true" fxFlex="0 1 auto">&nbsp;</span>
+	<div fxShow.gt-xs = "false" fxFlex ="0 1 10" fxLayoutAlign="flex-end">
+		<button mat-icon-button [matMenuTriggerFor]="menu">
+	  		<mat-icon>more_vert</mat-icon>
+		</button>
+		<mat-menu #menu="matMenu">
+	  		<button mat-menu-item routerLink="/about" routerLinkActive="mat-button-toggle-checked">
+	    		<mat-icon>info</mat-icon>
+	    		<span>About</span>
+	  		</button>
+	  		<button mat-menu-item routerLink="/data" routerLinkActive="mat-button-toggle-checked">
+	    		<mat-icon>show_chart</mat-icon>
+	    		<span>Data</span>
+	  		</button>
+		</mat-menu>
 	</div>
 </nav>
 
