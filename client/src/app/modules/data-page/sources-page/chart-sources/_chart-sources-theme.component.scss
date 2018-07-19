@@ -1,10 +1,10 @@
 @import '~@angular/material/theming';
 
 @mixin chart-sources-theme($theme) {
-    $accent: map-get($theme, accent);
+    $primary: map-get($theme, primary);
     app-chart-sources {
         .definition-headings {
-            background-color: mat-color($accent);
+            background-color: mat-color($primary, lighter);
         }
     }
 }
