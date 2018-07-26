@@ -33,9 +33,9 @@ export class SchoolDataSourceAgg {
 	}
 
 	getColumns(): string[] {
-		let keys = Object.keys(this.data[0]).sort();
-		let label = keys.pop();
-		keys.unshift(label);
+		let keys = Object.keys(this.data[0]).sort().reverse();
+		// let label = keys.();
+		// keys.unshift(label);
 		return keys;
 	}
 

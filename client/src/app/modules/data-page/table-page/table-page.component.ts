@@ -286,7 +286,7 @@ export class TablePageComponent implements OnInit {
 	}
 
 	private _formatValues(data: intVarDataSourceExport[]): intVarDataSourceExport[] {
-		if (this.selectedVariable) {
+		// if (this.selectedVariable) {
 			return data.map((item: intVarDataSourceExport) => {
 				return _.forIn(item, (v, k, obj) => {
 					if (_.toNumber(k) && _.toNumber(v)) {
@@ -294,7 +294,7 @@ export class TablePageComponent implements OnInit {
 					}
 				});
 			});
-		} else return data;
+		// } else return data;
 	}
 
 	//don't submit when user types something in the box, wait for button press
