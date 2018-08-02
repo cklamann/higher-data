@@ -260,7 +260,7 @@ export class TablePageComponent implements OnInit {
 	}
 
 	setVisibleColumns() {
-		let numCols = 5;
+		let numCols =  window.innerWidth > 600 ? window.innerWidth > 1000 ? 5 : 3 : 1;
 		this.visibleColumns = [];
 		if (this._columnIndex > 0) {
 			this.visibleColumns.push(this._columns[0]);
