@@ -12,18 +12,18 @@
 					</li>
 				</ul>
 			</div>
-		<button mat-raised-button class = "mat-raised-button" (click) = 'createNewContent()'>New Content</button>
-		<div class = "content-edit-section" *ngIf='getContentSelected()'>
-			<form [formGroup]="contentForm" fxLayout="row wrap">
-				<mat-form-field fxFlex="100" fxFlex.gt-sm = "50">
-					<input matInput type='text' placeholder='handle' formControlName = 'handle'> 
-				</mat-form-field>
-				<mat-form-field fxFlex="100">
-					<app-ngx-editor matInput formControlName = 'content' [(ngModel)]='editorContent'> </app-ngx-editor>
-				</mat-form-field>
-				<button mat-raised-button class = "mat-raised-button" (click) = 'submitForm()'>Submit</button>
-			</form>
-		</div>
+			<button mat-raised-button class = "mat-raised-button" (click) = 'createNewContent()'>New Content</button>
+			<div class = "content-edit-section m-t-10" *ngIf='getContentSelected()'>
+				<form [formGroup]="contentForm" fxLayout="row wrap">
+					<mat-form-field fxFlex="100" fxFlex.gt-sm = "50">
+						<input matInput type='text' placeholder='handle' formControlName = 'handle'> 
+					</mat-form-field>
+					<div fxFlex="100">
+						<app-ngx-editor matInput formControlName = 'content' [(ngModel)]='editorContent'> </app-ngx-editor>
+					</div>
+					<button mat-raised-button class = "mat-raised-button" (click) = 'submitForm()'>Submit</button>
+				</form>
+			</div>
 		</mat-card-content>
 	</mat-card>
 </div>
