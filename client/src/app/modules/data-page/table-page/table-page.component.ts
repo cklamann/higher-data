@@ -226,14 +226,14 @@ export class TablePageComponent implements OnInit {
 
 		let fetch = [this.schools.fetchData(queryString)];
 		//make sure we have our varDef data available for formatting
-		if(!this.selectedVariable){
+		if (!this.selectedVariable) {
 			fetch.push(<any>this.varDefSelect.onVariableDefinitionSelect.first())
-		} 
-		
+		}
+
 		Observable.forkJoin(...fetch)
 			.map(res => {
 				return new SchoolDataSourceAgg(res[0], this.tableOptionsForm.value.gbField)
-			}).catch( (err, caught) => {
+			}).catch((err, caught) => {
 				console.log(err);
 				return caught;
 			})
@@ -286,15 +286,13 @@ export class TablePageComponent implements OnInit {
 	}
 
 	private _formatValues(data: intVarDataSourceExport[]): intVarDataSourceExport[] {
-		// if (this.selectedVariable) {
-			return data.map((item: intVarDataSourceExport) => {
-				return _.forIn(item, (v, k, obj) => {
-					if (_.toNumber(k) && _.toNumber(v)) {
-						obj[k] = this.util.numberFormatter().format(v, this.selectedVariable.valueType);
-					}
-				});
+		return data.map((item: intVarDataSourceExport) => {
+			return _.forIn(item, (v, k, obj) => {
+				if (_.toNumber(k) && _.toNumber(v)) {
+					obj[k] = this.util.numberFormatter().format(v, this.selectedVariable.valueType);
+				}
 			});
-		// } else return data;
+		});
 	}
 
 	//don't submit when user types something in the box, wait for button press

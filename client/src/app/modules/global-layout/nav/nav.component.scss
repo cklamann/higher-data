@@ -2,8 +2,15 @@ app-nav {
     flex-grow: 1;
     h1.nav-title {
         @media screen and (max-width: 500px) {
-            font-size: 1.25em 
+            font-size: 1.25em
         }
         font-size:2.5em;
+    }
+    img {
+    	display: flex;
+        max-height: 50px;
+        @media screen and (max-width: 500px) {
+            max-height: 30px;
+        }
     }
 }
