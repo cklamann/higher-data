@@ -13,6 +13,7 @@ import { ModalErrorComponent } from './modals/error/error.component';
 import { Charts } from '../../models/Charts';
 import { SiteContentComponent } from './site-content/site-content.component';
 import { stripOptTags } from './pipes/stripOptTags';
+import { SafePipe } from './pipes/safe.pipe';
 
 @NgModule({
 	imports: [
@@ -21,10 +22,11 @@ import { stripOptTags } from './pipes/stripOptTags';
 		MatProgressSpinnerModule, MatDialogModule
 	],
 	declarations: [SchoolSearchComponent, ChartSearchComponent, VariableDefinitionSelectComponent,
-		VariableSelectComponent, ModalLoadingComponent, ModalErrorComponent, SiteContentComponent, stripOptTags],
+		VariableSelectComponent, ModalLoadingComponent, ModalErrorComponent, SiteContentComponent, 
+		stripOptTags, SafePipe],
 	exports: [
 		SchoolSearchComponent, ChartSearchComponent, VariableDefinitionSelectComponent, VariableSelectComponent,
-		ModalLoadingComponent, SiteContentComponent, stripOptTags
+		ModalLoadingComponent, SiteContentComponent, stripOptTags, SafePipe
 	],
 	providers: [Charts],
 	entryComponents: [ModalLoadingComponent, ModalErrorComponent]
