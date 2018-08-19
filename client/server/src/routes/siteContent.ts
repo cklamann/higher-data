@@ -40,7 +40,7 @@ router.post('/', passport.authenticate('basic', { session: false }), function(re
 });
 
 router.delete('/:id', passport.authenticate('basic', { session: false }), function(req, res, next) {
-	SiteContentSchema.deleteOne({ _id: req.params.id })
+	SiteContentSchema.remove({ _id: req.params.id })
 		.then(resp => {
 			res.json(resp);
 			return;

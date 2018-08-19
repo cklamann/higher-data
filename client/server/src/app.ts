@@ -57,7 +57,7 @@ mongoose.connect('mongodb://' +
                   userpass + 
                   process.env.DB_HOST + ':' +
                   process.env.DB_PORT + '/' +
-                  process.env.DB_NAME, { useMongoClient: true });
+                  process.env.DB_NAME);
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());   
