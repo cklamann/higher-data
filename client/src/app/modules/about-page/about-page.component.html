@@ -1,10 +1,35 @@
-<div fxLayout = "column" [fxFlex]="100"  fxLayoutAlign="center center">
+<!-- <div fxLayout = "column" [fxFlex]="100"  fxLayoutAlign="center center">
 	<div [fxFlex]="100" [fxFlex.gt-sm]="80" class = "m-t-20">
-		<h4 class = "section-heading mat-display-1">
-			<small>HigherData.org makes higher education data accessible.</small>
-		</h4>
+		<img src="/assets/spray.gif"/>
 	</div>
 	<div [fxFlex] = "100" [fxFlex.gt-sm] = "80">
 		<app-site-content fxFlex=100 [handle] = "'about-page'"></app-site-content>
 	</div>
-</div>
+</div> -->
+<mat-jumbotron imgURL="/assets/spray.gif">
+  <mat-jumbotron-content>
+    <h1 class="display-1" ngClass.xs="display-3 text-center" ngClass.sm="display-3">Welcome to HigherData!</h1>
+    <p class="headline" ngClass.xs="text-center">An accessible collection of higher education data</p>
+
+    <div fxLayout="column"
+         fxLayoutGap.xs="1rem"
+         fxLayoutAlign ="center center"
+         fxLayoutAlign.gt-sm="center start">
+      <a mat-button
+         color="accent"
+         (click)="goto('charts')">
+        <h2 class = "display-2">Charts</h2>
+      </a>
+      <a mat-button
+         color="accent"
+         (click) = "goto('tables')">
+        <h2 class = "display-2">Tables</h2>
+      </a>
+      <a mat-button
+         color="accent"
+         (click)="goto('sources')">
+ 		<h2 class = "display-2">Sources</h2>
+      </a>
+    </div>
+  </mat-jumbotron-content>
+</mat-jumbotron>

@@ -1,8 +1,9 @@
 app-header {
-    .main-nav {
+    .main-nav-container {
         position: fixed;
         z-index: 2;
         background-color: white;
+        max-width: 1600px;
         :hover {
             color: currentColor;
             text-decoration: none;
