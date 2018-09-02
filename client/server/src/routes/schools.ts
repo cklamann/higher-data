@@ -6,7 +6,8 @@ import { ChartExport, intChartExport } from '../modules/ChartExporter.module';
 import { ChartSchema } from '../schemas/ChartSchema';
 import { FormulaParser, intFormulaParserResult } from '../modules/FormulaParser.module';
 import * as Q from 'q';
-
+import * as _ from 'lodash'
+;
 let mongoose = require("mongoose");
 let router = Router();
 let School = SchoolSchema;
@@ -21,8 +22,9 @@ router.get('/', function(req, res, next) {
 });
 
 router.get('/:id', function(req, res, next) {
-	School.findOne({ unitid: req.params.id })
+	School.findOne({ unitid: _.toNumber(req.params.id) })
 		.then(school => {
+			console.log(school);
 			res.json(school);
 			return;
 		})

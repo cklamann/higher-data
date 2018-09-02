@@ -166,7 +166,7 @@ export class ChartCreatorComponent implements OnInit {
 	}
 	
 	private _mockTypes() {
-		return ['line', 'bar', 'area'];
+		return ['line', 'steam', 'area', 'bubble-stack'];
 	}
 
 }

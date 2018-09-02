@@ -21,7 +21,7 @@ export interface intSchoolSchema extends Document, intSchoolModel { };
 
 let schoolSchema: Schema = new Schema({
   id: ObjectId,
-  unitid: String,
+  unitid: Number,
   name: String,
   state: String,
   city: String,

@@ -17,6 +17,7 @@ export interface intSchoolQueryArgs {
 	ia?: string;
 	page?: string;
 	perPage?: string;
+	type?: string;
 }
 
 export interface intSchoolAggQueryArgs extends intSchoolQueryArgs {
