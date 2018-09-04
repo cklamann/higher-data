@@ -1,6 +1,6 @@
-@import '../../../../../themes/higher-theme/higher-palette.scss';
+@import '../../../../../themes/higher-theme/higher-palette';
 
-@import './_chart-sources-theme.component.scss';
+@import './_chart-sources-theme.component';
 
 @include chart-sources-theme($theme);
 

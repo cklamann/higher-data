@@ -12,6 +12,8 @@ export interface intSchoolQueryArgs {
 	match2vals?: string;
 	match3var?: string;
 	match3vals?: string;
+	match4var?: string;
+	match4vals?: string;
 	sort?: string;
 	order?: string;
 	ia?: string;
