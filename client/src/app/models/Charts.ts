@@ -6,6 +6,8 @@ import { intChartExport, intChartExportOptions } from '../../../server/src/modul
 import { intChartDisplayOptions } from '../modules/chart/models/BaseChart';
 import { LineChart } from '../modules/chart/models/LineChart';
 import { AreaChart } from '../modules/chart/models/AreaChart';
+import { SteamChart } from '../modules/chart/models/SteamChart';
+import { BubbleStackChart } from '../modules/chart/models/BubbleStackChart';
 import 'rxjs/add/operator/map';
 import { intSchoolModel } from '../../../server/src/schemas/SchoolSchema';
 import { intFormulaParserResult } from '../../../server/src/modules/FormulaParser.module';
@@ -31,15 +33,15 @@ export class Charts {
 
 	delete(_id: string): Observable<any> {
 		return this.rest.delete(`charts/${_id}`);
-	} 
+	}
 
 	fetchChart(schoolSlug: string, chartSlug: string, options: intChartExportOptions = {}): Observable<intChartExport> {
 		var queryString = "";
-		if(!_.isEmpty(options)){
+		if (!_.isEmpty(options)) {
 			queryString = "?" + Object.entries(options)
-									.map( pair => pair[0] + "=" + pair[1])
-									.join("&")
-									.replace(/\+/g,"%2B");
+				.map(pair => pair[0] + "=" + pair[1])
+				.join("&")
+				.replace(/\+/g, "%2B");
 		}
 		return this.rest.get(`schools/${schoolSlug}/charts/${chartSlug}${queryString}`);
 	}
@@ -58,6 +60,10 @@ export class Charts {
 				return new LineChart(chartData, selector, overrides);
 			case "area":
 				return new AreaChart(chartData, selector, overrides);
+			case "steam":
+				return new SteamChart(chartData, selector, overrides);
+			case "bubble-stack":
+				return new BubbleStackChart(chartData, selector, overrides);
 		}
 	}
 }

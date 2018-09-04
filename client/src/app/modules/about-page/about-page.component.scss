@@ -1,17 +1,5 @@
-app-about-page {
-    .content {
-        max-width: 1000px;
-    }
-    mat-jumbotron {
-        img {
-            &.mat-card-xl-image {
-                flex-grow: 1;
-                height: auto;
-                width: 80%;
-            }
-            div {
-            	flex: 1 1 20%;
-            }
-        }
-    }
-}
+@import '../../../themes/higher-theme/higher-palette';
+
+@import './_about-page-theme.component';
+
+@include about-page-theme($theme);

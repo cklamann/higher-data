@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { JsonpModule } from '@angular/http';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from '../app-routing/app-routing.module';
@@ -16,11 +17,12 @@ import { InterceptService } from '../../services/intercept/intercept.service';
 import { AuthService } from '../../services/auth/auth.service';
 import { RestService } from '../../services/rest/rest.service';
 
+
 @NgModule({
 	//imports will be available to all components in module 
 	imports: [BrowserModule, BrowserAnimationsModule, AppRoutingModule, ChartPageModule, AdminModule,
 		GlobalLayoutModule, FlexLayoutModule, HttpClientModule, BlogModule, SharedModule, ChartModule,
-		AboutPageModule],
+		AboutPageModule, JsonpModule],
 	declarations: [AppComponent], //list all components in the module
 	bootstrap: [AppComponent],
 	providers: [{

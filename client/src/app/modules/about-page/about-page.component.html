@@ -1,27 +1,33 @@
-<mat-jumbotron imgURL="/assets/spray.gif">
-  <mat-jumbotron-content>
-    <h1 class="display-1" ngClass.xs="display-3 text-center" ngClass.sm="display-3">Welcome to HigherData!</h1>
-    <p class="headline" ngClass.xs="text-center">An accessible collection of higher education data</p>
+<div class = "about-page-container" fxFlex fxLayout="row">
+  <div fxShow.lt-md = "false" class = "chart-container" fxFlex = "66" fxShrink = "1" fxLayout="column" fxLayoutAlign = "center center">
+    <div class = "chart-title" fxFlex>
+      <h2>Highest In-State Tuition in {{getStateName()}} by Sector</h2>
+    </div>
+    <app-trend-chart #bubbleChart [chartData]="chartData" (onChartEmpty) = setChartEmpty($event) fxFlex = "100"></app-trend-chart>
+    <div class = "legend" fxFlex= "80" fxLayout = "column" fxLayoutAlign = "center start">
+    </div>
+  </div>
+  <div class = "link-container" fxFlex fxLayout="column" fxLayoutAlign = "center center" fxLayoutAlign.gt-sm = "start start">
+    <h1 class = "m-b-5" ngClass.xs="display-3 text-center" ngClass.sm="display-3">Welcome to HigherData!</h1>
+    <p ngClass.xs="text-center" class = "m-b-5">An accessible collection of higher education data</p>
+    <p ngClass.xs="text-center">Use the links below to explore education data for over 10,000 schools</p>
 
     <div fxLayout="column"
          fxLayoutGap.xs="1rem"
          fxLayoutAlign ="center center"
          fxLayoutAlign.gt-sm="center start">
       <a mat-button
-         color="accent"
          (click)="goto('charts')">
         <h2 class = "display-2">Charts</h2>
       </a>
       <a mat-button
-         color="accent"
          (click) = "goto('tables')">
         <h2 class = "display-2">Tables</h2>
       </a>
       <a mat-button
-         color="accent"
          (click)="goto('sources')">
- 		<h2 class = "display-2">Sources</h2>
+       		<h2 class = "display-2">Sources</h2>
       </a>
     </div>
-  </mat-jumbotron-content>
-</mat-jumbotron>
+  </div>
+</div>

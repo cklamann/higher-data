@@ -1,0 +1,9 @@
+@import '~@angular/material/theming';
+@mixin about-page-theme($theme) {
+    $primary: map-get($theme, primary);
+    app-about-page {
+        a {
+            color: mat-color($primary);
+        }
+    }
+}
