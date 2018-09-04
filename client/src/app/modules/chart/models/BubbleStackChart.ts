@@ -50,6 +50,30 @@ export class BubbleStackChart extends BaseChart {
 
 		let that = this;
 
+
+		const radiusMax = (this.width / this.chartData.data[0].data.length) / 2;
+
+		this.xScale = d3.scaleTime().range([radiusMax, this.width]);
+		this.yScale = d3.scaleLinear().range([this.height, radiusMax]);
+		this.rScale = d3.scaleLinear().range([0, radiusMax]);
+
+		this.xAxis = d3.axisBottom(this.xScale)
+			.tickFormat(x => this.formatAY(x));
+
+		this.xGrid = d3.axisBottom(this.xScale)
+			.tickSizeInner(-this.height)
+			.tickFormat(x => "");
+
+		this.yAxis = d3.axisLeft(this.yScale)
+			.tickFormat(x => this.formatNumber(x, this.displayOptions.valueType).replace(/\.00/, ""));
+
+
+
+		this.yGrid = d3.axisLeft(this.yScale)
+			.tickSizeInner(-this.width)
+			.tickFormat(x => "");
+
+
 		let dateRange = this.chartData.getDateRange();
 		this.xScale.domain(d3.extent(dateRange));
 		let tickNumber = dateRange.length > 20 ? 20 : dateRange.length;
