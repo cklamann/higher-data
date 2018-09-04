@@ -154,7 +154,7 @@ export class AboutPageComponent implements OnInit {
 		return states.find(item => item.abbreviation === this.stabbr).name;
 	}
 
-	setChartEmpty() {
+	setChartEmpty($event) {
 		//return console.log('i\'m setting chart empty');
 	}
 
