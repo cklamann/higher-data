@@ -155,7 +155,7 @@ export class AboutPageComponent implements OnInit {
 	}
 
 	setChartEmpty() {
-		return console.log('i\'m setting chart empty');
+		//return console.log('i\'m setting chart empty');
 	}
 
 
