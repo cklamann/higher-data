@@ -1,4 +1,4 @@
 export const environment = {
-  apiRoot: this.apiRoot = '/api',
+  apiRoot: '/api',
   production: true
 };

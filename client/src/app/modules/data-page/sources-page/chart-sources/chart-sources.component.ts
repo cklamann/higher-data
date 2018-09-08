@@ -1,3 +1,5 @@
+
+import {first} from 'rxjs/operators';
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { intChartModel } from '../../../../../../server/src/schemas/ChartSchema';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -47,8 +49,8 @@ export class ChartSourcesComponent implements OnInit {
 			}
 		}),
 			uniqueSymbolNodes = _.uniq(_.flatMap(definitions, definition => definition.variables));
-		this.vds.fetchByName(uniqueSymbolNodes.join(","))
-			.first().subscribe(defs => {
+		this.vds.fetchByName(uniqueSymbolNodes.join(",")).pipe(
+			first()).subscribe(defs => {
 				definitions.forEach(def => {
 					let matches: intVariableDefinitionModel[] = [];
 					defs.forEach(df => {

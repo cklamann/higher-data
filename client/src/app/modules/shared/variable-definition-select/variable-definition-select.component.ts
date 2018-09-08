@@ -1,10 +1,12 @@
+
+import {debounceTime, switchMap, first} from 'rxjs/operators';
 import { Component, OnInit, QueryList, Output, Input, EventEmitter, OnChanges, SimpleChanges, ViewChildren } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSelect, MatOption } from '@angular/material';
 import { VariableDefinitions } from '../../../models/VariableDefinitions';
 import { intVariableDefinitionModel } from '../../../../../server/src/schemas/VariableDefinitionSchema';
-import 'rxjs/add/operator/debounceTime';
-import 'rxjs/add/operator/map';
+
+
 
 
 @Component({
@@ -34,11 +36,11 @@ export class VariableDefinitionSelectComponent implements OnInit {
 
 	ngOnInit() {
 		this.createForm();
-		this.VariableDefinitions.fetchAll(this.defined)
-			.switchMap(res => {
+		this.VariableDefinitions.fetchAll(this.defined).pipe(
+			switchMap(res => {
 				this.variables = res;
 				return this.options.changes;
-			})
+			}))
 			.subscribe(change => {
 				if (change.length) {
 					change.forEach(option => {
@@ -62,7 +64,7 @@ export class VariableDefinitionSelectComponent implements OnInit {
 
 	updateForm(vari: string) {
 		if (this.options.length === 0) {
-			this.options.changes.first().subscribe(change => {
+			this.options.changes.pipe(first()).subscribe(change => {
 				change.forEach(option => {
 					if (option.value && option.value.variable == vari) {
 						setTimeout(() => {
@@ -94,7 +96,7 @@ export class VariableDefinitionSelectComponent implements OnInit {
 				} else this.options.forEach(option => option.disabled = false);
 			})
 
-		this.VariableDefinitionSelectForm.valueChanges.debounceTime(500).subscribe(input => {
+		this.VariableDefinitionSelectForm.valueChanges.pipe(debounceTime(500)).subscribe(input => {
 			this.onVariableDefinitionSelect.emit(input.variable);
 		});
 	}

@@ -8,11 +8,11 @@ import { LineChart } from '../modules/chart/models/LineChart';
 import { AreaChart } from '../modules/chart/models/AreaChart';
 import { SteamChart } from '../modules/chart/models/SteamChart';
 import { BubbleStackChart } from '../modules/chart/models/BubbleStackChart';
-import 'rxjs/add/operator/map';
+
 import { intSchoolModel } from '../../../server/src/schemas/SchoolSchema';
 import { intFormulaParserResult } from '../../../server/src/modules/FormulaParser.module';
 import * as _ from 'lodash';
-import 'rxjs/add/observable/throw';
+
 
 
 @Injectable()

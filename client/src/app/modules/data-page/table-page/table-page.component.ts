@@ -1,3 +1,7 @@
+
+import {forkJoin as observableForkJoin,  Observable } from 'rxjs';
+
+import {debounceTime, catchError, map, distinctUntilChanged, first} from 'rxjs/operators';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatPaginator, MatSort, MatTableDataSource, PageEvent, MatInput } from '@angular/material';
@@ -12,10 +16,9 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { ModalLoadingComponent } from '../../shared/modals/loading/loading.component';
 import { ModalErrorComponent } from '../../shared/modals/error/error.component';
 import { VariableDefinitionSelectComponent } from '../../shared/variable-definition-select/variable-definition-select.component';
-import { Observable } from 'rxjs';
 import * as _ from 'lodash';
-import 'rxjs/add/operator/distinctUntilChanged';
-import 'rxjs/add/operator/map';
+
+
 
 interface intTableOptionsForm {
 	qVal: string,
@@ -107,8 +110,8 @@ export class TablePageComponent implements OnInit {
 				}
 			})
 
-		this.tableOptionsForm.valueChanges
-			.distinctUntilChanged((prev, curr) => this._onlyNameSearchChanged(prev, curr))
+		this.tableOptionsForm.valueChanges.pipe(
+			distinctUntilChanged((prev, curr) => this._onlyNameSearchChanged(prev, curr)))
 			.subscribe(change => {
 				this.query();
 			});
@@ -227,17 +230,17 @@ export class TablePageComponent implements OnInit {
 		let fetch = [this.schools.fetchData(queryString)];
 		//make sure we have our varDef data available for formatting
 		if (!this.selectedVariable) {
-			fetch.push(<any>this.varDefSelect.onVariableDefinitionSelect.first())
+			fetch.push(<any>this.varDefSelect.onVariableDefinitionSelect.pipe(first()))
 		}
 
-		Observable.forkJoin(...fetch)
-			.map(res => {
+		observableForkJoin(...fetch).pipe(
+			map(res => {
 				return new SchoolDataSourceAgg(res[0], this.tableOptionsForm.value.gbField)
-			}).catch((err, caught) => {
+			}),catchError((err, caught) => {
 				console.log(err);
 				return caught;
-			})
-			.debounceTime(500)
+			}),
+			debounceTime(500),)
 			.subscribe(resp => {
 				this.dialog.closeAll();
 				if (!_.isEmpty(resp)) {

@@ -1,3 +1,5 @@
+
+import {map, mergeMap} from 'rxjs/operators';
 import { Component, OnInit } from '@angular/core';
 import { Schools, School } from '../../../models/Schools';
 import { intSchoolModel } from '../../../../../server/src/schemas/SchoolSchema';
@@ -10,10 +12,10 @@ import { intBaseChartDatum } from '../../chart/models/ChartData';
 import { Router, ActivatedRoute } from '@angular/router';
 import * as _ from 'lodash';
 import { Observable } from 'rxjs';
-import 'rxjs/add/operator/mergeMap';
-import 'rxjs/add/operator/take';
-import 'rxjs/add/operator/concat';
-import 'rxjs/add/operator/switchMap';
+
+
+
+
 
 @Component({
 	selector: 'chart-page',
@@ -43,11 +45,11 @@ export class ChartPageComponent implements OnInit {
 		this.createForm();
 		let params = this.route.params;
 		let queryVars = this.route.queryParams; 
-		params.flatMap(param => {
-			return queryVars.map(qv => {
+		params.pipe(mergeMap(param => {
+			return queryVars.pipe(map(qv => {
 				return Object.assign({}, qv, param);
-			})
-		}).subscribe(params => {
+			}))
+		})).subscribe(params => {
 			if (params.chart && params.schoolSlug) {
 				const options = _.pickBy(params, (v,k) => k != "chart" && k != "school");				
 				this.Charts.fetchChart(params.schoolSlug, params.chart, options)

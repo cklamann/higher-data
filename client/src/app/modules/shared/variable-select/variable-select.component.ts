@@ -1,9 +1,11 @@
+
+import {debounceTime, switchMap, first} from 'rxjs/operators';
 import { Component, OnInit, QueryList, Output, Input, EventEmitter, OnChanges, SimpleChanges, ViewChildren} from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSelect, MatOption } from '@angular/material';
 import { VariableDefinitions } from '../../../models/VariableDefinitions';
-import 'rxjs/add/operator/debounceTime';
-import 'rxjs/add/operator/map';
+
+
 
 
 @Component({
@@ -31,12 +33,12 @@ export class VariableSelectComponent implements OnInit {
 
 	ngOnInit() {
 		this.createForm();
-		this.VariableDefinitions.fetchNames()
-			.switchMap(res => {
+		this.VariableDefinitions.fetchNames().pipe(
+			switchMap(res => {
 				this.variables = res;
 				return this.options.changes;
-			})
-			.first()//we are only interested in the initial values
+			}),
+			first(),)//we are only interested in the initial values
 			.subscribe(change => {
 				if (change.length) {
 					change.forEach(option => {
@@ -72,7 +74,7 @@ export class VariableSelectComponent implements OnInit {
 				} else this.options.forEach(option => option.disabled = false);
 			})
 
-		this.VariableSelectForm.valueChanges.debounceTime(500).subscribe(input => {
+		this.VariableSelectForm.valueChanges.pipe(debounceTime(500)).subscribe(input => {
 			this.onVariableSelect.emit(input.variable);
 		});
 	}
