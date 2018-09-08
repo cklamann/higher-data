@@ -19,7 +19,6 @@ import { SharedModule } from '../shared/shared.module';
 import { ChartModule } from '../chart/chart.module';
 import { Categories} from '../../models/Categories';
 import { SiteContent } from '../../models/SiteContent';
-import { NgxEditorModule } from 'ngx-editor';
  
 @NgModule({
   imports: [
@@ -36,8 +35,7 @@ import { NgxEditorModule } from 'ngx-editor';
     MatButtonModule,
     ReactiveFormsModule,
     SharedModule,
-    ChartModule,
-    NgxEditorModule
+    ChartModule
   ],
   declarations: [AdminPageComponent, LoginPageComponent, ChartCreatorComponent, VariableDefinerComponent, ContentManagerComponent],
   providers: [Users, RestService, InterceptService, VariableDefinitions, Categories, SiteContent]

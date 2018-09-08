@@ -1,3 +1,5 @@
+
+import {map} from 'rxjs/operators';
 import { Injectable } from '@angular/core';
 import { HttpInterceptor, HttpResponse, HttpErrorResponse, HttpHandler, HttpRequest, HttpEvent } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -13,13 +15,13 @@ export class InterceptService implements HttpInterceptor {
 		authReq = req.clone({
 			headers: req.headers.set('Authorization', `Basic ${token}`)
 		});
-		return next.handle(authReq)
-			.map((event: HttpEvent<any>) => {
+		return next.handle(authReq).pipe(
+			map((event: HttpEvent<any>) => {
 				if (event instanceof HttpResponse && event.status === 401) {
 					this.router.navigate(["/login"]);
 				}
 				return event;
-			});
+			}));
 	}
 
 }

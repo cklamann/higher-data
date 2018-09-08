@@ -1,3 +1,5 @@
+
+import {debounceTime, switchMap, first} from 'rxjs/operators';
 import { Component, OnInit, QueryList, Input, Output, EventEmitter, ViewChildren } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSelect, MatOption, MatOptgroup } from '@angular/material';
@@ -5,9 +7,9 @@ import { Charts } from '../../../models/Charts';
 import { intChartModel } from '../../../../../server/src/schemas/ChartSchema';
 import { Observable } from 'rxjs';
 import * as _ from 'lodash';
-import 'rxjs/add/operator/debounceTime';
-import 'rxjs/add/operator/switchMap';
-import 'rxjs/add/operator/first';
+
+
+
 
 interface intChartList {
 	category: string,
@@ -39,12 +41,12 @@ export class ChartSearchComponent implements OnInit {
 	}
 
 	ngOnInit() {
-		this.Charts.fetchAll()
-			.switchMap(res => {
+		this.Charts.fetchAll().pipe(
+			switchMap(res => {
 				this.charts = this._groupCharts(res);
 				return this.options.changes;
-			})
-			.first()
+			}),
+			first(),)
 			.subscribe(change => {
 				if (change.length) {
 					change.forEach(option => {
@@ -68,7 +70,7 @@ export class ChartSearchComponent implements OnInit {
 	}
 
 	listenForSearchChanges(): void {
-		this.chartSelectForm.valueChanges.debounceTime(500).subscribe(input => {
+		this.chartSelectForm.valueChanges.pipe(debounceTime(500)).subscribe(input => {
 			this.onChartSelect.emit(input.chart);
 		});
 	}

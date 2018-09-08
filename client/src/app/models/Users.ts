@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { intUserModel } from '../../../server/src/schemas/UserSchema';
 import { RestService } from '../services/rest/rest.service';
 import { Observable } from 'rxjs';
-import 'rxjs/add/observable/throw';
+
 
 
 @Injectable()

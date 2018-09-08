@@ -3,7 +3,7 @@ import { intUserModel } from '../../../server/src/schemas/UserSchema';
 import { RestService } from '../services/rest/rest.service';
 import { Observable } from 'rxjs';
 import {intCategoryModel} from '../../../server/src/schemas/CategorySchema';
-import 'rxjs/add/observable/throw';
+
 
 
 @Injectable()

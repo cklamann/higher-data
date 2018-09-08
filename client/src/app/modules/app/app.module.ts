@@ -21,7 +21,8 @@ import { RestService } from '../../services/rest/rest.service';
 @NgModule({
 	//imports will be available to all components in module 
 	imports: [BrowserModule, BrowserAnimationsModule, AppRoutingModule, ChartPageModule, AdminModule,
-		GlobalLayoutModule, FlexLayoutModule, HttpClientModule, BlogModule, SharedModule, ChartModule,
+		GlobalLayoutModule, FlexLayoutModule.withConfig({ addFlexToParent: false }),
+		HttpClientModule, BlogModule, SharedModule, ChartModule,
 		AboutPageModule, JsonpModule],
 	declarations: [AppComponent], //list all components in the module
 	bootstrap: [AppComponent],

@@ -1,9 +1,11 @@
+
+import {debounceTime} from 'rxjs/operators';
 import { Component, OnInit, Output, Input, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Schools, School } from '../../../models/Schools';
 import { intSchoolModel } from '../../../../../server/src/schemas/SchoolSchema';
-import 'rxjs/add/operator/debounceTime';
-import 'rxjs/add/operator/map';
+
+
 
 @Component({
 	selector: 'app-school-search',
@@ -45,7 +47,7 @@ export class SchoolSearchComponent implements OnInit {
 	}
 
 	listenForSearchChanges(): void {
-		this.searchForm.valueChanges.debounceTime(500).subscribe(input => {
+		this.searchForm.valueChanges.pipe(debounceTime(500)).subscribe(input => {
 			if (input.searchText.length > 3 && input.searchText != this.searchTerm) {
 				this.onSchoolSelect.emit(null);
 				this.searchTerm = input.searchText;

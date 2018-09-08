@@ -1,3 +1,5 @@
+
+import {map} from 'rxjs/operators';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { User } from '../../models/Users';
@@ -16,15 +18,15 @@ export class AuthService implements intAuthService {
 	}
 
 	public login(username: string, password: string): Observable<void> {
-		return this.rest.post(`users/login`, { username: username, password: password })
-			.map(res => {
+		return this.rest.post(`users/login`, { username: username, password: password }).pipe(
+			map(res => {
 				if (res.password) {
 					localStorage.setItem("tihe_token", btoa(`${res.username}:${res.password}`));
 					this.user = new User(res);
 				} else {
 					res.throw();
 				}
-			});
+			}));
 	}
 
 	public authorize(): Promise<boolean> {
