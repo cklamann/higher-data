@@ -9,8 +9,10 @@ import { ChartPageComponent } from './chart-page/chart-page.component';
 import { SharedModule } from '../shared/shared.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FlexLayoutModule } from "@angular/flex-layout";
-import { MatRadioModule, MatTabsModule, MatCardModule, MatSelectModule, 
-	MatDividerModule, MatSortModule, MatPaginatorModule, MatDialogModule, MatInputModule } from '@angular/material';
+import {
+	MatRadioModule, MatTabsModule, MatCardModule, MatSelectModule,
+	MatDividerModule, MatSortModule, MatPaginatorModule, MatDialogModule, MatInputModule
+} from '@angular/material';
 import { MatButtonModule } from '@angular/material/button';
 import { AppRoutingModule } from '../app-routing/app-routing.module';
 import { ChartModule } from '../chart/chart.module';
@@ -23,14 +25,15 @@ import { VariableSourcesComponent } from './sources-page/variable-sources/variab
 import { SourceDisplayComponent } from './sources-page/source-display/source-display.component';
 
 @NgModule({
-	//imports will be available to all components in module 
-	imports: [BrowserModule, HttpClientModule, ReactiveFormsModule, MatTabsModule, 
-				BrowserAnimationsModule, FlexLayoutModule, AppRoutingModule, 
-				SharedModule, ChartModule, MatRadioModule, MatCardModule, MatTableModule, 
-				MatButtonModule, MatSelectModule, MatDividerModule, MatPaginatorModule, MatSortModule,
-				MatDialogModule, MatInputModule],
-	declarations: [ChartPageComponent, DataPageComponent, TablePageComponent, SourcesPageComponent, 
-				ChartSourcesComponent, VariableSourcesComponent, SourceDisplayComponent], //list all components in the module
+	imports: [BrowserModule, HttpClientModule, ReactiveFormsModule, MatTabsModule,
+		BrowserAnimationsModule, FlexLayoutModule.withConfig({
+			addFlexToParent: false
+		}), AppRoutingModule,
+		SharedModule, ChartModule, MatRadioModule, MatCardModule, MatTableModule,
+		MatButtonModule, MatSelectModule, MatDividerModule, MatPaginatorModule, MatSortModule,
+		MatDialogModule, MatInputModule],
+	declarations: [ChartPageComponent, DataPageComponent, TablePageComponent, SourcesPageComponent,
+		ChartSourcesComponent, VariableSourcesComponent, SourceDisplayComponent], //list all components in the module
 	providers: [RestService, Schools] // module-wide providers, still need to be imported in each component
 })
 
