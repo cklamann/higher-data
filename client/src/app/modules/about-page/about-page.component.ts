@@ -11,7 +11,7 @@ import { states } from '../../services/data/states';
 import { sectors } from '../../services/data/sectors';
 import { intSchoolQueryArgs } from '../../../../server/src/routes/schoolData';
 import { concatMap, first } from 'rxjs/operators';
-import { Observable, Subscription } from 'rxjs/Rx';
+import { Observable, Subscription } from 'rxjs';
 import { ChartData } from '../chart/models/ChartData';
 import * as _ from 'lodash';
 

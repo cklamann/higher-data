@@ -17,11 +17,15 @@ import { InterceptService } from '../../services/intercept/intercept.service';
 import { AuthService } from '../../services/auth/auth.service';
 import { RestService } from '../../services/rest/rest.service';
 
+FlexLayoutModule.withConfig({
+	addFlexToParent: false
+})
 
 @NgModule({
 	//imports will be available to all components in module 
 	imports: [BrowserModule, BrowserAnimationsModule, AppRoutingModule, ChartPageModule, AdminModule,
-		GlobalLayoutModule, FlexLayoutModule.withConfig({ addFlexToParent: false }),
+		GlobalLayoutModule,
+		FlexLayoutModule,
 		HttpClientModule, BlogModule, SharedModule, ChartModule,
 		AboutPageModule, JsonpModule],
 	declarations: [AppComponent], //list all components in the module
