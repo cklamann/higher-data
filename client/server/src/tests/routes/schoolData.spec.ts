@@ -6,7 +6,7 @@ import chaiAsPromised = require('chai-as-promised');
 const app = require('../../app');
 chai.use(chaiHttp);
 chai.use(chaiAsPromised);
-const connection = chai.request(app);
+const connection = chai.request(app).keepOpen();
 
 describe('fetch for missouri', () => {
 	it('should return 200 with first 7 missouri rows', done => {
@@ -76,4 +76,8 @@ describe('fetch aggregate with a match filter', () => {
 				done();
 			}).catch(err => done(err));
 	});
+});
+
+after( () => {
+	connection.close();
 });

@@ -1,3 +1,4 @@
+require('dotenv').config();
 import * as express from 'express';
 import * as path from 'path';
 const logger = require('morgan');
@@ -13,16 +14,16 @@ import * as _ from 'lodash';
 const helmet = require('helmet');
 const compression = require('compression');
 
-const users = require('./routes/users');
-const schools = require('./routes/schools');
-const variables = require('./routes/variables');
-const charts = require('./routes/charts');
-const categories = require('./routes/categories');
-const siteContent = require('./routes/siteContent');
-const schoolData = require('./routes/schoolData');
+const users = require('./routes/users'),
+  schools = require('./routes/schools'),
+  variables = require('./routes/variables'),
+  charts = require('./routes/charts'),
+  categories = require('./routes/categories'),
+  siteContent = require('./routes/siteContent'),
+  schoolData = require('./routes/schoolData');
 
-if(process.env.ENVI === 'DEV'){
-  mongoose.set('debug', true);  
+if (process.env.ENVI === 'DEV') {
+  mongoose.set('debug', true);
 }
 
 const app = express();
@@ -40,7 +41,7 @@ app.use(passport.initialize());
 passport.use(new BasicStrategy(
   function(userid: string, password: string, done: any) {
     UserSchema.findOne({ username: userid }, function(err, user) {
-      if (err){ 
+      if (err) {
         return done(err);
       }
       if (!user) return done(null, false);
@@ -50,17 +51,18 @@ passport.use(new BasicStrategy(
   }
 ));
 
-const userpass = process.env.DB_USERNAME && process.env.DB_PASSWORD ? 
-                  process.env.DB_USERNAME + ':' + process.env.DB_PASSWORD + '@' : '';
+const userpass = process.env.DB_USERNAME && process.env.DB_PASSWORD ?
+  process.env.DB_USERNAME + ':' + process.env.DB_PASSWORD + '@' : '',
+  connection = `mongodb://${userpass}${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`;
 
-mongoose.connect('mongodb://' + 
-                  userpass + 
-                  process.env.DB_HOST + ':' +
-                  process.env.DB_PORT + '/' +
-                  process.env.DB_NAME);
+mongoose.connect(connection,
+  { useNewUrlParser: true })
+  .catch((err: any) => {
+    console.log(err);
+  });
 
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());   
+app.use(bodyParser.json());
 
 app.use('/api/users', users);
 app.use('/api/schools', schools);
@@ -74,7 +76,7 @@ app.use(function(req, res, next) {
   if (req.path.match(/\/api\/.+/)) {
     res.sendStatus(404);
   } else {
-    res.sendFile(path.join(__dirname,"public/index.html"), () => {
+    res.sendFile(path.join(__dirname, "public/index.html"), () => {
       return;
     });
   }

@@ -26,7 +26,10 @@ export interface intChartExportOptions {
 
 export class ChartExport {
 
-	constructor(public school: intSchoolModel, public chart: intChartModel, private options: intChartExportOptions = {}) {
+	constructor(public school: intSchoolModel,
+		public chart: intChartModel,
+		private options: intChartExportOptions = {}
+	) {
 		if (this.options.cut) {
 			this.chart.variables.forEach(vari => {
 				vari.formula = '(' + vari.formula + ')' + '/(' + this.options.cut + ')';
