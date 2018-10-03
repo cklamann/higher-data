@@ -31,23 +31,22 @@ export class ChartExport {
 		private options: intChartExportOptions = {}
 	) {
 		if (this.options.cut) {
-			this.chart.variables.forEach(vari => {
+			this.chart.variables = this.chart.variables.map(vari => {
 				vari.formula = '(' + vari.formula + ')' + '/(' + this.options.cut + ')';
+				return vari;
 			});
 		}
 	}
 
 	public export(): Promise<intChartExport> {
-		let promises: Promise<intFormulaParserResult[]>[] = [];
-		this.chart.variables.forEach((variable: intChartVariableModel) => {
+		let promises = this.chart.variables.map((variable: intChartVariableModel) => {
 			let varVal = new FormulaParser(variable.formula);
-			promises.push(varVal.execute(this.school.unitid));
+			return varVal.execute(this.school.unitid);
 		});
 		return Promise.all(promises)
 			.then(values => {
 				if (this.options.inflationAdjusted == 'true') {
-					let promises: Promise<intFormulaParserResult[]>[] = [];
-					values.forEach(value => promises.push(this._adjustForInflation(value)));
+					let promises = values.map(value => this._adjustForInflation(value));
 					return Promise.all(promises);
 				} else return values;
 			})

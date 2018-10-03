@@ -21,7 +21,9 @@ export class FormulaParser {
 		this.formula = formula;
 		this.cleanFormula = this._stripOptionalMarkers(formula);
 		this.symbolNodes = this._getSymbolNodes(this.cleanFormula);
-		this.optionalSymbolNodes = this._getSymbolNodes(this.formula).filter(node => node.match(/^__opt_.+/)).map(node => this._stripOptionalMarkers(node));
+		this.optionalSymbolNodes = this._getSymbolNodes(this.formula)
+			.filter(node => node.match(/^__opt_.+/))
+			.map(node => this._stripOptionalMarkers(node));
 	}
 
 	public validate() {
@@ -58,15 +60,17 @@ export class FormulaParser {
 
 	public execute(unitid: string): Promise<intFormulaParserResult[]> {
 		let qc = SchoolDataQuery.createBase();
-		qc.addMatch('unitid',unitid);
+		qc.addMatch('unitid', unitid);
 		qc.addMatch('variable', this.symbolNodes);
 		return SchoolDataSchema.schema.statics.fetch(qc)
 			.then((result: intSchoolDataBaseQueryResult) => {
 				const data = result ? result.data.map(item => {
-					return {fiscal_year: item.fiscal_year, 
-							variable: item.variable, 
-							value: item.value}
-						}) : [],
+					return {
+						fiscal_year: item.fiscal_year,
+						variable: item.variable,
+						value: item.value
+					}
+				}) : [],
 					fullData = this._fillMissingOptionalData(data),
 					transformedData = this._transformModelForFormula(fullData);
 				return this._evaluate(transformedData);
@@ -78,11 +82,12 @@ export class FormulaParser {
 
 		yearRange.forEach(year => {
 			this.optionalSymbolNodes.forEach(optionalNode => {
-				if(!schoolData.find(datum => datum.fiscal_year === year && datum.variable === optionalNode)){
+				if (!schoolData.find(datum => datum.fiscal_year === year && datum.variable === optionalNode)) {
 					schoolData.push({
-					"fiscal_year": year,
-					"variable": optionalNode,
-					"value": 0});
+						"fiscal_year": year,
+						"variable": optionalNode,
+						"value": 0
+					});
 				}
 			});
 		});
