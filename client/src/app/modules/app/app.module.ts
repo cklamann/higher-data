@@ -5,7 +5,7 @@ import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from '../app-routing/app-routing.module';
 import { GlobalLayoutModule } from '../global-layout/global-layout.module'
-import { FlexLayoutModule } from "@angular/flex-layout";
+import { FlexLayoutModule, BREAKPOINT } from "@angular/flex-layout";
 import { AdminModule } from '../admin/admin.module';
 import { ChartPageModule } from '../data-page/data-page.module';
 import { SharedModule } from '../shared/shared.module'
@@ -17,7 +17,14 @@ import { InterceptService } from '../../services/intercept/intercept.service';
 import { AuthService } from '../../services/auth/auth.service';
 import { RestService } from '../../services/rest/rest.service';
 
+//hack past undocumented bug in flex-layout that breaks AOT build if no BREAKPOINT token provided
+const FAKE_BREAKPOINTS = [];
 
+const FakeBreakPointsProvider = {
+	provide: BREAKPOINT,
+	useValue: FAKE_BREAKPOINTS,
+	multi: true
+};
 
 @NgModule({
 	//imports will be available to all components in module 
@@ -35,7 +42,9 @@ import { RestService } from '../../services/rest/rest.service';
 		useClass: InterceptService,
 		multi: true
 	},
-		AuthService]
+		AuthService,
+		FakeBreakPointsProvider
+	]
 })
 
 export class AppModule { }
