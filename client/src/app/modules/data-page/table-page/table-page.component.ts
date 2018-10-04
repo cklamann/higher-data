@@ -1,7 +1,7 @@
 
-import {forkJoin as observableForkJoin,  Observable } from 'rxjs';
+import { forkJoin as observableForkJoin, Observable } from 'rxjs';
 
-import {debounceTime, catchError, map, distinctUntilChanged, first} from 'rxjs/operators';
+import { debounceTime, catchError, map, distinctUntilChanged, first } from 'rxjs/operators';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatPaginator, MatSort, MatTableDataSource, PageEvent, MatInput } from '@angular/material';
@@ -108,6 +108,10 @@ export class TablePageComponent implements OnInit {
 						qVal: ''
 					});
 				}
+				this.tableOptionsForm.patchValue({
+					page: 1
+				},{emitEvent: false});
+				this.tablePaginator.firstPage();
 			})
 
 		this.tableOptionsForm.valueChanges.pipe(
@@ -236,11 +240,12 @@ export class TablePageComponent implements OnInit {
 		observableForkJoin(...fetch).pipe(
 			map(res => {
 				return new SchoolDataSourceAgg(res[0], this.tableOptionsForm.value.gbField)
-			}),catchError((err, caught) => {
+			}), catchError((err, caught) => {
 				console.log(err);
 				return caught;
 			}),
-			debounceTime(500),)
+			debounceTime(500),
+		)
 			.subscribe(resp => {
 				this.dialog.closeAll();
 				if (!_.isEmpty(resp)) {
@@ -263,7 +268,7 @@ export class TablePageComponent implements OnInit {
 	}
 
 	setVisibleColumns() {
-		let numCols =  window.innerWidth > 600 ? window.innerWidth > 1000 ? 5 : 3 : 1;
+		let numCols = window.innerWidth > 600 ? window.innerWidth > 1000 ? 5 : 3 : 1;
 		this.visibleColumns = [];
 		if (this._columnIndex > 0) {
 			this.visibleColumns.push(this._columns[0]);

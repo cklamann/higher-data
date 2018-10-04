@@ -105,11 +105,17 @@ describe('ChartExporter', function() {
     }]
   }
 
+  //so according to tests, all calls are hanging, creates and otherwise... why? 
+  //how the hell do we find out what's happening with these calls?
+
+
   //give newData test_var_1 and test_var_2
+
   before('seed first and create variables', function(done) {
     SchoolDataSchema.create(nwData_school_data)
-      .then( () => SchoolSchema.create(nwData))  
-      .then( () => done()).catch((err) => done(err));
+      .then(() => SchoolSchema.create(nwData))
+      .then(() => done())
+      .catch((err) => done(err));
   });
 
   //give sector6 test_var_3 and test_var_4
@@ -119,20 +125,22 @@ describe('ChartExporter', function() {
       return x;
     });
     SchoolDataSchema.create(nwDataSector6_school_data)
-      .then( () => SchoolSchema.create(nwDataSector6))  
-      .then( () => done()).catch((err) => done(err));
-
+      .then(() => SchoolSchema.create(nwDataSector6))
+      .then(() => done())
+      .catch((err) => done(err));
   });
 
   //save variables
   before('seed variables', function(done) {
     VariableDefinitionSchema.create([testVar1, testVar2])
-      .then(() => done()).catch((err) => done(err));
+      .then(() => done())
+      .catch((err) => done(err));
   });
 
   before('seed other variables', function(done) {
     VariableDefinitionSchema.create([testVar3, testVar4])
-      .then(() => done()).catch((err) => done(err));
+      .then(() => done())
+      .catch((err) => done(err));
   });
 
 
