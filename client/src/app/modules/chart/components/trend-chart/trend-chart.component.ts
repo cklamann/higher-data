@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, AfterViewInit, OnChanges, Input, SimpleChanges, HostListener } from '@angular/core';
 import { Charts } from '../../../../models/Charts';
 import { RestService } from '../../../../services/rest/rest.service';
 import { intChartExport } from '../../../../../../server/src/modules/ChartExporter.module';
@@ -14,37 +14,31 @@ import * as _ from 'lodash';
 })
 
 
-export class TrendChartComponent implements OnInit {
+export class TrendChartComponent {
 
 	@Input() chartData: intChartExport;
 	@Input() chartOverrides: object = {};
 	@Output() onChartEmpty: EventEmitter<boolean> = new EventEmitter<boolean>();
 
 	chart: BaseChart;
-	myRandomSelector: string = "selector" + Math.floor(Math.random() * 10000)
+	myRandomSelector: string = "selector" + Math.floor(Math.random() * 10000);
 
-	constructor(private Charts: Charts) {}
+	constructor(private Charts: Charts) { }
 
-	ngOnInit() { 
-		(() => {
-			window.addEventListener("resize", resizeThrottler, false);
-			var resizeTimeout;
-			function resizeThrottler() {
-				if (!resizeTimeout) {
-					resizeTimeout = setTimeout( () => {
-						resizeTimeout = null;
-						actualResizeHandler();
-					}, 150);
-				}
+	@HostListener('window:resize', ['$event'])
+	resizeThrottler() {
+		let resizeTimeout;
+		if (!resizeTimeout) {
+			resizeTimeout = setTimeout(() => {
+				resizeTimeout = null;
+				actualResizeHandler();
+			}, 150);
+		}
+		let actualResizeHandler = () => {
+			if (this.chart) {
+				this.chart.redraw();
 			}
-
-			let actualResizeHandler = () => {
-				if(this.chart){
-					this.chart.redraw();
-				}
-			}
-
-		})();
+		}
 	}
 
 	ngOnChanges(changes: SimpleChanges) {

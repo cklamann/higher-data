@@ -23,15 +23,13 @@ import * as _ from 'lodash';
 })
 export class AboutPageComponent implements OnInit {
 
-	@ViewChild('bubbleChart') bubbleChart: any;
+	@ViewChild('bubbleChart') bubbleChart: TrendChartComponent;
 
 	chartData: intChartExport;
 	stabbr: string = "PA";
 	bubbleSubscription: Subscription;
 	private _chartData: any;
 	constructor(private router: Router,
-		private Charts: Charts,
-		private Schools: Schools,
 		private rest: RestService) { }
 
 	ngOnInit() {
@@ -143,6 +141,8 @@ export class AboutPageComponent implements OnInit {
 	}
 
 	ngOnDestroy() {
+		this.bubbleChart.chart.remove();
+		delete this.bubbleChart;
 		this.bubbleSubscription.unsubscribe();
 	}
 
