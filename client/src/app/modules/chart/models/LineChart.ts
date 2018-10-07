@@ -30,7 +30,7 @@ export class LineChart extends BaseChart {
 			.tickFormat(x => "");
 
 		this.yAxis = d3.axisLeft(this.yScale)
-			.tickFormat(x => this.formatNumber(x, this.displayOptions.valueType).replace(/\.00/,""));
+			.tickFormat(x => this.formatNumber(x, this.displayOptions.valueType).replace(/\.00/, ""));
 
 		this.canvas.append("g")
 			.attr("class", "axis axis--y");
@@ -72,11 +72,11 @@ export class LineChart extends BaseChart {
 
 		const line: d3.Line<any> = d3.line()
 			.x((d: any) => this.xScale(d.fiscal_year))
-			.y((d: any) => this.yScale(d.value));
+			.y((d: any) => this.yScale(d.value)),
+			paths = this.canvas.selectAll(".path").data(this.chartData.data, (d: any) => d.key),
+			removedPaths = paths.exit().remove(),
+			enteredPaths = paths.enter().append("path").attr("class", "path");
 
-		let paths = this.canvas.selectAll(".path").data(this.chartData.data, (d: any) => d.key);
-		let removedPaths = paths.exit().remove();
-		let enteredPaths = paths.enter().append("path").attr("class", "path");
 		enteredPaths.merge(paths)
 			.attr("d", d => line(d.data))
 			.style("stroke-width", 2)
@@ -86,13 +86,12 @@ export class LineChart extends BaseChart {
 
 		const tool = d3.select("body").append("div")
 			.attr("class", "d3-tip")
-			.style("opacity", 0);
-
-		const circles = this.canvas.selectAll(".circle");
-		const circlesWithData = circles.data(this.chartData.data, (d: any) => d.key);
-		const removedCircles = circlesWithData.exit().remove();
-		const enteredCircles = circlesWithData.enter().append("g")
-			.attr("class", "circle");
+			.style("opacity", 0),
+			circles = this.canvas.selectAll(".circle"),
+			circlesWithData = circles.data(this.chartData.data, (d: any) => d.key),
+			removedCircles = circlesWithData.exit().remove(),
+			enteredCircles = circlesWithData.enter().append("g")
+				.attr("class", "circle");
 
 		circlesWithData.merge(enteredCircles)
 			.each(function(item) {
@@ -132,13 +131,13 @@ export class LineChart extends BaseChart {
 			.append("li")
 			.attr("class", "legend-element")
 			.merge(legend)
-			.html((d, i) => "<span style='color:" + 
-							this.zScale(d.key) + 
-							"'><i class='fa fa-circle'></i></span> " + 
-							d.legendName + 
-							"&nbsp;<i class='fa fa-close" + " " + d.key + "' style='display:none'></i>")
-			.on("mouseover", (d) => d3.select('.' + d.key).style("display","inline"))
-			.on("mouseout", (d) => d3.select('.' + d.key).style("display","none"))
+			.html((d, i) => "<span style='color:" +
+				this.zScale(d.key) +
+				"'><i class='fa fa-circle'></i></span> " +
+				d.legendName +
+				"&nbsp;<i class='fa fa-close" + " " + d.key + "' style='display:none'></i>")
+			.on("mouseover", (d) => d3.select('.' + d.key).style("display", "inline"))
+			.on("mouseout", (d) => d3.select('.' + d.key).style("display", "none"))
 			.on("click", (data) => {
 				this.chartData.data.forEach((datum, i) => {
 					if (datum.legendName === data.legendName) {
@@ -146,7 +145,7 @@ export class LineChart extends BaseChart {
 					}
 				});
 				this.draw();
-			});			
+			});
 	}
 
 	getToolTip(fiscal_year: Date): string {

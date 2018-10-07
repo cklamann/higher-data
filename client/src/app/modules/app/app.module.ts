@@ -17,7 +17,7 @@ import { InterceptService } from '../../services/intercept/intercept.service';
 import { AuthService } from '../../services/auth/auth.service';
 import { RestService } from '../../services/rest/rest.service';
 
-//hack past undocumented bug in flex-layout that breaks AOT build if no BREAKPOINT token provided
+//hack past bug in flex-layout that breaks AOT build if no BREAKPOINT token provided
 const FAKE_BREAKPOINTS = [];
 
 const FakeBreakPointsProvider = {
@@ -27,15 +27,22 @@ const FakeBreakPointsProvider = {
 };
 
 @NgModule({
-	//imports will be available to all components in module 
-	imports: [BrowserModule, BrowserAnimationsModule, AppRoutingModule, ChartPageModule, AdminModule,
+	imports: [BrowserModule,
+		BrowserAnimationsModule,
+		AppRoutingModule,
+		ChartPageModule,
+		AdminModule,
 		GlobalLayoutModule,
 		FlexLayoutModule.withConfig({
 			addFlexToParent: false
 		}),
-		HttpClientModule, BlogModule, SharedModule, ChartModule,
-		AboutPageModule, JsonpModule],
-	declarations: [AppComponent], //list all components in the module
+		HttpClientModule,
+		BlogModule,
+		SharedModule,
+		ChartModule,
+		AboutPageModule,
+		JsonpModule],
+	declarations: [AppComponent],
 	bootstrap: [AppComponent],
 	providers: [{
 		provide: HTTP_INTERCEPTORS,
