@@ -69,8 +69,13 @@ export class ChartExport {
 	}
 	_adjustForInflation(res: intFormulaParserResult[]): Promise<intFormulaParserResult[]> {
 		return getInflationAdjuster().then(adjuster => {
-			res.forEach(item => item.value = adjuster(item.fiscal_year, item.value));
-			return res;
+			return res.map(item => { 
+				if(item.value){
+					item.value = adjuster(item.fiscal_year, item.value);
+				}
+				//did we not drop NAs from wages? No. So what's going on?
+				return item;
+			});
 		});
 	}
 }
