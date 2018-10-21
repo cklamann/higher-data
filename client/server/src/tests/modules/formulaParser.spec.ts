@@ -229,7 +229,6 @@ describe('FORMULA PARSER', function() {
 			let formula = new FormulaParser('room_and_board + in_state_tuition');
 			formula.execute(schoolMissingOneYearOfTuition.unitid)
 				.then(res => {
-					console.log(res);
 					expect(res).to.be.an('array');
 					expect(res.length).to.equal(2);
 					done();

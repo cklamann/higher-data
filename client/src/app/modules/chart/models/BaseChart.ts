@@ -103,9 +103,8 @@ export class BaseChart {
 	redraw() {
 		this.remove();
 		this.buildCanvas();
-		this.build();
 		setTimeout(() => {
-			this.draw();
+			this.build();
 		}, 50)
 	}
 

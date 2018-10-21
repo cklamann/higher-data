@@ -64,7 +64,7 @@ export class LineChart extends BaseChart {
 		//ensure uniform order of tooltips, etc.
 		this.chartData.data.sort((a, b) => {
 			let aSum = a.data.reduce((a, b) => a + b.value, 0),
-				bSum = a.data.reduce((a, b) => a + b.value, 0);
+				bSum = b.data.reduce((a, b) => a + b.value, 0);
 			return aSum > bSum ? -1 : 1;
 		});
 
