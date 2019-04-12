@@ -69,6 +69,11 @@ export class VariableDefinerComponent implements OnInit {
 		control.push(this.initSource());
 	}
 
+	cloneVariable = () => {
+		this.variableDefinitionForm.controls['_id'].reset();
+		this.variableDefinitionForm.controls['variable'].reset();
+	}
+
 	removeVariable(i: number) {
 		const control = <FormArray>this.variableDefinitionForm.controls['sources'];
 		control.removeAt(i);
@@ -93,9 +98,11 @@ export class VariableDefinerComponent implements OnInit {
 		});
 		const control = <FormArray>this.variableDefinitionForm.controls['sources'],
 			limit = _.clone(control.length);
-		for (let i = 0; i < limit; i++) {
+		// for (let i = 0; i < limit; i++) {
+		while (control.length) {
 			control.removeAt(0);
 		}
+
 		this.variableDefinitions.fetchByName(variable)
 			.subscribe(varDef => {
 				if (varDef.length > 0) {
@@ -105,6 +112,8 @@ export class VariableDefinerComponent implements OnInit {
 			})
 		this._loadChart();
 	}
+
+
 
 	onSchoolSelect(school: intSchoolModel) {
 		this.school = school;
