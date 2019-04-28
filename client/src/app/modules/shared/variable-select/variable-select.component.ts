@@ -5,9 +5,6 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSelect, MatOption } from '@angular/material';
 import { VariableDefinitions } from '../../../models/VariableDefinitions';
 
-
-
-
 @Component({
 	selector: 'app-variable-select',
 	templateUrl: './variable-select.component.html',

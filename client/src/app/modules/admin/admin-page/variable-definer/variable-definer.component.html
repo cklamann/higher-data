@@ -4,9 +4,12 @@
 	    	<div class = "card-info" fxFlex ="35">
 		    	<mat-card-title><h2>Variable Definitions</h2></mat-card-title>
 	    	</div>
-	    	<div class = "variable-dropdown" fxFlex="90" fxFlex.gt-sm="60" fxLayout="row" fxLayoutAlign="none center">
-		    	<app-variable-select (onVariableSelect)="onVariableSelect($event)" fxFlex="100" fxFlex.gt-sm="100"></app-variable-select>	
- 			 	<a class="mat-raised-button m-l-10" (click)="cloneVariable()">Clone</a>	
+	    	<div class = "variable-dropdown" fxFlex="90" fxFlex.gt-sm="60" fxLayout="row wrap" fxLayoutAlign="none center">
+		    	<app-variable-select (onVariableSelect)="onVariableSelect($event)" fxFlex="60" ></app-variable-select>	
+ 			 	<a fxFlex="20" class="mat-raised-button m-l-10" (click)="cloneVariable()">Clone</a>
+				<div *ngIf=getClonePanelOpen() fxFlex="100">
+ 			 		<app-variable-select (onVariableSelect)="onCloneVariableSelect($event)" ></app-variable-select>
+ 			 	</div> 		
 		</div>
  	</mat-card-header>
 	  	<mat-card-content fxFlex ="90">	

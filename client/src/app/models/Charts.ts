@@ -14,7 +14,6 @@ import { intFormulaParserResult } from '../../../server/src/modules/FormulaParse
 import * as _ from 'lodash';
 
 
-
 @Injectable()
 export class Charts {
 	constructor(private rest: RestService) { }

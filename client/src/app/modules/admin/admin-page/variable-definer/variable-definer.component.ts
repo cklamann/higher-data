@@ -8,7 +8,7 @@ import { VariableDefinitionSelectComponent } from '../../../shared/variable-defi
 import { intSchoolModel } from '../../../../../../server/src/schemas/SchoolSchema';
 import { intChartExport } from '../../../../../../server/src/modules/ChartExporter.module';
 import { UtilService } from '../../../../services/util/util';
-import * as _ from 'lodash';
+import { clone } from 'lodash';
 
 @Component({
 	selector: 'app-variable-definer',
@@ -22,9 +22,10 @@ export class VariableDefinerComponent implements OnInit {
 	chartData: intChartExport;
 	chartOverrides: object = {
 		widthRatio: .75
-	}
+	};
 	valueTypes: string[] = this._getValueTypes();
 	categories: string[];
+	clonePanelOpen: boolean = false;
 
 	constructor(private fb: FormBuilder,
 		private variableDefinitions: VariableDefinitions,
@@ -52,6 +53,8 @@ export class VariableDefinerComponent implements OnInit {
 		});
 	}
 
+	getClonePanelOpen = () => this.clonePanelOpen;
+
 	initSource(variable: any = null) {
 		return this.fb.group({
 			startYear: ['', [Validators.minLength(3), Validators.required]],
@@ -69,10 +72,7 @@ export class VariableDefinerComponent implements OnInit {
 		control.push(this.initSource());
 	}
 
-	cloneVariable = () => {
-		this.variableDefinitionForm.controls['_id'].reset();
-		this.variableDefinitionForm.controls['variable'].reset();
-	}
+	cloneVariable = () => this.clonePanelOpen = true;
 
 	removeVariable(i: number) {
 		const control = <FormArray>this.variableDefinitionForm.controls['sources'];
@@ -88,7 +88,7 @@ export class VariableDefinerComponent implements OnInit {
 			});
 	}
 
-	onVariableSelect(variable: string): void {
+	onVariableSelect(variable: string) {
 		this.variableDefinitionForm.patchValue({
 			variable: variable,
 			_id: '',
@@ -96,24 +96,39 @@ export class VariableDefinerComponent implements OnInit {
 			friendlyName: '',
 			category: '',
 		});
-		const control = <FormArray>this.variableDefinitionForm.controls['sources'],
-			limit = _.clone(control.length);
-		// for (let i = 0; i < limit; i++) {
-		while (control.length) {
-			control.removeAt(0);
-		}
 
-		this.variableDefinitions.fetchByName(variable)
+		this._resetSources();
+
+		return this.variableDefinitions.fetchByName(variable)
 			.subscribe(varDef => {
 				if (varDef.length > 0) {
 					varDef[0].sources.forEach(variable => this.addSource());
 					this.variableDefinitionForm.setValue(varDef[0]);
 				}
-			})
-		this._loadChart();
+			});
+	}
+
+	private _resetSources = () => {
+		const control = <FormArray>this.variableDefinitionForm.controls['sources'],
+			limit = clone(control.length);
+		while (control.length) {
+			control.removeAt(0);
+		}
 	}
 
 
+	onCloneVariableSelect = (variable: string) => {
+		this._resetSources();
+		return this.variableDefinitions.fetchByName(variable)
+			.subscribe(varDef => {
+				if (varDef.length > 0) {
+					varDef[0].sources.forEach(variable => this.addSource());
+					varDef[0]._id = this.variableDefinitionForm.value._id;
+					varDef[0].variable = this.variableDefinitionForm.value.variable;
+					this.variableDefinitionForm.setValue(Object.assign(varDef[0]));
+				}
+			});
+	}
 
 	onSchoolSelect(school: intSchoolModel) {
 		this.school = school;
@@ -130,7 +145,7 @@ export class VariableDefinerComponent implements OnInit {
 	}
 
 	private _getValueTypes() {
-		const formatters = this.util.numberFormatter().getFormats().map(formatter => formatter.name);
-		return _.values(formatters);
+		const formatters = this.util.numberFormatter().getFormats().map(formatter => formatter.name) as { [key: string]: string };
+		return Object.values(formatters);
 	}
 }
