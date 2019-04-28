@@ -105,6 +105,7 @@ export class VariableDefinerComponent implements OnInit {
 					varDef[0].sources.forEach(variable => this.addSource());
 					this.variableDefinitionForm.setValue(varDef[0]);
 				}
+				this._loadChart();
 			});
 	}
 
