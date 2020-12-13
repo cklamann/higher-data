@@ -9,10 +9,11 @@ mongoose.Promise = require("q").Promise;
 import * as passport from "passport";
 const BasicStrategy = require("passport-http").BasicStrategy;
 const fs = require("fs");
-import { UserSchema } from "./schemas/UserSchema";
-import * as _ from "lodash";
 const http = require("http");
 
+import { UserSchema, UserModel } from "./schemas/UserSchema";
+
+//todo: organize
 const users = require("./routes/users"),
   schools = require("./routes/schools"),
   variables = require("./routes/variables"),
@@ -43,7 +44,10 @@ app.use(passport.initialize());
 
 passport.use(
   new BasicStrategy(function (userid: string, password: string, done: any) {
-    UserSchema.findOne({ username: userid }, function (err, user) {
+    UserSchema.findOne({ username: userid }, function (
+      err: Error,
+      user: UserModel
+    ) {
       if (err) {
         return done(err);
       }
@@ -55,8 +59,6 @@ passport.use(
 );
 
 const connection = `mongodb://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`;
-
-console.log("**********connection: " + connection);
 
 mongoose.connect(connection, { useNewUrlParser: true }).catch((err: any) => {
   console.log(err);

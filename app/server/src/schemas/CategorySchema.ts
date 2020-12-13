@@ -1,11 +1,11 @@
-import { model, Schema, Document, Model } from 'mongoose';
+import { model, Schema, Document } from 'mongoose';
 
-export interface intCategoryModel {
+export interface CategoryModel {
 	categories: string[];
 	type:string;
 };
 
-export interface intCategorySchema extends intCategoryModel, Document { };
+export interface CategorySchema extends CategoryModel, Document { };
 
 let schema: Schema = new Schema({
 	type: {
@@ -19,4 +19,4 @@ let schema: Schema = new Schema({
 	}
 });
 
-export let CategorySchema = model<intCategorySchema>('categories', schema, 'categories');
+export let CategorySchema = model<CategorySchema>('categories', schema, 'categories');

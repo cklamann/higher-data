@@ -7,28 +7,28 @@ import {
 } from "../modules/FormulaParser.module";
 import { getInflationAdjuster } from "../modules/InflationAdjuster.service";
 
-export interface intChartExport {
+export interface ChartExport {
   chart: ChartModel;
   school: SchoolModel;
-  data: intChartExportDataParentModel[];
-  options: intChartExportOptions;
+  data: ChartExportDataParentModel[];
+  options: ChartExportOptions;
 }
 
-export interface intChartExportDataParentModel {
+export interface ChartExportDataParentModel {
   legendName: string;
   data: intFormulaParserResult[];
 }
 
-export interface intChartExportOptions {
+export interface ChartExportOptions {
   cut?: string;
   inflationAdjusted?: string;
 }
 
-export class ChartExport {
+export class ChartExporter {
   constructor(
     public school: SchoolModel,
     public chart: ChartModel,
-    private options: intChartExportOptions = {}
+    private options: ChartExportOptions = {}
   ) {
     if (this.options.cut) {
       this.chart.variables = this.chart.variables.map((vari) => {
@@ -38,13 +38,11 @@ export class ChartExport {
     }
   }
 
-  public export(): Promise<intChartExport> {
-    let promises = this.chart.variables.map(
-      (variable: ChartVariableModel) => {
-        let varVal = new FormulaParser(variable.formula);
-        return varVal.execute(this.school.unitid);
-      }
-    );
+  public export(): Promise<ChartExport> {
+    let promises = this.chart.variables.map((variable: ChartVariableModel) => {
+      let varVal = new FormulaParser(variable.formula);
+      return varVal.execute(this.school.unitid);
+    });
     return Promise.all(promises)
       .then((values) => {
         if (this.options.inflationAdjusted == "true") {

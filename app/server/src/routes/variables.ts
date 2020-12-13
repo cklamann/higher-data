@@ -1,11 +1,8 @@
 import { SchoolSchema } from "../schemas/SchoolSchema";
 import { SchoolDataSchema } from "../schemas/SchoolDataSchema";
-import {
-  VariableDefinitionSchema,
-  intVariableDefinitionSchema,
-} from "../schemas/VariableDefinitionSchema";
+import { VariableDefinitionSchema } from "../schemas/VariableDefinitionSchema";
 import { Router } from "express";
-import { ChartExport } from "../modules/ChartExporter.module";
+import { ChartExporter } from "../modules/ChartExporter.module";
 import * as passport from "passport";
 import { ChartModel } from "../schemas/ChartSchema";
 
@@ -25,7 +22,7 @@ router.get(
 );
 
 router.get("/fetch_by_name", function (req, res, next) {
-  const names = req.query.name.split(",");
+  const names = (req.query.name as string).split(",");
   VariableDefinitionSchema.find({ variable: { $in: names } })
     .select("-__v")
     .then((resp) => {
@@ -69,7 +66,7 @@ router.get(
     SchoolSchema.schema.statics
       .fetch(req.params.school)
       .then((school: SchoolSchema) => {
-        const chart = new ChartExport(school, chartModel, { cut: "" });
+        const chart = new ChartExporter(school, chartModel, { cut: "" });
         chart
           .export()
           .then((chart) => {
@@ -96,7 +93,7 @@ router.post("/", passport.authenticate("basic", { session: false }), function (
   }
 
   promise
-    .then((chart: intVariableDefinitionSchema) => {
+    .then((chart: VariableDefinitionSchema) => {
       res.json(chart);
       return;
     })

@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { SiteContent } from '../../../../models/SiteContent';
-import { intSiteContentSchema } from '../../../../../../server/src/schemas/SiteContentSchema';
-import { MatButton } from '@angular/material';
+import { SiteContentSchema } from './../../../../../../../server/src/schemas/SiteContentSchema';
 import * as _ from 'lodash';
 
 @Component({
@@ -13,7 +12,7 @@ import * as _ from 'lodash';
 export class ContentManagerComponent implements OnInit {
 
 	editorContent: string = '<strong>this is some sample html in strong tags</strong>';
-	contentList: intSiteContentSchema[];
+	contentList: SiteContentSchema[];
 	contentForm: FormGroup;
 	private _contentSelected: boolean = false;
 
@@ -45,7 +44,7 @@ export class ContentManagerComponent implements OnInit {
 		this.setContentSelected();
 	}
 
-	delete(model: intSiteContentSchema) {
+	delete(model: SiteContentSchema) {
 		this.SiteContent.delete(model._id)
 			.subscribe(res => {
 				this.contentList = this.contentList.filter(item => item._id != model._id)

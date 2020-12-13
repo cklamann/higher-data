@@ -1,10 +1,10 @@
 import { Router } from "express";
-import { ChartSchema, intChartSchema } from "../schemas/ChartSchema";
+import { ChartSchema } from "../schemas/ChartSchema";
 import * as passport from "passport";
-import { ChartExport } from "../modules/ChartExporter.module";
 import { SchoolModel } from "../schemas/SchoolSchema";
 import { ChartModel } from "../schemas/ChartSchema";
 import * as _ from "lodash";
+import { ChartExporter } from "../modules/ChartExporter.module";
 
 let router = Router();
 
@@ -21,7 +21,7 @@ router.post("/", passport.authenticate("basic", { session: false }), function (
     promise = ChartSchema.create(req.body);
   }
   promise
-    .then((chart: intChartSchema) => {
+    .then((chart: ChartSchema) => {
       res.json(chart);
       return;
     })
@@ -53,7 +53,7 @@ router.post(
   function (req, res, next) {
     const school: SchoolModel = req.body.school,
       chart: ChartModel = req.body.chart,
-      Chart = new ChartExport(school, chart, { cut: "" });
+      Chart = new ChartExporter(school, chart, { cut: "" });
     Chart.export()
       .then((chart) => {
         res.json(chart);

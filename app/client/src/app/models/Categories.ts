@@ -1,16 +1,13 @@
-import { Injectable } from '@angular/core';
-import { intUserModel } from '../../../server/src/schemas/UserSchema';
-import { RestService } from '../services/rest/rest.service';
-import { Observable } from 'rxjs';
-import {intCategoryModel} from '../../../server/src/schemas/CategorySchema';
-
-
+import { Injectable } from "@angular/core";
+import { RestService } from "../services/rest/rest.service";
+import { Observable } from "rxjs";
+import { CategoryModel } from "../../../../server/src/schemas/CategorySchema";
 
 @Injectable()
 export class Categories {
-	constructor(private rest: RestService) { }
+  constructor(private rest: RestService) {}
 
-	fetch(name:string): Observable<intCategoryModel> {
-		return this.rest.get(`categories/${name}`);
-	}
+  fetch(name: string): Observable<CategoryModel> {
+    return this.rest.get(`categories/${name}`);
+  }
 }

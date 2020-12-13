@@ -230,7 +230,7 @@ SchoolDataSchema.schema.statics = {
       .sort(dq.getSortArgs())
       .count()
       .exec()
-      .then((res) => {
+      .then((res: any) => {
         return SchoolDataSchema.find(dq.getMatchArgs())
           .sort(dq.getSortArgs())
           .skip(dq.getSkipArgs())

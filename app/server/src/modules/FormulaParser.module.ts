@@ -3,10 +3,7 @@ import {
   SchoolDataSchema,
   SchoolBaseDataModel,
 } from "../schemas/SchoolDataSchema";
-import {
-  VariableDefinitionSchema,
-  intVariableDefinitionSchema,
-} from "../schemas/VariableDefinitionSchema";
+import { VariableDefinitionSchema } from "../schemas/VariableDefinitionSchema";
 import { SchoolDataQuery } from "../modules/SchoolDataQuery.module";
 import * as M from "mathjs";
 import * as _ from "lodash";

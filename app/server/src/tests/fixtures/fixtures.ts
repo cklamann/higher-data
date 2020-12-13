@@ -6,7 +6,7 @@ import {
   ChartSchema,
 } from "../../schemas/ChartSchema";
 import {
-  intVariableDefinitionModel,
+  VariableDefinitionModel,
   VariableDefinitionSchema,
 } from "../../schemas/VariableDefinitionSchema";
 import * as _ from "lodash";
@@ -1512,7 +1512,7 @@ export let zzSchool2_school_data: SchoolDataModel[] = [
   return x;
 });
 
-export let testVar1Def: intVariableDefinitionModel = {
+export let testVar1Def: VariableDefinitionModel = {
   variable: "test_var_1",
   valueType: "currency",
   friendlyName: "",
@@ -1530,7 +1530,7 @@ export let testVar1Def: intVariableDefinitionModel = {
   ],
 };
 
-export let testVar2Def: intVariableDefinitionModel = {
+export let testVar2Def: VariableDefinitionModel = {
   variable: "test_var_2",
   valueType: "currency",
   friendlyName: "",
@@ -1572,18 +1572,10 @@ export let testChart: ChartModel = {
   variables: [testChartVar1, testChartVar2],
 };
 
-export function insertDummyChart() {
-  return VariableDefinitionSchema.create([testVar1Def, testVar2Def]).then(
-    (res) => {
-      return ChartSchema.create(testChart);
-    }
-  );
-}
-
 export function removeDummyChart() {
   return VariableDefinitionSchema.remove({
     variable: { $in: ["test_var_1", "test_var_2"] },
-  }).then((res) => ChartSchema.remove({ name: testChart.name }).exec());
+  }).then(() => ChartSchema.remove({ name: testChart.name }).exec());
 }
 
 export let dummyChartData2 = [

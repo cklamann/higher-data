@@ -1,22 +1,22 @@
 import { model, Schema, Document } from "mongoose";
 import { SchoolDataSchema } from "./SchoolDataSchema";
 
-export interface intVariableDefinitionModel {
+export interface VariableDefinitionModel {
   variable: string;
   valueType: string;
   friendlyName: string;
   category: string;
-  sources: Array<intVariableSourceModel>;
+  sources: Array<VariableSourceModel>;
 }
 
-export interface intVariableDefinitionSchema
-  extends intVariableDefinitionModel,
+export interface VariableDefinitionSchema
+  extends VariableDefinitionModel,
     Document {
   _id: Schema.Types.ObjectId;
-  sources: intVariableSourceSchema[];
+  sources: VariableSourceSchema[];
 }
 
-export interface intVariableSourceModel {
+export interface VariableSourceModel {
   startYear: string;
   endYear: string;
   source: string;
@@ -26,9 +26,7 @@ export interface intVariableSourceModel {
   notes: string;
 }
 
-export interface intVariableSourceSchema
-  extends intVariableSourceModel,
-    Document {}
+export interface VariableSourceSchema extends VariableSourceModel, Document {}
 
 const sourcesSchema = new Schema(
   {
@@ -70,27 +68,25 @@ schema.path("variable").validate({
   message: "Variable is not on any model!",
 });
 
-export let variableSourcesSchema = model<intVariableSourceSchema>(
+export let variableSourcesSchema = model<VariableSourceSchema>(
   "variable_source",
   sourcesSchema
 );
-export let VariableDefinitionSchema = model<intVariableDefinitionSchema>(
+export let VariableDefinitionSchema = model<VariableDefinitionSchema>(
   "variable_definition",
   schema
 );
 
 VariableDefinitionSchema.schema.statics = {
   fetchAndUpdate: (
-    model: intVariableDefinitionSchema
-  ): Promise<intVariableDefinitionSchema> => {
+    model: VariableDefinitionSchema
+  ): Promise<VariableDefinitionSchema> => {
     const schema = new VariableDefinitionSchema(model);
-    return schema
-      .validate()
-      .then(() =>
-        VariableDefinitionSchema.findByIdAndUpdate(model._id, model, {
-          new: true,
-        }).exec()
-      );
+    return schema.validate().then(() =>
+      VariableDefinitionSchema.findByIdAndUpdate(model._id, model, {
+        new: true,
+      }).exec()
+    );
     //.catch(err => err);  //todo: catch error and send back useful response
   },
 };

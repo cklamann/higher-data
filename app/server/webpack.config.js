@@ -1,7 +1,7 @@
 const path = require("path");
 module.exports = {
   mode: "development",
-  entry: "./src/app.ts",
+  entry: "./src/server.ts",
   resolve: {
     extensions: [".ts", ".tsx", /*for graphql*/ ".mjs", ".js", ".json"],
   },

@@ -25,10 +25,10 @@ export interface ChartModel {
   cuts: CutByModel[];
 }
 
-export interface intChartVariableSchema extends Document, ChartVariableModel {}
-export interface intChartSchema extends Document, ChartModel {
+export interface ChartVariableSchema extends Document, ChartVariableModel {}
+export interface ChartSchema extends Document, ChartModel {
   _id: Schema.Types.ObjectId;
-  variables: intChartVariableSchema[];
+  variables: ChartVariableSchema[];
   cuts: CutByModel[];
 }
 
@@ -130,14 +130,14 @@ cutBySchema.path("formula").validate({
   message: `Cut By formula is invalid!`,
 });
 
-export let ChartSchema = model<intChartSchema>("chart", schema);
-export let ChartVariableSchema = model<intChartVariableSchema>(
+export let ChartSchema = model<ChartSchema>("chart", schema);
+export let ChartVariableSchema = model<ChartVariableSchema>(
   "chart_variable",
   chartVariableSchema
 );
 
 ChartSchema.schema.statics = {
-  fetchAndUpdate: (model: intChartSchema) => {
+  fetchAndUpdate: (model: ChartSchema) => {
     const newSchema = new ChartSchema(model);
     return newSchema
       .validate()

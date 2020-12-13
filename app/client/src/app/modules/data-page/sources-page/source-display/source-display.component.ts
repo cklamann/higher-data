@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { intVariableDefinitionModel } from '../../../../../../server/src/schemas/VariableDefinitionSchema';
+import { VariableDefinitionModel } from './../../../../../../../server/src/schemas/VariableDefinitionSchema';
 
 @Component({
 	selector: 'app-source-display',
@@ -9,7 +9,7 @@ import { intVariableDefinitionModel } from '../../../../../../server/src/schemas
 export class SourceDisplayComponent implements OnInit {
 
 	@Input()
-	variable: intVariableDefinitionModel = null;
+	variable: VariableDefinitionModel = null;
 
 	constructor() { }
 
