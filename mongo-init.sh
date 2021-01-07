@@ -1,7 +1,5 @@
 #!/bin/bash
 
-echo "creating user"
-
 "${mongo[@]}" colleges <<-EOJS
 	    db.createUser({
         user: "${DB_USER}",

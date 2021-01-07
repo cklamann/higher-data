@@ -1,6 +1,6 @@
 import { Component, Input, SimpleChanges, HostListener } from "@angular/core";
 import { Charts } from "../../../../models/Charts";
-import { ChartExport } from "./../../../../../../../server/src/modules/ChartExporter.module";
+import { ChartExport } from "../../../../../../../server/src/modules/ChartExporter";
 import { BaseChart } from "../../models/BaseChart";
 import { ChartData } from "../../models/ChartData";
 import { EventEmitter, Output } from "@angular/core";

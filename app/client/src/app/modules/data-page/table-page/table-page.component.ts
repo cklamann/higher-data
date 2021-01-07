@@ -126,7 +126,7 @@ export class TablePageComponent implements OnInit {
           this._onlyNameSearchChanged(prev, curr)
         )
       )
-      .subscribe((change) => {
+      .subscribe(() => {
         this.query();
       });
   }
@@ -166,6 +166,7 @@ export class TablePageComponent implements OnInit {
       (v, k) => k !== "variable"
     );
 
+    //todo: this ought to be a filter query string
     this.router.navigate([
       `data/tables`,
       Object.assign({}, options, {

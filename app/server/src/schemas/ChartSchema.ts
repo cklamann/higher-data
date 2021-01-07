@@ -1,5 +1,5 @@
 import { model, Schema, Document } from "mongoose";
-import { FormulaParser } from "../modules/FormulaParser.module";
+import { FormulaParser } from "../modules/FormulaParser";
 import * as _ from "lodash";
 
 export interface ChartVariableModel {

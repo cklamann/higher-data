@@ -1,18 +1,7 @@
-import { SchoolDataQuery } from '../../modules/SchoolDataQuery.module';
+import { SchoolDataQuery } from '../../modules/SchoolDataQuery';
 import assert = require('assert');
 import chai = require('chai');
 import { expect } from 'chai';
 import * as _ from 'lodash';
 
-// describe('School Data Query', function() {
-
-// 	describe('return correct filter object', function() {
-// 		const qc = SchoolDataQuery.createBase();
-
-
-// 		it('should do something', function(done) {
-			
-// 		});
-// 	});
-
-// });
+//todo: these tests ought to assert that the correct mongo agg pieces are returned, i think

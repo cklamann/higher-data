@@ -15,7 +15,7 @@ import { VariableDefinitionModel } from "./../../../../../../../server/src/schem
 import { Charts } from "../../../../models/Charts";
 import { Categories } from "../../../../models/Categories";
 import { SchoolModel } from "./../../../../../../../server/src/schemas/SchoolSchema";
-import { ChartExport } from "./../../../../../../../server/src/modules/ChartExporter.module";
+import { ChartExport } from "../../../../../../../server/src/modules/ChartExporter";
 import { UtilService } from "../../../../services/util/util";
 
 import * as _ from "lodash";

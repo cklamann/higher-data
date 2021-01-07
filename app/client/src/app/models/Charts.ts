@@ -10,7 +10,7 @@ import { Observable } from "rxjs";
 import {
   ChartExport,
   ChartExportOptions,
-} from "../../../../server/src/modules/ChartExporter.module";
+} from "../../../../server/src/modules/ChartExporter";
 import { LineChart } from "../modules/chart/models/LineChart";
 import { AreaChart } from "../modules/chart/models/AreaChart";
 import { SteamChart } from "../modules/chart/models/SteamChart";

@@ -1,10 +1,10 @@
-import { ChartExportDataParentModel } from "./../../../../../../server/src/modules/ChartExporter.module";
-import { intFormulaParserResult } from "./../../../../../../server/src/modules/FormulaParser.module";
+import { ChartExportDataParentModel } from "../../../../../../server/src/modules/ChartExporter";
+import { FormulaParserResult } from "../../../../../../server/src/modules/FormulaParser";
 import * as _ from "lodash";
 import * as d3 from "d3";
 
 export class ChartData {
-  data: intBaseChartData[];
+  data: BaseChartData[];
   constructor(data: ChartExportDataParentModel[]) {
     this.data = _baseTransform(data);
   }
@@ -23,8 +23,8 @@ export class ChartData {
   getTotal = (): number =>
     d3.sum(this.data, (varGroup) => this.sum(varGroup.data));
 
-  sum = (variableObj: intBaseChartDatum[]) =>
-    variableObj.reduce((a, b) => {
+  sum = (variables: BaseChartDatum[]) =>
+    variables.reduce((a, b) => {
       return a + b.value;
     }, 0);
 
@@ -32,12 +32,14 @@ export class ChartData {
     let range = _.flatMap(this.data, (c) =>
       _.flatMap(c.data, (d) => d.fiscal_year)
     );
-    return _.uniqBy(range, (item) => item.getFullYear()).sort((a, b) => a - b);
+    return _.uniqBy(range, (item) => item.getFullYear()).sort((a, b) =>
+      a > b ? 1 : -1
+    );
   };
 
   getSumForYear = (year: Date): number => {
-    let everything = _.flatMap(this.data, (datum) => datum.data);
-    let forYear = everything.filter(
+    const everything = _.flatMap(this.data, (datum) => datum.data),
+      forYear = everything.filter(
         (item) => item.fiscal_year.getFullYear() === year.getFullYear()
       ),
       sum = forYear.reduce((a, b) => a + b.value, 0);
@@ -61,7 +63,7 @@ export class ChartData {
           datum.data.map((item) => item.fiscal_year),
           (item) => item.getFullYear()
         ),
-        filler: any = diff.map((date) => {
+        filler = diff.map((date) => {
           return {
             fiscal_year: date,
             value: 0,
@@ -74,53 +76,34 @@ export class ChartData {
     });
   };
 
-  removeDatum = (index) => {
-    this.data = this.data.filter((val, i) => i != index);
-  };
+  removeDatum = (index) =>
+    (this.data = this.data.filter((val, i) => i != index));
 }
 
-interface intChartDataYear {
-  fiscal_year: number;
-  data: intChartDataYearDatum[];
-}
-
-interface intChartDataYearDatum {
-  variable: string;
-  value: number;
-  key: string;
-  legendName: string;
-}
-
-export interface intBaseChartData extends ChartExportDataParentModel {
+export interface BaseChartData extends ChartExportDataParentModel {
   legendName: string;
   key: string;
   d3Key?: string;
-  data: intBaseChartDatum[];
+  data: BaseChartDatum[];
 }
 
-export interface intBaseChartDatum extends intFormulaParserResult {
+export interface BaseChartDatum extends FormulaParserResult {
   legendName: string;
   value: number;
   fiscal_year: any;
   key: string;
 }
 
-function _baseTransform(
-  data: ChartExportDataParentModel[]
-): intBaseChartData[] {
-  return data
-    .map((variable: any) => {
-      let data = variable.data.map((datum: any) => {
-        datum = Object.assign(datum, { legendName: variable.legendName });
-        datum.value = parseFloat(datum.value);
-        datum.key = variable.legendName.toLowerCase().replace(/ /g, "_");
-        datum.fiscal_year = d3.timeParse("%Y")(datum.fiscal_year);
-        return datum;
-      });
-      variable.key = variable.data.length ? variable.data[0].key : "";
-      return variable;
-    })
-    .filter((datum) => datum.data.length > 0);
+function _baseTransform(data: ChartExportDataParentModel[]): BaseChartData[] {
+  return (
+    data
+      //any b/c of intermediate data type
+      .map((variable: any) => {
+        variable.key = variable.data.length ? variable.data[0].key : "";
+        return variable;
+      })
+      .filter((datum) => datum.data.length > 0)
+  );
 }
 
 function _numSort(a, b) {

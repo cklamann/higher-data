@@ -11,6 +11,9 @@ services:
       SERVICE_TAGS: dev
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
+      DB_PORT: 27017
+      DB_NAME: ${DB_NAME}
+      DB_HOST: mongo
       APP_PORT: ${APP_PORT}
       APP_HOST: ${APP_HOST}
     working_dir: /usr/app
@@ -18,7 +21,6 @@ services:
       - "${APP_PORT}:${APP_PORT}"
     volumes:
       - ./app:/usr/app
-    #entrypoint: ./on-start.sh
     networks:
       - app-network
 

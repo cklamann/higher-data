@@ -7,7 +7,7 @@ import { Charts } from "../../../models/Charts";
 import {
   ChartExport,
   ChartExportOptions,
-} from "./../../../../../../server/src/modules/ChartExporter.module";
+} from "../../../../../../server/src/modules/ChartExporter";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { Router, ActivatedRoute } from "@angular/router";
 import * as _ from "lodash";

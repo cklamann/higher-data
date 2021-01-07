@@ -4,7 +4,7 @@ import { VariableDefinitions } from "../../../../models/VariableDefinitions";
 import { Charts } from "../../../../models/Charts";
 import { Categories } from "../../../../models/Categories";
 import { SchoolModel } from "./../../../../../../../server/src/schemas/SchoolSchema";
-import { ChartExport } from "../../../../../../../server/src/modules/ChartExporter.module";
+import { ChartExport } from "../../../../../../../server/src/modules/ChartExporter";
 import { UtilService } from "../../../../services/util/util";
 import { clone } from "lodash";
 

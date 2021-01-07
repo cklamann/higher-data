@@ -1,10 +1,10 @@
 import { model, Schema, Document } from "mongoose";
-import { getInflationAdjuster } from "../modules/InflationAdjuster.service";
+import { getInflationAdjuster } from "../modules/InflationAdjuster";
 import {
   SchoolDataAggQueryArgs,
   SchoolDataAggQuery,
   SchoolDataQuery,
-} from "../modules/SchoolDataQuery.module";
+} from "../modules/SchoolDataQuery";
 import * as _ from "lodash";
 
 export interface SchoolBaseDataModel {
@@ -92,22 +92,27 @@ export let SchoolDataSchema = model<SchoolDataSchema>(
   "school_data"
 );
 
+//?????????
+schoolDataSchema.index(
+  { unitid: 1, variable: 1, fiscal_year: 1 },
+  { unique: true }
+);
+
 SchoolDataSchema.schema.statics = {
   getVariableList: (): Promise<string[]> => {
     return SchoolDataSchema.distinct("variable").exec();
   },
 
   fetchAggregate: (queryConfig: SchoolDataAggQueryArgs): Promise<ExportAgg> => {
-    //todo: replace ad-hoc getters with full agg query arg builders
 
     const qConfig = new SchoolDataAggQuery(queryConfig),
-      sf = _.toNumber(qConfig.getSortField()) ? qConfig.getSortField() : "_id";
+      sortField = _.toNumber(qConfig.getSortField()) ? qConfig.getSortField() : "_id";
 
     let aggArgs: object[] = [];
 
-    //filter out unneeded fields
+    if (qConfig.getMongoFilters()) aggArgs.push(qConfig.getMongoFilters());
 
-    aggArgs.push(qConfig.getMatchArgs());
+    //todo: if no groupby or func, throw 404
 
     //2 $groups -> first, reduce and groupby, then group results into 'data' array
     aggArgs.push({
@@ -144,15 +149,15 @@ SchoolDataSchema.schema.statics = {
       },
     });
 
-    aggArgs.push({
-      $match: {
-        _id: { $regex: qConfig.getNameFilterRegex(), $options: "ig" },
-      },
-    });
+    if (qConfig.getSearchField()) {
+      aggArgs.push({
+        $match: {
+          _id: { $regex: qConfig.getSearchField(), $options: "ig" },
+        },
+      });
+    }
 
-    //sort
-
-    let normalSort = [{ $sort: { [sf]: qConfig.getSortDirection() } }];
+    let normalSort = [{ $sort: { [sortField]: qConfig.getSortDirection() } }];
 
     //todo: abstract yearSort into queryConfig object
     //can do a check in there sortFieldIsYear(), verify that it's a valid date
@@ -166,7 +171,7 @@ SchoolDataSchema.schema.statics = {
               input: "$data",
               as: "val",
               cond: {
-                $and: [{ $eq: ["$$val.fiscal_year", sf] }],
+                $and: [{ $eq: ["$$val.fiscal_year", sortField] }],
               },
             },
           },
@@ -179,7 +184,7 @@ SchoolDataSchema.schema.statics = {
             $reduce: {
               input: "$idx",
               initialValue: 0,
-              in: { $add: ["$$value", "$$this.value"] }, //problem is that addToSet on groupby returns array, not val
+              in: { $add: ["$$value", "$$this.value"] }, //addToSet on groupby returns array, not val
             },
           },
         },
@@ -189,7 +194,7 @@ SchoolDataSchema.schema.statics = {
       },
     ];
 
-    let sortArg = _.toNumber(sf) ? yearSort : normalSort;
+    let sortArg = _.toNumber(sortField) ? yearSort : normalSort;
 
     aggArgs.push({
       $facet: {
@@ -225,16 +230,15 @@ SchoolDataSchema.schema.statics = {
       });
   },
 
-  fetch(dq: SchoolDataQuery): Promise<SchoolDataBaseQueryResult> {
-    return SchoolDataSchema.find(dq.getMatchArgs())
-      .sort(dq.getSortArgs())
+  fetch(query: SchoolDataQuery): Promise<SchoolDataBaseQueryResult> {
+    return SchoolDataSchema.find(query.getMongoFilters())
       .count()
       .exec()
       .then((res: any) => {
-        return SchoolDataSchema.find(dq.getMatchArgs())
-          .sort(dq.getSortArgs())
-          .skip(dq.getSkipArgs())
-          .limit(dq.getLimitArgs())
+        return SchoolDataSchema.find(query.getMongoFilters())
+          .sort(query.getSortArgs())
+          .skip(query.getPageOffset())
+          .limit(query.getPerPage())
           .exec()
           .then((resp) => {
             return {

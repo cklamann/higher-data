@@ -40,7 +40,6 @@ router.delete(
 /*login user*/
 
 router.post("/login", (req, res, next) => {
-  console.log("iheard");
   if (!req.body.username || !req.body.password) {
     res.sendStatus(400);
   }
@@ -70,7 +69,7 @@ router.post("/logout", function (req, res, next) {
 
 /*check credentials*/
 router.get("/cred", function (req, res, next) {
-  passport.authenticate("basic", function (err, user, info, status) {
+  passport.authenticate("basic", function (err, user) {
     if (err) next(err);
     if (!user) return res.json(false);
     return res.json(true);

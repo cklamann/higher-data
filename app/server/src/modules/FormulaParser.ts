@@ -1,14 +1,9 @@
-import { SchoolDataBaseQueryResult } from "../schemas/SchoolDataSchema";
-import {
-  SchoolDataSchema,
-  SchoolBaseDataModel,
-} from "../schemas/SchoolDataSchema";
+import { SchoolBaseDataModel } from "../schemas/SchoolDataSchema";
 import { VariableDefinitionSchema } from "../schemas/VariableDefinitionSchema";
-import { SchoolDataQuery } from "../modules/SchoolDataQuery.module";
 import * as M from "mathjs";
-import * as _ from "lodash";
+import { difference, flatMap, groupBy, map, uniq } from "lodash";
 
-export interface intFormulaParserResult {
+export interface FormulaParserResult {
   fiscal_year: string;
   value: any;
 }
@@ -29,61 +24,27 @@ export class FormulaParser {
   }
 
   public validate() {
-    return this._verifyNodes();
+    return this._verifyNodesDefined();
   }
 
   private _transformModelForFormula(data: SchoolBaseDataModel[]): object[] {
-    let grouped = _.groupBy(data, "fiscal_year");
-    let mapped = _.map(grouped, (v, k) => {
-      return {
-        [k]: v
-          .map((item) => {
-            return {
-              [item.variable]: item.value,
-            };
-          })
-          .reduce((acc, curr) => {
-            return _.assign(acc, curr);
-          }, {}),
-      };
-    });
-
-    let filtered = mapped.filter(
-      (item) => _.values(_.values(item)[0]).length === this.symbolNodes.length
-    );
-    return filtered;
-  }
-
-  //any is the intermediate data model
-  private _evaluate(chartData: any[]): intFormulaParserResult[] {
-    return chartData.map((datum) => {
-      return {
-        fiscal_year: _.keys(datum)[0],
-        value: M.eval(this.cleanFormula, _.values(datum)[0]),
-      };
+    const grouped = groupBy(data, "fiscal_year");
+    return map(grouped, (v, k) => ({
+      [k]: v
+        .map((item) => ({ [item.variable]: item.value }))
+        .reduce((acc, curr) => ({ ...acc, ...curr })),
+    })).filter((item) => {
+      return (
+        difference(
+          this.symbolNodes,
+          flatMap(Object.values(item), (i) => Object.keys(i))
+        ).length === 0
+      );
     });
   }
 
-  public execute(unitid: string): Promise<intFormulaParserResult[]> {
-    let qc = SchoolDataQuery.createBase();
-    qc.addMatch("unitid", unitid);
-    qc.addMatch("variable", this.symbolNodes);
-    return SchoolDataSchema.schema.statics
-      .fetch(qc)
-      .then((result: SchoolDataBaseQueryResult) => {
-        const data = result
-            ? result.data.map((item) => {
-                return {
-                  fiscal_year: item.fiscal_year,
-                  variable: item.variable,
-                  value: item.value,
-                };
-              })
-            : [],
-          fullData = this._fillMissingOptionalData(data),
-          transformedData = this._transformModelForFormula(fullData);
-        return this._evaluate(transformedData);
-      });
+  public getVariables() {
+    return this.symbolNodes;
   }
 
   private _fillMissingOptionalData(
@@ -112,7 +73,7 @@ export class FormulaParser {
   }
 
   private _getYearRange(yearsData: SchoolBaseDataModel[]): string[] {
-    return _.uniq(yearsData.map((datum) => datum.fiscal_year));
+    return uniq(yearsData.map((datum) => datum.fiscal_year));
   }
 
   private _getSymbolNodes(formula: string): string[] {
@@ -133,24 +94,41 @@ export class FormulaParser {
     return nodes;
   }
 
+  public evaluate(data: SchoolBaseDataModel[]) {
+    const fullData = this._fillMissingOptionalData(data),
+      transformedData = this._transformModelForFormula(fullData);
+    console.log(transformedData);
+    return this._evaluate(transformedData);
+  }
+
   //verify that there's at least one variable and that a definition exists for every variable passed in
   //this is for on create rather than on build
-  private _verifyNodes(): Promise<boolean> {
+  private _verifyNodesDefined(): Promise<boolean> {
     return VariableDefinitionSchema.find()
       .exec()
       .then((variables) => {
-        const allVars = _.flatMap(variables, (vari) => vari.variable);
-        let valid: boolean = true;
+        const allVars = flatMap(variables, (vari) => vari.variable);
+        let valid = true;
         if (this.symbolNodes.length === 0) {
           valid = false;
         }
         this.symbolNodes.forEach((node) => {
-          if (allVars.indexOf(node) === -1) {
+          if (!allVars.includes(node)) {
             valid = false;
           }
         });
         return valid;
       });
+  }
+
+  //any is the intermediate data model
+  private _evaluate(chartData: any[]): FormulaParserResult[] {
+    return chartData.map((datum) => {
+      return {
+        fiscal_year: Object.keys(datum)[0],
+        value: M.eval(this.cleanFormula, Object.values(datum)[0]),
+      };
+    });
   }
 
   private _stripOptionalMarkers(item: string): string {

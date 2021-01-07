@@ -42,7 +42,7 @@ schoolSchema.virtual('school_data', {
   justOne: false
 });
 
-export let SchoolSchema = model<SchoolSchema>('school', schoolSchema);
+export const SchoolSchema = model<SchoolSchema>('school', schoolSchema);
 
 SchoolSchema.schema.statics = {
   search: (name: string): Promise<SchoolSchema[]> => {

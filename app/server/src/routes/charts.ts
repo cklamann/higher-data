@@ -4,7 +4,7 @@ import * as passport from "passport";
 import { SchoolModel } from "../schemas/SchoolSchema";
 import { ChartModel } from "../schemas/ChartSchema";
 import * as _ from "lodash";
-import { ChartExporter } from "../modules/ChartExporter.module";
+import { ChartExporter } from "../modules/ChartExporter";
 
 let router = Router();
 

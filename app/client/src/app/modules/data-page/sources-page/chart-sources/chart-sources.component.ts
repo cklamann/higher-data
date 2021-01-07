@@ -63,7 +63,6 @@ export class ChartSourcesComponent implements OnInit {
             }
           });
           def.variableDefinitions = matches;
-          //def.variableDefinitions.sort( (a,b) => a.variable.toLowerCase() < b.variable.toLowerCase());
         });
       });
     this.definitions = definitions;

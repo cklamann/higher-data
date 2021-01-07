@@ -2,7 +2,7 @@ import { SchoolSchema } from "../schemas/SchoolSchema";
 import { SchoolDataSchema } from "../schemas/SchoolDataSchema";
 import { VariableDefinitionSchema } from "../schemas/VariableDefinitionSchema";
 import { Router } from "express";
-import { ChartExporter } from "../modules/ChartExporter.module";
+import { ChartExporter } from "../modules/ChartExporter";
 import * as passport from "passport";
 import { ChartModel } from "../schemas/ChartSchema";
 

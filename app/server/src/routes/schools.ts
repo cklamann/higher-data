@@ -1,6 +1,6 @@
 import { SchoolSchema } from "../schemas/SchoolSchema";
 import { Router } from "express";
-import { ChartExporter } from "../modules/ChartExporter.module";
+import { ChartExporter } from "../modules/ChartExporter";
 import { ChartSchema } from "../schemas/ChartSchema";
 import * as Q from "q";
 import * as _ from "lodash";

@@ -58,6 +58,10 @@ passport.use(
   })
 );
 
+console.log(
+  `mongodb://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`
+);
+
 const connection = `mongodb://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`;
 
 mongoose.connect(connection, { useNewUrlParser: true }).catch((err: any) => {

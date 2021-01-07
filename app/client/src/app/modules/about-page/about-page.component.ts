@@ -1,14 +1,13 @@
 import { Component, OnInit, ViewChild } from "@angular/core";
 import { Router } from "@angular/router";
-import { ChartExport } from "./../../../../../server/src/modules/ChartExporter.module";
+import { ChartExport } from "../../../../../server/src/modules/ChartExporter";
 import { TrendChartComponent } from "../chart/components/trend-chart/trend-chart.component";
 import { RestService } from "../../services/rest/rest.service";
 import { states } from "../../services/data/states";
 import { sectors } from "../../services/data/sectors";
-import { SchoolQueryArgs } from "./../../../../../server/src/routes/schoolData";
-import { concatMap, first } from "rxjs/operators";
-import { Observable, Subscription } from "rxjs";
-import { ChartData } from "../chart/models/ChartData";
+import { SchoolQueryParams } from "./../../../../../server/src/routes/schoolData";
+import { Filter } from "../../../../../server/src/modules/SchoolDataQuery";
+import { Subscription } from "rxjs";
 import * as _ from "lodash";
 
 @Component({
@@ -26,35 +25,18 @@ export class AboutPageComponent implements OnInit {
   constructor(private router: Router, private rest: RestService) {}
 
   ngOnInit() {
-    // this.rest.getJsonP('https://gd.geobytes.com/GetCityDetails?callback=JSONP_CALLBACK')
-    // 	.subscribe(res => {
-    // 		let stabbr: string = res.json().geobytescode;
-    // 		if (!states.find(state => state.abbreviation === stabbr)) {
-    // 			stabbr = this.stabbr;
-    // 		} else this.stabbr = stabbr;
-    let schoolQuery: SchoolQueryArgs = {
-      match1var: "state",
-      match1vals: this.stabbr,
-      match2var: "sector",
-      match2vals: "1",
-      match3var: "variable",
-      match3vals: "in_state_tuition",
-      // match4var: 'fiscal_year',
-      // match4vals: '2016',
+    let schoolQuery: SchoolQueryParams = {
+      filters: _buildFilterString({
+        state: { comparator: "eq", value: this.stabbr },
+        sector: { comparator: "eq", value: "1" },
+        variable: { comparator: "eq", value: "in_state_tuition" },
+      }),
       page: "1",
-      ia: "true",
+      inflationAdjusted: "true",
       type: "normal",
       perPage: "1",
       sort: "value",
       order: "desc",
-    };
-
-    let dataQuery: SchoolQueryArgs = {
-      match1var: "unitid",
-      match2var: "variable",
-      match2vals: "in_state_tuition",
-      type: "normal",
-      ia: "true",
     };
 
     this._chartData = {
@@ -89,57 +71,6 @@ export class AboutPageComponent implements OnInit {
       data: [],
     };
 
-    let that = this;
-
-    let obs = Observable.create((observer) => {
-      let sector = 1;
-      _fetch(sector);
-      function _fetch(sector: number) {
-        that.rest
-          .get(
-            "school-data",
-            Object.assign(schoolQuery, { match2vals: sector })
-          )
-          .pipe(
-            first(),
-            concatMap((res: any) => {
-              let dqParams = Object.assign(dataQuery, {
-                match1vals: res.data[0].unitid,
-              });
-              return that.rest.get("school-data", dqParams);
-            })
-          )
-          .subscribe((val) => {
-            observer.next(val);
-            if (sector < 9) {
-              sector++;
-              _fetch(sector);
-            }
-          });
-      }
-    });
-
-    this.bubbleSubscription = obs.subscribe((res) => {
-      if (!this.chartData) {
-        this._chartData.data.push({
-          data: res.data,
-          legendName: _lookupSector(1),
-        });
-        this.chartData = this._chartData;
-      } else {
-        let sector = res.data[0].sector;
-        this.bubbleChart.chart.chartData.data.push(
-          new ChartData([
-            {
-              data: res.data,
-              legendName: _lookupSector(sector),
-            },
-          ]).data[0]
-        );
-        this.bubbleChart.chart.draw();
-      }
-    });
-
     function _lookupSector(sector) {
       return sectors.find((sect) => sect.number == sector).name;
     }
@@ -165,3 +96,10 @@ export class AboutPageComponent implements OnInit {
     //return console.log('i\'m setting chart empty');
   }
 }
+
+const _buildFilterString = (filters: Record<string, Filter>) =>
+  Object.keys(filters).reduce((acc, c) => {
+    return `${acc ? acc + "|" : ""}${c}:${filters[c].comparator}:${
+      filters[c].value
+    }`;
+  }, "");

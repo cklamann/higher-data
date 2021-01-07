@@ -1,88 +1,115 @@
 import { SchoolDataSchema } from "../schemas/SchoolDataSchema";
 import {
+  Filter,
   SchoolDataQuery,
   SchoolDataAggQuery,
-} from "../modules/SchoolDataQuery.module";
-import { Router } from "express";
-import { pickBy } from "lodash";
+} from "../modules/SchoolDataQuery";
+import { Router, Request } from "express";
+import { get } from "lodash";
 
-export interface SchoolQueryArgs {
-  qField?: string;
-  qVal?: string;
-  match1var?: string;
-  match1vals?: string;
-  match2var?: string;
-  match2vals?: string;
-  match3var?: string;
-  match3vals?: string;
-  match4var?: string;
-  match4vals?: string;
-  sort?: string;
+export interface SchoolQueryParams {
+  filters?: string;
+  inflationAdjusted?: string;
   order?: string;
-  ia?: string;
   page?: string;
   perPage?: string;
+  search?: string;
+  sort?: string;
   type?: string;
 }
 
-export interface SchoolAggQueryArgs extends SchoolQueryArgs {
+export interface SchoolAggQueryArgs extends SchoolQueryParams {
   gbField: "state" | "sector";
   gbFunc: "sum" | "average";
 }
 
 let router = Router();
 
-router.get("/", function (req, res, next) {
-  let promise = null;
-  //todo: use typeguard
-  if (req.query.type && req.query.type != "aggregate") {
-    const query = _transformQuery(req.query);
-    promise = SchoolDataSchema.schema.statics.fetch(query);
-  } else {
-    const query = _transformAggQuery(
-      (req.query as unknown) as SchoolAggQueryArgs
-    );
-    promise = SchoolDataSchema.schema.statics.fetchAggregate(query);
-  }
-  promise
-    .then((resp: any) => {
-      res.json(resp);
-      return;
-    })
+type SchoolDataRequest<T> = Request<{ [key: string]: any }, any, any, T>;
+
+router.get("/", function (
+  req: SchoolDataRequest<SchoolQueryParams>,
+  res,
+  next
+) {
+  const query = _transformQueryParams(req.query, new SchoolDataQuery({}));
+  SchoolDataSchema.schema.statics
+    .fetchAggregate(query)
+    .then((res: any) => res.json(res))
     .catch((err: Error) => next(err));
 });
 
-function _transformQuery(args: SchoolQueryArgs): SchoolDataQuery {
-  let qc = SchoolDataQuery.createBase();
-  return _setBaseQueryArgs(args, qc);
-}
+router.get(
+  "/aggregate",
+  (req: SchoolDataRequest<SchoolAggQueryArgs>, res, next) => {
+    const query = _transformAggQueryParams(
+      req.query,
+      new SchoolDataAggQuery({})
+    );
+    SchoolDataSchema.schema.statics
+      .fetchAggregate(query)
+      .then((resp: any) => res.json(resp))
+      .catch((err: Error) => next(err));
+  }
+);
 
-function _transformAggQuery(args: SchoolAggQueryArgs): SchoolDataAggQuery {
-  let qc = SchoolDataAggQuery.createAgg();
-  let qcF = <SchoolDataAggQuery>_setBaseQueryArgs(args, qc);
+const _transformAggQueryParams = (
+  args: SchoolAggQueryArgs,
+  query: SchoolDataAggQuery
+) => {
+  let qcF = _transformQueryParams(args, query) as SchoolDataAggQuery;
   qcF.setGroupBy(args.gbField, args.gbFunc);
   return qcF;
-}
+};
 
-function _setBaseQueryArgs(
-  args: SchoolAggQueryArgs | SchoolQueryArgs,
-  qc: SchoolDataAggQuery | SchoolDataQuery
-): SchoolDataQuery | SchoolDataAggQuery {
-  const matches: any = pickBy(args, (v, k) => /^match/.test(k)),
-    matchCount = Object.values(matches).length / 2;
-  for (let i = 1; i <= matchCount; i++) {
-    qc.addMatch(
-      matches["match" + i + "var"],
-      matches["match" + i + "vals"].split(",")
-    );
+const _transformQueryParams = (
+  args: SchoolAggQueryArgs | SchoolQueryParams,
+  query: SchoolDataAggQuery | SchoolDataQuery
+) => {
+  //filters=name:gt:foo|value:eq:bar
+  if (args.filters) {
+    const filters = _getFiltersFromQueryString(args.filters);
+    Object.keys(filters).forEach((filter) => {
+      query.addFilter(filter, filters[filter]);
+    });
   }
-  if (args.qVal && args.qField) qc.setNameFilter(args.qField, args.qVal);
-  if (args.page) qc.setPage(+args.page);
-  if (args.perPage) qc.setPerPage(+args.perPage);
-  if (args.order) qc.setOrder(args.order);
-  if (args.sort) qc.setSortField(args.sort);
-  if (args.ia) qc.setInflationAdjusted(args.ia);
-  return qc;
-}
+  if (args.page) query.setPage(+args.page);
+  if (args.perPage) query.setPerPage(+args.perPage);
+  if (args.order) query.setOrder(args.order);
+  if (args.sort) query.setSortField(args.sort);
+  if (args.inflationAdjusted)
+    query.setInflationAdjusted(args.inflationAdjusted);
+  if (args.search) query.setSearchField(args.search);
+  return query;
+};
+
+const _getFiltersFromQueryString = (stringPart: string) =>
+  stringPart
+    .split("|")
+    .map((filter) => {
+      const parts = filter.split(":");
+      return {
+        field: get(parts, "[0]"),
+        comparator: get(parts, "[1]"),
+        value: get(parts, "[2]"),
+      };
+    })
+    .filter((v) => {
+      if (!v.field || !v.comparator || !v.value) {
+        return false;
+      }
+    })
+    .reduce(
+      (a, c) => ({
+        ...a,
+        ...{
+          [c.field]: {
+            comparator: c.comparator,
+            value: c.value,
+          },
+        },
+      }),
+      {} as Record<string, Filter>
+    );
 
 module.exports = router;
