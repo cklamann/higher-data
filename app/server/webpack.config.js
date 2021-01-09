@@ -5,6 +5,7 @@ module.exports = {
   resolve: {
     extensions: [".ts", ".tsx", /*for graphql*/ ".mjs", ".js", ".json"],
   },
+  devtool: "inline-source-map",
   output: {
     path: path.join(__dirname, "dist/"),
     filename: "app.js",

@@ -1,4 +1,4 @@
-import * as _ from "lodash";
+import { get } from "lodash";
 
 export interface Filter {
   comparator: "gt" | "lt" | "eq" | "in";
@@ -42,7 +42,11 @@ export class SchoolDataQuery {
   protected query: SchoolDataQueryArgs;
 
   constructor(qConfig: SchoolDataQueryArgs) {
-    this.query = qConfig;
+    this.query = {};
+    this.query.filters = {};
+    this.query.sort = { field: "_id", direction: "asc" };
+    this.query.pagination = { page: 1, perPage: 20 };
+    this.query = { ...this.query, ...qConfig };
   }
 
   public validate() {}
@@ -57,6 +61,7 @@ export class SchoolDataQuery {
 
   public getMongoFilters() {
     const { filters } = this.query;
+    if (!Object.keys(filters).length) return {} as Record<string, Filter>;
     return {
       $and: Object.keys(filters).map((filter) => {
         const operator = `$${filters[filter].comparator}`;
@@ -65,20 +70,15 @@ export class SchoolDataQuery {
     };
   }
 
-  public getPageLimit() {
-    return this.query.pagination.perPage;
-  }
-
   public getSearchField() {
     return this.query;
   }
 
   public getPageOffset() {
-    return (
-      this.query.pagination.page * this.query.pagination.perPage -
-      this.query.pagination.perPage
-    );
+    return this.getPage() * this.getPerPage() - this.getPerPage();
   }
+
+  public getPage = () => this.query.pagination.page;
 
   public getSkipArg() {
     return this.getPageOffset();

@@ -18,7 +18,7 @@ export interface SchoolQueryParams {
   type?: string;
 }
 
-export interface SchoolAggQueryArgs extends SchoolQueryParams {
+export interface SchoolAggQueryParams extends SchoolQueryParams {
   gbField: "state" | "sector";
   gbFunc: "sum" | "average";
 }
@@ -32,17 +32,17 @@ router.get("/", function (
   res,
   next
 ) {
-  const query = _transformQueryParams(req.query, new SchoolDataQuery({}));
+  const query = transformQueryParams(req.query, new SchoolDataQuery({}));
   SchoolDataSchema.schema.statics
-    .fetchAggregate(query)
-    .then((res: any) => res.json(res))
+    .fetch(query)
+    .then((resp: any) => res.json(resp))
     .catch((err: Error) => next(err));
 });
 
 router.get(
   "/aggregate",
-  (req: SchoolDataRequest<SchoolAggQueryArgs>, res, next) => {
-    const query = _transformAggQueryParams(
+  (req: SchoolDataRequest<SchoolAggQueryParams>, res, next) => {
+    const query = transformAggQueryParams(
       req.query,
       new SchoolDataAggQuery({})
     );
@@ -53,37 +53,40 @@ router.get(
   }
 );
 
-const _transformAggQueryParams = (
-  args: SchoolAggQueryArgs,
+//todo: all these have to be tested
+
+export const transformAggQueryParams = (
+  args: SchoolAggQueryParams,
   query: SchoolDataAggQuery
 ) => {
-  let qcF = _transformQueryParams(args, query) as SchoolDataAggQuery;
+  let qcF = transformQueryParams(args, query) as SchoolDataAggQuery;
   qcF.setGroupBy(args.gbField, args.gbFunc);
   return qcF;
 };
 
-const _transformQueryParams = (
-  args: SchoolAggQueryArgs | SchoolQueryParams,
-  query: SchoolDataAggQuery | SchoolDataQuery
+export const transformQueryParams = (
+  params: SchoolQueryParams | SchoolAggQueryParams,
+  query: SchoolDataQuery | SchoolDataAggQuery
 ) => {
   //filters=name:gt:foo|value:eq:bar
-  if (args.filters) {
-    const filters = _getFiltersFromQueryString(args.filters);
+  if (params.filters) {
+    const filters = getFiltersFromQueryString(params.filters);
     Object.keys(filters).forEach((filter) => {
       query.addFilter(filter, filters[filter]);
     });
   }
-  if (args.page) query.setPage(+args.page);
-  if (args.perPage) query.setPerPage(+args.perPage);
-  if (args.order) query.setOrder(args.order);
-  if (args.sort) query.setSortField(args.sort);
-  if (args.inflationAdjusted)
-    query.setInflationAdjusted(args.inflationAdjusted);
-  if (args.search) query.setSearchField(args.search);
+  if (params.page) query.setPage(+params.page);
+  if (params.perPage) query.setPerPage(+params.perPage);
+  if (params.order) query.setOrder(params.order);
+  if (params.sort) query.setSortField(params.sort);
+  if (params.inflationAdjusted)
+    query.setInflationAdjusted(params.inflationAdjusted);
+  if (params.search) query.setSearchField(params.search);
+  console.log(query);
   return query;
 };
 
-const _getFiltersFromQueryString = (stringPart: string) =>
+export const getFiltersFromQueryString = (stringPart: string) =>
   stringPart
     .split("|")
     .map((filter) => {
@@ -94,20 +97,14 @@ const _getFiltersFromQueryString = (stringPart: string) =>
         value: get(parts, "[2]"),
       };
     })
-    .filter((v) => {
-      if (!v.field || !v.comparator || !v.value) {
-        return false;
-      }
-    })
+    .filter((v) => !!v.field && !!v.comparator && !!v.value)
     .reduce(
       (a, c) => ({
-        ...a,
-        ...{
-          [c.field]: {
-            comparator: c.comparator,
-            value: c.value,
-          },
+        [c.field]: {
+          comparator: c.comparator,
+          value: c.value,
         },
+        ...a,
       }),
       {} as Record<string, Filter>
     );
