@@ -2,6 +2,4 @@
 
 ## Description
 
-This codebase is a MEAN-stack SPA that collects and visualizes publicly-available higher education data.
-
-When deployed it will enable users to generate hundreds of thousands of unique charts and tables.
+This codebase is a MEAN-stack API and SPA that collects and standardizes US higher education data from a variety of sources, enabling users to query and visualize twenty years' worth of data from over 10,000 colleges and universities. 
